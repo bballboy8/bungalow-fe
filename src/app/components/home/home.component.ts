@@ -56,39 +56,31 @@ export class HomeComponent implements AfterViewInit {
     }
   }
 
-  onSearchLocation(query: string) {
-    // Store your API key securely in the environment file
-    const apiKey = 'AIzaSyDEZGp3AaT33Tt3kuiUGT2yIYILBe70Db4';  // Ensure this is in your environment file or config
-    const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(query)}&key=${apiKey}`;
+  onSearchLocation(result: google.maps.places.PlaceResult) {
 
-    this.http.get(url).subscribe((response: any) => {
-      const result = response.results[0];  // Get the first result
-      if (result) {
-        console.log(result, 'resultresultresultresult');
-        
-        const { lat, lng } = result.geometry.location;
-        // Move the map to the searched location
-        this.map.setView([lat, lng], this.zoomLevel);
 
-        const markerIcon = L.icon({
-          iconUrl: 'assets/svg-icons/pin-location-icon.svg',  // Adjust the path if necessary
-          iconSize: [25, 41],  // Adjust the icon size
-          iconAnchor: [12, 41],
-          popupAnchor: [1, -34],
-        });
-
-        // Add a marker to the map
-        const marker = L.marker([lat, lng], { icon: markerIcon }).addTo(this.map);
-
-        // Optionally bind a popup to the marker
-        marker.bindPopup(`<b>Location:</b> ${result.formatted_address}`).openPopup();
-      } else {
-        // alert('Location not found');
+   
+    this.map.eachLayer((layer) => {
+      if (layer instanceof L.Marker) {
+        this.map.removeLayer(layer);
       }
-    }, (error) => {
-      console.error('Error fetching location:', error);
-      alert('Error fetching location');
     });
+
+    const lat = result.geometry?.location?.lat()!;
+    const lng = result.geometry?.location?.lng()!;
+    // Move the map to the searched location
+    this.map.setView([lat, lng], this.zoomLevel);
+
+    const markerIcon = L.icon({
+      iconUrl: 'assets/svg-icons/pin-location-icon.svg',  // Adjust the path if necessary
+      iconSize: [25, 41],  // Adjust the icon size
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+    });
+    // Add a marker to the map
+    const marker = L.marker([lat, lng], { icon: markerIcon }).addTo(this.map);
+    // Optionally bind a popup to the marker
+    marker.bindPopup(`<b>Location:</b> ${result.formatted_address}`).openPopup();
   }
 
   private initMap(): void {

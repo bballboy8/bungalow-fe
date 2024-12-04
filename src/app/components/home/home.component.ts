@@ -17,6 +17,7 @@ import { SidebarDrawerComponent } from '../sidebar-drawer/sidebar-drawer.compone
 import * as L from 'leaflet';
 import 'leaflet-draw';
 import 'leaflet-draw/dist/leaflet.draw.css';
+import { HttpClient } from '@angular/common/http';
 
 
 @Component({
@@ -47,12 +48,47 @@ export class HomeComponent implements AfterViewInit {
   vectorLayer!: L.LayerGroup;
   type: string = '';
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
+  constructor(@Inject(PLATFORM_ID) private platformId: Object,private http: HttpClient) {}
 
   ngAfterViewInit(): void {
     if (isPlatformBrowser(this.platformId)) {
       this.initMap();
     }
+  }
+
+  onSearchLocation(query: string) {
+    // Store your API key securely in the environment file
+    const apiKey = 'AIzaSyDEZGp3AaT33Tt3kuiUGT2yIYILBe70Db4';  // Ensure this is in your environment file or config
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(query)}&key=${apiKey}`;
+
+    this.http.get(url).subscribe((response: any) => {
+      const result = response.results[0];  // Get the first result
+      if (result) {
+        console.log(result, 'resultresultresultresult');
+        
+        const { lat, lng } = result.geometry.location;
+        // Move the map to the searched location
+        this.map.setView([lat, lng], this.zoomLevel);
+
+        const markerIcon = L.icon({
+          iconUrl: 'assets/svg-icons/pin-location-icon.svg',  // Adjust the path if necessary
+          iconSize: [25, 41],  // Adjust the icon size
+          iconAnchor: [12, 41],
+          popupAnchor: [1, -34],
+        });
+
+        // Add a marker to the map
+        const marker = L.marker([lat, lng], { icon: markerIcon }).addTo(this.map);
+
+        // Optionally bind a popup to the marker
+        marker.bindPopup(`<b>Location:</b> ${result.formatted_address}`).openPopup();
+      } else {
+        // alert('Location not found');
+      }
+    }, (error) => {
+      console.error('Error fetching location:', error);
+      alert('Error fetching location');
+    });
   }
 
   private initMap(): void {
@@ -67,12 +103,16 @@ export class HomeComponent implements AfterViewInit {
       subdomains: 'abc',
     }).addTo(this.map);
 
-    // Add ZoomSlider control
-    // L.control.zoom({ position: 'topright' }).addTo(this.map);
-
     // Initialize the drawing layer
     this.drawLayer = new L.FeatureGroup();
     this.map.addLayer(this.drawLayer);
+
+    // Initialize and add the vector layer
+    this.vectorLayer = L.layerGroup();
+    this.vectorLayer.addTo(this.map);
+
+    // Add a custom marker
+    // this.addPin([this.latitude, this.longitude], 'assets/svg-icons/pin-location-icon.svg');
 
     // Add event listener for zoom changes
     this.map.on('zoomend', () => {
@@ -86,16 +126,36 @@ export class HomeComponent implements AfterViewInit {
       this.latitude = parseFloat(coords.lat.toFixed(6));
     });
 
-    // Initialize and add the vector layer
-    this.vectorLayer = L.layerGroup();
-    this.vectorLayer.addTo(this.map);
+    // Initialize Leaflet Draw control
+    const drawControl = new L.Control.Draw({
+      edit: {
+        featureGroup: this.drawLayer,
+      },
+    });
 
-    // Add a custom marker
-    this.addPin([this.latitude, this.longitude], 'assets/svg-icons/pin-location-icon.svg');
+    // Add the drawing control to the map
+    this.map.addControl(drawControl);
 
-    // Add drawing controls
-    // this.addDrawingControls();
+    // Add event listener for when a shape is created
+    this.map.on(L.Draw.Event.CREATED, (event: any) => {
+      const layer = event.layer;
+      this.drawLayer.addLayer(layer);
+
+      // Optionally handle other types of layers, like storing the GeoJSON of the created feature
+      const geoJSON = layer.toGeoJSON();
+      console.log('GeoJSON of created feature: ', geoJSON);
+    });
   }
+
+  // private addPin(coords: [number, number], iconUrl: string): void {
+  //   const customIcon = L.icon({
+  //     iconUrl,
+  //     iconSize: [25, 41],
+  //     iconAnchor: [12, 41],
+  //   });
+
+  //   L.marker(coords, { icon: customIcon }).addTo(this.map);
+  // }
 
   private addPin(coords: [number, number], iconUrl: string): void {
     const customIcon = L.icon({

@@ -32,7 +32,9 @@
                 "output": "leaflet/"
               },
               "src/favicon.ico",
-              "src/assets"
+              "src/assets",
+              "node_modules/leaflet/dist/images",
+              "node_modules/leaflet-draw/dist/images"
             ],
             "styles": [
               "src/styles.scss",
@@ -103,7 +105,9 @@
                 "output": "leaflet/"
               },
               "src/favicon.ico",
-              "src/assets"
+              "src/assets",
+              "node_modules/leaflet/dist/images",
+              "node_modules/leaflet-draw/dist/images"
             ],
             "styles": [
               "src/styles.scss",

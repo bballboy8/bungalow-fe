@@ -16,6 +16,7 @@ import { HeaderComponent } from '../header/header.component';
 import { SidebarDrawerComponent } from '../sidebar-drawer/sidebar-drawer.component';
 import * as L from 'leaflet';
 import 'leaflet-draw';
+import { SatelliteService } from '../../services/satellite.service';
 // import 'leaflet-draw/dist/leaflet.draw.css';
 
 
@@ -58,7 +59,7 @@ export class HomeComponent implements AfterViewInit {
   private currentAction: string | null = null; // Tracks the current active action
   private userMarker: L.Marker | null = null; // Store the user marker reference
   private activeDrawTool: L.Draw.Polyline | L.Draw.Polygon | null = null; // Track active drawing tool
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
+  constructor(@Inject(PLATFORM_ID) private platformId: Object,private satelliteService:SatelliteService) {}
 
   ngAfterViewInit(): void {
     if (isPlatformBrowser(this.platformId)) {
@@ -255,6 +256,10 @@ export class HomeComponent implements AfterViewInit {
         if (event.layerType === 'polygon') {
           const coordinates = (layer as L.Polygon).getLatLngs();
           console.log('Polygon Coordinates:', coordinates);
+          const geoJSON = layer.toGeoJSON();
+          const bounds = (layer as L.Polygon).getBounds();
+          // this.showSatelliteWithinPolygon(bounds);
+          this.callApi({geometry:geoJSON?.geometry},bounds);
         } else if (event.layerType === 'circle') {
           const center = (layer as L.Circle).getLatLng();
           const radius = (layer as L.Circle).getRadius();
@@ -271,6 +276,81 @@ export class HomeComponent implements AfterViewInit {
     } else {
       console.error("Invalid draw type specified.");
     }
+  }
+
+  showSatelliteWithinPolygon(bounds: L.LatLngBounds): void {
+    // Define the satellite image URL (or any other map layer)
+    const satelliteImageUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+  
+    // Create an image overlay based on the bounds of the polygon
+    const imageBounds = bounds; // This is the bounding box of the polygon
+    const satelliteLayer = L.imageOverlay(satelliteImageUrl, imageBounds, {
+      attribution: 'Tiles &copy; Esri &mdash; Source: Esri, USGS, NOAA',
+      opacity: 0.6, // Set the opacity as needed
+    });
+  
+    // Add the satellite layer within the polygon bounds
+    satelliteLayer.addTo(this.map);
+  }
+
+  callApi(payload:{geometry:{type:string,coordinates:any[]}},bound:any) {
+    this.satelliteService.getPolyGonData(payload).subscribe({
+      next: (resp) => {
+        console.log("resp: ", resp?.data);
+        this.getDataUsingPolygon(resp?.data);
+      },
+      error: (err) => {
+        console.log("err: ", err);
+      },
+    });
+  }
+
+  getDataUsingPolygon(payload:any) {
+    this.satelliteService.getDataFromPolygon(payload).subscribe({
+      next: (resp) => {
+        console.log("resp in new : ", resp);
+
+        if (Array.isArray(resp)) {
+          resp.forEach((item) => {
+            this.addCatalogMarker(item);
+          });
+        }
+      },
+      error: (err) => {
+        console.log("err getPolyGonData: ", err);
+      }
+    });
+  }
+
+  addCatalogMarker(catalogItem: any): void {
+    const { latitude, longitude, vendor_name, type, resolution } = catalogItem;
+  
+    // Ensure valid geographic data exists
+    if (!latitude || !longitude) {
+      console.warn("Invalid catalog item, missing coordinates:", catalogItem);
+      return;
+    }
+  
+    // Create a marker or another layer type (like a circle)
+    const marker = L.marker([latitude, longitude], {
+      icon: L.icon({
+        iconUrl: 'assets/svg-icons/satellite-icon.svg', // Customize icon if needed
+        iconSize: [25, 25], // Adjust size
+        iconAnchor: [12, 25], // Anchor point
+      }),
+    });
+  
+    // Bind a popup to display catalog details
+    marker.bindPopup(`
+      <div>
+        <strong>Vendor:</strong> ${vendor_name}<br>
+        <strong>Type:</strong> ${type}<br>
+        <strong>Resolution:</strong> ${resolution}<br>
+      </div>
+    `);
+  
+    // Add marker to the map or a specific layer group
+    this.vectorLayer.addLayer(marker);
   }
   
 

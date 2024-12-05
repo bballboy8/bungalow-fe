@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import {MatSelectModule} from '@angular/material/select';
 import { MatDialog } from '@angular/material/dialog';
 import {MatSliderModule} from '@angular/material/slider';
 import { DatepickerDailogComponent } from '../../dailogs/datepicker-dailog/datepicker-dailog.component';
 import dayjs from 'dayjs';
+import {MatSnackBar} from '@angular/material/snack-bar';
 @Component({
   selector: 'app-footer',
   standalone: true,
@@ -29,10 +30,18 @@ export class FooterComponent {
   startDate:any
   endDate:any;
   currentUtcTime:any;
+  private _snackBar = inject(MatSnackBar);
   constructor(private dialog: MatDialog){}
 
   toggleDropdown() {
-    this.isDropdownOpen = !this.isDropdownOpen;
+    if(this.startDate && this.endDate){
+      this.isDropdownOpen = !this.isDropdownOpen;
+    } else {
+      this._snackBar.open('Please first select date range.', 'Ok', {
+        duration: 2000  // Snackbar will disappear after 300 milliseconds
+      });
+    }
+    
   }
   
   selectOption(option:any) {

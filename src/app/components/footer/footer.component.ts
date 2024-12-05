@@ -26,8 +26,9 @@ export class FooterComponent {
   @Input()longitude:any;
   @Input()latitude:any;
   @Input()zoomLevel:any;
-  startDate:Date = new Date();
-  endDate:Date = new Date();
+  startDate:any
+  endDate:any;
+  currentUtcTime:any;
   constructor(private dialog: MatDialog){}
 
   toggleDropdown() {
@@ -51,6 +52,7 @@ export class FooterComponent {
         console.log('Selected date range:', result);
         this.startDate = result.startDate;
         this.endDate  = result.endDate;
+        this.currentUtcTime = result.currentUtcTime;
         // Do something with the result
         // For example: this.startDate = result.startDate; this.endDate = result.endDate;
 
@@ -67,6 +69,23 @@ export class FooterComponent {
   getFormattedDate(date: Date): string {
     return dayjs(date).format('MM.DD.YYYY');
   }
+   formatUtcTime(payload: string | Date): string {
+    // If payload is a string, convert it to Date first
+    const date = new Date(payload);
+  
+    // Check if the date is valid
+    if (isNaN(date.getTime())) {
+      throw new Error('Invalid date passed');
+    }
+  
+    // Get the UTC hours and minutes
+    const hours = date.getUTCHours().toString().padStart(2, '0');
+    const minutes = date.getUTCMinutes().toString().padStart(2, '0');
+  
+    // Return formatted time in "HH:mm UTC" format
+    return `${hours}:${minutes} UTC`;
+  }
+  
 }
 
 

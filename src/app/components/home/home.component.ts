@@ -16,8 +16,7 @@ import { HeaderComponent } from '../header/header.component';
 import { SidebarDrawerComponent } from '../sidebar-drawer/sidebar-drawer.component';
 import * as L from 'leaflet';
 import 'leaflet-draw';
-import 'leaflet-draw/dist/leaflet.draw.css';
-import { HttpClient } from '@angular/common/http';
+// import 'leaflet-draw/dist/leaflet.draw.css';
 
 
 @Component({
@@ -59,7 +58,7 @@ export class HomeComponent implements AfterViewInit {
   private currentAction: string | null = null; // Tracks the current active action
   private userMarker: L.Marker | null = null; // Store the user marker reference
   private activeDrawTool: L.Draw.Polyline | L.Draw.Polygon | null = null; // Track active drawing tool
-  constructor(@Inject(PLATFORM_ID) private platformId: Object,private http: HttpClient) {}
+  constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
 
   ngAfterViewInit(): void {
     if (isPlatformBrowser(this.platformId)) {

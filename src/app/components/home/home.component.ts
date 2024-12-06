@@ -270,8 +270,7 @@ export class HomeComponent implements AfterViewInit {
           console.log('Polygon Coordinates:', coordinates);
           const geoJSON = layer.toGeoJSON();
           const bounds = (layer as L.Polygon).getBounds();
-          // this.showSatelliteWithinPolygon(bounds);
-          this.callApi({geometry:geoJSON?.geometry},bounds);
+          this.getPolygonFromCoordinates({geometry:geoJSON?.geometry},bounds);
         } else if (event.layerType === 'circle') {
           const center = (layer as L.Circle).getLatLng();
           const radius = (layer as L.Circle).getRadius();
@@ -280,6 +279,8 @@ export class HomeComponent implements AfterViewInit {
         } else if (event.layerType === 'rectangle') {
           const bounds = (layer as L.Rectangle).getBounds();
           console.log('Rectangle Bounds:', bounds);
+          const geoJSON = layer.toGeoJSON();
+          this.getPolygonFromCoordinates({geometry:geoJSON?.geometry},bounds);
         }
   
         // Disable the draw handler after the shape is created
@@ -305,15 +306,13 @@ export class HomeComponent implements AfterViewInit {
     satelliteLayer.addTo(this.map);
   }
 
-  callApi(payload:{geometry:{type:string,coordinates:any[]}},bound:any) {
+  getPolygonFromCoordinates(payload:{geometry:{type:string,coordinates:any[]}},bound:any) {
     this.satelliteService.getPolyGonData(payload).subscribe({
       next: (resp) => {
         console.log("resp: ", resp?.data);
         if(resp?.data?.area>=100000000){
           this.openSnackbar("Select a smaller polygon");
         }else this.getDataUsingPolygon(resp?.data);
-
-        // this.getDataUsingPolygon(resp?.data);
       },
       error: (err) => {
         console.log("err: ", err);

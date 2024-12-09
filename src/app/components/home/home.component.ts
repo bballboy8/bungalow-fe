@@ -505,10 +505,7 @@ handleAction(action: string): void {
   private locateUser(): void {
     
     // Check if geolocation is available (this part remains unchanged)
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
+
     
         // No zoom adjustment here, we leave the zoom level unchanged
         // this.map.setView([lat, lng], 5, { animate: true });
@@ -529,10 +526,7 @@ handleAction(action: string): void {
           // Bind a popup to the marker that appears when clicked
           newMarker.bindPopup('You clicked here!').openPopup();
         });
-      });
-    } else {
-      alert('Geolocation is not supported by your browser.');
-    }
+    
   }
   
   

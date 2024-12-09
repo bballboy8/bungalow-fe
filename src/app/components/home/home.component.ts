@@ -47,6 +47,7 @@ export class HomeComponent implements AfterViewInit {
   zoomLevel: number = 2;
   longitude: number = -90;
   latitude: number = 40;
+  parentZoomLevel: number = 2
   drawLayer!: L.FeatureGroup;
   extraShapesLayer!: L.FeatureGroup;
   vectorLayer!: L.LayerGroup;
@@ -129,6 +130,8 @@ export class HomeComponent implements AfterViewInit {
 
     // Add event listener for zoom changes
     this.map.on('zoomend', () => {
+      console.log('hhhhhhhhhhhhhh');
+      
       this.zoomLevel = this.map.getZoom();
     });
 
@@ -169,7 +172,7 @@ export class HomeComponent implements AfterViewInit {
           
   
           // Center and zoom to user's location
-          this.map.setView([lat, lng], 10, { animate: true });
+          this.map.setView([lat, lng], 2, { animate: true });
         }
       )}
   }
@@ -208,6 +211,13 @@ export class HomeComponent implements AfterViewInit {
     if (currentZoom > this.map.getMinZoom()) {
       this.map.setZoom(currentZoom - 1);
     }
+  }
+
+  //Map zoom level setting through slider
+  onZoomLevelChange(newZoomLevel: number): void {
+    this.parentZoomLevel = newZoomLevel;
+    console.log('Zoom level updated in parent:', this.parentZoomLevel);
+    this.map.setZoom(this.parentZoomLevel);
   }
 
   //angular drawer toggle function
@@ -484,7 +494,7 @@ handleAction(action: string): void {
         const originalMaxZoom = this.map.options.maxZoom;
         this.map.options.maxZoom = 15;
   
-        this.map.setView([lat, lng], 15, { animate: true });
+        this.map.setView([lat, lng], 5, { animate: true });
   
         // Add user marker and track it
         if (this.userMarker) {
@@ -498,7 +508,7 @@ handleAction(action: string): void {
           }),
         }).addTo(this.map);
   
-        this.userMarker.bindPopup('You are here!').openPopup();
+        // this.userMarker.bindPopup('You are here!').openPopup();
   
         setTimeout(() => {
           this.map.options.maxZoom = originalMaxZoom;
@@ -515,34 +525,51 @@ handleAction(action: string): void {
   // Enable drawing mode for polygons or lines
   private enableDrawing(shape: string): void {
     let drawTool: L.Draw.Polyline | L.Draw.Polygon;
-
+  
+    // Clear existing shapes before enabling the drawing tool
+    this.drawLayer.clearLayers();
+  
     if (shape === 'polygon') {
-      drawTool = new L.Draw.Polygon(this.map as L.DrawMap, { // Cast map to L.DrawMap type
+      drawTool = new L.Draw.Polygon(this.map as L.DrawMap, {
         shapeOptions: {
           color: '#ff7800',
           weight: 4,
         },
       });
     } else if (shape === 'line') {
-      drawTool = new L.Draw.Polyline(this.map as L.DrawMap, { // Cast map to L.DrawMap type
+      drawTool = new L.Draw.Polyline(this.map as L.DrawMap, {
         shapeOptions: {
           color: '#1f78b4',
           weight: 4,
         },
+        // Restricting line to only two points
+        maxPoints: 2,
       });
     } else {
       console.error('Invalid shape type');
       return;
     }
-
+  
     drawTool.enable();
-
+  
+    // Listen to the created event
     this.map.on(L.Draw.Event.CREATED, (event: any) => {
       const layer = event.layer;
-      this.drawLayer.addLayer(layer);
-      alert(`${shape.charAt(0).toUpperCase() + shape.slice(1)} drawn successfully!`);
+  
+      // Check if it's a line with only two points
+      if (shape === 'line' && layer instanceof L.Polyline) {
+        const latlngs = layer.getLatLngs();
+        if (latlngs.length === 2) {
+          console.log('Line drawn successfully between two points:', latlngs);
+          this.drawLayer.addLayer(layer);
+        }
+      } else if (shape === 'polygon') {
+        this.drawLayer.addLayer(layer);
+      }
     });
   }
+  
+  
 
   // Toggle zoom controls on the map
   private toggleZoomControl(): void {

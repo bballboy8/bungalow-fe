@@ -1,6 +1,6 @@
 <div class="h-full">
     @if (type=='library') {  <div>
-        <app-library></app-library>
+        <app-library (closeDrawer)="closeDrawer($event)"></app-library>
     </div>
 }
 </div>

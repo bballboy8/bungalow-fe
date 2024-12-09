@@ -5,6 +5,7 @@ import {
   ViewChild,
   Inject,
   PLATFORM_ID,
+  inject,
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -18,6 +19,8 @@ import * as L from 'leaflet';
 import 'leaflet-draw';
 import { SatelliteService } from '../../services/satellite.service';
 // import 'leaflet-draw/dist/leaflet.draw.css';
+import { MatSnackBar } from '@angular/material/snack-bar';
+(window as any).type = undefined;
 
 
 @Component({
@@ -45,10 +48,12 @@ export class HomeComponent implements AfterViewInit {
   longitude: number = -90;
   latitude: number = 40;
   drawLayer!: L.FeatureGroup;
+  extraShapesLayer!: L.FeatureGroup;
   vectorLayer!: L.LayerGroup;
   type: string = '';
   private zoomControlEnabled = false;
   private isDarkMode = true;
+  private _snackBar = inject(MatSnackBar);
 
   private darkLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
     subdomains: 'abc',
@@ -112,6 +117,7 @@ export class HomeComponent implements AfterViewInit {
     this.darkLayer.addTo(this.map);
     // Initialize the drawing layer
     this.drawLayer = new L.FeatureGroup();
+    this.extraShapesLayer = L.featureGroup().addTo(this.map);
     this.map.addLayer(this.drawLayer);
 
     // Initialize and add the vector layer
@@ -218,6 +224,12 @@ export class HomeComponent implements AfterViewInit {
     // Remove any existing event listeners or drawing layers
     this.map.off(L.Draw.Event.CREATED);
   
+    // Clear any existing shapes from the map
+    if (this.drawLayer) {
+      this.drawLayer.clearLayers();
+      this.clearExtraShapes();
+    }
+    
     // Define options for the specific shape type
     let drawHandler: any;
   
@@ -258,8 +270,7 @@ export class HomeComponent implements AfterViewInit {
           console.log('Polygon Coordinates:', coordinates);
           const geoJSON = layer.toGeoJSON();
           const bounds = (layer as L.Polygon).getBounds();
-          // this.showSatelliteWithinPolygon(bounds);
-          this.callApi({geometry:geoJSON?.geometry},bounds);
+          this.getPolygonFromCoordinates({geometry:geoJSON?.geometry},bounds);
         } else if (event.layerType === 'circle') {
           const center = (layer as L.Circle).getLatLng();
           const radius = (layer as L.Circle).getRadius();
@@ -268,6 +279,8 @@ export class HomeComponent implements AfterViewInit {
         } else if (event.layerType === 'rectangle') {
           const bounds = (layer as L.Rectangle).getBounds();
           console.log('Rectangle Bounds:', bounds);
+          const geoJSON = layer.toGeoJSON();
+          this.getPolygonFromCoordinates({geometry:geoJSON?.geometry},bounds);
         }
   
         // Disable the draw handler after the shape is created
@@ -293,11 +306,13 @@ export class HomeComponent implements AfterViewInit {
     satelliteLayer.addTo(this.map);
   }
 
-  callApi(payload:{geometry:{type:string,coordinates:any[]}},bound:any) {
+  getPolygonFromCoordinates(payload:{geometry:{type:string,coordinates:any[]}},bound:any) {
     this.satelliteService.getPolyGonData(payload).subscribe({
       next: (resp) => {
         console.log("resp: ", resp?.data);
-        this.getDataUsingPolygon(resp?.data);
+        if(resp?.data?.area>=100000000){
+          this.openSnackbar("Select a smaller polygon");
+        }else this.getDataUsingPolygon(resp?.data);
       },
       error: (err) => {
         console.log("err: ", err);
@@ -305,22 +320,53 @@ export class HomeComponent implements AfterViewInit {
     });
   }
 
-  getDataUsingPolygon(payload:any) {
+
+
+  getDataUsingPolygon(payload: any) {
     this.satelliteService.getDataFromPolygon(payload).subscribe({
       next: (resp) => {
-        console.log("resp in new : ", resp);
-
-        if (Array.isArray(resp)) {
-          resp.forEach((item) => {
-            this.addCatalogMarker(item);
+        if (Array.isArray(resp?.data)) {
+          resp.data.forEach((item:any) => {
+            this.addPolygonWithMetadata(item);
           });
         }
       },
       error: (err) => {
         console.log("err getPolyGonData: ", err);
-      }
+      },
     });
   }
+
+  // Function to add the polygon and its metadata
+  private addPolygonWithMetadata(data: any): void {
+
+    const polygonCoordinates = data.coordinates_record.coordinates[0]; // Access the first array of coordinates
+
+    // Convert [lng, lat] to [lat, lng] (Leaflet requires [lat, lng] format)
+    const latLngs = polygonCoordinates.map((coord: [number, number]) => [
+      coord[1],
+      coord[0],
+    ]);
+
+    // Add the polygon to the map
+    const polygon = L.polygon(latLngs, {
+      color: "#eff24d", // Border color
+      fillColor: "#eff24d", // Fill color
+      fillOpacity: 0.1, // Fill opacity
+    }).addTo(this.map);
+    this.extraShapesLayer?.addLayer(polygon);  
+  }
+
+  private clearExtraShapes(): void {
+    this.extraShapesLayer?.clearLayers();
+  }
+
+  private openSnackbar(message:string){
+    this._snackBar.open(message, 'Ok', {
+      duration: 4000  // Snackbar will disappear after 300 milliseconds
+    });
+  }
+
 
   addCatalogMarker(catalogItem: any): void {
     const { latitude, longitude, vendor_name, type, resolution } = catalogItem;

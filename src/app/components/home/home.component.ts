@@ -62,7 +62,7 @@ export class HomeComponent implements AfterViewInit {
   private lightLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     subdomains: 'abc',
   });
-  private currentAction: string | null = null; // Tracks the current active action
+   currentAction: string | null = null; // Tracks the current active action
   private userMarker: L.Marker | null = null; // Store the user marker reference
   private activeDrawTool: L.Draw.Polyline | L.Draw.Polygon | null = null; // Track active drawing tool
   constructor(@Inject(PLATFORM_ID) private platformId: Object,private satelliteService:SatelliteService) {}
@@ -103,65 +103,66 @@ export class HomeComponent implements AfterViewInit {
 
   //openstreetmap initialization
   private initMap(): void {
-      this.map = L.map(this.mapContainer.nativeElement, {
-        center: [this.latitude, this.longitude],
-        zoom: this.zoomLevel,
-        zoomControl: false,
-        minZoom: 2, // Set minimum zoom level
+    this.map = L.map(this.mapContainer.nativeElement, {
+      center: [this.latitude, this.longitude],
+      zoom: this.zoomLevel,
+      zoomControl: false,
+      minZoom: 2, // Set minimum zoom level
       maxZoom: 10, // Set maximum zoom level
-      });
-
+      scrollWheelZoom: true, // Optionally allow zooming by scrolling
+    });
+  
+    // Set the bounds for the map to restrict panning and zooming
+    const bounds: L.LatLngBoundsLiteral = [
+      [-90, -180], // South-west corner (latitude, longitude)
+      [90, 180],   // North-east corner (latitude, longitude)
+    ];
+  
+    // Set the max bounds for the map
+    this.map.setMaxBounds(bounds);
+    
+    // Optional: Prevent zooming out beyond a certain level
+    this.map.on('zoomend', () => {
+      if (this.map.getZoom() < 2) {
+        this.map.setZoom(2);
+      }
+    });
+  
     // Add Tile Layer (Dark mode basemap)
-    // L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-    //   subdomains: 'abc',
-    // }).addTo(this.map);
     this.darkLayer.addTo(this.map);
+  
     // Initialize the drawing layer
     this.drawLayer = new L.FeatureGroup();
     this.extraShapesLayer = L.featureGroup().addTo(this.map);
     this.map.addLayer(this.drawLayer);
-
+  
     // Initialize and add the vector layer
     this.vectorLayer = L.layerGroup();
     this.vectorLayer.addTo(this.map);
-
-    // Add a custom marker
-    // this.addPin([this.latitude, this.longitude], 'assets/svg-icons/pin-location-icon.svg');
-
+  
     // Add event listener for zoom changes
     this.map.on('zoomend', () => {
-      console.log('hhhhhhhhhhhhhh');
-      
+      console.log('Zoom changed');
       this.zoomLevel = this.map.getZoom();
     });
-
+  
     // Add event listener for mouse movement to track coordinates
     this.map.on('mousemove', (event: L.LeafletMouseEvent) => {
       const coords = event.latlng;
       this.longitude = parseFloat(coords.lng.toFixed(6));
       this.latitude = parseFloat(coords.lat.toFixed(6));
     });
-
-    // Initialize Leaflet Draw control
-    // const drawControl = new L.Control.Draw({
-    //   edit: {
-    //     featureGroup: this.drawLayer,
-    //   },
-    // });
-
-    // // Add the drawing control to the map
-    // this.map.addControl(drawControl);
-
+  
     // Add event listener for when a shape is created
     this.map.on(L.Draw.Event.CREATED, (event: any) => {
       const layer = event.layer;
       this.drawLayer.addLayer(layer);
-
+  
       // Optionally handle other types of layers, like storing the GeoJSON of the created feature
       const geoJSON = layer.toGeoJSON();
       console.log('GeoJSON of created feature: ', geoJSON);
     });
-
+  
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -169,13 +170,12 @@ export class HomeComponent implements AfterViewInit {
           const lng = position.coords.longitude;
   
           // Temporarily allow zooming to user location
-          
-  
-          // Center and zoom to user's location
           this.map.setView([lat, lng], 2, { animate: true });
         }
-      )}
+      );
+    }
   }
+  
 
   // private addPin(coords: [number, number], iconUrl: string): void {
   //   const customIcon = L.icon({
@@ -524,50 +524,56 @@ handleAction(action: string): void {
 
   // Enable drawing mode for polygons or lines
   private enableDrawing(shape: string): void {
-    let drawTool: L.Draw.Polyline | L.Draw.Polygon;
-  
     // Clear existing shapes before enabling the drawing tool
     this.drawLayer.clearLayers();
   
+    let drawTool: L.Draw.Polyline | L.Draw.Polygon;
+
+    // Create the appropriate drawing tool based on the selected shape
     if (shape === 'polygon') {
-      drawTool = new L.Draw.Polygon(this.map as L.DrawMap, {
-        shapeOptions: {
-          color: '#ff7800',
-          weight: 4,
-        },
-      });
+        drawTool = new L.Draw.Polygon(this.map as L.DrawMap, {
+            shapeOptions: {
+                color: '#ff7800',
+                weight: 4,
+            },
+        });
     } else if (shape === 'line') {
-      drawTool = new L.Draw.Polyline(this.map as L.DrawMap, {
-        shapeOptions: {
-          color: '#1f78b4',
-          weight: 4,
-        },
-        // Restricting line to only two points
-        maxPoints: 2,
-      });
+        drawTool = new L.Draw.Polyline(this.map as L.DrawMap, {
+            shapeOptions: {
+                color: '#1f78b4',
+                weight: 4,
+            },
+            // Restricting line to only two points
+            maxPoints: 2,
+        });
     } else {
-      console.error('Invalid shape type');
-      return;
+        console.error('Invalid shape type');
+        return;
     }
-  
+
+    // Enable the drawing tool
     drawTool.enable();
-  
+
+    // Store the active drawing tool
+    this.activeDrawTool = drawTool;
+
     // Listen to the created event
     this.map.on(L.Draw.Event.CREATED, (event: any) => {
-      const layer = event.layer;
-  
-      // Check if it's a line with only two points
-      if (shape === 'line' && layer instanceof L.Polyline) {
-        const latlngs = layer.getLatLngs();
-        if (latlngs.length === 2) {
-          console.log('Line drawn successfully between two points:', latlngs);
-          this.drawLayer.addLayer(layer);
+        const layer = event.layer;
+
+        // Handle the created shapes
+        if (shape === 'line' && layer instanceof L.Polyline) {
+            const latlngs = layer.getLatLngs();
+            if (latlngs.length === 2) {
+                console.log('Line drawn successfully between two points:', latlngs);
+                this.drawLayer.addLayer(layer);
+            }
+        } else if (shape === 'polygon') {
+            this.drawLayer.addLayer(layer);
         }
-      } else if (shape === 'polygon') {
-        this.drawLayer.addLayer(layer);
-      }
     });
-  }
+}
+
   
   
 
@@ -620,11 +626,15 @@ handleAction(action: string): void {
   }
   
   private disableDrawing(): void {
+    console.log(this.activeDrawTool, 'Disabling drawing tool');
+
+    // Check if a drawing tool is currently active
     if (this.activeDrawTool) {
-      this.activeDrawTool.disable(); // Disable the active drawing tool
-      this.activeDrawTool = null; // Reset the reference
+        // Disable the active drawing tool
+        this.activeDrawTool.disable();
+        this.activeDrawTool = null;  // Clear the reference to the active tool
     }
-  }
+}
 
 
 private clearUserMarker(): void {

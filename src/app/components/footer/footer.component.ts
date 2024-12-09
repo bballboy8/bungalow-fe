@@ -40,13 +40,8 @@ export class FooterComponent {
 
 
   toggleDropdown() {
-    if(this.startDate && this.endDate){
+    
       this.isDropdownOpen = !this.isDropdownOpen;
-    } else {
-      this._snackBar.open('Please first select date range.', 'Ok', {
-        duration: 2000  // Snackbar will disappear after 300 milliseconds
-      });
-    }
     
   }
   

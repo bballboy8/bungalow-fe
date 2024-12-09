@@ -55,7 +55,8 @@ export class HomeComponent implements AfterViewInit {
   private zoomControlEnabled = false;
   private isDarkMode = true;
   private _snackBar = inject(MatSnackBar);
-
+  private drawHandler: any = null; // Declare drawHandler
+  private markerHandler: any;
   private darkLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
     subdomains: 'abc',
   });
@@ -228,12 +229,17 @@ export class HomeComponent implements AfterViewInit {
   }
 
   //map shape drawing function
-  setDrawType(type: 'Polygon' | 'Circle' | 'Box'): void {
+  setDrawType(type: any): void {
     console.log("Selected Draw Type:", type);
-  
+    this.currentAction = null
+    this.map.off('click')
     // Remove any existing event listeners or drawing layers
     this.map.off(L.Draw.Event.CREATED);
-  
+    if (this.markerHandler) {
+      this.markerHandler.disable();  // Disable the marker tool
+      console.log("Marker tool has been disabled.");
+    }
+
     // Clear any existing shapes from the map
     if (this.drawLayer) {
       this.drawLayer.clearLayers();
@@ -275,18 +281,19 @@ export class HomeComponent implements AfterViewInit {
   
         console.log("Drawn Layer Type:", event.layerType);
   
-        if (event.layerType === 'polygon') {
+        if (event.layerType === 'polygon' && type === 'Polygon') {
           const coordinates = (layer as L.Polygon).getLatLngs();
-          console.log('Polygon Coordinates:', coordinates);
+          console.log('Polygon Coordinates:', type);
           const geoJSON = layer.toGeoJSON();
           const bounds = (layer as L.Polygon).getBounds();
+          
           this.getPolygonFromCoordinates({geometry:geoJSON?.geometry},bounds);
-        } else if (event.layerType === 'circle') {
+        } else if (event.layerType === 'circle' && type ==='Circle') {
           const center = (layer as L.Circle).getLatLng();
           const radius = (layer as L.Circle).getRadius();
           console.log('Circle Center:', center);
           console.log('Circle Radius:', radius);
-        } else if (event.layerType === 'rectangle') {
+        } else if (event.layerType === 'rectangle' && type === 'Box') {
           const bounds = (layer as L.Rectangle).getBounds();
           console.log('Rectangle Bounds:', bounds);
           const geoJSON = layer.toGeoJSON();
@@ -295,7 +302,9 @@ export class HomeComponent implements AfterViewInit {
   
         // Disable the draw handler after the shape is created
         drawHandler.disable();
+        type= null
       });
+      this.drawHandler = drawHandler;
     } else {
       console.error("Invalid draw type specified.");
     }
@@ -448,6 +457,14 @@ export class HomeComponent implements AfterViewInit {
 
 // Handle user actions with toggle and cleanup
 handleAction(action: string): void {
+  this.drawLayer.clearLayers();
+  if (this.drawHandler && this.drawHandler.enabled()) {
+    this.drawHandler.disable(); // Disable the drawing tool
+    if (this.drawLayer) {
+      this.drawLayer.clearLayers(); // Clear any drawn shapes
+      this.clearExtraShapes();
+    }
+  }
   if (this.currentAction === action) {
     this.deactivateAction(action); // Deactivate the same action if already active
     this.currentAction = null;
@@ -486,38 +503,39 @@ handleAction(action: string): void {
 
   // Locate user and center the map on their location
   private locateUser(): void {
+    
+    // Check if geolocation is available (this part remains unchanged)
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((position) => {
         const lat = position.coords.latitude;
         const lng = position.coords.longitude;
+    
+        // No zoom adjustment here, we leave the zoom level unchanged
+        // this.map.setView([lat, lng], 5, { animate: true });
+    
+        // Add a click event listener to the map
+        this.map.on('click', (event) => {
+          const clickLat = event.latlng.lat;
+          const clickLng = event.latlng.lng;
+    
+          // Add a new marker at the clicked location
+          const newMarker = L.marker([clickLat, clickLng], {
+            icon: L.icon({
+              iconUrl: 'assets/svg-icons/pin-location-icon.svg',
+              iconSize: [21, 26],
+            }),
+          }).addTo(this.map);
   
-        const originalMaxZoom = this.map.options.maxZoom;
-        this.map.options.maxZoom = 15;
-  
-        this.map.setView([lat, lng], 5, { animate: true });
-  
-        // Add user marker and track it
-        if (this.userMarker) {
-          this.map.removeLayer(this.userMarker); // Remove existing marker if any
-        }
-  
-        this.userMarker = L.marker([lat, lng], {
-          icon: L.icon({
-            iconUrl: 'assets/svg-icons/location-icon.svg',
-            iconSize: [32, 32],
-          }),
-        }).addTo(this.map);
-  
-        // this.userMarker.bindPopup('You are here!').openPopup();
-  
-        setTimeout(() => {
-          this.map.options.maxZoom = originalMaxZoom;
-        }, 2000);
+          // Bind a popup to the marker that appears when clicked
+          newMarker.bindPopup('You clicked here!').openPopup();
+        });
       });
     } else {
       alert('Geolocation is not supported by your browser.');
     }
   }
+  
+  
   
   
   
@@ -605,6 +623,7 @@ handleAction(action: string): void {
     this.isDarkMode = !this.isDarkMode;
   }
 
+  //Deactivating map actions
   private deactivateAction(action: string): void {
     switch (action) {
       case 'location':
@@ -625,6 +644,7 @@ handleAction(action: string): void {
     }
   }
   
+  //Disable map drawings control
   private disableDrawing(): void {
     console.log(this.activeDrawTool, 'Disabling drawing tool');
 
@@ -637,7 +657,9 @@ handleAction(action: string): void {
 }
 
 
+//Clear map location marker action
 private clearUserMarker(): void {
+  this.map.off('click')
   if (this.userMarker) {
     this.map.removeLayer(this.userMarker); // Remove the marker from the map
     this.userMarker = null; // Reset the reference

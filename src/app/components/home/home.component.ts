@@ -20,6 +20,9 @@ import 'leaflet-draw';
 import { SatelliteService } from '../../services/satellite.service';
 // import 'leaflet-draw/dist/leaflet.draw.css';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MapControllersPopupComponent } from '../../dailogs/map-controllers-popup/map-controllers-popup.component';
+import { MatDialog } from '@angular/material/dialog';
+import { HttpClient } from '@angular/common/http';
 (window as any).type = undefined;
 
 
@@ -66,7 +69,11 @@ export class HomeComponent implements AfterViewInit {
    currentAction: string | null = null; // Tracks the current active action
   private userMarker: L.Marker | null = null; // Store the user marker reference
   private activeDrawTool: L.Draw.Polyline | L.Draw.Polygon | null = null; // Track active drawing tool
-  constructor(@Inject(PLATFORM_ID) private platformId: Object,private satelliteService:SatelliteService) {}
+  constructor(@Inject(PLATFORM_ID) private platformId: Object,
+   private satelliteService:SatelliteService,private dialog: MatDialog,
+   private http: HttpClient,
+  )
+  {}
 
   ngAfterViewInit(): void {
     if (isPlatformBrowser(this.platformId)) {
@@ -503,35 +510,101 @@ handleAction(action: string): void {
 
   // Locate user and center the map on their location
   private locateUser(): void {
-    
-    // Check if geolocation is available (this part remains unchanged)
-
-    
-        // No zoom adjustment here, we leave the zoom level unchanged
-        // this.map.setView([lat, lng], 5, { animate: true });
-    
-        // Add a click event listener to the map
-        this.map.on('click', (event) => {
-          const clickLat = event.latlng.lat;
-          const clickLng = event.latlng.lng;
-    
-          // Add a new marker at the clicked location
-          const newMarker = L.marker([clickLat, clickLng], {
-            icon: L.icon({
-              iconUrl: 'assets/svg-icons/pin-location-icon.svg',
-              iconSize: [21, 26],
-            }),
-          }).addTo(this.map);
+    this.map.on('click', (event) => {
+      const clickLat = event.latlng.lat;
+      const clickLng = event.latlng.lng;
   
-          // Bind a popup to the marker that appears when clicked
-          newMarker.bindPopup('You clicked here!').openPopup();
+      // Add a new marker at the clicked location
+      const newMarker = L.marker([clickLat, clickLng], {
+        icon: L.icon({
+          iconUrl: 'assets/svg-icons/pin-location-icon.svg',
+          iconSize: [21, 26],
+        }),
+      }).addTo(this.map);
+  
+      // Bind a popup to the marker that appears when clicked
+      newMarker.on('click', () => {
+        // Convert lat/lng to screen coordinates
+        const mapContainer = this.map.getContainer();
+        const markerPoint = this.map.latLngToContainerPoint({ lat: clickLat, lng: clickLng });
+      
+        // Default dialog position
+        let position = {
+          top: `${markerPoint.y + mapContainer.offsetTop}px`,
+          left: `${markerPoint.x + mapContainer.offsetLeft + 20}px`,
+        };
+      
+        // Fetch address and open the dialog
+        this.getAddress(clickLat, clickLng).then((address) => {
+          const dialogRef = this.dialog.open(MapControllersPopupComponent, {
+            width: '320px',
+            data: { type: 'marker', address },
+            position,
+            panelClass: 'custom-dialog-class',
+          });
+      
+          // After dialog opens, measure and adjust position
+          dialogRef.afterOpened().subscribe(() => {
+            const dialogElement = document.querySelector('.custom-dialog-class') as HTMLElement;
+      
+            if (dialogElement) {
+              const dialogHeight = dialogElement.offsetHeight;
+              const mapHeight = mapContainer.offsetHeight;
+              const mapWidth = mapContainer.offsetWidth;
+      
+              // Adjust horizontal position (left or right)
+              let newLeft = markerPoint.x + mapContainer.offsetLeft + 20;
+              if (markerPoint.x + 300 > mapWidth) {
+                newLeft = markerPoint.x + mapContainer.offsetLeft - 300 - 20; // Move to the left
+              }
+      
+              // Adjust vertical position (top or bottom)
+              let newTop: number;
+              const spaceAboveMarker = markerPoint.y; // Space available above the marker
+              const spaceBelowMarker = mapHeight - markerPoint.y; // Space available below the marker
+      
+              if (spaceBelowMarker >= dialogHeight + 20) {
+                // Position dialog below the marker if enough space is available
+                newTop = markerPoint.y + mapContainer.offsetTop + 10; // Add small margin below marker
+              } else if (spaceAboveMarker >= dialogHeight + 20) {
+                // Position dialog above the marker if enough space is available
+                newTop = markerPoint.y + mapContainer.offsetTop - dialogHeight - 10; // Subtract margin above marker
+              } else {
+                // Default fallback: align the dialog vertically centered around the marker
+                newTop = Math.max(
+                  mapContainer.offsetTop,
+                  Math.min(markerPoint.y + mapContainer.offsetTop - dialogHeight / 2, mapHeight - dialogHeight)
+                );
+              }
+
+              console.log(newTop,'newTopnewTopnewTopnewTop');
+              
+              // Update dialog position dynamically
+              dialogRef.updatePosition({
+                top: `${newTop}px`,
+                left: `${newLeft}px`,
+              });
+            }
+          });
         });
-    
+      });
+      
+    });
   }
   
   
   
   
+  async getAddress(lat: number, lng: number): Promise<string> {
+    const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
+    try {
+      const response: any = await this.http.get(url).toPromise();
+      return response.display_name || 'Address not found';
+    } catch (error) {
+      console.error('Error fetching address:', error);
+      return 'Error fetching address';
+    }
+  }
   
 
   // Enable drawing mode for polygons or lines
@@ -666,5 +739,15 @@ private clearUserMarker(): void {
   if (this.zoomLevel > 10) {
     this.map.setZoom(10); // Adjust zoom if it exceeds maxZoom
   }
+}
+
+
+//open map controller pop up
+openDialog(data: any, position: { top: string; left: string }): void {
+  this.dialog.open(MapControllersPopupComponent, {
+    width: '300px',
+    data: data,
+    position: position, // Dynamically calculated position
+  });
 }
 }

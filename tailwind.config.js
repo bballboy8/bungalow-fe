@@ -13,7 +13,8 @@ module.exports = {
         error: '#DC2626',
         yellow: '#FCCA40',
         inputBg: '#14191E',
-        'secondary-heiglight': '#4A5863'
+        'secondary-heiglight': '#4A5863',
+        'custom-green': '#22F57A'
       },
       fontFamily: {
         sans: ['Roboto', 'sans-serif'],

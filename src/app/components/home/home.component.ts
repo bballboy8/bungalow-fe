@@ -362,7 +362,6 @@ export class HomeComponent implements AfterViewInit {
       },
     });
   }
-
   // Function to add the polygon and its metadata
   private addPolygonWithMetadata(data: any): void {
 
@@ -533,7 +532,26 @@ handleAction(action: string): void {
           top: `${markerPoint.y + mapContainer.offsetTop}px`,
           left: `${markerPoint.x + mapContainer.offsetLeft + 20}px`,
         };
-      
+
+      const  payload= {
+        latitude:clickLat,
+        longitude:clickLng,
+        distance:1000
+      }
+      this.satelliteService.getPinSelectionAnalytics(payload).subscribe({
+        next: (resp) => {
+          console.log(resp,'resprespresprespresprespresp');
+          
+          // if (Array.isArray(resp?.data)) {
+          //   resp.data.forEach((item:any) => {
+          //     this.addPolygonWithMetadata(item);
+          //   });
+          // }
+        },
+        error: (err) => {
+          console.log("err getPolyGonData: ", err);
+        },
+      });
         // Fetch address and open the dialog
         this.getAddress(clickLat, clickLng).then((address) => {
           const dialogRef = this.dialog.open(MapControllersPopupComponent, {
@@ -744,6 +762,7 @@ private clearUserMarker(): void {
 
 //open map controller pop up
 openDialog(data: any, position: { top: string; left: string }): void {
+  
   this.dialog.open(MapControllersPopupComponent, {
     width: '300px',
     data: data,

@@ -27,5 +27,8 @@ export class SatelliteService extends BaseService {
     });
   }
 
+  getPinSelectionAnalytics(data: any): Observable<any> {
+    return this.post(createUrl("/get-pin-selection-analytics"), data);
+  }
 
 }

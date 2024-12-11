@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Inject, Input, OnInit, ViewChild } from '@angular/core';
 import { MatDatepickerModule, MatDateRangePicker } from '@angular/material/datepicker';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -39,8 +39,8 @@ const year = today.getFullYear();
 })
 
 export class DatepickerDailogComponent implements OnInit,AfterViewInit  {
-  startDate: dayjs.Dayjs = dayjs(); // Initialize with current date
-  endDate: dayjs.Dayjs = dayjs().add(0, 'days'); // Initialize with 1 day later
+  @Input() startDate: dayjs.Dayjs = dayjs(); // Initialize with current date
+  @Input() endDate: dayjs.Dayjs = dayjs().add(0, 'days'); // Initialize with 1 day later
   selectedDate: Date | null = null; // Initialize with today's date
   dateRange: { start: Date | null; end: Date | null } = { start: null, end: null };
   selectedRange: { start: Date | null; end: Date | null } = { start: null, end: null };
@@ -49,14 +49,25 @@ export class DatepickerDailogComponent implements OnInit,AfterViewInit  {
   currentUtcTime:dayjs.Dayjs = dayjs().utc();
   @ViewChild('startDateInput') startDateInput!: ElementRef<HTMLInputElement>;
   ngOnInit(): void {
- 
+    console.log(this.data,'sssssssssssssssss');
+    
+    if(this.data.startDate && this.data.endDate){
+      this.startDate = dayjs(this.data.startDate);
+      this.endDate = dayjs(this.data.endDate);
+      console.log(this.startDate,'this.startDatethis.startDatethis.startDate');
+      
+    } else {
+      this.startDate = dayjs(); 
+      this.endDate = dayjs().add(0, 'days');
+    }
   }
   dateRangeForm: FormGroup;
   onSubmit() {
     console.log('Selected Date Range:', this.dateRangeForm.value.dateRange);
   }
 
-  constructor(public dialogRef: MatDialogRef<DatepickerDailogComponent>,private fb: FormBuilder) {
+  constructor(public dialogRef: MatDialogRef<DatepickerDailogComponent>,private fb: FormBuilder,
+    @Inject(MAT_DIALOG_DATA) public data: any) {
     this.dateRangeForm = this.fb.group({
       dateRange: [''],  // Bind this to the date range picker
     });
@@ -75,8 +86,8 @@ export class DatepickerDailogComponent implements OnInit,AfterViewInit  {
   
       // Get the current UTC time in HH:mm UTC format
       //  this.currentUtcTime = dayjs().utc().format('HH:mm [UTC]');
-      console.log('Start Date in UTC:', this.startDate.format('YYYY-MM-DD HH:mm [UTC]'));
-      console.log('End Date in UTC:', this.endDate.format('YYYY-MM-DD HH:mm [UTC]'));
+      console.log('Start Date in UTC:', this.startDate.format('MM.DD.YYYY HH:mm [UTC]'));
+      console.log('End Date in UTC:', this.endDate.format('MM.DD.YYYY HH:mm [UTC]'));
       console.log('Current UTC Time:', this.currentUtcTime);
   
       // Optional: Automatically apply the date range

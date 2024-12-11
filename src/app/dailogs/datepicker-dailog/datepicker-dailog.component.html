@@ -13,7 +13,7 @@
       <ngx-daterangepicker-material
   (choosedDate)="choosedDate($event)"
   [linkedCalendars]="false"
-  [locale]="{ format: 'YYYY-MM-DD' }"
+  [locale]="{ format: 'MM.DD.YYYY' }"
   [autoApply]="true"
   [showDropdowns]="true"
   [startDate]="startDate"
@@ -24,13 +24,13 @@
     <div class=" w-full z-50">
       <mat-form-field appearance="outline" class="w-full">
         <mat-label>Start</mat-label>
-        <input #startDateInput [value]="startDate ? startDate.format('YYYY.MM.DD HH:mm [UTC]') : ''" matInput placeholder="Placeholder" class="!text-secondaryText placeholder:!text-secondaryText">
+        <input #startDateInput [value]="startDate ? startDate.format('MM.DD.YYYY HH:mm [UTC]') : ''" matInput placeholder="Placeholder" class="!text-secondaryText placeholder:!text-secondaryText">
        
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="w-full">
         <mat-label>End</mat-label>
-        <input [value]="endDate ? endDate.format('YYYY.MM.DD HH:mm [UTC]'): ''" matInput placeholder="Placeholder" class="!text-secondaryText placeholder:!text-secondaryText">
+        <input [value]="endDate ? endDate.format('MM.DD.YYYY HH:mm [UTC]'): ''" matInput placeholder="Placeholder" class="!text-secondaryText placeholder:!text-secondaryText">
        
       </mat-form-field>
     </div>

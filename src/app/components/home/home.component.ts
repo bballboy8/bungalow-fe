@@ -71,7 +71,7 @@ export class HomeComponent implements AfterViewInit {
       subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
     }
   )
-  isGoogleLayerActive: boolean = false; // Track the current layer
+  isGoogleLayerActive: string = 'OpenStreetMap'; // Track the current layer
    currentAction: string | null = null; // Tracks the current active action
   private userMarker: L.Marker | null = null; // Store the user marker reference
   private activeDrawTool: L.Draw.Polyline | L.Draw.Polygon | null = null; // Track active drawing tool
@@ -694,8 +694,9 @@ private clearUserMarker(): void {
   }
 }
 
-toggleMapLayer(): void {
-  if (this.isGoogleLayerActive) {
+toggleMapLayer(type:string) {
+  this.isGoogleLayerActive = type
+  if (this.isGoogleLayerActive ==='OpenStreetMap') {
     // Remove Google Streets layer and add Dark Layer
     this.map.removeLayer(this.googleStreets);
     this.darkLayer.addTo(this.map);
@@ -704,7 +705,7 @@ toggleMapLayer(): void {
     this.map.removeLayer(this.darkLayer);
     this.googleStreets.addTo(this.map);
   }
-  this.isGoogleLayerActive = !this.isGoogleLayerActive; // Toggle the flag
+  
 }
 
 onDateRangeChanged(event: { startDate: string, endDate: string }) {

@@ -30,7 +30,7 @@ export class FooterComponent {
   @Input()latitude:any;
   @Input()zoomLevel:any;
   @Output() zoomLevelChange = new EventEmitter<number>();
-  @Output() toggleLayer = new EventEmitter<void>();
+  @Output() toggleLayer = new EventEmitter<any>();
   // @Output() sliderZoom = new EventEmitter<any>();
   previousZoomLevel:any = 4
   startDate:any
@@ -38,7 +38,9 @@ export class FooterComponent {
   currentUtcTime:any;
   startTime:any;
   endTime:any;
+  showLayers:boolean = false;
   private _snackBar = inject(MatSnackBar);
+  @Input() ActiveLayer:string ='OpenStreetMap'
   constructor(private dialog: MatDialog){}
 
 
@@ -131,6 +133,14 @@ export class FooterComponent {
   
     // Return formatted time in "HH:mm UTC" format
     return `${hours}:${minutes} UTC`;
+  }
+
+  layerDropdown(){
+    this.showLayers = !this.showLayers
+  }
+  selectedLayer(type:string){
+    console.log(type);
+    this.toggleLayer.emit(type)
   }
   
 }

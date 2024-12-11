@@ -1,11 +1,11 @@
 <mat-drawer-container id="menu-drawer" class="example-container" autosize>
   <div
     class="h-screen min-h-[700px] relative"
-    [ngClass]="isGoogleLayerActive ? '!bg-[#234436]' : ' z-30'"
+    [ngClass]="isGoogleLayerActive === 'OpenStreetMap' ? '!bg-[#234436]' : ' z-30'"
   >
     <div
       class=""
-      [ngClass]="isGoogleLayerActive ? 'bg-[#131f07]  z-30' : ' z-30'"
+      [ngClass]="isGoogleLayerActive ==='OpenStreetMap' ? 'bg-[#131f07]  z-30' : ' z-30'"
     >
       <div class="fixed top-0 z-30">
         <app-header
@@ -25,14 +25,14 @@
         #mapContainer
         id="mapContainer"
         class="map h-full absolute"
-        [ngClass]="isGoogleLayerActive ? 'z-0' : 'opacity-50'"
+        [ngClass]="isGoogleLayerActive !== 'OpenStreetMap' ? 'z-0' : 'opacity-50'"
       ></div>
       <div
         class="flex justify-end end-0 gap-3 pr-[12px] absolute bottom-[12px]"
       >
         <div class="relative z-50 w-full">
           <app-footer
-            (toggleLayer)="toggleMapLayer()"
+            (toggleLayer)="toggleMapLayer($event)"
             (drawTypeSelected)="setDrawType($event)"
             [zoomLevel]="zoomLevel"
             (zoomIn)="zoomIn()"
@@ -41,6 +41,7 @@
             [longitude]="longitude"
             [latitude]="latitude"
             (dateRangeChanged)="onDateRangeChanged($event)"
+            [ActiveLayer]="isGoogleLayerActive"
           ></app-footer>
         </div>
       </div>

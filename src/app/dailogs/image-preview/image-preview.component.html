@@ -1,0 +1,24 @@
+<div class="dialog-content bg-secondaryBg rounded-md p-4">
+    <div class="flex flex-col">
+        <div>
+            <img [src]="data.image" alt="Preview" class="preview-image">
+        </div>
+
+        <div class="flex bg-primaryBg p-5 items-center justify-between font-Barlow">
+            <div class="flex">
+                <div class="flex w-[50px] items-center justify-between">
+                    <img src="assets/svg-icons/left-arrow-icon.svg" alt="">
+                    <span><img src="assets/svg-icons/right-arrow-icon.svg" alt=""></span>
+                </div>
+                
+                <div class="flex ml-5">
+                    <span class="text-secondaryText font-medium">{{data?.item?.date || '10/13/2024'}}</span>
+                    <span class="ml-5 text-secondaryText font-medium">{{data?.item?.time || '19.37.15 UTC'}}</span>
+                </div>
+            </div>
+            <div>
+                <img src="assets/svg-icons/cross-icon.svg" class="cursor-pointer" (click)="closeDialog()" alt="">
+            </div>
+        </div>
+    </div>
+</div>

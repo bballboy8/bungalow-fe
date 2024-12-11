@@ -20,6 +20,8 @@ import 'leaflet-draw';
 import { SatelliteService } from '../../services/satellite.service';
 // import 'leaflet-draw/dist/leaflet.draw.css';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MapCalendarComponent } from '../library/map-calendar/map-calendar.component';
+import { SharedService } from '../shared/shared.service';
 (window as any).type = undefined;
 
 
@@ -36,6 +38,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
     HeaderComponent,
     MatSidenavModule,
     SidebarDrawerComponent,
+    MapCalendarComponent
   ],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
@@ -66,12 +69,14 @@ export class HomeComponent implements AfterViewInit {
    currentAction: string | null = null; // Tracks the current active action
   private userMarker: L.Marker | null = null; // Store the user marker reference
   private activeDrawTool: L.Draw.Polyline | L.Draw.Polygon | null = null; // Track active drawing tool
-  constructor(@Inject(PLATFORM_ID) private platformId: Object,private satelliteService:SatelliteService) {}
+  OpenEventCalendar:boolean=false;
+  constructor(@Inject(PLATFORM_ID) private platformId: Object,private satelliteService:SatelliteService,private sharedService:SharedService) {}
 
   ngAfterViewInit(): void {
     if (isPlatformBrowser(this.platformId)) {
       this.initMap();
     }
+    this.sharedService.isOpenedEventCalendar$.subscribe((state) => this.OpenEventCalendar = state);
   }
 
   //openstreetmap search and location markers function

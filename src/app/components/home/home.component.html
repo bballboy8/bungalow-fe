@@ -3,9 +3,16 @@
 <div class="h-screen min-h-[700px] relative !bg-[#234436] z-30">
   <div class="bg-[#131f07]">
   <div class="fixed top-0 z-30"><app-header [toggleDrawer]="toggleDrawer.bind(this)" (toggleEvent)="handleToggleEvent($event)" (searchEvent)="onSearchLocation($event)"></app-header></div>
-  <mat-drawer #drawer class="!bg-primaryBg  !block !z-50 !h-screen !w-[820px]" mode="side">
-    <app-sidebar-drawer (closeSidebar)="toggleDrawer()" [type]="type"></app-sidebar-drawer>
-  </mat-drawer>
+  <div class="relative">
+    <mat-drawer #drawer class="!bg-primaryBg  !block !z-50 !h-screen !w-[820px]" mode="side">
+      <app-sidebar-drawer (closeSidebar)="toggleDrawer()" [type]="type"></app-sidebar-drawer>
+    </mat-drawer>
+    @if (OpenEventCalendar) {
+      <div class="absolute z-[1000000] text-secondaryText left-[820px]" >
+        <app-map-calendar></app-map-calendar>
+      </div>
+    }
+  </div>
   <div #mapContainer id="mapContainer" class="map  h-full absolute opacity-50"></div>
   <div class="flex justify-end end-0 gap-3 pr-[12px] absolute bottom-[12px]">
     <div class="relative z-30 w-full">

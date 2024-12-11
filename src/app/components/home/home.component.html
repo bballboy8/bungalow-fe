@@ -9,7 +9,7 @@
   <div #mapContainer id="mapContainer" class="map  h-full absolute opacity-50"></div>
   <div class="flex justify-end end-0 gap-3 pr-[12px] absolute bottom-[12px]">
     <div class="relative z-30 w-full">
-     <app-footer (drawTypeSelected)="setDrawType($event)" [zoomLevel]="zoomLevel" (zoomIn)="zoomIn()" (zoomOut)="zoomOut()" (zoomLevelChange)="onZoomLevelChange($event)" [longitude]="longitude" [latitude]="latitude"></app-footer>
+     <app-footer (toggleLayer)="toggleMapLayer()" (drawTypeSelected)="setDrawType($event)" [zoomLevel]="zoomLevel" (zoomIn)="zoomIn()" (zoomOut)="zoomOut()" (zoomLevelChange)="onZoomLevelChange($event)" [longitude]="longitude" [latitude]="latitude"></app-footer>
     </div>
   </div>
   <div class="relative flex ">

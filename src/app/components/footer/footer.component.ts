@@ -29,11 +29,14 @@ export class FooterComponent {
   @Input()latitude:any;
   @Input()zoomLevel:any;
   @Output() zoomLevelChange = new EventEmitter<number>();
+  @Output() toggleLayer = new EventEmitter<void>();
   // @Output() sliderZoom = new EventEmitter<any>();
-  previousZoomLevel:any = 2
+  previousZoomLevel:any = 4
   startDate:any
   endDate:any;
   currentUtcTime:any;
+  startTime:any;
+  endTime:any;
   private _snackBar = inject(MatSnackBar);
   constructor(private dialog: MatDialog){}
 
@@ -63,6 +66,12 @@ export class FooterComponent {
         this.startDate = result.startDate;
         this.endDate  = result.endDate;
         this.currentUtcTime = result.currentUtcTime;
+        this.startDate = result.startDate.format('MM.DD.YYYY'); // Output: '2024-12-02'
+        this.startTime= result.startDate.format('HH:mm:ss');  // Output: '05:00:00'
+        this.endDate = result.endDate.format('MM.DD.YYYY'); // Output: '2024-12-02'
+        this.endTime= result.endDate.format('HH:mm:ss');  // Output: '05:00:00'
+
+        // console.log("Date:", date);
         // Do something with the result
         // For example: this.startDate = result.startDate; this.endDate = result.endDate;
 

@@ -66,7 +66,7 @@ export class HomeComponent implements AfterViewInit {
   googleStreets: L.TileLayer = L.tileLayer(
     'http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
     {
-      maxZoom: 10,
+      maxZoom: 12,
       subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
     }
   )
@@ -117,7 +117,7 @@ export class HomeComponent implements AfterViewInit {
       zoom: this.zoomLevel,
       zoomControl: false,
       minZoom: 4, // Set minimum zoom level
-      maxZoom: 10, // Set maximum zoom level
+      maxZoom: 12, // Set maximum zoom level
       scrollWheelZoom: true, // Optionally allow zooming by scrolling
     });
   
@@ -668,11 +668,11 @@ private clearUserMarker(): void {
   }
 
   // Reset maxZoom to the original map configuration
-  this.map.options.maxZoom = 10;
+  this.map.options.maxZoom = 12;
 
   // Optionally reset the zoom level to your default zoom
-  if (this.zoomLevel > 10) {
-    this.map.setZoom(10); // Adjust zoom if it exceeds maxZoom
+  if (this.zoomLevel > 12) {
+    this.map.setZoom(12); // Adjust zoom if it exceeds maxZoom
   }
 }
 

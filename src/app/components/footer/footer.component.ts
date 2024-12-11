@@ -23,6 +23,7 @@ export class FooterComponent {
   @Output() drawTypeSelected = new EventEmitter<any>();
   @Output() zoomIn = new EventEmitter<any>();
   @Output() zoomOut = new EventEmitter<any>();
+  @Output() dateRangeChanged = new EventEmitter<{ startDate: string, endDate: string }>();
   selectedOption = this.options[0];
   isDropdownOpen = false;
   @Input()longitude:any;
@@ -85,7 +86,7 @@ export class FooterComponent {
         this.startTime = result.startDate.format('HH:mm:ss');
         this.endDate = result.endDate.format('MM.DD.YYYY');
         this.endTime = result.endDate.format('HH:mm:ss');
-
+        this.dateRangeChanged.emit({ startDate:result.startDate , endDate:  result.endDate});
         // console.log("Date:", date);
         // Do something with the result
         // For example: this.startDate = result.startDate; this.endDate = result.endDate;

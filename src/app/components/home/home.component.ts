@@ -20,6 +20,7 @@ import 'leaflet-draw';
 import { SatelliteService } from '../../services/satellite.service';
 // import 'leaflet-draw/dist/leaflet.draw.css';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import dayjs from 'dayjs';
 (window as any).type = undefined;
 
 
@@ -74,6 +75,8 @@ export class HomeComponent implements AfterViewInit {
    currentAction: string | null = null; // Tracks the current active action
   private userMarker: L.Marker | null = null; // Store the user marker reference
   private activeDrawTool: L.Draw.Polyline | L.Draw.Polygon | null = null; // Track active drawing tool
+  startDate: string ='';
+  endDate: string ='';
   constructor(@Inject(PLATFORM_ID) private platformId: Object,private satelliteService:SatelliteService) {}
 
   ngAfterViewInit(): void {
@@ -339,7 +342,22 @@ export class HomeComponent implements AfterViewInit {
         console.log("resp: ", resp?.data);
         if(resp?.data?.area>=100000000){
           this.openSnackbar("Select a smaller polygon");
-        }else this.getDataUsingPolygon(resp?.data);
+          
+          
+        }else {
+          if (this.startDate === '' && this.endDate === ''){
+            this.startDate = dayjs().utc().startOf('day').format('YYYY-MM-DDTHH:mm:ss.SSSSSSZ');
+            this.endDate = dayjs().utc().format('YYYY-MM-DDTHH:mm:ss.SSSSSSZ');
+            console.log(this.endDate,'daywwewweweweweewewewwewe');
+            
+          }
+          let queryParams ={
+            page_number: '1',
+      page_size: '100',
+      start_date:this.startDate,
+      end_date: this.endDate
+          }
+          this.getDataUsingPolygon(resp?.data,queryParams)};
       },
       error: (err) => {
         console.log("err: ", err);
@@ -349,8 +367,8 @@ export class HomeComponent implements AfterViewInit {
 
 
 
-  getDataUsingPolygon(payload: any) {
-    this.satelliteService.getDataFromPolygon(payload).subscribe({
+  getDataUsingPolygon(payload: any,queryParams: any) {
+    this.satelliteService.getDataFromPolygon(payload,queryParams).subscribe({
       next: (resp) => {
         if (Array.isArray(resp?.data)) {
           resp.data.forEach((item:any) => {
@@ -687,5 +705,14 @@ toggleMapLayer(): void {
     this.googleStreets.addTo(this.map);
   }
   this.isGoogleLayerActive = !this.isGoogleLayerActive; // Toggle the flag
+}
+
+onDateRangeChanged(event: { startDate: string, endDate: string }) {
+  const formattedStartDate = dayjs(event.startDate).utc().format('YYYY-MM-DDTHH:mm:ss.SSSSSSZ');
+  const formattedENdDate = dayjs(event.endDate).utc().format('YYYY-MM-DDTHH:mm:ss.SSSSSSZ');
+  this.startDate = formattedStartDate;
+  this.endDate = formattedENdDate;
+  console.log('Start Date:', this.startDate);
+  console.log('End Date:', this.endDate);
 }
 }

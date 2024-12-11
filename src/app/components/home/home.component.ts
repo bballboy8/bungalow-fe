@@ -70,7 +70,7 @@ export class HomeComponent implements AfterViewInit {
       subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
     }
   )
-  private isGoogleLayerActive: boolean = false; // Track the current layer
+  isGoogleLayerActive: boolean = false; // Track the current layer
    currentAction: string | null = null; // Tracks the current active action
   private userMarker: L.Marker | null = null; // Store the user marker reference
   private activeDrawTool: L.Draw.Polyline | L.Draw.Polygon | null = null; // Track active drawing tool

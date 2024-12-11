@@ -536,12 +536,65 @@ handleAction(action: string): void {
       const  payload= {
         latitude:clickLat,
         longitude:clickLng,
-        distance:1000
+        distance:1
       }
       this.satelliteService.getPinSelectionAnalytics(payload).subscribe({
         next: (resp) => {
           console.log(resp,'resprespresprespresprespresp');
+          if(resp){
+            this.getAddress(clickLat, clickLng).then((address) => {
+              const dialogRef = this.dialog.open(MapControllersPopupComponent, {
+                width: '320px',
+                data: { type: 'marker', address },
+                position,
+                panelClass: 'custom-dialog-class',
+              });
           
+              // After dialog opens, measure and adjust position
+              dialogRef.afterOpened().subscribe(() => {
+                const dialogElement = document.querySelector('.custom-dialog-class') as HTMLElement;
+          
+                if (dialogElement) {
+                  const dialogHeight = dialogElement.offsetHeight;
+                  const mapHeight = mapContainer.offsetHeight;
+                  const mapWidth = mapContainer.offsetWidth;
+          
+                  // Adjust horizontal position (left or right)
+                  let newLeft = markerPoint.x + mapContainer.offsetLeft + 20;
+                  if (markerPoint.x + 300 > mapWidth) {
+                    newLeft = markerPoint.x + mapContainer.offsetLeft - 300 - 20; // Move to the left
+                  }
+          
+                  // Adjust vertical position (top or bottom)
+                  let newTop: number;
+                  const spaceAboveMarker = markerPoint.y; // Space available above the marker
+                  const spaceBelowMarker = mapHeight - markerPoint.y; // Space available below the marker
+          
+                  if (spaceBelowMarker >= dialogHeight + 20) {
+                    // Position dialog below the marker if enough space is available
+                    newTop = markerPoint.y + mapContainer.offsetTop + 10; // Add small margin below marker
+                  } else if (spaceAboveMarker >= dialogHeight + 20) {
+                    // Position dialog above the marker if enough space is available
+                    newTop = markerPoint.y + mapContainer.offsetTop - dialogHeight - 10; // Subtract margin above marker
+                  } else {
+                    // Default fallback: align the dialog vertically centered around the marker
+                    newTop = Math.max(
+                      mapContainer.offsetTop,
+                      Math.min(markerPoint.y + mapContainer.offsetTop - dialogHeight / 2, mapHeight - dialogHeight)
+                    );
+                  }
+    
+                  console.log(newTop,'newTopnewTopnewTopnewTop');
+                  
+                  // Update dialog position dynamically
+                  dialogRef.updatePosition({
+                    top: `${newTop}px`,
+                    left: `${newLeft}px`,
+                  });
+                }
+              });
+            });
+          }
           // if (Array.isArray(resp?.data)) {
           //   resp.data.forEach((item:any) => {
           //     this.addPolygonWithMetadata(item);
@@ -553,58 +606,7 @@ handleAction(action: string): void {
         },
       });
         // Fetch address and open the dialog
-        this.getAddress(clickLat, clickLng).then((address) => {
-          const dialogRef = this.dialog.open(MapControllersPopupComponent, {
-            width: '320px',
-            data: { type: 'marker', address },
-            position,
-            panelClass: 'custom-dialog-class',
-          });
-      
-          // After dialog opens, measure and adjust position
-          dialogRef.afterOpened().subscribe(() => {
-            const dialogElement = document.querySelector('.custom-dialog-class') as HTMLElement;
-      
-            if (dialogElement) {
-              const dialogHeight = dialogElement.offsetHeight;
-              const mapHeight = mapContainer.offsetHeight;
-              const mapWidth = mapContainer.offsetWidth;
-      
-              // Adjust horizontal position (left or right)
-              let newLeft = markerPoint.x + mapContainer.offsetLeft + 20;
-              if (markerPoint.x + 300 > mapWidth) {
-                newLeft = markerPoint.x + mapContainer.offsetLeft - 300 - 20; // Move to the left
-              }
-      
-              // Adjust vertical position (top or bottom)
-              let newTop: number;
-              const spaceAboveMarker = markerPoint.y; // Space available above the marker
-              const spaceBelowMarker = mapHeight - markerPoint.y; // Space available below the marker
-      
-              if (spaceBelowMarker >= dialogHeight + 20) {
-                // Position dialog below the marker if enough space is available
-                newTop = markerPoint.y + mapContainer.offsetTop + 10; // Add small margin below marker
-              } else if (spaceAboveMarker >= dialogHeight + 20) {
-                // Position dialog above the marker if enough space is available
-                newTop = markerPoint.y + mapContainer.offsetTop - dialogHeight - 10; // Subtract margin above marker
-              } else {
-                // Default fallback: align the dialog vertically centered around the marker
-                newTop = Math.max(
-                  mapContainer.offsetTop,
-                  Math.min(markerPoint.y + mapContainer.offsetTop - dialogHeight / 2, mapHeight - dialogHeight)
-                );
-              }
-
-              console.log(newTop,'newTopnewTopnewTopnewTop');
-              
-              // Update dialog position dynamically
-              dialogRef.updatePosition({
-                top: `${newTop}px`,
-                left: `${newLeft}px`,
-              });
-            }
-          });
-        });
+       
       });
       
     });

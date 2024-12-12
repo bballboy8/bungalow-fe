@@ -23,6 +23,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MapControllersPopupComponent } from '../../dailogs/map-controllers-popup/map-controllers-popup.component';
 import { MatDialog } from '@angular/material/dialog';
 import { HttpClient } from '@angular/common/http';
+import dayjs from 'dayjs';
 (window as any).type = undefined;
 
 
@@ -47,10 +48,10 @@ export class HomeComponent implements AfterViewInit {
   @ViewChild('mapContainer', { static: true }) mapContainer!: ElementRef;
   @ViewChild('drawer') drawer?: MatDrawer;
   map!: L.Map;
-  zoomLevel: number = 2;
+  zoomLevel: number = 4;
   longitude: number = -90;
   latitude: number = 40;
-  parentZoomLevel: number = 2
+  parentZoomLevel: number = 4
   drawLayer!: L.FeatureGroup;
   extraShapesLayer!: L.FeatureGroup;
   vectorLayer!: L.LayerGroup;
@@ -66,9 +67,19 @@ export class HomeComponent implements AfterViewInit {
   private lightLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     subdomains: 'abc',
   });
+  googleStreets: L.TileLayer = L.tileLayer(
+    'http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
+    {
+      maxZoom: 12,
+      subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+    }
+  )
+  isGoogleLayerActive: string = 'OpenStreetMap'; // Track the current layer
    currentAction: string | null = null; // Tracks the current active action
   private userMarker: L.Marker | null = null; // Store the user marker reference
   private activeDrawTool: L.Draw.Polyline | L.Draw.Polygon | null = null; // Track active drawing tool
+  startDate: string ='';
+  endDate: string ='';
   constructor(@Inject(PLATFORM_ID) private platformId: Object,
    private satelliteService:SatelliteService,private dialog: MatDialog,
    private http: HttpClient,
@@ -115,8 +126,8 @@ export class HomeComponent implements AfterViewInit {
       center: [this.latitude, this.longitude],
       zoom: this.zoomLevel,
       zoomControl: false,
-      minZoom: 2, // Set minimum zoom level
-      maxZoom: 10, // Set maximum zoom level
+      minZoom: 4, // Set minimum zoom level
+      maxZoom: 12, // Set maximum zoom level
       scrollWheelZoom: true, // Optionally allow zooming by scrolling
     });
   
@@ -131,8 +142,8 @@ export class HomeComponent implements AfterViewInit {
     
     // Optional: Prevent zooming out beyond a certain level
     this.map.on('zoomend', () => {
-      if (this.map.getZoom() < 2) {
-        this.map.setZoom(2);
+      if (this.map.getZoom() < 4) {
+        this.map.setZoom(4);
       }
     });
   
@@ -178,7 +189,7 @@ export class HomeComponent implements AfterViewInit {
           const lng = position.coords.longitude;
   
           // Temporarily allow zooming to user location
-          this.map.setView([lat, lng], 2, { animate: true });
+          this.map.setView([lat, lng], 4, { animate: true });
         }
       );
     }
@@ -338,7 +349,22 @@ export class HomeComponent implements AfterViewInit {
         console.log("resp: ", resp?.data);
         if(resp?.data?.area>=100000000){
           this.openSnackbar("Select a smaller polygon");
-        }else this.getDataUsingPolygon(resp?.data);
+          
+          
+        }else {
+          if (this.startDate === '' && this.endDate === ''){
+            this.startDate = dayjs().utc().startOf('day').format('YYYY-MM-DDTHH:mm:ss.SSSSSSZ');
+            this.endDate = dayjs().utc().format('YYYY-MM-DDTHH:mm:ss.SSSSSSZ');
+            console.log(this.endDate,'daywwewweweweweewewewwewe');
+            
+          }
+          let queryParams ={
+            page_number: '1',
+      page_size: '100',
+      start_date:this.startDate,
+      end_date: this.endDate
+          }
+          this.getDataUsingPolygon(resp?.data,queryParams)};
       },
       error: (err) => {
         console.log("err: ", err);
@@ -348,8 +374,8 @@ export class HomeComponent implements AfterViewInit {
 
 
 
-  getDataUsingPolygon(payload: any) {
-    this.satelliteService.getDataFromPolygon(payload).subscribe({
+  getDataUsingPolygon(payload: any,queryParams: any) {
+    this.satelliteService.getDataFromPolygon(payload,queryParams).subscribe({
       next: (resp) => {
         if (Array.isArray(resp?.data)) {
           resp.data.forEach((item:any) => {
@@ -753,12 +779,35 @@ private clearUserMarker(): void {
   }
 
   // Reset maxZoom to the original map configuration
-  this.map.options.maxZoom = 10;
+  this.map.options.maxZoom = 12;
 
   // Optionally reset the zoom level to your default zoom
-  if (this.zoomLevel > 10) {
-    this.map.setZoom(10); // Adjust zoom if it exceeds maxZoom
+  if (this.zoomLevel > 12) {
+    this.map.setZoom(12); // Adjust zoom if it exceeds maxZoom
   }
+}
+
+toggleMapLayer(type:string) {
+  this.isGoogleLayerActive = type
+  if (this.isGoogleLayerActive ==='OpenStreetMap') {
+    // Remove Google Streets layer and add Dark Layer
+    this.map.removeLayer(this.googleStreets);
+    this.darkLayer.addTo(this.map);
+  } else {
+    // Remove Dark Layer and add Google Streets layer
+    this.map.removeLayer(this.darkLayer);
+    this.googleStreets.addTo(this.map);
+  }
+  
+}
+
+onDateRangeChanged(event: { startDate: string, endDate: string }) {
+  const formattedStartDate = dayjs(event.startDate).utc().format('YYYY-MM-DDTHH:mm:ss.SSSSSSZ');
+  const formattedENdDate = dayjs(event.endDate).utc().format('YYYY-MM-DDTHH:mm:ss.SSSSSSZ');
+  this.startDate = formattedStartDate;
+  this.endDate = formattedENdDate;
+  console.log('Start Date:', this.startDate);
+  console.log('End Date:', this.endDate);
 }
 
 

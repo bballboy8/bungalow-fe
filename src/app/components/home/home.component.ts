@@ -568,10 +568,11 @@ handleAction(action: string): void {
         next: (resp) => {
           console.log(resp,'resprespresprespresprespresp');
           if(resp){
+            const markerData = resp?.data?.analytics
             this.getAddress(clickLat, clickLng).then((address) => {
               const dialogRef = this.dialog.open(MapControllersPopupComponent, {
                 width: '320px',
-                data: { type: 'marker', address },
+                data: { type: 'marker', markerData:markerData },
                 position,
                 panelClass: 'custom-dialog-class',
               });

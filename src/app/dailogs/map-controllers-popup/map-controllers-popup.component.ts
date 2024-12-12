@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import dayjs from 'dayjs';
 
 @Component({
   selector: 'app-map-controllers-popup',
@@ -11,7 +12,7 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 })
 export class MapControllersPopupComponent implements OnInit {
 // @Input() data: any;
-selectedTimeFrame:string = '24h'
+selectedTimeFrame:string = '1'
   constructor(@Inject(MAT_DIALOG_DATA) public data: any){}
 
   ngOnInit(): void {
@@ -20,6 +21,10 @@ selectedTimeFrame:string = '24h'
   }
   activeTimeFrame(time:string){
     this.selectedTimeFrame = time;
+  }
+
+  formatDate(date:any){
+   return dayjs(date).format('DD.MM.YY')
   }
 
 }

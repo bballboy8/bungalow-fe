@@ -67,7 +67,7 @@ export class HomeComponent implements AfterViewInit {
   googleStreets: L.TileLayer = L.tileLayer(
     'http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
     {
-      maxZoom: 12,
+      maxZoom: 20,
       subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
     }
   )
@@ -77,6 +77,9 @@ export class HomeComponent implements AfterViewInit {
   private activeDrawTool: L.Draw.Polyline | L.Draw.Polygon | null = null; // Track active drawing tool
   startDate: string ='';
   endDate: string ='';
+  @ViewChild(FooterComponent) childComponent!: FooterComponent;
+  isDropdownOpen: boolean = false;
+  showLayers:boolean = false;
   constructor(@Inject(PLATFORM_ID) private platformId: Object,private satelliteService:SatelliteService) {}
 
   ngAfterViewInit(): void {
@@ -120,7 +123,7 @@ export class HomeComponent implements AfterViewInit {
       zoom: this.zoomLevel,
       zoomControl: false,
       minZoom: 4, // Set minimum zoom level
-      maxZoom: 12, // Set maximum zoom level
+      maxZoom: 20, // Set maximum zoom level
       scrollWheelZoom: true, // Optionally allow zooming by scrolling
     });
   
@@ -555,10 +558,6 @@ handleAction(action: string): void {
     
   }
   
-  
-  
-  
-  
 
   // Enable drawing mode for polygons or lines
   private enableDrawing(shape: string): void {
@@ -686,11 +685,11 @@ private clearUserMarker(): void {
   }
 
   // Reset maxZoom to the original map configuration
-  this.map.options.maxZoom = 12;
+  this.map.options.maxZoom = 20;
 
   // Optionally reset the zoom level to your default zoom
-  if (this.zoomLevel > 12) {
-    this.map.setZoom(12); // Adjust zoom if it exceeds maxZoom
+  if (this.zoomLevel > 20) {
+    this.map.setZoom(20); // Adjust zoom if it exceeds maxZoom
   }
 }
 
@@ -716,4 +715,24 @@ onDateRangeChanged(event: { startDate: string, endDate: string }) {
   console.log('Start Date:', this.startDate);
   console.log('End Date:', this.endDate);
 }
+
+// Handle the dropdown toggle event from the child
+handleDropdownToggle(state: boolean) {
+  this.showLayers = false
+  this.isDropdownOpen = state;
+}
+
+handleLayersToggle(state:boolean){
+  this.isDropdownOpen = false
+  this.showLayers = state;
+}
+
+closeDropdown() {
+  console.log('aaaaaaaaaa');
+  
+  this.isDropdownOpen = false;
+  this.showLayers = false
+}
+
+
 }

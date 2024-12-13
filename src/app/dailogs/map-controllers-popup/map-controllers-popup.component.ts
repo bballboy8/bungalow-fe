@@ -12,6 +12,7 @@ import { MatIconModule } from '@angular/material/icon';
 
 import dayjs from 'dayjs';
 import { SatelliteService } from '../../services/satellite.service';
+import { GroupsListComponent } from '../../common/groups-list/groups-list.component';
 
 export class Group {
   name?: string;
@@ -32,7 +33,8 @@ export class Group {
     MatInputModule,
     MatCheckboxModule,
     MatListModule,
-    MatIconModule
+    MatIconModule,
+    GroupsListComponent
   ],
   templateUrl: './map-controllers-popup.component.html',
   styleUrls: ['./map-controllers-popup.component.scss']
@@ -43,15 +45,6 @@ export class MapControllersPopupComponent implements OnInit {
   renderGroup!: TemplateRef<any> | null;
   checked: boolean = false;
   groups: Group[] = [
-    { name: 'Group name', icon: 'folder', children: [] },
-    { 
-      name: 'Group name', 
-      icon: 'folder', 
-      children: [
-        { name: 'Subgroup name', icon: 'folder_open', children: [] },
-        { name: 'Another subgroup', icon: 'folder', children: [] },
-      ]
-    },
     // Add more groups as needed
   ];
 
@@ -77,7 +70,24 @@ export class MapControllersPopupComponent implements OnInit {
     }
     this.satelliteService.getGroupsForAssignment(data).subscribe({
       next: (resp) => {
-        console.log(resp,'successsuccesssuccess');
+        console.log(resp,'respresprespresprespresprespresprespresp');
+        
+        this.groups = resp
+        
+      }})
+  }
+
+  onKeyPress(event: KeyboardEvent): void {
+    const inputValue = (event.target as HTMLInputElement).value;
+    console.log(inputValue,'inputValueinputValueinputValue'); // Log the current input value to the console
+    const data = {
+      group_name:inputValue
+    }
+    this.satelliteService.getGroupsForAssignment(data).subscribe({
+      next: (resp) => {
+        console.log(resp,'respresprespresprespresprespresprespresp');
+        
+        this.groups = resp?.data
         
       }})
   }

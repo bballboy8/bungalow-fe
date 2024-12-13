@@ -722,6 +722,70 @@ handleAction(action: string): void {
               this.satelliteService.getPolygonSelectionAnalytics(data).subscribe({
                 next: (res) => {
                   console.log(res, 'Polygon Selection Analytics Response');
+                  if(res.data){
+                    layer.once('click', async (e: L.LeafletEvent) => {
+                      const mapContainer = this.map.getContainer();
+                      const boundsNorthEast = this.map.latLngToContainerPoint(bounds.getNorthEast());
+                      const boundsSouthWest = this.map.latLngToContainerPoint(bounds.getSouthWest());
+              
+                      // Set the dialog position near the top-right of the polygon
+                      const polygonPoint = {
+                        x: boundsNorthEast.x,
+                        y: boundsSouthWest.y,
+                      };
+              
+                      const position = {
+                        top: `${polygonPoint.y + mapContainer.offsetTop}px`,
+                        left: `${polygonPoint.x + mapContainer.offsetLeft + 20}px`,
+                      };
+              
+                      // Mock data for dialog content (replace with actual data if needed)
+                      const markerData = resp?.data?.analytics
+                      this.getAddress(center.lat, center.lng).then((address) => {
+                        const dialogRef = this.dialog.open(MapControllersPopupComponent, {
+                          width: '320px',
+                          data: { type: 'polygon', markerData },
+                          position,
+                          panelClass: 'custom-dialog-class',
+                        });
+              
+                        dialogRef.afterOpened().subscribe(() => {
+                          const dialogElement = document.querySelector('.custom-dialog-class') as HTMLElement;
+              
+                          if (dialogElement) {
+                            const dialogHeight = dialogElement.offsetHeight;
+                            const mapHeight = mapContainer.offsetHeight;
+                            const mapWidth = mapContainer.offsetWidth;
+              
+                            let newLeft = polygonPoint.x + mapContainer.offsetLeft + 20;
+                            if (polygonPoint.x + 300 > mapWidth) {
+                              newLeft = polygonPoint.x + mapContainer.offsetLeft - 300 - 20;
+                            }
+              
+                            let newTop: number;
+                            const spaceAbove = polygonPoint.y;
+                            const spaceBelow = mapHeight - polygonPoint.y;
+              
+                            if (spaceBelow >= dialogHeight + 20) {
+                              newTop = polygonPoint.y + mapContainer.offsetTop + 10;
+                            } else if (spaceAbove >= dialogHeight + 20) {
+                              newTop = polygonPoint.y + mapContainer.offsetTop - dialogHeight - 10;
+                            } else {
+                              newTop = Math.max(
+                                mapContainer.offsetTop,
+                                Math.min(polygonPoint.y + mapContainer.offsetTop - dialogHeight / 2, mapHeight - dialogHeight)
+                              );
+                            }
+              
+                            dialogRef.updatePosition({
+                              top: `${newTop}px`,
+                              left: `${newLeft}px`,
+                            });
+                          }
+                        });
+                      });
+                    });
+                  }
                 },
               });
             }
@@ -732,68 +796,7 @@ handleAction(action: string): void {
         });
   
         // Optional: If you still want the click event, ensure it's added only once
-        layer.once('click', async (e: L.LeafletEvent) => {
-          const mapContainer = this.map.getContainer();
-          const boundsNorthEast = this.map.latLngToContainerPoint(bounds.getNorthEast());
-          const boundsSouthWest = this.map.latLngToContainerPoint(bounds.getSouthWest());
-  
-          // Set the dialog position near the top-right of the polygon
-          const polygonPoint = {
-            x: boundsNorthEast.x,
-            y: boundsSouthWest.y,
-          };
-  
-          const position = {
-            top: `${polygonPoint.y + mapContainer.offsetTop}px`,
-            left: `${polygonPoint.x + mapContainer.offsetLeft + 20}px`,
-          };
-  
-          // Mock data for dialog content (replace with actual data if needed)
-          const markerData = '';
-          this.getAddress(center.lat, center.lng).then((address) => {
-            const dialogRef = this.dialog.open(MapControllersPopupComponent, {
-              width: '320px',
-              data: { type: 'polygon', markerData },
-              position,
-              panelClass: 'custom-dialog-class',
-            });
-  
-            dialogRef.afterOpened().subscribe(() => {
-              const dialogElement = document.querySelector('.custom-dialog-class') as HTMLElement;
-  
-              if (dialogElement) {
-                const dialogHeight = dialogElement.offsetHeight;
-                const mapHeight = mapContainer.offsetHeight;
-                const mapWidth = mapContainer.offsetWidth;
-  
-                let newLeft = polygonPoint.x + mapContainer.offsetLeft + 20;
-                if (polygonPoint.x + 300 > mapWidth) {
-                  newLeft = polygonPoint.x + mapContainer.offsetLeft - 300 - 20;
-                }
-  
-                let newTop: number;
-                const spaceAbove = polygonPoint.y;
-                const spaceBelow = mapHeight - polygonPoint.y;
-  
-                if (spaceBelow >= dialogHeight + 20) {
-                  newTop = polygonPoint.y + mapContainer.offsetTop + 10;
-                } else if (spaceAbove >= dialogHeight + 20) {
-                  newTop = polygonPoint.y + mapContainer.offsetTop - dialogHeight - 10;
-                } else {
-                  newTop = Math.max(
-                    mapContainer.offsetTop,
-                    Math.min(polygonPoint.y + mapContainer.offsetTop - dialogHeight / 2, mapHeight - dialogHeight)
-                  );
-                }
-  
-                dialogRef.updatePosition({
-                  top: `${newTop}px`,
-                  left: `${newLeft}px`,
-                });
-              }
-            });
-          });
-        });
+       
       }
     });
   }

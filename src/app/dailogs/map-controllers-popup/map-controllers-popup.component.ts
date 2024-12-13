@@ -41,12 +41,13 @@ export class Group {
 })
 export class MapControllersPopupComponent implements OnInit {
   @ViewChild('myTemplate', { static: true }) myTemplate!: TemplateRef<any>;
-  selectedTimeFrame: string = '1';
+  selectedTimeFrame: any = 1;
   renderGroup!: TemplateRef<any> | null;
   checked: boolean = false;
   groups: Group[] = [
     // Add more groups as needed
   ];
+  activeTimeDate:any
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: any,
   private satelliteService:SatelliteService,) {}
@@ -54,10 +55,12 @@ export class MapControllersPopupComponent implements OnInit {
   ngOnInit(): void {
     console.log(this.data, 'datataatatatatatattat');
     this.renderGroup = this.myTemplate;
+    this.activeTimeDate = this.data?.markerData?.percentages[this.selectedTimeFrame]
   }
 
-  activeTimeFrame(time: string) {
+  activeTimeFrame(time: any) {
     this.selectedTimeFrame = time;
+    this.activeTimeDate = this.data?.markerData?.percentages[time]
   }
 
   formatDate(date: any) {
@@ -91,4 +94,29 @@ export class MapControllersPopupComponent implements OnInit {
         
       }})
   }
+
+   getTimeIfWithin24Hours(acquisition_datetime: string): string | null {
+    // Convert the acquisition_datetime string into a Date object
+    const acquisitionDate = new Date(acquisition_datetime);
+  
+    // Get the current date and time
+    const currentDate = new Date();
+  
+    // Calculate the difference between the current date and acquisition date in milliseconds
+    const timeDifference = currentDate.getTime() - acquisitionDate.getTime();
+  
+    // Define 24 hours in milliseconds (24 hours * 60 minutes * 60 seconds * 1000 milliseconds)
+    const twentyFourHoursInMs = 24 * 60 * 60 * 1000;
+  
+    // Check if the acquisition date is within the last 24 hours
+    if (timeDifference <= twentyFourHoursInMs) {
+      // If it's within 24 hours, return the time portion of the date (formatted as needed)
+      return acquisitionDate.toLocaleTimeString(); // You can adjust the format if needed
+    }
+  
+    // Return null if the acquisition date is not within the last 24 hours
+    return dayjs(acquisition_datetime).format('DD.MM.YY');;
+  }
+  
+  
 }

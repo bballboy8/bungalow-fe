@@ -25,5 +25,12 @@ export class SatelliteService extends BaseService {
   getPinSelectionAnalytics(data: any): Observable<any> {
     return this.post(createUrl("/get-pin-selection-analytics"), data);
   }
-
+  getPolygonSelectionAnalytics(data: any): Observable<any> {
+    return this.post(createUrl("/get-polygon-selection-acquisition-calender-days-frequency"), data);
+  }
+  getGroupsForAssignment(data: {group_name:any}): Observable<any> {
+    return this.get(createUrl("/get-groups-for-assignment-and-searching"),{
+      params:data
+    });
+  }
 }

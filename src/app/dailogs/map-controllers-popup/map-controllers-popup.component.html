@@ -1,4 +1,4 @@
-@if (data.type === 'marker') {
+@if (data.type === 'marker' || data.type === 'polygon') {
    <div class="flex p-[15px] flex-col items-start gap-[15px] rounded-[5px] bg-primaryBg z-40">
     <div class="flex flex-col items-start gap-[5px] self-stretch">
         <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Name</span>
@@ -9,7 +9,7 @@
             </span>          
         </div>
     </div>
-    <div class="flex flex-col items-start gap-[5px] self-stretch">
+   @if(data.type !== 'polygon'){ <div class="flex flex-col items-start gap-[5px] self-stretch">
         <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Address</span>
         <div class="flex items-center gap-[15px] self-stretch w-full">
             <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{data?.markerData?.address}}</span>
@@ -17,18 +17,18 @@
                 <img src="/assets/svg-icons/copy-icon.svg" alt="" />
             </span>          
         </div>
-    </div>
+     </div>
+    }
     <div class="flex flex-col items-start gap-[5px] self-stretch">
         <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Group</span>
         <div class="flex items-center gap-[15px] self-stretch w-full">
-            <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-yellow">Assign to a group</span>         
+            <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-yellow" (click)="getGroups()"
+            [matMenuTriggerFor]="assign">Assign to a group</span>         
         </div>
     </div>
     <div class="flex flex-col items-start gap-[5px] self-stretch">
         <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Image acquisition</span>
-        <div class="flex items-center gap-[15px] self-stretch w-full">
-            <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-yellow">Assign to a group</span>         
-        </div>
+        
         <div class="flex p-[15px] flex-col items-start gap-[15px] self-stretch rounded-[10px] border border-solid border-custom-border">
             <div class="flex items-center gap-[5px] self-stretch">
                 <div class="flex h-[60px] min-w-[61.25px] p-[8px] bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
@@ -45,7 +45,7 @@
                 </div>
                 <div class="flex h-[60px] min-w-[61.25px] p-[8px] bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
                     <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px]">Avg</span>
-                    <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px]">{{data?.markerData?.average_per_day.toFixed(3)}}</span>
+                    <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px]">{{data?.markerData?.average_per_day?.toFixed(3)}}</span>
                 </div>
             </div>
             <div class="p-[3px] flex justify-between items-center self-stretch rounded-[50px] bg-secondaryBg">
@@ -81,7 +81,7 @@
                 <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Most recent</span>
             <div class="flex items-center gap-[5px] self-stretch">
                 <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-yellow w-full">16 minutes ago</span>
-                <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText">{{data?.markerData?.newest_info?.cloud_cover.toFixed(3)}}%</span>
+                <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText">{{data?.markerData?.newest_info?.cloud_cover?.toFixed(3)}}%</span>
                 <span class="flex w-[15px] h-[15px] flex-col justify-center items-center gap-[10px]">
                     <img src="/assets/svg-icons/cloud-icon.svg" alt="" />
                 </span>
@@ -89,6 +89,31 @@
             </div>
         </div>
     </div>
+    <mat-menu class="bg-primaryBg" #assign="matMenu" id="assign">
+        <div class="p-[15px] flex flex-col gap-[10px]">
+            
+            <mat-list>
+                <ng-container *ngFor="let group of groups">
+                  <ng-template [ngTemplateOutlet]="renderGroup"
+                               [ngTemplateOutletContext]="{ $implicit: group }"></ng-template>
+                </ng-container>
+              </mat-list>
+              <div class="flex flex-col gap-3" (click)="$event.stopPropagation()">
+                <span class="text-secondary-heiglight font-semibold text-xs leading-[18px]">Assign to group</span>
+                <mat-form-field id="library" appearance="outline" class="!w-[320px]" (click)="$event.stopPropagation()">
+                    <mat-label>Search groups</mat-label>
+                    <input matInput placeholder="Search ...">
+                    <img src="assets/svg-icons/search-icon.svg" alt="Search" class="w-[14px]" />
+                </mat-form-field>
+            </div>
+            <span (click)="$event.stopPropagation()"><mat-checkbox class="example-margin" [(ngModel)]="checked">Notify
+                    me of new updates</mat-checkbox></span>
+            <button
+                class="flex justify-center text-[#453303] items-center text-center w-full h-[38px] py-[10px] bg-yellow rounded-[5px]">Save</button>
+            <button
+                class="flex justify-center text-[##ABB7C0] items-center text-center w-full h-[38px] py-[10px] bg-secondary-heiglight rounded-[5px]">Cancel</button>
+        </div>
+    </mat-menu>
    </div>
   } @else if (data.type === 'shape') {
     

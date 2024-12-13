@@ -656,55 +656,188 @@ handleAction(action: string): void {
 
   // Enable drawing mode for polygons or lines
   private enableDrawing(shape: string): void {
-    // Clear existing shapes before enabling the drawing tool
+    // Clear previous layers
     this.drawLayer.clearLayers();
+    
+    // If there's an active drawing tool, disable it before starting a new one
+    if (this.activeDrawTool) {
+      this.activeDrawTool.disable();
+    }
   
     let drawTool: L.Draw.Polyline | L.Draw.Polygon;
-
-    // Create the appropriate drawing tool based on the selected shape
+  
     if (shape === 'polygon') {
-        drawTool = new L.Draw.Polygon(this.map as L.DrawMap, {
-            shapeOptions: {
-                color: '#ff7800',
-                weight: 4,
-            },
-        });
+      drawTool = new L.Draw.Polygon(this.map as L.DrawMap, {
+        shapeOptions: {
+          color: '#ff7800',
+          weight: 4,
+        },
+      });
     } else if (shape === 'line') {
-        drawTool = new L.Draw.Polyline(this.map as L.DrawMap, {
-            shapeOptions: {
-                color: '#1f78b4',
-                weight: 4,
-            },
-            // Restricting line to only two points
-            maxPoints: 2,
-        });
+      drawTool = new L.Draw.Polyline(this.map as L.DrawMap, {
+        shapeOptions: {
+          color: '#1f78b4',
+          weight: 4,
+        },
+        maxPoints: 2,
+      });
     } else {
-        console.error('Invalid shape type');
-        return;
+      console.error('Invalid shape type');
+      return;
     }
-
-    // Enable the drawing tool
+  
+    // Enable the draw tool
     drawTool.enable();
-
-    // Store the active drawing tool
     this.activeDrawTool = drawTool;
-
-    // Listen to the created event
+  
+    // Remove any previous event listeners for 'L.Draw.Event.CREATED'
+    this.map.off(L.Draw.Event.CREATED);
+  
+    // Add the event listener for the new shape
     this.map.on(L.Draw.Event.CREATED, (event: any) => {
-        const layer = event.layer;
-
-        // Handle the created shapes
-        if (shape === 'line' && layer instanceof L.Polyline) {
-            const latlngs = layer.getLatLngs();
-            if (latlngs.length === 2) {
-                console.log('Line drawn successfully between two points:', latlngs);
-                this.drawLayer.addLayer(layer);
-            }
-        } else if (shape === 'polygon') {
-            this.drawLayer.addLayer(layer);
+      const layer = event.layer;
+  
+      // Log to check how many times the event is being triggered
+      console.log('Event triggered: ', shape, new Date().toISOString());
+  
+      if (shape === 'line' && layer instanceof L.Polyline) {
+        const latlngs = layer.getLatLngs();
+        if (latlngs.length === 2) {
+          this.drawLayer.addLayer(layer);
         }
+      } else if (shape === 'polygon') {
+        this.drawLayer.addLayer(layer);
+        const bounds = (layer as L.Polygon).getBounds();
+        const center = bounds.getCenter();
+        const geoJSON = layer.toGeoJSON();
+        const payload = { geometry: geoJSON?.geometry };
+  
+        // API call to get polygon data
+        this.satelliteService.getPolyGonData(payload).subscribe({
+          next: (resp) => {
+            console.log(resp, 'Polygon Data Response');
+            const data = { polygon_wkt: resp.data.wkt_polygon };
+            if (resp.data) {
+              // API call for polygon selection analytics
+              this.satelliteService.getPolygonSelectionAnalytics(data).subscribe({
+                next: (res) => {
+                  console.log(res, 'Polygon Selection Analytics Response');
+                },
+              });
+            }
+          },
+          error: (err) => {
+            console.error('Error fetching polygon data:', err);
+          },
+        });
+  
+        // Optional: If you still want the click event, ensure it's added only once
+        layer.once('click', async (e: L.LeafletEvent) => {
+          const mapContainer = this.map.getContainer();
+          const boundsNorthEast = this.map.latLngToContainerPoint(bounds.getNorthEast());
+          const boundsSouthWest = this.map.latLngToContainerPoint(bounds.getSouthWest());
+  
+          // Set the dialog position near the top-right of the polygon
+          const polygonPoint = {
+            x: boundsNorthEast.x,
+            y: boundsSouthWest.y,
+          };
+  
+          const position = {
+            top: `${polygonPoint.y + mapContainer.offsetTop}px`,
+            left: `${polygonPoint.x + mapContainer.offsetLeft + 20}px`,
+          };
+  
+          // Mock data for dialog content (replace with actual data if needed)
+          const markerData = '';
+          this.getAddress(center.lat, center.lng).then((address) => {
+            const dialogRef = this.dialog.open(MapControllersPopupComponent, {
+              width: '320px',
+              data: { type: 'polygon', markerData },
+              position,
+              panelClass: 'custom-dialog-class',
+            });
+  
+            dialogRef.afterOpened().subscribe(() => {
+              const dialogElement = document.querySelector('.custom-dialog-class') as HTMLElement;
+  
+              if (dialogElement) {
+                const dialogHeight = dialogElement.offsetHeight;
+                const mapHeight = mapContainer.offsetHeight;
+                const mapWidth = mapContainer.offsetWidth;
+  
+                let newLeft = polygonPoint.x + mapContainer.offsetLeft + 20;
+                if (polygonPoint.x + 300 > mapWidth) {
+                  newLeft = polygonPoint.x + mapContainer.offsetLeft - 300 - 20;
+                }
+  
+                let newTop: number;
+                const spaceAbove = polygonPoint.y;
+                const spaceBelow = mapHeight - polygonPoint.y;
+  
+                if (spaceBelow >= dialogHeight + 20) {
+                  newTop = polygonPoint.y + mapContainer.offsetTop + 10;
+                } else if (spaceAbove >= dialogHeight + 20) {
+                  newTop = polygonPoint.y + mapContainer.offsetTop - dialogHeight - 10;
+                } else {
+                  newTop = Math.max(
+                    mapContainer.offsetTop,
+                    Math.min(polygonPoint.y + mapContainer.offsetTop - dialogHeight / 2, mapHeight - dialogHeight)
+                  );
+                }
+  
+                dialogRef.updatePosition({
+                  top: `${newTop}px`,
+                  left: `${newLeft}px`,
+                });
+              }
+            });
+          });
+        });
+      }
     });
-}
+  }
+  
+  
+  
+  
+  
+  // Helper function to calculate the centroid of a polygon
+  private getCentroid(latLngs: L.LatLng[]): L.LatLng {
+    let latSum = 0;
+    let lngSum = 0;
+  
+    // Log latLngs to ensure valid data
+    console.log('Polygon coordinates:', latLngs);
+  
+    latLngs.forEach(latLng => {
+      if (latLng instanceof L.LatLng) {
+        console.log('Valid LatLng:', latLng);  // Check if latLng is an instance of L.LatLng
+  
+        // Make sure latLng has valid lat and lng values
+        if (latLng.lat && latLng.lng) {
+          latSum += latLng.lat;
+          lngSum += latLng.lng;
+        } else {
+          console.warn('Invalid LatLng object (missing lat/lng):', latLng);
+        }
+      } else {
+        console.warn('Non-LatLng object in latLngs:', latLng);
+      }
+    });
+  
+    const length = latLngs.length;
+  
+    // Check if there are valid LatLngs
+    if (length === 0 || latSum === 0 || lngSum === 0) {
+      console.error('Invalid LatLng data for centroid calculation');
+      return L.latLng(0, 0); // Return default invalid LatLng if centroid calculation fails
+    }
+  
+    // Calculate and return the centroid
+    return L.latLng(latSum / length, lngSum / length);
+  }
+
 
   
   

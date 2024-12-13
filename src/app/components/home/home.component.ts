@@ -119,7 +119,7 @@ export class HomeComponent implements AfterViewInit {
   //openstreetmap initialization
   private initMap(): void {
     this.map = L.map(this.mapContainer.nativeElement, {
-      center: [this.latitude, this.longitude],
+      center: [34.0479, 100.6197], // Set the center to a location in Asia
       zoom: this.zoomLevel,
       zoomControl: false,
       minZoom: 4, // Set minimum zoom level
@@ -135,7 +135,7 @@ export class HomeComponent implements AfterViewInit {
   
     // Set the max bounds for the map
     this.map.setMaxBounds(bounds);
-    
+  
     // Optional: Prevent zooming out beyond a certain level
     this.map.on('zoomend', () => {
       if (this.map.getZoom() < 4) {
@@ -190,6 +190,7 @@ export class HomeComponent implements AfterViewInit {
       );
     }
   }
+  
   
 
   // private addPin(coords: [number, number], iconUrl: string): void {

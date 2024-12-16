@@ -134,7 +134,9 @@ export class HomeComponent implements AfterViewInit {
     ];
   
     // Set the max bounds for the map
-    this.map.setMaxBounds(bounds);
+
+
+    // this.map.setMaxBounds(bounds);
   
     // Optional: Prevent zooming out beyond a certain level
     this.map.on('zoomend', () => {

@@ -200,8 +200,12 @@ export class MapControllersPopupComponent implements OnInit {
     }
     this.satelliteService.addSite(payload).subscribe({
       next: (resp) => {
+        this.snackBar.open('Site has been added.', 'Ok', {
+          duration: 2000  // Snackbar will disappear after 300 milliseconds
+        });
         console.log(resp, 'successsuccesssuccesssuccess');
         this.addGroup = true;  // This will execute if the API call is successful
+       
       },
       error: (err) => {
         console.error('Error occurred:', err);

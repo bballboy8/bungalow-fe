@@ -2,7 +2,7 @@
   <div class="w-fit flex h-[50px] bg-primaryBg rounded-[5px] shadow-custom-black">
     <div class="border-r border-custom-border w-[70px] px-[15px]">
 
-      <ul *ngIf="isDropdownOpen" class="absolute w-[70px] h-[100px] rounded-[5px] bg-primaryBg -top-[110px]">
+      <ul *ngIf="isDropdownOpen" class="absolute w-[70px] h-[100px] rounded-[5px] bg-primaryBg -top-[105px] left-0">
         <li *ngFor="let option of options" (click)="selectOption(option)"
           class="border-b h-[50px] last:border-b-0 border-solid border-custom-border">
           <span class="flex items-center justify-center h-full w-full"><img [src]="option.image"
@@ -63,7 +63,6 @@
       <div class="flex items-center gap-3 cursor-pointer" (click)="layerDropdown()">
       <span  class="cursor-pointer">
         <img src="assets/svg-icons/layer-icon.svg" alt="pin location icon" />
-
       </span>
       <span>
         <svg width="9" height="6" viewBox="0 0 9 6" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -76,14 +75,14 @@
       </div>
     </div>
   </div>
-  <div class="w-[545px] flex h-[35px] bg-primaryBg rounded-[5px] shadow-custom-black">
+  <div class="w-[545px] flex h-[35px] bg-primaryBg rounded-[5px] shadow-custom-black" (click)="closeDropdown()">
     <div class=" px-[10px] w-[329px] gap-[10px] items-center flex border-r border-custom-border h-full">
       <div class="flex gap-3 w-[300px] items-center">
-        <div class="flex gap-2 items-center">
-          <div class="flex gap-1 z-30 relative font-semibold text-xs leading-[14.4px]"><span
+        <div class="flex gap-2 items-center w-[280px]">
+          <div class="flex gap-1 z-30 relative min-w-[138px] font-semibold text-xs leading-[14.4px]"><span
               class="uppercase text-secondaryText">Latitude</span><span
               class="text-secondary-heiglight">{{latitude}}</span></div>
-          <div class="flex gap-1 z-30 relative font-semibold text-xs leading-[14.4px]"><span
+          <div class="flex gap-1 z-30 min-w-[138px] relative font-semibold text-xs leading-[14.4px]"><span
               class="uppercase text-secondaryText">Longitude</span><span
               class="text-secondary-heiglight">{{longitude}}</span></div>
           <span class="cursor-pointer" (click)="copyToClipboard()">
@@ -109,7 +108,7 @@
       <span class="text-secondary-heiglight ">
         {{zoomLevel}}
       </span>
-      <mat-slider  min="4" max="12" >
+      <mat-slider  min="4" max="20" >
         <input matSliderThumb [(ngModel)]="zoomLevel" (input)="zoomMap('')" #slider>
       </mat-slider>
     </div>

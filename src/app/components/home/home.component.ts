@@ -70,7 +70,7 @@ export class HomeComponent implements AfterViewInit {
   googleStreets: L.TileLayer = L.tileLayer(
     'http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
     {
-      maxZoom: 12,
+      maxZoom: 20,
       subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
     }
   )
@@ -80,11 +80,17 @@ export class HomeComponent implements AfterViewInit {
   private activeDrawTool: L.Draw.Polyline | L.Draw.Polygon | null = null; // Track active drawing tool
   startDate: string ='';
   endDate: string ='';
+  data: any;
+  @ViewChild(FooterComponent) childComponent!: FooterComponent;
+  isDropdownOpen: boolean = false;
+  showLayers:boolean = false;
   constructor(@Inject(PLATFORM_ID) private platformId: Object,
    private satelliteService:SatelliteService,private dialog: MatDialog,
    private http: HttpClient,
   )
-  {}
+  {
+    this.data = null;
+  }
 
   ngAfterViewInit(): void {
     if (isPlatformBrowser(this.platformId)) {
@@ -123,11 +129,11 @@ export class HomeComponent implements AfterViewInit {
   //openstreetmap initialization
   private initMap(): void {
     this.map = L.map(this.mapContainer.nativeElement, {
-      center: [this.latitude, this.longitude],
+      center: [34.0479, 100.6197], // Set the center to a location in Asia
       zoom: this.zoomLevel,
       zoomControl: false,
       minZoom: 4, // Set minimum zoom level
-      maxZoom: 12, // Set maximum zoom level
+      maxZoom: 20, // Set maximum zoom level
       scrollWheelZoom: true, // Optionally allow zooming by scrolling
     });
   
@@ -138,8 +144,10 @@ export class HomeComponent implements AfterViewInit {
     ];
   
     // Set the max bounds for the map
-    this.map.setMaxBounds(bounds);
-    
+
+
+    // this.map.setMaxBounds(bounds);
+  
     // Optional: Prevent zooming out beyond a certain level
     this.map.on('zoomend', () => {
       if (this.map.getZoom() < 4) {
@@ -168,9 +176,14 @@ export class HomeComponent implements AfterViewInit {
     // Add event listener for mouse movement to track coordinates
     this.map.on('mousemove', (event: L.LeafletMouseEvent) => {
       const coords = event.latlng;
-      this.longitude = parseFloat(coords.lng.toFixed(6));
-      this.latitude = parseFloat(coords.lat.toFixed(6));
+    
+      // Normalize longitude to the range [-180, 180)
+      this.longitude = parseFloat((((coords.lng + 180) % 360 + 360) % 360 - 180).toFixed(6));
+    
+      // Clamp latitude to the range [-90, 90]
+      this.latitude = parseFloat(Math.max(-90, Math.min(coords.lat, 90)).toFixed(6));
     });
+    
   
     // Add event listener for when a shape is created
     this.map.on(L.Draw.Event.CREATED, (event: any) => {
@@ -194,6 +207,7 @@ export class HomeComponent implements AfterViewInit {
       );
     }
   }
+  
   
 
   // private addPin(coords: [number, number], iconUrl: string): void {
@@ -364,6 +378,7 @@ export class HomeComponent implements AfterViewInit {
       start_date:this.startDate,
       end_date: this.endDate
           }
+          this.data = resp?.data;
           this.getDataUsingPolygon(resp?.data,queryParams)};
       },
       error: (err) => {
@@ -377,6 +392,7 @@ export class HomeComponent implements AfterViewInit {
   getDataUsingPolygon(payload: any,queryParams: any) {
     this.satelliteService.getDataFromPolygon(payload,queryParams).subscribe({
       next: (resp) => {
+        this.extraShapesLayer?.clearLayers();
         if (Array.isArray(resp?.data)) {
           resp.data.forEach((item:any) => {
             this.addPolygonWithMetadata(item);
@@ -929,11 +945,11 @@ private clearUserMarker(): void {
   }
 
   // Reset maxZoom to the original map configuration
-  this.map.options.maxZoom = 12;
+  this.map.options.maxZoom = 20;
 
   // Optionally reset the zoom level to your default zoom
-  if (this.zoomLevel > 12) {
-    this.map.setZoom(12); // Adjust zoom if it exceeds maxZoom
+  if (this.zoomLevel > 20) {
+    this.map.setZoom(20); // Adjust zoom if it exceeds maxZoom
   }
 }
 
@@ -958,7 +974,38 @@ onDateRangeChanged(event: { startDate: string, endDate: string }) {
   this.endDate = formattedENdDate;
   console.log('Start Date:', this.startDate);
   console.log('End Date:', this.endDate);
+
+  if (this.data) {
+    let queryParams ={
+      page_number: '1',
+      page_size: '100',
+      start_date:this.startDate,
+      end_date: this.endDate
+    }
+  this.getDataUsingPolygon(this.data,queryParams);
+  }
+
 }
+
+// Handle the dropdown toggle event from the child
+handleDropdownToggle(state: boolean) {
+  this.showLayers = false
+  this.isDropdownOpen = state;
+}
+
+handleLayersToggle(state:boolean){
+  this.isDropdownOpen = false
+  this.showLayers = state;
+}
+
+closeDropdown() {
+  console.log('aaaaaaaaaa');
+  
+  this.isDropdownOpen = false;
+  this.showLayers = false
+}
+
+
 
 
 //open map controller pop up

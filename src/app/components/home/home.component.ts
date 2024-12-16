@@ -166,8 +166,13 @@ export class HomeComponent implements AfterViewInit {
     // Add event listener for mouse movement to track coordinates
     this.map.on('mousemove', (event: L.LeafletMouseEvent) => {
       const coords = event.latlng;
-      this.longitude = parseFloat(coords.lng.toFixed(6));
+      const normalizedLng = ((coords.lng + 180) % 360 + 360) % 360 - 180;
+
+      // Update the latitude and normalized longitude
+      this.longitude = parseFloat(normalizedLng.toFixed(6));
       this.latitude = parseFloat(coords.lat.toFixed(6));
+      // this.longitude = parseFloat(coords.lng.toFixed(6));
+      // this.latitude = parseFloat(coords.lat.toFixed(6));
     });
   
     // Add event listener for when a shape is created

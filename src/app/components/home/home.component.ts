@@ -77,10 +77,13 @@ export class HomeComponent implements AfterViewInit {
   private activeDrawTool: L.Draw.Polyline | L.Draw.Polygon | null = null; // Track active drawing tool
   startDate: string ='';
   endDate: string ='';
+  data: any;
   @ViewChild(FooterComponent) childComponent!: FooterComponent;
   isDropdownOpen: boolean = false;
   showLayers:boolean = false;
-  constructor(@Inject(PLATFORM_ID) private platformId: Object,private satelliteService:SatelliteService) {}
+  constructor(@Inject(PLATFORM_ID) private platformId: Object,private satelliteService:SatelliteService) {
+    this.data = null;
+  }
 
   ngAfterViewInit(): void {
     if (isPlatformBrowser(this.platformId)) {
@@ -368,6 +371,7 @@ export class HomeComponent implements AfterViewInit {
       start_date:this.startDate,
       end_date: this.endDate
           }
+          this.data = resp?.data;
           this.getDataUsingPolygon(resp?.data,queryParams)};
       },
       error: (err) => {
@@ -381,6 +385,7 @@ export class HomeComponent implements AfterViewInit {
   getDataUsingPolygon(payload: any,queryParams: any) {
     this.satelliteService.getDataFromPolygon(payload,queryParams).subscribe({
       next: (resp) => {
+        this.extraShapesLayer?.clearLayers();
         if (Array.isArray(resp?.data)) {
           resp.data.forEach((item:any) => {
             this.addPolygonWithMetadata(item);
@@ -722,6 +727,17 @@ onDateRangeChanged(event: { startDate: string, endDate: string }) {
   this.endDate = formattedENdDate;
   console.log('Start Date:', this.startDate);
   console.log('End Date:', this.endDate);
+
+  if (this.data) {
+    let queryParams ={
+      page_number: '1',
+      page_size: '100',
+      start_date:this.startDate,
+      end_date: this.endDate
+    }
+  this.getDataUsingPolygon(this.data,queryParams);
+  }
+
 }
 
 // Handle the dropdown toggle event from the child

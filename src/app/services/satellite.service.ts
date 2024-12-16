@@ -33,4 +33,11 @@ export class SatelliteService extends BaseService {
       params:data
     });
   }
+  generateCirclePolygon(data: any): Observable<any> {
+    return this.post(createUrl("/generate-circle-polygon/"), data);
+  }
+
+  addSite(data: any): Observable<any> {
+    return this.post(createUrl("/add-site"), data);
+  }
 }

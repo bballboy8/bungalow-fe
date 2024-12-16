@@ -1,6 +1,6 @@
 <div class="font-Barlow" >
     <!-- Group Header -->
-    <div class="group-header flex gap-[15px] text-sm font-medium text-secondaryText p-[15px] border-y border-y-solid border-y-custom-border" [ngClass]="isExpanded? 'bg-[#232B32] ':'bg-primaryBg'" (click)="toggle()">
+    <div class="group-header flex gap-[15px] text-sm font-medium text-secondaryText p-[15px] border-y border-y-solid border-y-custom-border" [ngClass]="isExpanded? 'bg-[#232B32] ':'bg-primaryBg'" (click)="toggle(group)">
         @if (isExpanded) {
             <span class="w-[14px] h-[12px]">
                 <img src="assets/svg-icons/folder-icon-expanded.svg" alt="Search" class="w-[14px]" />

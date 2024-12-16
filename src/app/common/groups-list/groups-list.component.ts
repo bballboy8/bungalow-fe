@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, input, Input, Output } from '@angular/core';
 import {MatExpansionModule} from '@angular/material/expansion';
 @Component({
   selector: 'app-groups-list',
@@ -14,12 +14,17 @@ export class GroupsListComponent {
   @Input() backgroundColor: string = '#191E22';
   @Input() index:any
   activeIndex: any;
-  toggle() {
+  @Output() selectedGroup = new EventEmitter<{ }>();
+  toggle(group:any) {
     
     if(this.index !== undefined){
       this.activeIndex = this.index
     }
     this.isExpanded = !this.isExpanded; // Toggle expand/collapse
     this.backgroundColor = this.isExpanded ? '#232B32' : '#191E22';
+    if(this.isExpanded){
+      this.selectedGroup.emit({group})
+    }
   }
+  
 }

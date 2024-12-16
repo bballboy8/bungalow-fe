@@ -59,9 +59,11 @@ export class HomeComponent implements AfterViewInit {
   private drawHandler: any = null; // Declare drawHandler
   private markerHandler: any;
   private darkLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    maxZoom: 20, // Maximum zoom level
     subdomains: 'abc',
   });
   private lightLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 20, // Maximum zoom level
     subdomains: 'abc',
   });
   googleStreets: L.TileLayer = L.tileLayer(

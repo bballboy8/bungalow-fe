@@ -408,23 +408,69 @@ export class HomeComponent implements AfterViewInit {
   }
   // Function to add the polygon and its metadata
   private addPolygonWithMetadata(data: any): void {
-
     const polygonCoordinates = data.coordinates_record.coordinates[0]; // Access the first array of coordinates
-
+  
     // Convert [lng, lat] to [lat, lng] (Leaflet requires [lat, lng] format)
     const latLngs = polygonCoordinates.map((coord: [number, number]) => [
       coord[1],
       coord[0],
     ]);
-
+  
+    let color = '#eff24d';
+    let fillColor = '#eff24d';
+    if (data.vendor_name === 'planet') {
+      color = '#55FF00';
+    } else if (data.vendor_name === 'blacksky') {
+      color = '#FFFF00';
+    } else if (data.vendor_name === 'maxar') {
+      color = '#FFAA00';
+    } else if (data.vendor_name === 'airbus') {
+      color = '#0070FF';
+    } else if (data.vendor_name === 'skyfi') {
+      color = '#A900E6';
+    } else {
+      color = '#FF00C5';
+    }
+  
     // Add the polygon to the map
     const polygon = L.polygon(latLngs, {
-      color: "#eff24d", // Border color
-      fillColor: "#eff24d", // Fill color
-      fillOpacity: 0.1, // Fill opacity
+      color: color, // Border color
+      fillColor: fillColor, // Fill color
+      fillOpacity: 0.5, // Fill opacity
     }).addTo(this.map);
-    this.extraShapesLayer?.addLayer(polygon);  
+  console.log(polygon,'polygonpolygonpolygonpolygon');
+  
+    // Attach the click event to open the component dialog
+    polygon.on('click', (event: L.LeafletMouseEvent) => {
+      const clickedPosition = event.latlng; // Get the clicked position
+  
+      // Convert clicked position to pixel position relative to the map
+      const containerPoint = this.map.latLngToContainerPoint(clickedPosition);
+      let queryParams ={
+        page_number: '1',
+        page_size: '100',
+        start_date:'',
+        end_date: '',
+        vendor_id:data.vendor_id
+      }
+      let vendorData
+      this.satelliteService.getDataFromPolygon('',queryParams).subscribe({
+        next: (resp) => {
+          console.log(resp,'queryParamsqueryParamsqueryParamsqueryParams');
+          vendorData = resp.data[0]
+          this.openDialogAtPosition(polygon, vendorData);
+        },
+        error: (err) => {
+          console.log("err getPolyGonData: ", err);
+        },
+      });
+      // Open the Angular Material Dialog at the calculated position
+     
+    });
+  
+    this.extraShapesLayer?.addLayer(polygon);
   }
+  
 
   private clearExtraShapes(): void {
     this.extraShapesLayer?.clearLayers();
@@ -1007,9 +1053,6 @@ closeDropdown() {
   this.showLayers = false
 }
 
-
-
-
 //open map controller pop up
 openDialog(data: any, position: { top: string; left: string }): void {
   
@@ -1019,6 +1062,90 @@ openDialog(data: any, position: { top: string; left: string }): void {
     position: position, // Dynamically calculated position
   });
 }
+
+// Method to open the dialog at a specific position
+private openDialogAtPosition(polygon: any, metadata: any): void {
+  const bounds = polygon.getBounds()
+  const mapContainer = this.map.getContainer();
+  const boundsNorthEast = this.map.latLngToContainerPoint(bounds.getNorthEast());
+  const boundsSouthWest = this.map.latLngToContainerPoint(bounds.getSouthWest());
+
+  // Set the dialog position near the top-right of the polygon
+  const polygonPoint = {
+    x: boundsNorthEast.x,
+    y: boundsSouthWest.y,
+  };
+
+  const position = {
+    top: `${polygonPoint.y + mapContainer.offsetTop}px`,
+    left: `${polygonPoint.x + mapContainer.offsetLeft + 20}px`,
+  };
+
+  const dialogWidth = 272; // Dialog's fixed width
+  const dialogHeight = 200; // Dialog's approximate height
+
+  const offset = 10; // Small padding to avoid overlap
+
+
+  // Default positioning
+
+
+  // Open the dialog with adjusted position
+  const dialogRef = this.dialog.open(MapControllersPopupComponent, {
+    width: `${dialogWidth}px`,
+    height: 'auto',
+    data: { type: 'vendor', vendorData: metadata },
+    position,
+    panelClass: 'custom-dialog-class',
+  });
+
+  // Re-adjust dialog position dynamically after opening if needed
+  dialogRef.afterOpened().subscribe(() => {
+    const dialogElement = document.querySelector('.custom-dialog-class') as HTMLElement;
+
+    if (dialogElement) {
+      const dialogHeight = dialogElement.offsetHeight;
+      const mapHeight = mapContainer.offsetHeight;
+      const mapWidth = mapContainer.offsetWidth;
+
+      let newLeft = polygonPoint.x + mapContainer.offsetLeft + 20;
+      if (polygonPoint.x + 300 > mapWidth) {
+        newLeft = polygonPoint.x + mapContainer.offsetLeft - 300 - 20;
+      }
+
+      let newTop: number;
+      const spaceAbove = polygonPoint.y;
+      const spaceBelow = mapHeight - polygonPoint.y;
+
+      if (spaceBelow >= dialogHeight + 20) {
+       
+        
+        newTop = polygonPoint.y + mapContainer.offsetTop + 30;
+      } else if (spaceAbove >= dialogHeight + 20) {
+      
+        
+        newTop = polygonPoint.y + mapContainer.offsetTop - dialogHeight - 40;
+      } else {
+       
+        
+        newTop = Math.max(
+          mapContainer.offsetTop,
+          Math.min(polygonPoint.y + mapContainer.offsetTop - dialogHeight / 2, mapHeight - dialogHeight- 20)
+        );
+      }
+
+      dialogRef.updatePosition({
+        top: `${newTop}px`,
+        left: `${newLeft}px`,
+      });
+    }
+  });
+
+  dialogRef.afterClosed().subscribe((result) => {
+    console.log('Dialog closed', result);
+  });
+}
+
 
 
 }

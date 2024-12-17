@@ -15,6 +15,7 @@ import { SatelliteService } from '../../services/satellite.service';
 import { GroupsListComponent } from '../../common/groups-list/groups-list.component';
 import { catchError, debounceTime, of, Subject, switchMap } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import moment from 'moment';
 
 export class Group {
   name?: string;
@@ -284,6 +285,14 @@ export class MapControllersPopupComponent implements OnInit {
         duration: 2000  // Snackbar will disappear after 300 milliseconds
       });
     }
+  }
+
+  getDateTimeFormat(dateTime: string) {
+    if (dateTime) {
+      return moment(dateTime, 'YYYY-MM-DD HH:mm:ss')?.format('YYYY-MM-DD HH:mm:ss')
+
+    }
+    return '';
   }
 
    // Function to toggle hover state

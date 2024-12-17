@@ -59,6 +59,7 @@ export class MapControllersPopupComponent implements OnInit {
   private snackBar = inject(MatSnackBar);
   @ViewChild(GroupsListComponent) childComponent!: GroupsListComponent;
   @ViewChild(MatMenuTrigger) menuTrigger!: MatMenuTrigger;
+  siteData:any;
   constructor(@Inject(MAT_DIALOG_DATA) public data: any,
   private satelliteService:SatelliteService,) {
      // Apply debounceTime to the Subject and switch to the latest observable (API call)
@@ -115,7 +116,6 @@ export class MapControllersPopupComponent implements OnInit {
       this.satelliteService.getGroupsForAssignment(data).subscribe({
         next: (resp) => {
           console.log(resp,'respresprespresprespresprespresprespresp');
-          
           this.groups = resp
           
         }})
@@ -204,6 +204,7 @@ export class MapControllersPopupComponent implements OnInit {
           duration: 2000  // Snackbar will disappear after 300 milliseconds
         });
         console.log(resp, 'successsuccesssuccesssuccess');
+        this.siteData = resp
         this.addGroup = true;  // This will execute if the API call is successful
        
       },
@@ -228,6 +229,21 @@ export class MapControllersPopupComponent implements OnInit {
 
   saveGroup(){
     this.selectedGroup = this.activeGroup.group
+    const payload={
+      group_id:this.selectedGroup.id,
+      site_id:this.siteData.id
+    }
+    this.satelliteService.addGroupSite(payload).subscribe({
+      next: (res) => {
+        console.log(res,'updatedaaaaaaaaaaaaaaaaaa');
+        this.snackBar.open(res.message, 'Ok', {
+          duration: 2000  // Snackbar will disappear after 300 milliseconds
+        });
+      },
+      error: (err) => {
+
+      }
+    })
     this.closeMenu()
   }
   closeMenu() {

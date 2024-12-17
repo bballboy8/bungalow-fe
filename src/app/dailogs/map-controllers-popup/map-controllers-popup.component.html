@@ -207,7 +207,7 @@
       </span>  
       </div>    
       <div class="flex w-2/4 p-[8px] gap-[10px] flex-0 rounded-[3px] bg-primaryBg items-center justify-center">
-        <span class="text-secondaryText text-center text-sm font-medium leading-[18px]">{{data?.vendorData?.cloud_cover.toFixed(3)}}%</span>
+        <span class="text-secondaryText text-center text-sm font-medium leading-[18px]">{{data?.vendorData?.vendor_name != 'skyfi' ? data?.vendorData?.cloud_cover.toFixed(3) : 'SAR'}}%</span>
         <span class="h-[15px] w-[15px] cursor-pointer">
           <img src="/assets/svg-icons/cloud-icon.svg" alt="" />
       </span>  

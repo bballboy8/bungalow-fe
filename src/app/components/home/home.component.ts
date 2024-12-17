@@ -1065,32 +1065,41 @@ openDialog(data: any, position: { top: string; left: string }): void {
 
 // Method to open the dialog at a specific position
 private openDialogAtPosition(polygon: any, metadata: any): void {
-  const bounds = polygon.getBounds()
+  const bounds = polygon.getBounds();
   const mapContainer = this.map.getContainer();
   const boundsNorthEast = this.map.latLngToContainerPoint(bounds.getNorthEast());
   const boundsSouthWest = this.map.latLngToContainerPoint(bounds.getSouthWest());
 
-  // Set the dialog position near the top-right of the polygon
-  const polygonPoint = {
-    x: boundsNorthEast.x,
-    y: boundsSouthWest.y,
-  };
-
-  const position = {
-    top: `${polygonPoint.y + mapContainer.offsetTop}px`,
-    left: `${polygonPoint.x + mapContainer.offsetLeft + 20}px`,
-  };
-
   const dialogWidth = 272; // Dialog's fixed width
   const dialogHeight = 200; // Dialog's approximate height
-
   const offset = 10; // Small padding to avoid overlap
 
+  let position: { top: string; left: string };
 
-  // Default positioning
+  // Check if zoom level is greater than 8
+  if (this.zoomLevel > 8) {
+    // Center the dialog on the screen
+    const centerX = mapContainer.offsetWidth / 2 - dialogWidth / 2;
+    const centerY = mapContainer.offsetHeight / 2 - dialogHeight / 2;
 
+    position = {
+      top: `70px`,
+      left: `${centerX + mapContainer.offsetLeft}px`,
+    };
+  } else {
+    // Set the dialog position near the top-right of the polygon
+    const polygonPoint = {
+      x: boundsNorthEast.x,
+      y: boundsSouthWest.y,
+    };
 
-  // Open the dialog with adjusted position
+    position = {
+      top: `${polygonPoint.y + mapContainer.offsetTop}px`,
+      left: `${polygonPoint.x + mapContainer.offsetLeft + 20}px`,
+    };
+  }
+
+  // Open the dialog with the calculated position
   const dialogRef = this.dialog.open(MapControllersPopupComponent, {
     width: `${dialogWidth}px`,
     height: 'auto',
@@ -1099,52 +1108,54 @@ private openDialogAtPosition(polygon: any, metadata: any): void {
     panelClass: 'custom-dialog-class',
   });
 
-  // Re-adjust dialog position dynamically after opening if needed
-  dialogRef.afterOpened().subscribe(() => {
-    const dialogElement = document.querySelector('.custom-dialog-class') as HTMLElement;
+  // Re-adjust dialog position dynamically after opening if zoom level <= 8
+  if (this.zoomLevel <= 8) {
+    dialogRef.afterOpened().subscribe(() => {
+      const dialogElement = document.querySelector('.custom-dialog-class') as HTMLElement;
 
-    if (dialogElement) {
-      const dialogHeight = dialogElement.offsetHeight;
-      const mapHeight = mapContainer.offsetHeight;
-      const mapWidth = mapContainer.offsetWidth;
+      if (dialogElement) {
+        const dialogHeight = dialogElement.offsetHeight;
+        const mapHeight = mapContainer.offsetHeight;
+        const mapWidth = mapContainer.offsetWidth;
 
-      let newLeft = polygonPoint.x + mapContainer.offsetLeft + 20;
-      if (polygonPoint.x + 300 > mapWidth) {
-        newLeft = polygonPoint.x + mapContainer.offsetLeft - 300 - 20;
+        const polygonPoint = {
+          x: boundsNorthEast.x,
+          y: boundsSouthWest.y,
+        };
+
+        let newLeft = polygonPoint.x + mapContainer.offsetLeft + 20;
+        if (polygonPoint.x + 300 > mapWidth) {
+          newLeft = polygonPoint.x + mapContainer.offsetLeft - 300 - 20;
+        }
+
+        let newTop: number;
+        const spaceAbove = polygonPoint.y;
+        const spaceBelow = mapHeight - polygonPoint.y;
+
+        if (spaceBelow >= dialogHeight + 20) {
+          newTop = polygonPoint.y + mapContainer.offsetTop + 30;
+        } else if (spaceAbove >= dialogHeight + 20) {
+          newTop = polygonPoint.y + mapContainer.offsetTop - dialogHeight - 40;
+        } else {
+          newTop = Math.max(
+            mapContainer.offsetTop,
+            Math.min(polygonPoint.y + mapContainer.offsetTop - dialogHeight / 2, mapHeight - dialogHeight - 20)
+          );
+        }
+
+        dialogRef.updatePosition({
+          top: `${newTop}px`,
+          left: `${newLeft}px`,
+        });
       }
-
-      let newTop: number;
-      const spaceAbove = polygonPoint.y;
-      const spaceBelow = mapHeight - polygonPoint.y;
-
-      if (spaceBelow >= dialogHeight + 20) {
-       
-        
-        newTop = polygonPoint.y + mapContainer.offsetTop + 30;
-      } else if (spaceAbove >= dialogHeight + 20) {
-      
-        
-        newTop = polygonPoint.y + mapContainer.offsetTop - dialogHeight - 40;
-      } else {
-       
-        
-        newTop = Math.max(
-          mapContainer.offsetTop,
-          Math.min(polygonPoint.y + mapContainer.offsetTop - dialogHeight / 2, mapHeight - dialogHeight- 20)
-        );
-      }
-
-      dialogRef.updatePosition({
-        top: `${newTop}px`,
-        left: `${newLeft}px`,
-      });
-    }
-  });
+    });
+  }
 
   dialogRef.afterClosed().subscribe((result) => {
     console.log('Dialog closed', result);
   });
 }
+
 
 
 

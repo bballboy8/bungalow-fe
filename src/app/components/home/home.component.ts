@@ -435,7 +435,7 @@ export class HomeComponent implements AfterViewInit {
     // Add the polygon to the map
     const polygon = L.polygon(latLngs, {
       color: color, // Border color
-      fillColor: fillColor, // Fill color
+      fillColor: color, // Fill color
       fillOpacity: 0.5, // Fill opacity
     }).addTo(this.map);
   console.log(polygon,'polygonpolygonpolygonpolygon');

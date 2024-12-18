@@ -16,7 +16,7 @@
       </div>
       <div class="relative">
         <mat-drawer #drawer class="!bg-primaryBg  !block !z-50 !h-screen !w-[820px]" mode="side">
-          <app-sidebar-drawer (closeSidebar)="toggleDrawer()" [type]="type"></app-sidebar-drawer>
+          <app-sidebar-drawer (closeSidebar)="toggleDrawer()" [polygon_wkt]="polygon_wkt" [type]="type"></app-sidebar-drawer>
         </mat-drawer>
         @if (OpenEventCalendar) {
           <div class="absolute z-[1000000] text-secondaryText left-[820px]" >

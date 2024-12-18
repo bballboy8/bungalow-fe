@@ -2,6 +2,7 @@ import {
   ChangeDetectorRef,
   Component,
   EventEmitter,
+  Input,
   OnInit,
   Output,
 } from "@angular/core";
@@ -144,7 +145,7 @@ export class LibraryComponent implements OnInit {
   //#region Decorators
   @ViewChild("myTemplate", { static: true }) myTemplate!: TemplateRef<any>;
   @Output() closeDrawer = new EventEmitter<boolean>();
-
+  @Input() polygon_wkt:any;
   //#endregion
 
   //#region variables

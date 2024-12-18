@@ -10,6 +10,7 @@ import { LibraryComponent } from "../library/library.component";
 })
 export class SidebarDrawerComponent {
   @Input() type: string = "";
+  @Input() polygon_wkt:any
   @Output() closeSidebar = new EventEmitter<boolean>();
 
   closeDrawer(event: boolean) {

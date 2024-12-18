@@ -90,6 +90,7 @@ export class HomeComponent implements AfterViewInit {
   isDropdownOpen: boolean = false;
   showLayers:boolean = false;
   OpenEventCalendar:boolean=false;
+  polygon_wkt:any;
   constructor(@Inject(PLATFORM_ID) private platformId: Object,
    private satelliteService:SatelliteService,private dialog: MatDialog,
    private http: HttpClient,
@@ -368,7 +369,8 @@ export class HomeComponent implements AfterViewInit {
   getPolygonFromCoordinates(payload:{geometry:{type:string,coordinates:any[]}},bound:any) {
     this.satelliteService.getPolyGonData(payload).subscribe({
       next: (resp) => {
-        console.log("resp: ", resp?.data);
+        this.polygon_wkt = resp?.data?.wkt_polygon
+        console.log("resp:resp:resp:resp:resp: ", resp?.data);
         if(resp?.data?.area>=100000000){
           this.openSnackbar("Select a smaller polygon");
           
@@ -800,6 +802,7 @@ handleAction(action: string): void {
         this.satelliteService.getPolyGonData(payload).subscribe({
           next: (resp) => {
             console.log(resp, 'Polygon Data Response');
+            this.polygon_wkt = resp?.data?.wkt_polygon
             const data = { polygon_wkt: resp.data.wkt_polygon };
             if (resp.data) {
               // API call for polygon selection analytics

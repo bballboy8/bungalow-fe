@@ -3,6 +3,7 @@ import { inject } from '@angular/core';
 import { catchError, Observable, throwError } from 'rxjs';
 import { AuthUtils } from './auth.utils';
 import { AuthService } from './auth.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 /**
  * Intercept
@@ -12,7 +13,7 @@ import { AuthService } from './auth.service';
  */
 export const authInterceptor = (req: HttpRequest<unknown>, next: HttpHandlerFn): Observable<HttpEvent<unknown>> => {
     const authService = inject(AuthService);
-
+    const snackBar = inject(MatSnackBar);
     // Clone the request object
     let newReq = req.clone();
 
@@ -32,12 +33,29 @@ export const authInterceptor = (req: HttpRequest<unknown>, next: HttpHandlerFn):
 
     // Response
     return next(newReq).pipe(
-        catchError((error) => {
-            if (error instanceof HttpErrorResponse && error.status === 401) {
-                console.log("Got 401 token has expire ", error);
-                authService.signOut();
+        catchError((err) => {
+
+            if (err instanceof HttpErrorResponse) {
+                if (err.status === 401) {
+                    console.log("Got 401 token has expired", err);
+                    authService.signOut();
+                    snackBar.open('Session expired. Please log in again.', 'Close', {
+                        duration: 3000, // Snackbar duration in milliseconds
+                        verticalPosition: 'top', // Position the snackbar at the top
+                    });
+                } else if (err.status !== 404) { 
+                    snackBar.open(`${err.error.error || err.error.data}`, 'Close', {
+                        duration: 3000,
+                        verticalPosition: 'top',
+                    });
+                }
+            } else {
+                snackBar.open('An unexpected error occurred.', 'Close', {
+                    duration: 3000,
+                    verticalPosition: 'top',
+                });
             }
-            return throwError(error);
+            return throwError(err);
         }),
     );
 };

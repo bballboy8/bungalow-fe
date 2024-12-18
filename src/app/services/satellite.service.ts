@@ -16,16 +16,31 @@ export class SatelliteService extends BaseService {
     return this.post(createUrl("/geojson-to-wkt"), model);
   }
 
-  getDataFromPolygon(data:any){
-    const queryParams = {
-      page_number: '1',
-      page_size: '100',
-      start_date:'2024-11-01T00:00:00.000000Z'
-    };
+  getDataFromPolygon(data:any,queryParams:{page_number:string;page_size:string;start_date:string,end_date:string}){
     return this.post(createUrl("/satellite-catalog"), data,{
       params: queryParams, // Pass query parameters here
     });
   }
 
+  getPinSelectionAnalytics(data: any): Observable<any> {
+    return this.post(createUrl("/get-pin-selection-analytics"), data);
+  }
+  getPolygonSelectionAnalytics(data: any): Observable<any> {
+    return this.post(createUrl("/get-polygon-selection-analytics"), data);
+  }
+  getGroupsForAssignment(data: {group_name:any}): Observable<any> {
+    return this.get(createUrl("/get-groups-for-assignment-and-searching"),{
+      params:data
+    });
+  }
+  generateCirclePolygon(data: any): Observable<any> {
+    return this.post(createUrl("/generate-circle-polygon/"), data);
+  }
 
+  addSite(data: any): Observable<any> {
+    return this.post(createUrl("/add-site"), data);
+  }
+  addGroupSite(data: any): Observable<any> {
+    return this.post(createUrl("/add-group-site"), data);
+  }
 }

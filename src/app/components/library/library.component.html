@@ -1,4 +1,4 @@
-<div class="flex flex-col gap-3">
+<div class="flex flex-col gap-3 z-[1000000000]">
     <div class="flex items-center justify-between h-[48px] bg-secondaryBg p-3">
         <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Library</span>
         <span class="w-[16px] h-[14px] cursor-pointer" (click)="closeLibraryDrawer()">
@@ -6,7 +6,7 @@
         </span>
     </div>
 
-
+    @if (analyticsData) {
     <div class="mx-[15px] gap-3 grid-cols-4 flex font-Barlow">
 
         <div class="w-[190px] flex flex-col gap-3 my-3 p-3 bg-secondaryBg rounded-[5px] font-Barlow">
@@ -51,43 +51,94 @@
         </div>
         <div class="w-[190px] flex flex-col gap-3 p-3 my-3 bg-secondaryBg rounded-[5px]">
             <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Objects</span>
-            <span class="text-sm font-medium leading-[18px] text-secondaryText">8660</span>
+            <span class="text-sm font-medium leading-[18px] text-secondaryText">{{analyticsData?.total_count}}</span>
         </div>
 
     </div>
 
     <div class="mx-[15px] bg-secondaryBg rounded-[5px] font-Barlow">
         <div class="mx-[15px] gap-[5px] flex font-Barlow">
-            <div *ngFor="let info of statsInfo"
+            <div
                 class="w-[182px] flex flex-col p-[10px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">
                 <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">
-                    {{ info.label }}
+                    Oldest
                 </span>
-                <span class="text-sm font-semibold leading-[18px]" [ngClass]="info?.color">
-                    {{ info.value }}
+                <span class="text-sm font-semibold leading-[18px] text-secondaryText">
+                    {{getHumanReadableDateDifference(analyticsData?.oldest_date)}}
+                </span>
+            </div>
+            <div
+                class="w-[182px] flex flex-col p-[10px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">
+                <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">
+                    Newest
+                </span>
+                <span class="text-sm font-semibold leading-[18px] text-secondaryText">
+                    {{getHumanReadableDateDifference(analyticsData?.newest_info?.acquisition_datetime)}}
+                </span>
+            </div>
+            <div
+                class="w-[182px] flex flex-col p-[10px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">
+                <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">
+                    Total
+                </span>
+                <span class="text-sm font-semibold leading-[18px] text-secondaryText">
+                    {{formatNumber(analyticsData?.total_count)}}
+                </span>
+            </div>
+            <div
+                class="w-[182px] flex flex-col p-[10px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">
+                <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">
+                    Avg
+                </span>
+                <span class="text-sm font-semibold leading-[18px] text-secondaryText">
+                    {{analyticsData?.average_per_day.toFixed(3)}}
+                </span>
+            </div>
+            <div
+                class="w-[182px] flex flex-col p-[10px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">
+                <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">
+                    Most recent
+                </span>
+                <span class="text-sm font-semibold leading-[18px] text-yellow">
+                    {{getHumanReadableDateDifference(analyticsData?.newest_info?.acquisition_datetime)}}
+                </span>
+            </div>
+            <div
+                class="w-[182px] flex flex-col p-[10px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">
+                <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">
+                    Most recent clear
+                </span>
+                <span class="text-sm font-semibold leading-[18px] text-yellow">
+                    {{getHumanReadableDateDifference(analyticsData?.newest_clear_cloud_cover_info?.acquisition_datetime)}}
                 </span>
             </div>
         </div>
 
         <div class="mx-[15px] flex font-Barlow">
-            <div *ngFor="let level of fillLevels;let isLast = last"
+            <div *ngFor="let level of percentageArray;let isLast = last"
                 class="w-[182px] flex p-[10px] flex-col gap-1 my-3 text-center items-center justify-center font-Barlow"
                 [ngClass]="{ 'border-r-[2px] border-[#2D343D]': !isLast }">
 
                 <div class="custom-progress-container">
-                    <div class="custom-progress-bar" [ngStyle]="{ height: level.value + '%', background: '#ABB7C0' }">
+                    <div class="custom-progress-bar" [ngStyle]="{ height: getValue(level.current_count,analyticsData?.total_count) + '%', background: '#ABB7C0' }">
                     </div>
                 </div>
-                <span class="text-xs leading-[18px] font-semibold text-secondaryText">{{ level.duration }}</span>
+                <span class="text-xs leading-[18px] font-semibold text-secondaryText">{{ level.key }}Days</span>
                 <span class="flex text-sm font-semibold leading-[18px]"
-                    [ngStyle]="{ color: level.trend === 'up' ?'#22F57A':'#F52222' }">
-                    {{ level.value }}%
-                    <img [src]="level.trend === 'up'?'assets/svg-icons/up-icon.svg' :'assets/svg-icons/down-icon.svg'"
+                    [ngStyle]="{ color: level.current_count >=level.previous_count ?'#22F57A':'#F52222' }">
+                    {{ level.percentage_change.toFixed(3) }}%
+                    <img [src]="level.current_count >=level.previous_count?'assets/svg-icons/up-icon.svg' :'assets/svg-icons/down-icon.svg'"
                         alt="up_icon" class="ml-1" />
                 </span>
             </div>
         </div>
     </div>
+    } @else {
+    <div class="w-full flex justify-center items-center">
+        <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Data not found</span>
+    </div>
+    }
+
 
     <div class="bg-secondaryBg w-full" id="custom_table">
         <div class="flex m-[20px] justify-between items-center">
@@ -96,7 +147,7 @@
                 <button (click)="selectPreviewMethod('table')"
                     class="text-xs leading-[18px] py-[9px] font-semibold my-[7px] mr-[10px] ml-[7px] rounded-[19px] px-[20px]"
                     [ngClass]="viewType ==='table'?'text-[#453303] bg-yellow':'text-secondary-heiglight'">Image library
-                    11</button>
+                    {{dataSource?.length}}</button>
                 <button (click)="selectPreviewMethod('browse')"
                     class="text-xs leading-[18px] py-[9px] font-semibold my-[7px] mr-[7px] rounded-[19px] px-[20px] "
                     [ngClass]="viewType ==='browse'?'text-[#453303] bg-yellow':'text-secondary-heiglight'">Browse</button>
@@ -112,13 +163,13 @@
                     </div>
                     <button class="py-[9px] px-[20px] my-0 ml-[8px] rounded-[19px] bg-primaryBg"><img
                             src="assets/svg-icons/filter-icon.svg" alt=""></button>
-                    <button (click)="calendarEventsOpen()" class="py-[9px] px-[20px] my-0 mx-[8px] rounded-[19px] " 
-                    [ngClass]="isEventsOpened ?'text-[#453303] bg-yellow':'bg-primaryBg'">
-                    @if (isEventsOpened) {
+                    <button (click)="calendarEventsOpen()" class="py-[9px] px-[20px] my-0 mx-[8px] rounded-[19px] "
+                        [ngClass]="isEventsOpened ?'text-[#453303] bg-yellow':'bg-primaryBg'">
+                        @if (isEventsOpened) {
                         <img src="assets/svg-icons/calendar-icon-black.svg" alt="">
-                    } @else {
+                        } @else {
                         <img src="assets/svg-icons/calendar-icon.svg" alt="">
-                    } </button>
+                        } </button>
                 </div>
             </div>
         </div>
@@ -126,28 +177,30 @@
         @if (viewType=='browse') {
         <div class="w-[820px] overflow-auto h-[32vh]">
             <div class="flex flex-start all_wrap flex-wrap ml-[20px]">
-                @for (item of browseItem; track item) {
-                    <div class="bg-secondaryBg rounded-[5px] font-Barlow single_browse w-[182px]">
-                        <div class="flex flex-col">
-                            <div class="relative group cursor-pointer" (click)="openImagePreviewDialog(item)">
-                                <img src="assets/svg-icons/map-browse-satellite.svg" alt="Map" class="w-full h-auto">
-                                <div class="absolute inset-0 bg-black/70 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                    <img src="assets/svg-icons/magnifying-icon.svg" alt="" srcset="">
-                                </div>
-                            </div>
-
-                            <div class="flex justify-between">
-                                <span class="text-secondaryText text-xs font-bold">{{item?.date}}</span>
-                                <span class="text-secondaryText text-xs font-bold">{{item?.time}}</span>
+                @for (item of dataSource; track item) {
+                <div class="bg-secondaryBg rounded-[5px] font-Barlow single_browse w-[182px]">
+                    <div class="flex flex-col">
+                        <div class="relative h-[220px] bg-[#232B32] w-[181.262px] group cursor-pointer" (click)="openImagePreviewDialog(item)">
+                            <img [src]="item?.presigned_url" alt="Map" class="w-full h-full object-cover">
+                            <div
+                                class="absolute inset-0 bg-black/70 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <img src="assets/svg-icons/magnifying-icon.svg" alt="" srcset="">
                             </div>
                         </div>
+
+                        <div class="flex justify-between">
+                            <span class="text-secondaryText text-xs font-bold">{{getFormattedDate(item?.acquisition_datetime)}}</span>
+                            <span class="text-secondaryText text-xs font-bold">{{formatUtcTime(item?.acquisition_datetime)}}</span>
+                        </div>
                     </div>
+                </div>
                 }
             </div>
         </div>
         }@else {
-        <div class="w-[820px] overflow-auto h-[34vh]">
-            <table mat-table [dataSource]="dataSource" multiTemplateDataRows
+        <div class="w-[820px] overflow-auto h-[34vh] relative">
+            @if (dataSource.length) {
+                <table mat-table [dataSource]="dataSource" multiTemplateDataRows
                 class="font-Barlow mat-elevation-z8 bg-primaryBg w-full border border-secondaryText rounded-lg">
                 <ng-container matColumnDef="selectDate">
                     <th mat-header-cell *matHeaderCellDef class="w-[202px] p-[10px] text-secondaryText font-semibold">
@@ -162,41 +215,41 @@
                             (change)="$event ? selection.toggle(row) : null" [checked]="selection.isSelected(row)"
                             [aria-label]="'Select Row'">
                         </mat-checkbox>
-                        <span class="text-secondaryText font-Barlow">{{ row.Date + ' ' + row.time }}</span>
+                        <span class="text-secondaryText font-Barlow">{{getFormattedDate(row?.acquisition_datetime) +' '+ formatUtcTime(row?.acquisition_datetime)}}</span>
                     </td>
                 </ng-container>
 
                 <ng-container matColumnDef="Sensor">
                     <th mat-header-cell *matHeaderCellDef class="w-[100px] p-[10px] text-secondaryText font-semibold">
                         Sensor</th>
-                    <td mat-cell *matCellDef="let row" class="w-[100px] p-[10px] text-secondaryText">{{ row.Sensor }}
+                    <td mat-cell *matCellDef="let row" class="w-[100px] p-[10px] text-secondaryText">{{ row?.sensor }}
                     </td>
                 </ng-container>
 
                 <ng-container matColumnDef="Vendor">
                     <th mat-header-cell *matHeaderCellDef class="w-[100px] p-[10px] text-secondaryText font-semibold">
                         Vendor</th>
-                    <td mat-cell *matCellDef="let row" class="w-[100px] p-[10px] text-secondaryText">{{ row.Vendor }}
+                    <td mat-cell *matCellDef="let row" class="w-[100px] p-[10px] text-secondaryText">{{ row?.vendor_name }}
                     </td>
                 </ng-container>
 
                 <ng-container matColumnDef="Cover">
                     <th mat-header-cell *matHeaderCellDef class="w-[60px] p-[10px] text-secondaryText font-semibold">
                         Cover</th>
-                    <td mat-cell *matCellDef="let row" class="w-[60px] p-[10px] text-secondaryText">{{ row.Cover }}</td>
+                    <td mat-cell *matCellDef="let row" class="w-[60px] p-[10px] text-secondaryText">{{row.cloud_cover ?row?.cloud_cover.toFixed(3):0}}%</td>
                 </ng-container>
 
                 <ng-container matColumnDef="Resolution">
                     <th mat-header-cell *matHeaderCellDef class="w-[90px] p-[10px] text-secondaryText font-semibold">
                         Resolution</th>
-                    <td mat-cell *matCellDef="let row" class="w-[90px] p-[10px] text-secondaryText">{{ row.Resolution }}
+                    <td mat-cell *matCellDef="let row" class="w-[90px] p-[10px] text-secondaryText">{{ formatToThreeDecimalPlaces(row?.resolution) }}
                     </td>
                 </ng-container>
 
                 <ng-container matColumnDef="type">
                     <th mat-header-cell *matHeaderCellDef class="w-[60px] p-[10px] text-secondaryText font-semibold">
                         Type</th>
-                    <td mat-cell *matCellDef="let row" class="w-[60px] p-[10px] text-secondaryText">{{ row.type }}</td>
+                    <td mat-cell *matCellDef="let row" class="w-[60px] p-[10px] text-secondaryText">{{ row?.type }}</td>
                 </ng-container>
 
                 <ng-container matColumnDef="Id">
@@ -204,7 +257,7 @@
                     </th>
                     <td mat-cell *matCellDef="let row" class="w-[150px] p-[10px] text-secondaryText">
                         <div class="flex">
-                            <span class="w-[100px] truncate">{{ row.Id }}</span>
+                            <span class="w-[100px] truncate">{{ row?.vendor_id }}</span>
                             <span><img src="assets/svg-icons/marker-icon.svg" alt=""></span>
                         </div>
                     </td>
@@ -227,30 +280,30 @@
                             [@detailExpand]="element == expandedElement ? 'expanded' : 'collapsed'">
                             <div class="p-7 flex">
                                 <div class="image">
-                                    <img src="./../../../assets/svg-icons/map-sattelite.svg" alt="">
+                                    <img [src]="element?.presigned_url" alt="">
                                 </div>
                                 <div class="detail px-3">
                                     <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Name:
-                                        </span> <span class="text-secondaryText">{{element.Id}}</span> </div>
+                                        </span> <span class="text-secondaryText">{{element?.vendor_id}}</span> </div>
                                     <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Date:
-                                        </span> <span class="text-secondaryText">{{element.Date}}</span> </div>
+                                        </span> <span class="text-secondaryText">{{getFormattedDate(element?.acquisition_datetime)}}</span> </div>
                                     <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Time:
-                                        </span> <span class="text-secondaryText">{{element.time}}</span> </div>
+                                        </span> <span class="text-secondaryText">{{formatUtcTime(element?.acquisition_datetime)}}</span> </div>
                                     <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Cloud
-                                            cover: </span> <span class="text-secondaryText">{{element.Cover}}</span>
+                                            cover: </span> <span class="text-secondaryText">{{ element?.cloud_cover ? element.cloud_cover.toFixed(3):0}}%</span>
                                     </div>
                                     <div class="flex py-2"> <span
                                             class="text-secondary-heiglight font-semibold">Resolution: </span> <span
-                                            class="text-secondaryText">{{element.Resolution}}</span> </div>
+                                            class="text-secondaryText">{{element?.resolution}}</span> </div>
                                     <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Area:
-                                        </span> <span class="text-secondaryText">{{element.area}}</span> </div>
+                                        </span> <span class="text-secondaryText">{{element?.area}}km²</span> </div>
                                     <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Geo
                                             referenced: </span> <span
-                                            class="text-secondaryText">{{element.geo_reference?'True':'False'}}</span>
+                                            class="text-secondaryText">{{element?.georeferenced?'True':'False'}}</span>
                                     </div>
                                     <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Sun
                                             elevation: </span> <span
-                                            class="text-secondaryText">{{element.sun_elevation}}</span> </div>
+                                            class="text-secondaryText">{{element?.sun_elevation}}°</span> </div>
                                 </div>
                             </div>
                         </div>
@@ -258,13 +311,24 @@
                 </ng-container>
 
                 <tr mat-header-row *matHeaderRowDef="displayedColumns" class="bg-secondaryBg"></tr>
-                <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;" (mouseover)="imageHoverView(row)" 
+                    (mouseout)="imageHoverView(null)"
                     class="hover:bg-secondaryHighlight cursor-pointer"
                     (click)="expandedElement = expandedElement === row ? null : row">
                 </tr>
 
                 <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="example-detail-row"></tr>
             </table>
+            } @else {
+                <div class="w-full flex justify-center items-center">
+                    <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Data not found</span>
+                </div>
+            }
+            @if (imageHover) {
+                <span class="absolute w-[100px] h-[200px] top-[20px]">
+                    <img class="h-[200px] w-full" [src]="imageHover?.presigned_url" alt="" />
+                </span>
+            }
         </div>
         }
 

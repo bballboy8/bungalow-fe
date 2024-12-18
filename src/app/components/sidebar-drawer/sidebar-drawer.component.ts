@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { LibraryComponent } from "../library/library.component";
 
 @Component({
@@ -8,11 +8,15 @@ import { LibraryComponent } from "../library/library.component";
   templateUrl: "./sidebar-drawer.component.html",
   styleUrl: "./sidebar-drawer.component.scss",
 })
-export class SidebarDrawerComponent {
+export class SidebarDrawerComponent implements OnInit {
   @Input() type: string = "";
   @Input() polygon_wkt:any
   @Output() closeSidebar = new EventEmitter<boolean>();
 
+  ngOnInit(): void {
+    console.log(this.polygon_wkt,'polygon_wktpolygon_wkt');
+    
+  }
   closeDrawer(event: boolean) {
     if (event) this.closeSidebar.emit(true);
   }

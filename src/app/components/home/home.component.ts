@@ -91,6 +91,7 @@ export class HomeComponent implements AfterViewInit {
   showLayers:boolean = false;
   OpenEventCalendar:boolean=false;
   polygon_wkt:any;
+  isDrawerOpen:boolean = false;
   constructor(@Inject(PLATFORM_ID) private platformId: Object,
    private satelliteService:SatelliteService,private dialog: MatDialog,
    private http: HttpClient,
@@ -265,7 +266,10 @@ export class HomeComponent implements AfterViewInit {
   //angular drawer toggle function
   toggleDrawer(): void {
     if (this.drawer) {
+      console.log(this.drawer,'drawerdrawerdrawerdrawerdrawerdrawer');
+      this.isDrawerOpen = !this.isDrawerOpen
       this.drawer.toggle();
+      this.handleDropdownToggle(this.isDrawerOpen)
     }
   }
 

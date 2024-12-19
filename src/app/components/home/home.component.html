@@ -20,7 +20,7 @@
         <mat-drawer #drawer class="!bg-primaryBg  !block !z-[999999999999] !h-screen !w-[820px]" mode="side">
          @if (drawer._animationState === 'open') {
           <div class="z-[999999999999]">
-          <app-sidebar-drawer (closeSidebar)="toggleDrawer()" [polygon_wkt]="polygon_wkt" [type]="type"></app-sidebar-drawer>
+          <app-sidebar-drawer (closeSidebar)="toggleDrawer()" (notifyParent)="receiveData($event)" [polygon_wkt]="polygon_wkt" [type]="type" [endDate]="endDate" [startDate]="startDate"></app-sidebar-drawer>
           </div>
          } 
         </mat-drawer>

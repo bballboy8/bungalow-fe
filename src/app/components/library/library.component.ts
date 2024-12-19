@@ -2,6 +2,7 @@ import {
   ChangeDetectorRef,
   Component,
   EventEmitter,
+  inject,
   Input,
   OnInit,
   Output,
@@ -10,7 +11,7 @@ import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
-import { MatMenuModule } from "@angular/material/menu";
+import { MatMenuModule, MatMenuTrigger } from "@angular/material/menu";
 import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatListModule } from "@angular/material/list";
 import { MatIconModule } from "@angular/material/icon";
@@ -32,6 +33,9 @@ import { ImagePreviewComponent } from "../../dailogs/image-preview/image-preview
 import { SharedService } from "../shared/shared.service";
 import { SatelliteService } from "../../services/satellite.service";
 import dayjs from "dayjs";
+import { MatSnackBar } from "@angular/material/snack-bar";
+import { GroupsListComponent } from "../../common/groups-list/groups-list.component";
+import { catchError, debounceTime, of, Subject, switchMap } from "rxjs";
 
 export class Group {
   name?: string;
@@ -54,64 +58,6 @@ export interface PeriodicElement {
   geo_reference: boolean;
 }
 
-const ELEMENT_DATA: PeriodicElement[] = [
-  {
-    select: false,
-    Date: "09-18-2024",
-    time: "02:44 UTC",
-    Sensor: "Global-4",
-    Vendor: "Vendor name",
-    Cover: "1%",
-    Resolution: "1.1m",
-    type: "Type A",
-    area: 23,
-    geo_reference: true,
-    Id: "bDUZAoGweYKcT5nU7piualQesdfSYo0lkdY",
-    sun_elevation: "48.6",
-  },
-  {
-    select: false,
-    Date: "09-18-2024",
-    time: "02:44 UTC",
-    Sensor: "Global-4",
-    Vendor: "Vendor name",
-    Cover: "1%",
-    Resolution: "1.1m",
-    type: "Type A",
-    area: 23,
-    geo_reference: true,
-    Id: "bDUZAoGwsadfcT5nU7piualQesdfSYo0lkdY",
-    sun_elevation: "48.6",
-  },
-  {
-    select: false,
-    Date: "09-18-2024",
-    time: "02:44 UTC",
-    Sensor: "Global-4",
-    Vendor: "Vendor name",
-    Cover: "1%",
-    Resolution: "1.1m",
-    type: "Type A",
-    area: 23,
-    geo_reference: true,
-    Id: "bDUZAoGweYKcT5nU7piusdfdsdfSYo0lkdY",
-    sun_elevation: "48.6",
-  },
-  {
-    select: false,
-    Date: "09-18-2024",
-    time: "02:44 UTC",
-    Sensor: "Global-4",
-    Vendor: "Vendor name",
-    Cover: "1%",
-    Resolution: "1.1m",
-    type: "Type A",
-    area: 23,
-    geo_reference: true,
-    Id: "bDUZAoGweYKcT5sdfsdfpiualQesdfSYo0lkdY",
-    sun_elevation: "48.6",
-  },
-];
 
 @Component({
   selector: "app-library",
@@ -129,7 +75,8 @@ const ELEMENT_DATA: PeriodicElement[] = [
     MatListModule,
     MatIconModule,
     MatTableModule,
-  ],
+    GroupsListComponent
+],
   templateUrl: "./library.component.html",
   styleUrl: "./library.component.scss",
   animations: [
@@ -180,36 +127,51 @@ export class LibraryComponent implements OnInit {
 
   selection = new SelectionModel<PeriodicElement>(true, []);
 
-  fillLevels = [
-    { duration: "24 Hours", value: 40, trend: "up" },
-    { duration: "72 Hours", value: 60, trend: "up" },
-    { duration: "7 Days", value: 30, trend: "up" },
-    { duration: "30 Days", value: 10, trend: "up" },
-    { duration: "90 Days", value: 5, trend: "down" },
-    { duration: ">90 Days", value: 20, trend: "up" },
-  ];
-
-  browseItem: { date: string; time: string }[] = [
-    { date: "9/18/2024", time: "02:44 UTC" },
-    { date: "9/18/2024", time: "02:44 UTC" },
-    { date: "9/18/2024", time: "02:44 UTC" },
-    { date: "9/18/2024", time: "02:44 UTC" },
-    { date: "9/18/2024", time: "02:44 UTC" },
-    { date: "9/18/2024", time: "02:44 UTC" },
-    { date: "9/18/2024", time: "02:44 UTC" },
-  ];
 
   viewType: "table" | "browse" = "table";
   isEventsOpened: boolean = false;
   percentageArray:any
   imageHover:any ; 
   //#endregion
-
+  vendorData:any;
+  name:string = "Untitled point";
+  siteData:any;
+  addGroup:boolean = false;
+  private snackBar = inject(MatSnackBar);
+  activeGroup:any;
+  selectedGroup:any
+  searchInput = new Subject<string>();
+  @ViewChild(MatMenuTrigger) menuTrigger!: MatMenuTrigger;
+  @Output() notifyParent: EventEmitter<any> = new EventEmitter();
+  @Input() endDate:any
+  @Input() startDate:any
   constructor(
     private dialog: MatDialog,
     private sharedService: SharedService,
      private satelliteService:SatelliteService,
-  ) {}
+  ) {
+     this.searchInput.pipe(
+          debounceTime(1000),  // Wait for 1000ms after the last key press
+          switchMap((inputValue) => {
+            const data = { group_name: inputValue };
+            return this.satelliteService.getGroupsForAssignment(data).pipe(
+              catchError((err) => {
+                console.error('API error:', err);
+                // Return an empty array to allow subsequent API calls to be made
+                return of({ data: [] });
+              })
+            );
+          })
+        ).subscribe({
+          next: (resp) => {
+            console.log(resp, 'API Response');
+            this.groups = resp?.data;
+          },
+          error: (err) => {
+            console.error('API call failed', err);
+          }
+        });
+  }
 
   ngOnInit() {
    
@@ -231,12 +193,15 @@ export class LibraryComponent implements OnInit {
       let queryParams ={
         page_number: '1',
         page_size: '100',
-        start_date:'',
-        end_date: '',
+        start_date:this.startDate,
+        end_date: this.endDate,
         source: 'library'
       }
+      const payload = {
+        wkt_polygon: this.polygon_wkt
+      }
      
-      this.satelliteService.getDataFromPolygon('',queryParams).subscribe({
+      this.satelliteService.getDataFromPolygon(payload,queryParams).subscribe({
         next: (resp) => {
           console.log(resp,'queryParamsqueryParamsqueryParamsqueryParams');
           this.dataSource = resp.data
@@ -274,10 +239,11 @@ export class LibraryComponent implements OnInit {
     this.viewType = type;
   }
 
-  openImagePreviewDialog(item: any) {
+  openImagePreviewDialog(index:any) {
     const dialogRef = this.dialog.open(ImagePreviewComponent, {
-      width: "auto",
-      data: { item },
+      width: "880px",
+      maxHeight:'694px',
+      data:  {images:this.dataSource, currentIndex:index} ,
     });
 
     dialogRef.afterClosed().subscribe((result) => {
@@ -359,21 +325,202 @@ export class LibraryComponent implements OnInit {
     console.log(data,'datadatadatadatadatadata');
     
     this.imageHover = data
+    if (data !== null && !this.vendorData) {
+      let queryParams ={
+        page_number: '1',
+        page_size: '100',
+        start_date:'',
+        end_date: '',
+        vendor_id:data.vendor_id
+      }
+      this.satelliteService.getDataFromPolygon('',queryParams).subscribe({
+        next: (resp) => {
+          console.log(resp,'queryParamsqueryParamsqueryParamsqueryParams');
+          this.vendorData = resp.data[0]
+          
+        },
+        error: (err) => {
+          console.log("err getPolyGonData: ", err);
+        },
+      });
+    } else {
+      this.vendorData = null
+    }
   }
   formatToThreeDecimalPlaces(value: string): string {
     // Check if the string ends with "m"
     if (!value.endsWith("m")) {
         throw new Error("Invalid input: Value must end with 'm'");
     }
-
     // Extract the numeric part and parse it as a float
     const numericPart = parseFloat(value.slice(0, -1));
-    
     // Format the numeric part to 3 decimal places
     const formattedNumber = numericPart.toFixed(3);
 
     // Reattach the "m" unit and return
     return `${formattedNumber}m`;
+}
+
+addSite(type:any) {
+  console.log(type,'typetypetypetypetypetype');
+  
+  let payload
+  if(type === 'site'){
+    payload = {
+      name: this.name,
+      coordinates_record: {
+        type: "Polygon",
+        coordinates:  this.convertPolygonToCoordinates(this.polygon_wkt)
+      },
+      site_type: this.vendorData?.coordinates_record?.coordinates[0].length > 5 ? 'Polygon' : 'Rectangle'
+    }
+  } else{
+    payload = {
+      name: this.name,
+      coordinates_record: {
+        type: "Polygon",
+        coordinates: this.vendorData?.coordinates_record?.coordinates
+      },
+      site_type: this.vendorData?.coordinates_record?.coordinates[0].length > 5 ? 'Polygon' : 'Rectangle'
+    }
+  }
+  console.log(payload,'payloadpayloadpayloadpayload');
+  
+
+  this.satelliteService.addSite(payload).subscribe({
+    next: (resp) => {
+      this.snackBar.open('Site has been added.', 'Ok', {
+        duration: 2000  // Snackbar will disappear after 300 milliseconds
+      });
+      console.log(resp, 'successsuccesssuccesssuccess');
+      this.siteData = resp
+      this.addGroup = true;  // This will execute if the API call is successful
+
+    },
+    error: (err) => {
+      console.error('Error occurred:', err);
+
+      this.addGroup = false;
+
+
+
+    }
+  });
+
+}
+
+copyToClipboard(data: any): void {
+  if (data) {
+    // Create a temporary input element to copy text
+    const inputElement = document.createElement('input');
+    inputElement.value = data;
+    document.body.appendChild(inputElement);
+    inputElement.select();
+    document.execCommand('copy');
+    document.body.removeChild(inputElement);
+
+    // Optionally alert the user
+
+    this.snackBar.open('Address copied to clipboard!', 'Ok', {
+      duration: 2000  // Snackbar will disappear after 300 milliseconds
+    });
+  }
+}
+
+convertPolygonToCoordinates(polygon: string): [number, number][][] {
+  // Remove "POLYGON ((" and "))" to extract the raw coordinates
+  const rawCoordinates = polygon
+      .replace("POLYGON ((", "")
+      .replace("))", "");
+
+  // Split the raw coordinates into an array of individual points
+  const points = rawCoordinates.split(", ");
+
+  // Map the points into an array of [number, number] tuples
+  const coordinates: [number, number][][] = [
+      points.map(point => {
+          const [lng, lat] = point.split(" ").map(Number); // Split and convert to numbers
+          return [lng, lat];
+      })
+  ];
+
+  return coordinates;
+}
+
+getGroups() {
+  this.selectedGroupEvent(null)
+  if (this.addGroup) {
+    const data = {
+      group_name: ''
+    }
+    this.satelliteService.getGroupsForAssignment(data).subscribe({
+      next: (resp) => {
+        console.log(resp, 'respresprespresprespresprespresprespresp');
+        this.groups = resp
+
+      }
+    })
+  } else {
+    this.snackBar.open('Please first add site.', 'Close', {
+      duration: 3000,
+      verticalPosition: 'top',
+    });
+  }
+
+}
+
+selectedGroupEvent(event: any) {
+  console.log(event, 'selectedeventeventeventevent');
+  this.activeGroup = event
+}
+
+saveGroup() {
+  this.selectedGroup = this.activeGroup.group
+  const payload = {
+    group_id: this.selectedGroup.id,
+    site_id: this.siteData.id
+  }
+  this.satelliteService.addGroupSite(payload).subscribe({
+    next: (res) => {
+      console.log(res, 'updatedaaaaaaaaaaaaaaaaaa');
+      this.snackBar.open(res.message, 'Ok', {
+        duration: 2000  // Snackbar will disappear after 300 milliseconds
+      });
+    },
+    error: (err) => {
+
+    }
+  })
+  this.closeMenu()
+}
+closeMenu() {
+  // Close the menu
+  if (this.menuTrigger) {
+    this.menuTrigger.closeMenu();
+  }
+}
+
+onKeyPress(event: KeyboardEvent): void {
+  const inputValue = (event.target as HTMLInputElement).value;
+  console.log(inputValue, 'inputValueinputValueinputValue'); // Log the current input value to the console
+  const data = {
+    group_name: inputValue
+  }
+  // this.satelliteService.getGroupsForAssignment(data).subscribe({
+  //   next: (resp) => {
+  //     console.log(resp,'respresprespresprespresprespresprespresp');
+
+  //     this.groups = resp?.data
+
+  //   }})
+  console.log(this.searchInput, 'searchiiiiiiiiiiiiiiiii');
+
+  this.searchInput.next(inputValue);
+}
+
+expandedData(data:any){
+
+  this.notifyParent.emit(data)
 }
 
 }

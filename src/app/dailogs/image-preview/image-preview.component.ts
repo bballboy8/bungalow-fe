@@ -21,8 +21,9 @@ export class ImagePreviewComponent implements OnInit {
     public dialogRef: MatDialogRef<ImagePreviewComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {}
-
+  currentIndex:any;
   ngOnInit(): void {
+    this.currentIndex = this.data.currentIndex;
     console.log("dialog dat: ", this.data);
   }
 
@@ -48,5 +49,20 @@ export class ImagePreviewComponent implements OnInit {
     
       // Return formatted time in "HH:mm UTC" format
       return `${hours}:${minutes} UTC`;
+    }
+    previousImage() {
+      if (this.currentIndex > 0) {
+        this.currentIndex--;
+      } else {
+        this.currentIndex = this.data.images.length - 1; // Wrap around to the last image
+      }
+    }
+  
+    nextImage() {
+      if (this.currentIndex < this.data.images.length - 1) {
+        this.currentIndex++;
+      } else {
+        this.currentIndex = 0; // Wrap around to the first image
+      }
     }
 }

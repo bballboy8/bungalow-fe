@@ -92,6 +92,7 @@ export class HomeComponent implements AfterViewInit {
   OpenEventCalendar:boolean=false;
   polygon_wkt:any;
   isDrawerOpen:boolean = false;
+  imageOverlay: L.ImageOverlay | undefined;
   constructor(@Inject(PLATFORM_ID) private platformId: Object,
    private satelliteService:SatelliteService,private dialog: MatDialog,
    private http: HttpClient,
@@ -1169,6 +1170,49 @@ private openDialogAtPosition(polygon: any, metadata: any): void {
   });
 }
 
+receiveData(data: any) {
+  console.log(data, 'parentparentparentparentparentparentparent');
+  if (data?.coordinates_record?.coordinates) {
+    const coordinates = data.coordinates_record.coordinates[0].map((coord: number[]) => 
+      new L.LatLng(coord[1], coord[0])
+    );
+    const bounds = new L.LatLngBounds(coordinates);
+
+    // Remove previous overlay if it exists
+    if (this.imageOverlay) {
+      this.map.removeLayer(this.imageOverlay);
+    }
+
+    // Create new overlay
+    this.imageOverlay = L.imageOverlay(data.presigned_url, bounds);
+    this.imageOverlay.addTo(this.map);
+
+    // Adjust the overlay initially
+    this.adjustImageOverlay();
+  }
+}
+
+private adjustImageOverlay() {
+  if (!this.imageOverlay) return;
+
+  const element = this.imageOverlay.getElement();
+  if (!element) return;  // Ensure the element is not null or undefined
+
+  const topLeft = this.map.latLngToLayerPoint(this.imageOverlay.getBounds().getNorthWest());
+  const imageSize = this.calculateImageSize(this.map.getZoom());
+
+  // Safely access and modify the image element
+  const imageElement = element as HTMLImageElement; // Cast once checked for null
+  imageElement.style.width = `${imageSize.width}px`;
+  imageElement.style.height = `${imageSize.height}px`;
+  imageElement.style.left = `${topLeft.x}px`;
+  imageElement.style.top = `${topLeft.y}px`;
+}
+
+private calculateImageSize(zoomLevel: number): { width: number; height: number } {
+  // Customize this logic based on your zoom levels and desired size
+  return { width: 261.368, height: 313.641 };
+}
 
 
 

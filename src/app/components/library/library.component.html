@@ -16,7 +16,7 @@
         <div class="w-[190px] flex flex-col gap-3 my-3 p-3 bg-secondaryBg rounded-[5px]">
             <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Name</span>
             <div class="text-sm flex justify-between font-medium leading-[18px] text-secondaryText">
-                <span class="text-sm font-medium leading-[18px] text-secondaryText">Untitled area</span>
+                <span class="text-sm font-medium leading-[18px] text-secondaryText">{{name}}</span>
                 <button mat-button
                     class="cursor-pointer hover:!bg-secondaryBg !h-[18px] !text-yellow font-semibold text-xs leading-[18px]"
                     [matMenuTriggerFor]="menu">Save</button>
@@ -29,12 +29,12 @@
                         <mat-form-field id="library" appearance="outline" class="!w-[320px]"
                             (click)="$event.stopPropagation()">
                             <mat-label>Name</mat-label>
-                            <input matInput placeholder="Placeholder">
+                            <input [(ngModel)]="name" matInput placeholder="Placeholder">
                         </mat-form-field>
                     </div>
-                    <span (click)="$event.stopPropagation()"><mat-checkbox class="example-margin"
+                    <span (click)="$event.stopPropagation();"><mat-checkbox class="example-margin"
                             [(ngModel)]="checked">Notify me of new updates</mat-checkbox></span>
-                    <button
+                    <button (click)="addSite('site')"
                         class="flex justify-center text-[#453303] items-center text-center w-full h-[38px] py-[10px] bg-yellow rounded-[5px]">Save</button>
                     <button
                         class="flex justify-center text-[##ABB7C0] items-center text-center w-full h-[38px] py-[10px] bg-secondary-heiglight rounded-[5px]">Cancel</button>
@@ -43,11 +43,65 @@
         </div>
         <div class="w-[190px] flex flex-col gap-3 my-3 p-3 bg-secondaryBg rounded-[5px]">
             <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Groups</span>
-            <div class="text-sm flex justify-between font-medium leading-[18px] text-secondaryText">
-                <span class="text-sm font-medium leading-[18px] text-secondaryText">Not assigned</span>
-                <span class="cursor-pointer text-yellow font-semibold text-xs leading-[18px]"
-                    [matMenuTriggerFor]="assign">Assign</span>
-            </div>
+            @if(selectedGroup == null){
+                <div class="flex relative items-center gap-[15px] self-stretch w-full">
+                  <span class="flex-0 cursor-pointer font-Barlow font-sm font-medium leading-[18px] text-yellow" (click)="getGroups()"
+                  [matMenuTriggerFor]="addGroup ? assign : null">Assign to a group</span> 
+                  <mat-menu class="bg-primaryBg absolute" #assign="matMenu" id="assign">
+                    <div class="p-[15px] flex flex-col gap-[10px]" (click)="$event.stopPropagation()" >
+                      <!-- Groups Section -->
+                      <div class="container">
+                        @for (group of groups; track group;let index = $index) {
+                          <ng-container>
+                            <app-groups-list [group]="group" (selectedGroup)="selectedGroupEvent($event)" [index]="index" [backgroundColor]="'#191E22'"></app-groups-list>
+                          </ng-container>
+                        }
+                      </div>
+                  
+                      <!-- Search and Assign Section -->
+                      <div class="flex flex-col gap-3">
+                        <span class="text-secondary-heiglight font-semibold text-xs leading-[18px]">Assign to group</span>
+                        <mat-form-field
+                          id="library"
+                          appearance="outline"
+                          class="!w-[320px]"
+                          (click)="$event.stopPropagation()"
+                        >
+                          <mat-label>Search groups</mat-label>
+                          <input matInput placeholder="Search ..." (keyup)="onKeyPress($event)" >
+                          <img src="assets/svg-icons/search-icon.svg" alt="Search" class="w-[14px]" />
+                        </mat-form-field>
+                      </div>
+                  
+                      <!-- Checkbox Section -->
+                      <span>
+                        <mat-checkbox
+                          class="example-margin"
+                          [(ngModel)]="checked"
+                          (click)="$event.stopPropagation()"
+                          >Notify me of new updates</mat-checkbox
+                        >
+                      </span>
+                  
+                      <!-- Buttons -->
+                      <button (click)="saveGroup()"
+                        class="flex justify-center text-[#453303] items-center text-center w-full h-[38px] py-[10px] bg-yellow rounded-[5px]"
+                      >
+                        Save
+                      </button>
+                      <button (click)="closeMenu()"
+                        class="flex justify-center text-[##ABB7C0] items-center text-center w-full h-[38px] py-[10px] bg-secondary-heiglight rounded-[5px]"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </mat-menu>        
+              </div>
+              } @else {
+                <div class="flex relative items-center gap-[15px] self-stretch w-full">
+                  <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-yellow">{{selectedGroup?.name}}</span>
+                </div>
+              }
         </div>
         <div class="w-[190px] flex flex-col gap-3 p-3 my-3 bg-secondaryBg rounded-[5px]">
             <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Objects</span>
@@ -140,7 +194,7 @@
     }
 
 
-    <div class="bg-secondaryBg w-full" id="custom_table">
+    <div class="bg-secondaryBg w-full relative" id="custom_table" >
         <div class="flex m-[20px] justify-between items-center">
             <!-- <p class="text-xs font-semibold leading-[18px] text-secondaryText">Image library 11</p> -->
             <div class="rounded-[25px] bg-primaryBg flex items-center justify-between">
@@ -177,10 +231,10 @@
         @if (viewType=='browse') {
         <div class="w-[820px] overflow-auto h-[32vh]">
             <div class="flex flex-start all_wrap flex-wrap ml-[20px]">
-                @for (item of dataSource; track item) {
-                <div class="bg-secondaryBg rounded-[5px] font-Barlow single_browse w-[182px]">
+               
+                <div *ngFor="let item of dataSource; let index = index" class="bg-secondaryBg rounded-[5px] font-Barlow single_browse w-[182px]">
                     <div class="flex flex-col">
-                        <div class="relative h-[220px] bg-[#232B32] w-[181.262px] group cursor-pointer" (click)="openImagePreviewDialog(item)">
+                        <div class="relative h-[220px] bg-[#232B32] w-[181.262px] group cursor-pointer" (click)="openImagePreviewDialog(index)">
                             <img [src]="item?.presigned_url" alt="Map" class="w-full h-full object-cover">
                             <div
                                 class="absolute inset-0 bg-black/70 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -194,11 +248,11 @@
                         </div>
                     </div>
                 </div>
-                }
+                
             </div>
         </div>
         }@else {
-        <div class="w-[820px] overflow-auto h-[34vh] relative">
+        <div class="w-[820px] overflow-auto h-[34vh]">
             @if (dataSource.length) {
                 <table mat-table [dataSource]="dataSource" multiTemplateDataRows
                 class="font-Barlow mat-elevation-z8 bg-primaryBg w-full border border-secondaryText rounded-lg">
@@ -210,7 +264,9 @@
                         </mat-checkbox>
                         Date
                     </th>
-                    <td mat-cell *matCellDef="let row" class="w-[202px] p-[10px] flex items-center">
+                    <td mat-cell *matCellDef="let row" class="w-[202px] p-[10px] flex items-center"
+                    
+                    >
                         <mat-checkbox (click)="$event.stopPropagation()"
                             (change)="$event ? selection.toggle(row) : null" [checked]="selection.isSelected(row)"
                             [aria-label]="'Select Row'">
@@ -311,10 +367,9 @@
                 </ng-container>
 
                 <tr mat-header-row *matHeaderRowDef="displayedColumns" class="bg-secondaryBg"></tr>
-                <tr mat-row *matRowDef="let row; columns: displayedColumns;" (mouseover)="imageHoverView(row)" 
-                    (mouseout)="imageHoverView(null)"
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;" 
                     class="hover:bg-secondaryHighlight cursor-pointer"
-                    (click)="expandedElement = expandedElement === row ? null : row">
+                    (click)="expandedElement = expandedElement === row ? null : row;expandedData(row)">
                 </tr>
 
                 <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="example-detail-row"></tr>
@@ -324,37 +379,66 @@
                     <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Data not found</span>
                 </div>
             }
-            @if (imageHover) {
-                <span class="absolute w-[100px] h-[200px] top-[20px]">
-                    <img class="h-[200px] w-full" [src]="imageHover?.presigned_url" alt="" />
-                </span>
-            }
+            
         </div>
         }
-
-    </div>
-    <mat-menu class="bg-primaryBg" #assign="matMenu" id="assign">
-        <div class="p-[15px] flex flex-col gap-[10px]">
-            <div class="flex flex-col gap-3" (click)="$event.stopPropagation()">
-                <span class="text-secondary-heiglight font-semibold text-xs leading-[18px]">Assign to group</span>
-                <mat-form-field id="library" appearance="outline" class="!w-[320px]" (click)="$event.stopPropagation()">
-                    <mat-label>Search groups</mat-label>
-                    <input matInput placeholder="Search ...">
-                    <img src="assets/svg-icons/search-icon.svg" alt="Search" />
-                </mat-form-field>
+        <!-- @if (vendorData) {
+            <div class="flex p-[15px] top-0 left-4 absolute w-[273px] flex-col items-start gap-[15px] rounded-[10px] bg-secondaryBg z-40 shadow-lg"
+            (mouseout)="imageHoverView(null)">
+                <span class="w-[240px] h-[300px]"
+              
+                >
+                <img class="max-h-[300px] w-full" [src]="vendorData?.presigned_url" alt="" />
+                </span>
+                <div class="flex flex-col items-start gap-[5px] self-stretch">
+                  <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Name</span>
+                  <div class="flex items-center gap-[15px] self-stretch w-full">
+                      <input [(ngModel)]="name" class="!bg-transparent !outline-none w-full text-secondaryText" matInput type="text" placeholder="Untitled point" />
+                      <span class="h-[16px] w-[16px] cursor-pointer" matTooltip="Add sites" (click)="addSite('hovered')">
+                          <img src="/assets/svg-icons/vector-icon.svg" alt="" />
+                      </span>          
+                  </div>
+                </div>
+                <div class="flex flex-col items-start gap-[5px] self-stretch">
+                  <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Address</span>
+                  <div class="flex items-center gap-[15px] self-stretch w-full">
+                      <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{vendorData?.address}}</span>
+                      <span class="h-[17px] w-[16px] cursor-pointer" matTooltip="Coppy Address" (click)="copyToClipboard(vendorData?.address)">
+                          <img src="/assets/svg-icons/copy-icon.svg" alt="" />
+                      </span>          
+                  </div>
+               </div>
+               <div class="flex flex-col items-start gap-[5px] self-stretch">
+                <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Nearest POI</span>
+                <div class="flex items-center gap-[15px] self-stretch w-full">
+                    <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{vendorData?.nearest_site?.name}}</span>
+                    <span class="h-[17px] w-[16px] cursor-pointer" matTooltip="Coppy Address">
+                        <img src="/assets/svg-icons/poi-icon.svg" alt="" />
+                    </span>          
+                </div>
+              </div>
+              <div class="flex items-center gap-[5px] self-stretch w-full font-Barlow">
+                <div class="flex w-2/4 p-[8px] gap-[10px] flex-0 rounded-[3px] bg-primaryBg items-center justify-center">
+                  <span class="text-secondaryText text-center text-sm font-medium leading-[18px]">{{vendorData?.type}}</span>
+                  <span class="h-[15px] w-[15px] cursor-pointer">
+                   @if (vendorData?.type ==='Night') {
+                    <img src="/assets/svg-icons/sunny-icon.svg" alt="" />
+                   } @else {
+                    <img src="/assets/svg-icons/sunny-icon.svg" alt="" />
+                   }
+                </span>  
+                </div>    
+                <div class="flex w-2/4 p-[8px] gap-[10px] flex-0 rounded-[3px] bg-primaryBg items-center justify-center">
+                  <span class="text-secondaryText text-center text-sm font-medium leading-[18px]">{{vendorData?.vendor_name != 'skyfi' ? vendorData?.cloud_cover.toFixed(3) : 'SAR'}}%</span>
+                  <span class="h-[15px] w-[15px] cursor-pointer">
+                    <img src="/assets/svg-icons/cloud-icon.svg" alt="" />
+                </span>  
+                </div>         
             </div>
-            <mat-list>
-                <ng-container *ngFor="let group of groups">
-                    <ng-template [ngTemplateOutlet]="renderGroup"
-                        [ngTemplateOutletContext]="{ $implicit: group }"></ng-template>
-                </ng-container>
-            </mat-list>
-            <span (click)="$event.stopPropagation()"><mat-checkbox class="example-margin" [(ngModel)]="checked">Notify
-                    me of new updates</mat-checkbox></span>
-            <button
-                class="flex justify-center text-[#453303] items-center text-center w-full h-[38px] py-[10px] bg-yellow rounded-[5px]">Save</button>
-            <button
-                class="flex justify-center text-[##ABB7C0] items-center text-center w-full h-[38px] py-[10px] bg-secondary-heiglight rounded-[5px]">Cancel</button>
-        </div>
-    </mat-menu>
+              </div>
+        } -->
+    </div>
+   
 </div>
+
+<!-- (mouseover)="imageHoverView(row)"  -->

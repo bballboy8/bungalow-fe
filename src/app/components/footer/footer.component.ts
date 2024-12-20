@@ -24,7 +24,7 @@ export class FooterComponent {
   @Output() zoomIn = new EventEmitter<any>();
   @Output() zoomOut = new EventEmitter<any>();
   @Output() dateRangeChanged = new EventEmitter<{ startDate: string, endDate: string }>();
-  selectedOption = this.options[0];
+  selectedOption:any = null;
   @Input() isDropdownOpen: boolean = false;  // Receiving the dropdown state from the parent
   @Output() toggleDropdownEvent: EventEmitter<boolean> = new EventEmitter<boolean>();  // To send state back to parent
   @Input()longitude:any;

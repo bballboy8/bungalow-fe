@@ -242,6 +242,15 @@ export class HomeComponent implements OnInit, AfterViewInit,OnDestroy {
     });
     
   
+
+    this.map.on('move', () => {
+      let center = this.map.getCenter();
+      let lat = Math.max(-90, Math.min(90, center.lat)); // Clamp latitude
+      let lng = center.lng// Allow longitude wrapping
+      if (lat !== center.lat) {
+          this.map.setView([lat, lng], this.map.getZoom(), { animate: false }); // Reset view if latitude is out of bounds
+      }
+  });
     // Add event listener for when a shape is created
     this.map.on(L.Draw.Event.CREATED, (event: any) => {
       const layer = event.layer;

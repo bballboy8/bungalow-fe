@@ -229,7 +229,7 @@
         </div>
 
         @if (viewType=='browse') {
-        <div class="w-[820px] overflow-auto content min-h-[32vh]">
+        <div class="w-[820px] overflow-auto content">
             <div class="flex flex-start all_wrap flex-wrap ml-[20px]">
                
                 <div *ngFor="let item of dataSource; let index = index" class="bg-secondaryBg rounded-[5px] font-Barlow single_browse w-[182px]">
@@ -256,7 +256,7 @@
             </div>
         </div>
         }@else {
-        <div class="w-[820px] overflow-auto min-h-[34vh] content ">
+        <div class="w-[820px] overflow-auto content ">
             @if (dataSource.length) {
                 <table mat-table [dataSource]="dataSource" multiTemplateDataRows
                 class="font-Barlow mat-elevation-z8 bg-primaryBg w-full border border-secondaryText rounded-lg">

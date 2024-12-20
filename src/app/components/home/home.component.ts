@@ -200,9 +200,9 @@ export class HomeComponent implements OnInit, AfterViewInit,OnDestroy {
     ];
   
     // Add polygon to the map
-     this.polygon = L.polygon(polygonCoordinates, {
-      color: 'blue', // Polygon border color
-      fillColor: 'rgba(0, 0, 255, 0.5)', // Fill color with opacity
+    this.polygon = L.polygon(polygonCoordinates, {
+      color: '#66cc66', // Polygon border color
+      fillColor: 'rgba(102, 204, 102, 0.5)', // Fill color with opacity
       weight: 2,    // Border thickness
     }).addTo(this.map);
   
@@ -233,12 +233,12 @@ export class HomeComponent implements OnInit, AfterViewInit,OnDestroy {
     this.map.on('mousemove', (event: L.LeafletMouseEvent) => {
       const coords = event.latlng;
       this.longitude = parseFloat(coords.lng.toFixed(6));
-      this.latitude = parseFloat(coords.lat.toFixed(6)); 
+      this.latitude = parseFloat(coords.lat.toFixed(6));
       // Normalize longitude to the range [-180, 180)
-      this.longitude = parseFloat((((coords.lng + 180) % 360 + 360) % 360 - 180).toFixed(6));
+      // this.longitude = parseFloat((((coords.lng + 180) % 360 + 360) % 360 - 180).toFixed(6));
     
       // Clamp latitude to the range [-90, 90]
-      this.latitude = parseFloat(Math.max(-90, Math.min(coords.lat, 90)).toFixed(6));
+      // this.latitude = parseFloat(Math.max(-90, Math.min(coords.lat, 90)).toFixed(6));
     });
     
   
@@ -330,13 +330,16 @@ export class HomeComponent implements OnInit, AfterViewInit,OnDestroy {
 
   //map shape drawing function
   setDrawType(type: any): void {
+    
     console.log("Selected Draw Type:", type);
     this.currentAction = null
     if(this.polygon){
-      this.map.clearAllEventListeners();
+      // this.map.clearAllEventListeners();
+      this.map.off('click')
+      // this.clearExtraShapes();
       this.map.removeLayer(this.polygon);
     }
-    
+   
     this.map.off('click');
     // Remove any existing event listeners or drawing layers
     this.map.off(L.Draw.Event.CREATED);

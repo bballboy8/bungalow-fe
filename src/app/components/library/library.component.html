@@ -1,5 +1,5 @@
-<div class="flex flex-col gap-3 z-[1000000000]">
-    <div class="flex items-center justify-between h-[48px] bg-secondaryBg p-3">
+<div class="flex h-full flex-col gap-3 z-[1000000000]">
+    <div id="header" class="flex items-center justify-between h-[48px] bg-secondaryBg p-3">
         <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Library</span>
         <span class="w-[16px] h-[14px] cursor-pointer" (click)="closeLibraryDrawer()">
             <img src="assets/svg-icons/drawer-toggle-icon.svg" />
@@ -7,7 +7,7 @@
     </div>
 
     @if (analyticsData) {
-    <div class="mx-[15px] gap-3 grid-cols-4 flex font-Barlow">
+    <div id="analyticsData" class="mx-[15px] gap-3 grid-cols-4 flex font-Barlow">
 
         <div class="w-[190px] flex flex-col gap-3 my-3 p-3 bg-secondaryBg rounded-[5px] font-Barlow">
             <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Selection area</span>
@@ -110,7 +110,7 @@
 
     </div>
 
-    <div class="mx-[15px] bg-secondaryBg rounded-[5px] font-Barlow">
+    <div id="not_found" class="mx-[15px] bg-secondaryBg rounded-[5px] font-Barlow">
         <div class="mx-[15px] gap-[5px] flex font-Barlow">
             <div
                 class="w-[182px] flex flex-col p-[10px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">
@@ -188,14 +188,14 @@
         </div>
     </div>
     } @else {
-    <div class="w-full flex justify-center items-center">
+    <div id="custom" class="w-full flex justify-center items-center">
         <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Data not found</span>
     </div>
     }
 
 
     <div class="bg-secondaryBg w-full relative" id="custom_table" >
-        <div class="flex m-[20px] justify-between items-center">
+        <div id="container" class="flex m-[20px] justify-between items-center">
             <!-- <p class="text-xs font-semibold leading-[18px] text-secondaryText">Image library 11</p> -->
             <div class="rounded-[25px] bg-primaryBg flex items-center justify-between">
                 <button (click)="selectPreviewMethod('table')"
@@ -229,7 +229,7 @@
         </div>
 
         @if (viewType=='browse') {
-        <div class="w-[820px] overflow-auto h-[32vh]">
+        <div class="w-[820px] overflow-auto content min-h-[32vh]">
             <div class="flex flex-start all_wrap flex-wrap ml-[20px]">
                
                 <div *ngFor="let item of dataSource; let index = index" class="bg-secondaryBg rounded-[5px] font-Barlow single_browse w-[182px]">
@@ -256,7 +256,7 @@
             </div>
         </div>
         }@else {
-        <div class="w-[820px] overflow-auto h-[34vh]">
+        <div class="w-[820px] overflow-auto min-h-[34vh] content ">
             @if (dataSource.length) {
                 <table mat-table [dataSource]="dataSource" multiTemplateDataRows
                 class="font-Barlow mat-elevation-z8 bg-primaryBg w-full border border-secondaryText rounded-lg">

@@ -1,11 +1,15 @@
 import {
+  AfterViewInit,
   ChangeDetectorRef,
   Component,
+  ElementRef,
   EventEmitter,
   inject,
   Input,
+  OnDestroy,
   OnInit,
   Output,
+  Renderer2,
 } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -90,7 +94,7 @@ export interface PeriodicElement {
     ]),
   ],
 })
-export class LibraryComponent implements OnInit {
+export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   //#region Decorators
   @ViewChild("myTemplate", { static: true }) myTemplate!: TemplateRef<any>;
   @Output() closeDrawer = new EventEmitter<boolean>();
@@ -149,6 +153,7 @@ export class LibraryComponent implements OnInit {
     private dialog: MatDialog,
     private sharedService: SharedService,
      private satelliteService:SatelliteService,
+     private el: ElementRef, private renderer: Renderer2
   ) {
      this.searchInput.pipe(
           debounceTime(1000),  // Wait for 1000ms after the last key press
@@ -212,8 +217,14 @@ export class LibraryComponent implements OnInit {
         },
       });
     }
+    this.setDynamicHeight();
+    window.addEventListener('resize', this.setDynamicHeight.bind(this))
   }
 
+  ngAfterViewInit(): void {
+    this.setDynamicHeight();
+    window.addEventListener('resize', this.setDynamicHeight.bind(this))
+  }
   /** Whether the number of selected elements matches the total number of rows. */
   isAllSelected() {
     const numSelected = this.selection.selected.length;
@@ -525,6 +536,39 @@ expandedData(data:any,expandedElement:any){
   } else {
     this.notifyParent.emit(null)
   }
+}
+
+setDynamicHeight(): void {
+  // Get the height of the elements above
+  const header = document.getElementById('header');
+  const analyticsData = document.getElementById('analyticsData');
+  const notFound = document.getElementById('not_found');
+  const custom = document.getElementById('custom');
+  const container = document.getElementById('container');
+  
+  // Calculate the total height of all the above elements
+  const totalHeight = [
+    header,
+    analyticsData,
+    notFound,
+    custom,
+    container
+  ].reduce((acc, el) => acc + (el ? el.offsetHeight : 0), 0);
+
+  // Get the height of the viewport
+  const viewportHeight = window.innerHeight;
+
+  // Calculate the remaining height for the target div
+  const remainingHeight = viewportHeight - totalHeight - 400;
+
+  // Get the content div and apply the calculated height
+  const contentDiv = this.el.nativeElement.querySelector('.content');
+  if (contentDiv) {
+    this.renderer.setStyle(contentDiv, 'height', `${remainingHeight}px`);
+  }
+}
+ngOnDestroy(): void {
+  window.removeEventListener('resize', this.setDynamicHeight.bind(this));  // Clean up event listener
 }
 
 }

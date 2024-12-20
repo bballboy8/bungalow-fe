@@ -1,8 +1,8 @@
 <div class="flex justify-between items-end gap-[250px]">
   <div class="w-fit flex h-[50px] bg-primaryBg rounded-[5px] shadow-custom-black">
-    <div class="border-r border-custom-border w-[70px] px-[15px]">
+    <div class="border-r border-custom-border w-[150px] px-[15px]">
 
-      <ul *ngIf="isDropdownOpen" class="absolute w-[70px] h-[100px] rounded-[5px] bg-primaryBg -top-[105px] left-0">
+      <ul *ngIf="isDropdownOpen" class="absolute w-[150px] h-[100px] rounded-[5px] bg-primaryBg -top-[105px] left-0">
         <li *ngFor="let option of options" (click)="selectOption(option)"
           class="border-b h-[50px] last:border-b-0 border-solid border-custom-border">
           <span class="flex items-center justify-center h-full w-full"><img [src]="option.image"
@@ -11,6 +11,7 @@
       </ul>
       <div class="h-[50px] cursor-pointer" (click)="toggleDropdown()">
         <div class=" w-full gap-2 items-center flex h-full">
+          <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Select shape</span>
           <span class="w-[20px] h-[20px] shadow-custom-light flex items-center justify-center">
           <img class="object-none " height="16" width="16" [src]="selectedOption.image" alt="{{ selectedOption.label }}" />
           </span>

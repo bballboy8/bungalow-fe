@@ -152,13 +152,32 @@ export class HomeComponent implements OnInit, AfterViewInit,OnDestroy {
   //openstreetmap initialization
   private initMap(): void {
     this.map = L.map(this.mapContainer.nativeElement, {
-      center: [22.5, 112.5], // Initial center, will be updated
+      center: [34.0479, 100.6197], // Set the center to a location in Asia
       zoom: this.zoomLevel,
       zoomControl: false,
       minZoom: 4, // Set minimum zoom level
       maxZoom: 20, // Set maximum zoom level
       scrollWheelZoom: true, // Optionally allow zooming by scrolling
-      worldCopyJump: true
+      dragging: true, // Enable dragging
+      worldCopyJump: true,
+    });
+  
+    // Set the bounds for the map to restrict panning and zooming
+    // const bounds: L.LatLngBoundsLiteral = [
+    //   [-90, -180], // South-west corner (latitude, longitude)
+    //   [90, 180],   // North-east corner (latitude, longitude)
+    // ];
+  
+    // Set the max bounds for the map
+
+
+    // this.map.setMaxBounds(bounds);
+  
+    // Optional: Prevent zooming out beyond a certain level
+    this.map.on('zoomend', () => {
+      if (this.map.getZoom() < 4) {
+        this.map.setZoom(4);
+      }
     });
   
     // Add Tile Layer (Dark mode basemap)
@@ -166,13 +185,12 @@ export class HomeComponent implements OnInit, AfterViewInit,OnDestroy {
   
     // Initialize the drawing layer
     this.drawLayer = new L.FeatureGroup();
+    this.extraShapesLayer = L.featureGroup().addTo(this.map);
     this.map.addLayer(this.drawLayer);
   
     // Initialize and add the vector layer
     this.vectorLayer = L.layerGroup();
     this.vectorLayer.addTo(this.map);
-  
-    // Define polygon coordinates
     const polygonCoordinates: L.LatLngExpression[] = [
       [0, 90],   // [latitude, longitude]
       [0, 135],
@@ -197,6 +215,7 @@ export class HomeComponent implements OnInit, AfterViewInit,OnDestroy {
   
     // Add event listener for zoom changes
     this.map.on('zoomend', () => {
+      console.log('Zoom changed');
       this.zoomLevel = this.map.getZoom();
     });
     const geoJSON = this.polygon.toGeoJSON();
@@ -213,17 +232,17 @@ export class HomeComponent implements OnInit, AfterViewInit,OnDestroy {
     // Add event listener for mouse movement to track coordinates
     this.map.on('mousemove', (event: L.LeafletMouseEvent) => {
       const coords = event.latlng;
-
-    
       this.longitude = parseFloat(coords.lng.toFixed(6));
-      this.latitude = parseFloat(coords.lat.toFixed(6));
+      this.latitude = parseFloat(coords.lat.toFixed(6)); 
       // Normalize longitude to the range [-180, 180)
-      // this.longitude = parseFloat((((coords.lng + 180) % 360 + 360) % 360 - 180).toFixed(6));
+      this.longitude = parseFloat((((coords.lng + 180) % 360 + 360) % 360 - 180).toFixed(6));
     
       // Clamp latitude to the range [-90, 90]
-      // this.latitude = parseFloat(Math.max(-90, Math.min(coords.lat, 90)).toFixed(6));
+      this.latitude = parseFloat(Math.max(-90, Math.min(coords.lat, 90)).toFixed(6));
     });
+    
   
+
     this.map.on('move', () => {
       let center = this.map.getCenter();
       let lat = Math.max(-90, Math.min(90, center.lat)); // Clamp latitude
@@ -238,17 +257,20 @@ export class HomeComponent implements OnInit, AfterViewInit,OnDestroy {
       this.drawLayer.addLayer(layer);
   
       // Optionally handle other types of layers, like storing the GeoJSON of the created feature
+      const geoJSON = layer.toGeoJSON();
+      console.log('GeoJSON of created feature: ', geoJSON);
     });
   
-    // Optionally center on user location
     // if (navigator.geolocation) {
-    //   navigator.geolocation.getCurrentPosition((position) => {
-    //     const lat = position.coords.latitude;
-    //     const lng = position.coords.longitude;
+    //   navigator.geolocation.getCurrentPosition(
+    //     (position) => {
+    //       const lat = position.coords.latitude;
+    //       const lng = position.coords.longitude;
   
-    //     // Temporarily allow zooming to user location
-    //     this.map.setView([lat, lng], 4, { animate: true });
-    //   });
+    //       // Temporarily allow zooming to user location
+    //       this.map.setView([lat, lng], 4, { animate: true });
+    //     }
+    //   );
     // }
   }
   
@@ -311,14 +333,11 @@ export class HomeComponent implements OnInit, AfterViewInit,OnDestroy {
     console.log("Selected Draw Type:", type);
     this.currentAction = null
     if(this.polygon){
-      this.drawLayer.clearLayers();
-      this.clearExtraShapes();
-      this.map.clearAllEventListeners()
-      this.map.removeLayer(this.polygon)
-     
+      this.map.clearAllEventListeners();
+      this.map.removeLayer(this.polygon);
     }
-   
-    this.map.off('click')
+    
+    this.map.off('click');
     // Remove any existing event listeners or drawing layers
     this.map.off(L.Draw.Event.CREATED);
     if (this.markerHandler) {
@@ -331,10 +350,10 @@ export class HomeComponent implements OnInit, AfterViewInit,OnDestroy {
       this.drawLayer.clearLayers();
       this.clearExtraShapes();
     }
-    
+
     // Define options for the specific shape type
     let drawHandler: any;
-  
+
     if (type === 'Polygon') {
       drawHandler = new L.Draw.Polygon(this.map as L.DrawMap, {
         showArea: true,
@@ -355,18 +374,18 @@ export class HomeComponent implements OnInit, AfterViewInit,OnDestroy {
         },
       });
     }
-  
+
     if (drawHandler) {
       // Start the drawing process immediately
       drawHandler.enable();
-  
+
       // Add an event listener for when the shape is created
       this.map.on(L.Draw.Event.CREATED, (event: any) => {
         const layer = event.layer; // The drawn layer
         this.drawLayer.addLayer(layer); // Add to the feature group
-  
+
         console.log("Drawn Layer Type:", event.layerType);
-  
+
         if (event.layerType === 'polygon' && type === 'Polygon') {
           const coordinates = (layer as L.Polygon).getLatLngs();
           console.log('Polygon Coordinates:', type);
@@ -385,16 +404,19 @@ export class HomeComponent implements OnInit, AfterViewInit,OnDestroy {
           const geoJSON = layer.toGeoJSON();
           this.getPolygonFromCoordinates({geometry:geoJSON?.geometry},bounds);
         }
-  
+
         // Disable the draw handler after the shape is created
         drawHandler.disable();
-        type= null
+        type = null;
       });
+
+      // Normalize map interaction and handle panning
+      
       this.drawHandler = drawHandler;
     } else {
       console.error("Invalid draw type specified.");
     }
-  }
+}
 
   showSatelliteWithinPolygon(bounds: L.LatLngBounds): void {
     // Define the satellite image URL (or any other map layer)

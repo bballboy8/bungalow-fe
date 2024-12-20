@@ -360,13 +360,10 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   }
   formatToThreeDecimalPlaces(value: string): string {
     // Check if the string ends with "m"
-    if (!value.endsWith("m")) {
-        throw new Error("Invalid input: Value must end with 'm'");
-    }
     // Extract the numeric part and parse it as a float
     const numericPart = parseFloat(value.slice(0, -1));
     // Format the numeric part to 3 decimal places
-    const formattedNumber = numericPart.toFixed(3);
+    const formattedNumber = numericPart.toFixed(2);
 
     // Reattach the "m" unit and return
     return `${formattedNumber}m`;

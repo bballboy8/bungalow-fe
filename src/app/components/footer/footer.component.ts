@@ -44,7 +44,14 @@ export class FooterComponent {
   private _snackBar = inject(MatSnackBar);
   @Input() ActiveLayer:string ='OpenStreetMap';
   // EventEmitter to send the close event to the parent
-  constructor(private dialog: MatDialog){}
+  constructor(private dialog: MatDialog){
+     const now = dayjs().utc();
+    this.startDate = now.subtract(1, 'day').startOf('day').format('MM.DD.YYYY'); 
+    // End of the previous day
+    this.endDate = now.subtract(1, 'day').endOf('day').format('MM.DD.YYYY') ; 
+    this.endTime = now.subtract(1, 'day').endOf('day').format('HH:mm:ss');
+    this.startTime = now.subtract(1, 'day').startOf('day').format('HH:mm:ss ');
+  }
 
 
 

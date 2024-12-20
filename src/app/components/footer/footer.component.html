@@ -14,8 +14,8 @@
           @if (!selectedOption) {
             <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Select shape</span>
           }@else {
-            <span class="w-[20px] h-[20px] shadow-custom-light flex items-center justify-center">
-              <img class="object-none " height="16" width="16" [src]="selectedOption?.image" alt="{{ selectedOption?.label }}" />
+            <span class="shadow-custom-light flex items-center justify-center">
+              <img class="object-none h-[15px]" height="16" width="16" [src]="selectedOption?.image" alt="{{ selectedOption?.label }}" />
               </span>
           }
           

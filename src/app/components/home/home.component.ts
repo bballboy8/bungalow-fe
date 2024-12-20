@@ -298,7 +298,14 @@ export class HomeComponent implements OnInit, AfterViewInit,OnDestroy {
   setDrawType(type: any): void {
     console.log("Selected Draw Type:", type);
     this.currentAction = null
-    this.map.removeLayer(this.polygon)
+    if(this.polygon){
+      this.drawLayer.clearLayers();
+      this.clearExtraShapes();
+      this.map.clearAllEventListeners()
+      this.map.removeLayer(this.polygon)
+     
+    }
+   
     this.map.off('click')
     // Remove any existing event listeners or drawing layers
     this.map.off(L.Draw.Event.CREATED);

@@ -152,7 +152,7 @@ export class HomeComponent implements OnInit, AfterViewInit,OnDestroy {
   //openstreetmap initialization
   private initMap(): void {
     this.map = L.map(this.mapContainer.nativeElement, {
-      center: [34.0479, 100.6197], // Set the center to a location in Asia
+      center: [22.5, 112.5], // Initial center, will be updated
       zoom: this.zoomLevel,
       zoomControl: false,
       minZoom: 4, // Set minimum zoom level

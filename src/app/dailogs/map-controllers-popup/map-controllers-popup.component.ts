@@ -343,7 +343,7 @@ export class MapControllersPopupComponent implements OnInit {
     // Extract the numeric part and parse it as a float
     const numericPart = parseFloat(value.slice(0, -1));
     // Format the numeric part to 3 decimal places
-    const formattedNumber = numericPart.toFixed(3);
+    const formattedNumber = numericPart.toFixed(2);
 
     // Reattach the "m" unit and return
     return `${formattedNumber}m`;

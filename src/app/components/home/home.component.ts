@@ -227,7 +227,7 @@ export class HomeComponent implements OnInit, AfterViewInit,OnDestroy {
     this.map.on('move', () => {
       let center = this.map.getCenter();
       let lat = Math.max(-90, Math.min(90, center.lat)); // Clamp latitude
-      let lng = (((center.lng + 180) % 360 + 360) % 360 - 180); // Allow longitude wrapping
+      let lng = center.lng// Allow longitude wrapping
       if (lat !== center.lat) {
           this.map.setView([lat, lng], this.map.getZoom(), { animate: false }); // Reset view if latitude is out of bounds
       }

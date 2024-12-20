@@ -1172,37 +1172,54 @@ private openDialogAtPosition(polygon: any, metadata: any): void {
 
 receiveData(data: any) {
   console.log(data, 'parentparentparentparentparentparentparent');
+
+  // Check if coordinates exist
   if (data?.coordinates_record?.coordinates) {
+    // Extract the coordinates and map them to Leaflet's LatLng format
     const coordinates = data.coordinates_record.coordinates[0].map((coord: number[]) => 
-      new L.LatLng(coord[1], coord[0])
+      new L.LatLng(coord[1], coord[0]) // Convert [lon, lat] to [lat, lon]
     );
+
+    // Calculate bounds from the coordinates
     const bounds = new L.LatLngBounds(coordinates);
 
-    // Remove previous overlay if it exists
+    // Remove any existing overlay
     if (this.imageOverlay) {
       this.map.removeLayer(this.imageOverlay);
     }
 
-    // Create new overlay
-    this.imageOverlay = L.imageOverlay(data.presigned_url, bounds);
+    // Create and add the image overlay to the map
+    this.imageOverlay = L.imageOverlay(data.presigned_url, bounds, {
+      opacity: 1, // Optional: Adjust opacity if needed
+      zIndex:1000,
+    });
     this.imageOverlay.addTo(this.map);
 
-    // Adjust the overlay initially
-    this.adjustImageOverlay();
+    // Fit the map view to the overlay bounds (optional)
+    this.map.fitBounds(bounds);
+
+    // Add a polygon overlay to visualize the shape (optional)
+    L.polygon(coordinates, { color: 'red', weight: 2 }).addTo(this.map);
+  } else {
+    if (this.imageOverlay) {
+      this.map.removeLayer(this.imageOverlay);
+      this.map.setZoom(4)
+    }
   }
 }
+
 
 private adjustImageOverlay() {
   if (!this.imageOverlay) return;
 
   const element = this.imageOverlay.getElement();
-  if (!element) return;  // Ensure the element is not null or undefined
+  if (!element) return; // Ensure the image element is available
 
   const topLeft = this.map.latLngToLayerPoint(this.imageOverlay.getBounds().getNorthWest());
   const imageSize = this.calculateImageSize(this.map.getZoom());
 
-  // Safely access and modify the image element
-  const imageElement = element as HTMLImageElement; // Cast once checked for null
+  // Safely modify the image element styles
+  const imageElement = element as HTMLImageElement; // Cast to HTMLImageElement
   imageElement.style.width = `${imageSize.width}px`;
   imageElement.style.height = `${imageSize.height}px`;
   imageElement.style.left = `${topLeft.x}px`;
@@ -1210,9 +1227,10 @@ private adjustImageOverlay() {
 }
 
 private calculateImageSize(zoomLevel: number): { width: number; height: number } {
-  // Customize this logic based on your zoom levels and desired size
+  // Customize this based on your zoom levels and requirements
   return { width: 261.368, height: 313.641 };
 }
+
 
 
 

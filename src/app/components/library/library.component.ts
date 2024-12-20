@@ -518,9 +518,13 @@ onKeyPress(event: KeyboardEvent): void {
   this.searchInput.next(inputValue);
 }
 
-expandedData(data:any){
-
-  this.notifyParent.emit(data)
+expandedData(data:any,expandedElement:any){
+  console.log(expandedElement,'expandedElementexpandedElementexpandedElement');
+  if(expandedElement !== null){
+    this.notifyParent.emit(data)
+  } else {
+    this.notifyParent.emit(null)
+  }
 }
 
 }

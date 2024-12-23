@@ -210,20 +210,27 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
         next: (resp) => {
           console.log(resp,'queryParamsqueryParamsqueryParamsqueryParams');
           this.dataSource = resp.data
-          
+          setTimeout(() => {
+            this.setDynamicHeight();
+            window.addEventListener('resize', this.setDynamicHeight.bind(this))
+        }, 300); 
         },
         error: (err) => {
           console.log("err getPolyGonData: ", err);
         },
       });
     }
-    this.setDynamicHeight();
-    window.addEventListener('resize', this.setDynamicHeight.bind(this))
+    
   }
 
   ngAfterViewInit(): void {
-    this.setDynamicHeight();
-    window.addEventListener('resize', this.setDynamicHeight.bind(this))
+    if(this.dataSource ){
+      setTimeout(() => {
+        this.setDynamicHeight();
+        window.addEventListener('resize', this.setDynamicHeight.bind(this))
+    }, 300); 
+    }
+   
   }
   /** Whether the number of selected elements matches the total number of rows. */
   isAllSelected() {
@@ -247,7 +254,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   }
 
   selectPreviewMethod(type: "table" | "browse") {
-   
+    window.removeEventListener('resize', this.setDynamicHeight.bind(this));
     this.viewType = type;
     setTimeout(() => {
       this.setDynamicHeight();
@@ -561,16 +568,13 @@ setDynamicHeight(): void {
   
     // Get the height of the viewport
     const viewportHeight = window.innerHeight;
-  
     // Calculate the remaining height for the target div
-    const remainingHeight = viewportHeight - totalHeight - 400;
+    const remainingHeight = viewportHeight - totalHeight-126;
   
     // Get the content div and apply the calculated height
     const contentDiv = this.el.nativeElement.querySelector('.content');
-    console.log(contentDiv,'contentDivcontentDivcontentDivcontentDiv  ',remainingHeight);
     
     if (contentDiv) {
-      console.log('lllllllllll');
       
       this.renderer.setStyle(contentDiv, 'height', `${remainingHeight}px`);
     }
@@ -598,11 +602,8 @@ setDynamicHeight(): void {
 
   // Get the content div and apply the calculated height
   const contentDiv = this.el.nativeElement.querySelector('.browser-content');
-  console.log(viewportHeight,'browserbrowserbrowserbrowserbrowserbrowser  ',totalHeight);
-  
+
   if (contentDiv) {
-    console.log('zzzzzzzzzzzzz');
-    
     this.renderer.setStyle(contentDiv, 'height', `${remainingHeight}px`);
   }
   }

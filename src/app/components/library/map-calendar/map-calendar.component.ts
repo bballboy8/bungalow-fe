@@ -32,6 +32,9 @@ export class MapCalendarComponent {
     { date: "2024-08-15", value: 5 },
     { date: "2024-09-07", value: 4 },
     { date: "2024-10-19", value: 7 },
+    { date: "2024-11-11", value: 1 },
+    { date: "2024-12-19", value: 5 },
+    { date: "2025-01-23", value: 3 },
   ];
 
   ngOnInit() {
@@ -51,7 +54,7 @@ export class MapCalendarComponent {
 
   generateCalendarData() {
     const start = dayjs("2024-08-01");
-    const end = dayjs("2024-10-31");
+    const end = dayjs("2025-01-31");
     let current = start;
 
     while (current.isBefore(end) || current.isSame(end, "month")) {
@@ -92,5 +95,10 @@ export class MapCalendarComponent {
     if (day.value <= 4) return 'color-2';
     if (day.value <= 6) return 'color-3';
     return 'color-4';
+  }
+
+  getDate(date:any){
+    console.log(date,'date');
+    
   }
 }

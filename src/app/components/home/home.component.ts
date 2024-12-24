@@ -1223,7 +1223,7 @@ private openDialogAtPosition(polygon: any, metadata: any): void {
     };
 
     position = {
-      top: `${polygonPoint.y + mapContainer.offsetTop - 150}px`,
+      top: `-100px`,
       left: `${polygonPoint.x + mapContainer.offsetLeft + 20}px`,
     };
     console.log(polygonPoint.y,'polygonPointpolygonPointpolygonPointpolygonPointpolygonPoint',mapContainer.offsetTop);
@@ -1281,7 +1281,7 @@ private openDialogAtPosition(polygon: any, metadata: any): void {
         }
 
         dialogRef.updatePosition({
-          top: `${newTop}px`,
+         
           left: `${newLeft}px`,
         });
       }

@@ -2,6 +2,7 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
+  HostListener,
   Inject,
   OnInit,
   ViewChild,
@@ -63,6 +64,15 @@ export class ImagePreviewComponent implements OnInit {
         this.currentIndex++;
       } else {
         this.currentIndex = 0; // Wrap around to the first image
+      }
+    }
+
+    @HostListener('window:keydown', ['$event'])
+    handleKeyboardEvent(event: KeyboardEvent) {
+      if (event.key === 'ArrowLeft') {
+        this.previousImage(); // Call previousImage() on left arrow key press
+      } else if (event.key === 'ArrowRight') {
+        this.nextImage(); // Call nextImage() on right arrow key press
       }
     }
 }

@@ -282,7 +282,7 @@ export class MapControllersPopupComponent implements OnInit {
 
       // Optionally alert the user
 
-      this.snackBar.open('Address copied to clipboard!', 'Ok', {
+      this.snackBar.open('Copied successfully!', 'Ok', {
         duration: 2000  // Snackbar will disappear after 300 milliseconds
       });
     }

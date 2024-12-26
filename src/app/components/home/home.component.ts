@@ -136,7 +136,21 @@ hybridLayer:L.TileLayer = L.tileLayer(
     if (isPlatformBrowser(this.platformId)) {
       this.initMap();
     }
-    this.sharedService.isOpenedEventCalendar$.subscribe((state) => this.OpenEventCalendar = state);
+    
+    
+    this.sharedService.isOpenedEventCalendar$.subscribe((state) => {this.OpenEventCalendar = state
+      console.log(this.polygon_wkt,'isOpenedEventCalendarisOpenedEventCalendarisOpenedEventCalendar',state);
+      // if(state){
+      //    const payload = {
+      //   polygon_wkt: this.polygon_wkt
+      // }
+      //   this.satelliteService.getPolygonCalenderDays(payload).subscribe({
+      //     next: (resp) => {
+      //       console.log(resp,'getPolygonCalenderDaysgetPolygonCalenderDaysgetPolygonCalenderDays');
+            
+      //     }})
+      // }
+    });
     this.setDynamicHeight();
     window.addEventListener('resize', this.setDynamicHeight.bind(this))
   }
@@ -289,18 +303,18 @@ hybridLayer:L.TileLayer = L.tileLayer(
     });
   
     // Re-fit bounds on window resize to maintain visibility of shapes
-    window.addEventListener('resize', () => {
-      if (this.drawLayer.getBounds) {
-        const bounds = this.drawLayer.getBounds();
-        this.map.fitBounds(bounds, {
-          padding: [200, 200],
-        });
+    // window.addEventListener('resize', () => {
+    //   if (this.drawLayer.getBounds) {
+    //     const bounds = this.drawLayer.getBounds();
+    //     this.map.fitBounds(bounds, {
+    //       padding: [200, 200],
+    //     });
   
-        // Center the map on the shape after resizing
-        const center = bounds.getCenter();
-        this.map.setView(center, this.map.getZoom(), { animate: true });
-      }
-    });
+    //     // Center the map on the shape after resizing
+    //     const center = bounds.getCenter();
+    //     this.map.setView(center, this.map.getZoom(), { animate: true });
+    //   }
+    // });
   
     // Geolocation support
     if (navigator.geolocation) {

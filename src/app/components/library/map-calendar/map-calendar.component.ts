@@ -1,8 +1,9 @@
-import { Component, EventEmitter, Output } from "@angular/core";
+import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import dayjs from "dayjs";
 import { NgxDaterangepickerMd } from "ngx-daterangepicker-material";
 import { SharedService } from "../../shared/shared.service";
 import { CommonModule } from "@angular/common";
+import { SatelliteService } from "../../../services/satellite.service";
 
 @Component({
   selector: "app-map-calendar",
@@ -11,22 +12,16 @@ import { CommonModule } from "@angular/common";
   templateUrl: "./map-calendar.component.html",
   styleUrls: ["./map-calendar.component.scss"],
 })
-export class MapCalendarComponent {
+export class MapCalendarComponent implements OnInit {
   startDate: dayjs.Dayjs = dayjs(); // Initialize with current date
   endDate: dayjs.Dayjs = dayjs().add(0, "days"); // Initialize with current date
   maxDate: dayjs.Dayjs = dayjs();
-
+  @Input() polygon_wkt:any
   @Output() dateRangeSelected = new EventEmitter<{ start: dayjs.Dayjs; end: dayjs.Dayjs }>();
-
-  constructor(private sharedService: SharedService) {}
-
-  // Weekday labels (starting from Sunday)
   weekDays: string[] = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
 
   // Dynamically populated calendar data
   calendarData: { name: string; weeks: { date: number; value: number }[][] }[] = [];
-
-  // Sample event data for heatmap (you can replace this with API data or user inputs)
   events: { date: string; value: number }[] = [
     { date: "2024-08-01", value: 2 },
     { date: "2024-08-15", value: 5 },
@@ -36,12 +31,24 @@ export class MapCalendarComponent {
     { date: "2024-12-19", value: 5 },
     { date: "2025-01-23", value: 3 },
   ];
+  constructor(private sharedService:SharedService,
+    private satelliteService:SatelliteService
+  ){}
 
-  ngOnInit() {
-    this.generateCalendarData();
+  ngOnInit(): void {
+    console.log(this.polygon_wkt,'inputting polygoninputting polygoninputting polygoninputting polygon');
+    if(this.polygon_wkt){
+      const payload = {
+        polygon_wkt: this.polygon_wkt
+      }
+      this.satelliteService.getPolygonCalenderDays(payload).subscribe({
+        next: (resp) => {
+          console.log(resp,'getPolygonCalenderDaysgetPolygonCalenderDaysgetPolygonCalenderDays');
+          
+        }})
+    }
+    
   }
-
-  // Handles the date selection
   choosedDate(event: any) {
     console.log("Selected Date and Time Range:", event);
     this.dateRangeSelected.emit({ start: dayjs(event.startDate), end: dayjs(event.endDate) });

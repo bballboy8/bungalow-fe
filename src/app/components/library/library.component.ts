@@ -40,6 +40,7 @@ import dayjs from "dayjs";
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { GroupsListComponent } from "../../common/groups-list/groups-list.component";
 import { catchError, debounceTime, of, Subject, switchMap } from "rxjs";
+import { MapControllersPopupComponent } from "../../dailogs/map-controllers-popup/map-controllers-popup.component";
 
 export class Group {
   name?: string;
@@ -149,6 +150,8 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   @Output() notifyParent: EventEmitter<any> = new EventEmitter();
   @Input() endDate:any
   @Input() startDate:any
+  selectedRow:any = null;
+  imageData:any
   constructor(
     private dialog: MatDialog,
     private sharedService: SharedService,
@@ -268,6 +271,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
       width: "880px",
       maxHeight:'694px',
       data:  {images:this.dataSource, currentIndex:index} ,
+      panelClass: "custom-preview",
     });
 
     dialogRef.afterClosed().subscribe((result) => {
@@ -361,7 +365,17 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
         next: (resp) => {
           console.log(resp,'queryParamsqueryParamsqueryParamsqueryParams');
           this.vendorData = resp.data[0]
-          
+          const dialogRef = this.dialog.open(MapControllersPopupComponent, {
+              width: `300px`,
+              height: 'auto',
+              data: { type: 'vendor', vendorData: this.vendorData },
+              panelClass: 'checkbox-dialog',
+            });
+            dialogRef.afterClosed().subscribe((result) => {
+              console.log('Dialog closed', result);
+              this.selectedRow = null;
+              this.vendorData = null;
+            });
         },
         error: (err) => {
           console.log("err getPolyGonData: ", err);
@@ -540,13 +554,17 @@ onKeyPress(event: KeyboardEvent): void {
 }
 
 expandedData(data:any,expandedElement:any){
+ 
   console.log(expandedElement,'expandedElementexpandedElementexpandedElement');
-  if(expandedElement !== null){
+  if(this.imageData !== expandedElement.id){
+    this.imageData = expandedElement.id
     this.notifyParent.emit(data)
   } else {
+    this.imageData = null
     this.notifyParent.emit(null)
   }
 }
+
 
 setDynamicHeight(): void {
   // Get the height of the elements above
@@ -611,6 +629,35 @@ setDynamicHeight(): void {
 }
 ngOnDestroy(): void {
   window.removeEventListener('resize', this.setDynamicHeight.bind(this));  // Clean up event listener
+}
+
+roundOff(value: number): number {
+  return Math.round(value);
+}
+
+onCheckboxChange(row: any) {
+  console.log(row,'imageHoverViewimageHoverViewimageHoverViewimageHoverViewimageHoverView');
+  
+  if (this.selectedRow === row) {
+    // Uncheck the currently selected checkbox
+    this.selectedRow = null;
+  } else {
+    console.log('lllllllllllll');
+    
+    // Select the new checkbox
+    this.selectedRow = row;
+    const dialogRef = this.dialog.open(MapControllersPopupComponent, {
+      width: `300px`,
+      height: 'auto',
+      data: { type: 'vendor', vendorData: this.selectedRow },
+      panelClass: 'checkbox-dialog',
+    });
+    dialogRef.afterClosed().subscribe((result) => {
+      console.log('Dialog closed', result);
+      this.selectedRow = null;
+      this.vendorData = null;
+    });
+  }
 }
 
 }

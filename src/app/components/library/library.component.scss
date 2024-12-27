@@ -90,6 +90,17 @@
   .mat-list-item:hover {
     background-color: rgba(255, 255, 255, 0.05); /* Hover effect */
   }
+  thead {
+    position: fixed;
+    width: 100%;
+    top: 503px;
+  }
+  th {
+    .mdc-checkbox {
+      opacity: 0 !important;
+    }
+  }
+  
 }
 
 .custom-progress-container {
@@ -169,4 +180,21 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
+
+::ng-deep .custom-preview{
+  .mat-mdc-dialog-surface {
+    border-radius: 10px !important;
+    background-color: #20272D !important;
+  }
+}
+
+::ng-deep .checkbox-dialog{
+  position: absolute !important;
+  left: 45px !important;
+  .mat-mdc-dialog-surface{
+    border-radius: 10px !important;
+    background-color: #20272D !important;
+  }
+}
+
 

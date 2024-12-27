@@ -79,10 +79,30 @@ export class HomeComponent implements OnInit, AfterViewInit,OnDestroy {
     'http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
     {
       maxZoom: 20,
+      attribution: '&copy; <a href="https://maps.google.com/">Google Maps</a>',
       subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
     }
   )
-  isGoogleLayerActive: string = 'OpenStreetMap'; // Track the current layer
+  googlestreetDarkLayer: L.TileLayer = L.tileLayer(
+    'http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', // 's' for satellite layer
+    {
+      maxZoom: 20,
+      attribution: '&copy; <a href="https://maps.google.com/">Google Maps</a>',
+      subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+    }
+
+);
+hybridLayer:L.TileLayer = L.tileLayer(
+  'http://{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',
+  {
+    maxZoom: 20,
+    attribution: '&copy; <a href="https://maps.google.com/">Google Maps</a>',
+    subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+  }
+);
+
+
+  isGoogleLayerActive: string = 'OpenStreetMapDark'; // Track the current layer
    currentAction: string | null = null; // Tracks the current active action
   private userMarker: L.Marker | null = null; // Store the user marker reference
   private activeDrawTool: L.Draw.Polyline | L.Draw.Polygon | null = null; // Track active drawing tool
@@ -116,7 +136,21 @@ export class HomeComponent implements OnInit, AfterViewInit,OnDestroy {
     if (isPlatformBrowser(this.platformId)) {
       this.initMap();
     }
-    this.sharedService.isOpenedEventCalendar$.subscribe((state) => this.OpenEventCalendar = state);
+    
+    
+    this.sharedService.isOpenedEventCalendar$.subscribe((state) => {this.OpenEventCalendar = state
+      console.log(this.polygon_wkt,'isOpenedEventCalendarisOpenedEventCalendarisOpenedEventCalendar',state);
+      // if(state){
+      //    const payload = {
+      //   polygon_wkt: this.polygon_wkt
+      // }
+      //   this.satelliteService.getPolygonCalenderDays(payload).subscribe({
+      //     next: (resp) => {
+      //       console.log(resp,'getPolygonCalenderDaysgetPolygonCalenderDaysgetPolygonCalenderDays');
+            
+      //     }})
+      // }
+    });
     this.setDynamicHeight();
     window.addEventListener('resize', this.setDynamicHeight.bind(this))
   }
@@ -136,13 +170,14 @@ export class HomeComponent implements OnInit, AfterViewInit,OnDestroy {
     const lng = result.geometry?.location?.lng()!;
     // Move the map to the searched location
     this.map.setView([lat, lng], this.zoomLevel);
-
     const markerIcon = L.icon({
       iconUrl: 'assets/svg-icons/pin-location-icon.svg',  // Adjust the path if necessary
       iconSize: [25, 41],  // Adjust the icon size
       iconAnchor: [12, 41],
       popupAnchor: [1, -34],
     });
+
+    
     // Add a marker to the map
     const marker = L.marker([lat, lng], { icon: markerIcon }).addTo(this.map);
     // Optionally bind a popup to the marker
@@ -151,33 +186,16 @@ export class HomeComponent implements OnInit, AfterViewInit,OnDestroy {
 
   //openstreetmap initialization
   private initMap(): void {
+    // Initialize the map
     this.map = L.map(this.mapContainer.nativeElement, {
-      center: [22.5, 112.5], // Initial center, will be updated
+      center: [22.5, 112.5], // Initial center
       zoom: this.zoomLevel,
       zoomControl: false,
-      minZoom: 4, // Set minimum zoom level
-      maxZoom: 20, // Set maximum zoom level
-      scrollWheelZoom: true, // Optionally allow zooming by scrolling
+      minZoom: 4, // Minimum zoom level
+      maxZoom: 20, // Maximum zoom level
+      scrollWheelZoom: true, // Enable zooming via scroll wheel
       dragging: true, // Enable dragging
-      worldCopyJump: true,
-    });
-  
-    // Set the bounds for the map to restrict panning and zooming
-    // const bounds: L.LatLngBoundsLiteral = [
-    //   [-90, -180], // South-west corner (latitude, longitude)
-    //   [90, 180],   // North-east corner (latitude, longitude)
-    // ];
-  
-    // Set the max bounds for the map
-
-
-    // this.map.setMaxBounds(bounds);
-  
-    // Optional: Prevent zooming out beyond a certain level
-    this.map.on('zoomend', () => {
-      if (this.map.getZoom() < 4) {
-        this.map.setZoom(4);
-      }
+      worldCopyJump: true, // Allow world wrapping
     });
   
     // Add Tile Layer (Dark mode basemap)
@@ -191,89 +209,142 @@ export class HomeComponent implements OnInit, AfterViewInit,OnDestroy {
     // Initialize and add the vector layer
     this.vectorLayer = L.layerGroup();
     this.vectorLayer.addTo(this.map);
+  
+    // Define the polygon coordinates
     const polygonCoordinates: L.LatLngExpression[] = [
-      [0, 90],   // [latitude, longitude]
-      [0, 135],
-      [45, 135],
-      [45, 90],
-      [0, 90],   // Closing the polygon
+      [10, 90],   // [latitude, longitude]
+      [10, 135],
+      [50, 135],
+      [50, 90],
+      [10, 90],   // Close the polygon
     ];
   
-    // Add polygon to the map
+    // Add the polygon to the map
     this.polygon = L.polygon(polygonCoordinates, {
-      color: '#66cc66', // Polygon border color
-      fillColor: 'rgba(102, 204, 102, 0.5)', // Fill color with opacity
-      weight: 2,    // Border thickness
+      color: '#66cc66', // Border color
+      fillColor: 'rgba(102, 204, 102, 0.1)', // Fill color with opacity
+      weight: 2, // Border thickness
     }).addTo(this.map);
   
-    // Calculate the center of the polygon
+    // Calculate the bounds of the polygon
     const polygonBounds = this.polygon.getBounds();
+  
+    // Get the center of the polygon
     const polygonCenter = polygonBounds.getCenter();
   
-    // Set the map view to the center of the polygon
-    this.map.setView(polygonCenter, this.zoomLevel);
-  
-    // Add event listener for zoom changes
-    this.map.on('zoomend', () => {
-      console.log('Zoom changed');
-      this.zoomLevel = this.map.getZoom();
+    // Adjust the map view to fit the polygon with proper padding
+    this.map.fitBounds(polygonBounds, {
+      padding: [200, 200], // Sufficient padding to show borders
     });
+  
+    // Move the map center to the center of the polygon
+    this.map.setView(polygonCenter, this.map.getZoom(), { animate: true });
+  
+    // Debugging: Log GeoJSON and bounds of the polygon
     const geoJSON = this.polygon.toGeoJSON();
+    console.log('Polygon GeoJSON:', geoJSON);
+    console.log('Polygon Bounds:', polygonBounds);
   
-    // Get the bounds of the polygon
-    const bounds = this.polygon.getBounds();
+    // Pass the GeoJSON and bounds to your custom function
+    this.getPolygonFromCoordinates({ geometry: geoJSON.geometry }, polygonBounds);
   
-    // Optionally log to check the output
-    console.log('GeoJSON:', geoJSON);
-    console.log('Bounds:', bounds);
+    // Add zoom change listener
+    this.map.on('zoomend', () => {
+      console.log('Zoom changed:', this.map.getZoom());
+      this.zoomLevel = this.map.getZoom();
+      if (this.map.getZoom() < 4) {
+        this.map.setZoom(4); // Prevent zooming out below the minimum level
+      }
+    });
   
-    // Pass the GeoJSON and bounds to your function
-    this.getPolygonFromCoordinates({ geometry: geoJSON.geometry }, bounds);
-    // Add event listener for mouse movement to track coordinates
+    // Add mousemove event to track coordinates
     this.map.on('mousemove', (event: L.LeafletMouseEvent) => {
       const coords = event.latlng;
       this.longitude = parseFloat(coords.lng.toFixed(6));
       this.latitude = parseFloat(coords.lat.toFixed(6));
-      // Normalize longitude to the range [-180, 180)
-      // this.longitude = parseFloat((((coords.lng + 180) % 360 + 360) % 360 - 180).toFixed(6));
-    
-      // Clamp latitude to the range [-90, 90]
-      // this.latitude = parseFloat(Math.max(-90, Math.min(coords.lat, 90)).toFixed(6));
     });
-    
   
-
+    // Adjust view to clamp latitude if necessary
     this.map.on('move', () => {
-      let center = this.map.getCenter();
-      let lat = Math.max(-90, Math.min(90, center.lat)); // Clamp latitude
-      let lng = center.lng// Allow longitude wrapping
+      const center = this.map.getCenter();
+      const lat = Math.max(-90, Math.min(90, center.lat));
+      const lng = center.lng; // Allow longitude wrapping
       if (lat !== center.lat) {
-          this.map.setView([lat, lng], this.map.getZoom(), { animate: false }); // Reset view if latitude is out of bounds
+        this.map.setView([lat, lng], this.map.getZoom(), { animate: false });
       }
-  });
+    });
+  
+    // Add click event listener
+    this.map.on('click', (event: L.LeafletMouseEvent) => {
+      console.log('Map clicked at:', event.latlng);
+      // Custom click functionality can go here
+    });
+  
     // Add event listener for when a shape is created
     this.map.on(L.Draw.Event.CREATED, (event: any) => {
       const layer = event.layer;
       this.drawLayer.addLayer(layer);
   
-      // Optionally handle other types of layers, like storing the GeoJSON of the created feature
+      // Calculate bounds for the newly created shape
+      const bounds = layer.getBounds();
+  
+      // Fit the map to the bounds of the new shape
+      this.map.fitBounds(bounds, {
+        padding: [200, 200], // Ensure borders are visible
+      });
+  
+      // Move the map center to the center of the new shape
+      const center = bounds.getCenter();
+      this.map.setView(center, this.map.getZoom(), { animate: true });
+  
+      // Debugging: Log GeoJSON of the created feature
       const geoJSON = layer.toGeoJSON();
-      console.log('GeoJSON of created feature: ', geoJSON);
+      console.log('GeoJSON of created feature:', geoJSON);
     });
   
-    // if (navigator.geolocation) {
-    //   navigator.geolocation.getCurrentPosition(
-    //     (position) => {
-    //       const lat = position.coords.latitude;
-    //       const lng = position.coords.longitude;
+    // Re-fit bounds on window resize to maintain visibility of shapes
+    // window.addEventListener('resize', () => {
+    //   if (this.drawLayer.getBounds) {
+    //     const bounds = this.drawLayer.getBounds();
+    //     this.map.fitBounds(bounds, {
+    //       padding: [200, 200],
+    //     });
   
-    //       // Temporarily allow zooming to user location
-    //       this.map.setView([lat, lng], 4, { animate: true });
-    //     }
-    //   );
-    // }
+    //     // Center the map on the shape after resizing
+    //     const center = bounds.getCenter();
+    //     this.map.setView(center, this.map.getZoom(), { animate: true });
+    //   }
+    // });
+  
+    // Geolocation support
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          // this.map.setView([lat, lng], 8, { animate: true });
+        },
+        (error) => {
+          console.error('Geolocation error:', error);
+        }
+      );
+    }
+  
+    // Ensure no redundant listeners are left
+    this.map.off('add');
+    this.map.off('click');
   }
   
+  
+  private adjustMapCenter(containerWidth: number): void {
+    // Adjust the center based on the width
+    const adjustedLongitude = containerWidth / 100; // Example calculation, tweak as needed
+    const adjustedCenter: L.LatLngExpression = [22.5, 112.5 + adjustedLongitude];
+   
+    this.map.setView(adjustedCenter, this.zoomLevel);
+
+    console.log(`Map center adjusted dynamically based on width: ${containerWidth}px`);
+  }
 
   // private addPin(coords: [number, number], iconUrl: string): void {
   //   const customIcon = L.icon({
@@ -321,6 +392,7 @@ export class HomeComponent implements OnInit, AfterViewInit,OnDestroy {
   //angular drawer toggle function
   toggleDrawer(): void {
     if (this.drawer) {
+      this.type = ''
       console.log(this.drawer,'drawerdrawerdrawerdrawerdrawerdrawer');
       this.isDrawerOpen = !this.isDrawerOpen
       this.drawer.toggle();
@@ -330,96 +402,134 @@ export class HomeComponent implements OnInit, AfterViewInit,OnDestroy {
 
   //map shape drawing function
   setDrawType(type: any): void {
-    
     console.log("Selected Draw Type:", type);
-    this.currentAction = null
-    if(this.polygon){
-      // this.map.clearAllEventListeners();
-      this.map.off('click')
-      // this.clearExtraShapes();
-      this.map.removeLayer(this.polygon);
-    }
-   
-    this.map.off('click');
-    // Remove any existing event listeners or drawing layers
-    this.map.off(L.Draw.Event.CREATED);
-    if (this.markerHandler) {
-      this.markerHandler.disable();  // Disable the marker tool
-      console.log("Marker tool has been disabled.");
+    this.currentAction = null;
+
+    // Remove existing shapes and event listeners
+    if (this.polygon) {
+        this.map.off('layeradd');
+        this.map.removeLayer(this.polygon);
+        this.map.off('click');
+        this.drawLayer.clearLayers();
+        this.clearExtraShapes();
     }
 
-    // Clear any existing shapes from the map
+    // Remove any existing drawing events
+    this.map.off(L.Draw.Event.CREATED);
+    this.map.off('draw:drawstart'); // Remove tooltip for drawing
+    this.map.off('draw:drawstop');
+
+    // Disable any active draw handler
+    if (this.drawHandler) {
+        this.drawHandler.disable();
+        console.log("Previous draw handler disabled.");
+    }
+
+    // Clear existing layers
     if (this.drawLayer) {
-      this.drawLayer.clearLayers();
-      this.clearExtraShapes();
+        this.drawLayer.clearLayers();
+        this.clearExtraShapes();
     }
 
     // Define options for the specific shape type
     let drawHandler: any;
 
     if (type === 'Polygon') {
-      drawHandler = new L.Draw.Polygon(this.map as L.DrawMap, {
-        showArea: true,
-        shapeOptions: {
-          color: '#ff6666',
-        },
-      });
+        console.log('Starting Polygon drawing...');
+        drawHandler = new L.Draw.Polygon(this.map as L.DrawMap, {
+            showArea: true,
+            shapeOptions: {
+                color: '#ff6666',
+            },
+        });
     } else if (type === 'Circle') {
-      drawHandler = new L.Draw.Circle(this.map as L.DrawMap, {
-        shapeOptions: {
-          color: '#3399ff',
-        },
-      });
+        console.log('Starting Circle drawing...');
+        drawHandler = new L.Draw.Circle(this.map as L.DrawMap, {
+            shapeOptions: {
+                color: '#3399ff',
+            },
+        });
     } else if (type === 'Box') {
-      drawHandler = new L.Draw.Rectangle(this.map as L.DrawMap, {
-        shapeOptions: {
-          color: '#66cc66',
-        },
-      });
+        console.log('Starting Rectangle (Box) drawing...');
+        drawHandler = new L.Draw.Rectangle(this.map as L.DrawMap, {
+            shapeOptions: {
+                color: '#66cc66',
+            },
+        });
     }
 
     if (drawHandler) {
-      // Start the drawing process immediately
-      drawHandler.enable();
+        // Start the drawing process immediately
+        drawHandler.enable();
+        this.drawHandler = drawHandler; // Store the handler for later use
 
-      // Add an event listener for when the shape is created
-      this.map.on(L.Draw.Event.CREATED, (event: any) => {
-        const layer = event.layer; // The drawn layer
-        this.drawLayer.addLayer(layer); // Add to the feature group
+        // Add an event listener for when the shape is created
+        this.map.on(L.Draw.Event.CREATED, (event: any) => {
+            const layer = event.layer; // The drawn layer
+            this.drawLayer.addLayer(layer); // Add to the feature group
 
-        console.log("Drawn Layer Type:", event.layerType);
+            console.log("Drawn Layer Type:", event.layerType);
 
-        if (event.layerType === 'polygon' && type === 'Polygon') {
-          const coordinates = (layer as L.Polygon).getLatLngs();
-          console.log('Polygon Coordinates:', type);
-          const geoJSON = layer.toGeoJSON();
-          const bounds = (layer as L.Polygon).getBounds();
-          
-          this.getPolygonFromCoordinates({geometry:geoJSON?.geometry},bounds);
-        } else if (event.layerType === 'circle' && type ==='Circle') {
-          const center = (layer as L.Circle).getLatLng();
-          const radius = (layer as L.Circle).getRadius();
-          console.log('Circle Center:', center);
-          console.log('Circle Radius:', radius);
-        } else if (event.layerType === 'rectangle' && type === 'Box') {
-          const bounds = (layer as L.Rectangle).getBounds();
-          console.log('Rectangle Bounds:', bounds);
-          const geoJSON = layer.toGeoJSON();
-          this.getPolygonFromCoordinates({geometry:geoJSON?.geometry},bounds);
-        }
+            if (event.layerType === 'polygon' && type === 'Polygon') {
+              const bounds = (layer as L.Polygon).getBounds();
+              console.log('Polygon Bounds:', bounds);
+              const geoJSON = layer.toGeoJSON();
+              this.getPolygonFromCoordinates({ geometry: geoJSON?.geometry }, bounds);
+              setTimeout(() => {
+                this.map.fitBounds(bounds, {
+                    padding: [50, 50], // Adds padding around the bounds
+                    maxZoom: 16        // Caps the zoom level
+                });
+            }, 1000);            
+             
+             
+          } else if (event.layerType === 'circle' && type === 'Circle') {
+              const bounds = (layer as L.Circle).getBounds();
+              console.log('Circle Bounds:', bounds);
+              const geoJSON = layer.toGeoJSON();
+              this.getPolygonFromCoordinates({ geometry: geoJSON?.geometry }, bounds);
+              setTimeout(() => {
+                this.map.fitBounds(bounds, {
+                    padding: [50, 50], // Adds padding around the bounds
+                    maxZoom: 16        // Caps the zoom level
+                });
+            }, 1000);            
+             
+          } else if (event.layerType === 'rectangle' && type === 'Box') {
+              const bounds = (layer as L.Rectangle).getBounds();
+              console.log('Rectangle Bounds:', bounds);
+              const geoJSON = layer.toGeoJSON();
+              this.getPolygonFromCoordinates({ geometry: geoJSON?.geometry }, bounds);
+             
+              setTimeout(() => {
+                this.map.fitBounds(bounds, {
+                    padding: [50, 50], // Adds padding around the bounds
+                    maxZoom: 16        // Caps the zoom level
+                });
+            }, 1000);            
+              
+          }
 
-        // Disable the draw handler after the shape is created
-        drawHandler.disable();
-        type = null;
-      });
+            // Disable the draw handler after the shape is created
+            drawHandler.disable();
+            this.map.off(L.Draw.Event.CREATED); // Remove the event listener
+            type = null;
 
-      // Normalize map interaction and handle panning
-      
-      this.drawHandler = drawHandler;
+            console.log("Drawing disabled after shape creation.");
+        });
+
+        // Add event listener to remove tooltip when drawing starts/stops
+        this.map.on('draw:drawstart', () => {
+            console.log("Drawing started...");
+        });
+        this.map.on('draw:drawstop', () => {
+            console.log("Drawing stopped...");
+        });
     } else {
-      console.error("Invalid draw type specified.");
+        console.error("Invalid draw type specified.");
     }
 }
+
 
   showSatelliteWithinPolygon(bounds: L.LatLngBounds): void {
     // Define the satellite image URL (or any other map layer)
@@ -482,6 +592,13 @@ export class HomeComponent implements OnInit, AfterViewInit,OnDestroy {
           resp.data.forEach((item:any) => {
             this.addPolygonWithMetadata(item);
           });
+          if(!this.isDrawerOpen){
+            this.toggleDrawer()
+            this.type = 'library'
+            // this.type === 'library'? this.parentZoomLevel = 5: this.parentZoomLevel=4;
+            // this.onZoomLevelChange(this.parentZoomLevel)
+          }
+          
         }
       },
       error: (err) => {
@@ -495,64 +612,71 @@ export class HomeComponent implements OnInit, AfterViewInit,OnDestroy {
   
     // Convert [lng, lat] to [lat, lng] (Leaflet requires [lat, lng] format)
     const latLngs = polygonCoordinates.map((coord: [number, number]) => [
-      coord[1],
-      coord[0],
+        coord[1],
+        coord[0],
     ]);
   
     let color = '#eff24d';
-    let fillColor = '#eff24d';
     if (data.vendor_name === 'planet') {
-      color = '#55FF00';
+        color = '#55FF00';
     } else if (data.vendor_name === 'blacksky') {
-      color = '#FFFF00';
+        color = '#FFFF00';
     } else if (data.vendor_name === 'maxar') {
-      color = '#FFAA00';
+        color = '#FFAA00';
     } else if (data.vendor_name === 'airbus') {
-      color = '#0070FF';
+        color = '#0070FF';
     } else if (data.vendor_name === 'skyfi') {
-      color = '#A900E6';
+        color = '#A900E6';
     } else {
-      color = '#FF00C5';
+        color = '#FF00C5';
     }
+    
   
     // Add the polygon to the map
     const polygon = L.polygon(latLngs, {
-      color: color, // Border color
-      fillColor: color, // Fill color
-      fillOpacity: 0.5, // Fill opacity
+        color: color, // Border color
+        fillColor: color, // Fill color
+        fillOpacity: 0.5, // Fill opacity
     }).addTo(this.map);
-  console.log(polygon,'polygonpolygonpolygonpolygon');
+    console.log(polygon, 'Polygon added');
   
     // Attach the click event to open the component dialog
     polygon.on('click', (event: L.LeafletMouseEvent) => {
-      const clickedPosition = event.latlng; // Get the clicked position
+        const clickedPosition = event.latlng; // Get the clicked position
   
-      // Convert clicked position to pixel position relative to the map
-      const containerPoint = this.map.latLngToContainerPoint(clickedPosition);
-      let queryParams ={
-        page_number: '1',
-        page_size: '100',
-        start_date:'',
-        end_date: '',
-        vendor_id:data.vendor_id
-      }
-      let vendorData
-      this.satelliteService.getDataFromPolygon('',queryParams).subscribe({
-        next: (resp) => {
-          console.log(resp,'queryParamsqueryParamsqueryParamsqueryParams');
-          vendorData = resp.data[0]
-          this.openDialogAtPosition(polygon, vendorData);
-        },
-        error: (err) => {
-          console.log("err getPolyGonData: ", err);
-        },
-      });
-      // Open the Angular Material Dialog at the calculated position
-     
+        // Convert clicked position to pixel position relative to the map
+        const containerPoint = this.map.latLngToContainerPoint(clickedPosition);
+        let queryParams = {
+            page_number: '1',
+            page_size: '100',
+            start_date: '',
+            end_date: '',
+            vendor_id: data.vendor_id
+        };
+        this.satelliteService.getDataFromPolygon('', queryParams).subscribe({
+            next: (resp) => {
+                console.log(resp, 'Data received');
+                const vendorData = resp.data[0];
+                this.openDialogAtPosition(polygon, vendorData);
+            },
+            error: (err) => {
+                console.error("Error fetching polygon data: ", err);
+            },
+        });
+        
     });
   
+    // Add the polygon to the extra shapes layer
     this.extraShapesLayer?.addLayer(polygon);
-  }
+  
+    // Explicitly disable the draw handler
+    if (this.drawHandler && this.drawHandler._toolbars && this.drawHandler._toolbars.draw) {
+        this.drawHandler._toolbars.draw.disable(); // Disables drawing
+    }
+  
+    console.log('Drawing tools disabled');
+}
+
   
 
   private clearExtraShapes(): void {
@@ -1083,14 +1207,39 @@ private clearUserMarker(): void {
 
 toggleMapLayer(type:string) {
   this.isGoogleLayerActive = type
-  if (this.isGoogleLayerActive ==='OpenStreetMap') {
+  if (this.isGoogleLayerActive ==='OpenStreetMapLight') {
     // Remove Google Streets layer and add Dark Layer
     this.map.removeLayer(this.googleStreets);
+    this.map.removeLayer(this.darkLayer)
+    this.map.removeLayer(this.googlestreetDarkLayer)
+    this.map.removeLayer(this.hybridLayer)
+    this.lightLayer.addTo(this.map);
+  } else if(this.isGoogleLayerActive === 'OpenStreetMapDark') {
+    // Remove Dark Layer and add Google Streets layer
+    this.map.removeLayer(this.googleStreets);
+    this.map.removeLayer(this.lightLayer)
+    this.map.removeLayer(this.googlestreetDarkLayer)
+    this.map.removeLayer(this.hybridLayer)
     this.darkLayer.addTo(this.map);
-  } else {
+  }else if(this.isGoogleLayerActive === 'GoogleStreetMapLight') {
     // Remove Dark Layer and add Google Streets layer
     this.map.removeLayer(this.darkLayer);
+    this.map.removeLayer(this.lightLayer)
+    this.map.removeLayer(this.googlestreetDarkLayer)
+    this.map.removeLayer(this.hybridLayer)
     this.googleStreets.addTo(this.map);
+  } else if(this.isGoogleLayerActive === 'hybridLayer'){
+    this.map.removeLayer(this.darkLayer);
+    this.map.removeLayer(this.googleStreets)
+    this.map.removeLayer(this.googlestreetDarkLayer)
+    this.map.removeLayer(this.hybridLayer)
+    this.hybridLayer.addTo(this.map);
+  } else {
+    this.map.removeLayer(this.darkLayer);
+    this.map.removeLayer(this.lightLayer)
+    this.map.removeLayer(this.googleStreets)
+    this.map.removeLayer(this.hybridLayer)
+    this.googlestreetDarkLayer.addTo(this.map);
   }
   
 }
@@ -1174,9 +1323,11 @@ private openDialogAtPosition(polygon: any, metadata: any): void {
     };
 
     position = {
-      top: `${polygonPoint.y + mapContainer.offsetTop}px`,
+      top: `-100px`,
       left: `${polygonPoint.x + mapContainer.offsetLeft + 20}px`,
     };
+    console.log(polygonPoint.y,'polygonPointpolygonPointpolygonPointpolygonPointpolygonPoint',mapContainer.offsetTop);
+    
   }
 
   // Open the dialog with the calculated position
@@ -1213,10 +1364,16 @@ private openDialogAtPosition(polygon: any, metadata: any): void {
         const spaceBelow = mapHeight - polygonPoint.y;
 
         if (spaceBelow >= dialogHeight + 20) {
-          newTop = polygonPoint.y + mapContainer.offsetTop + 30;
+          console.log(polygonPoint.y,'kkkkkkkkkkk',mapContainer.offsetTop);
+          
+          newTop = polygonPoint.y + mapContainer.offsetTop ;
         } else if (spaceAbove >= dialogHeight + 20) {
+          console.log('bbbbbbbbbbbb');
+          
           newTop = polygonPoint.y + mapContainer.offsetTop - dialogHeight - 40;
         } else {
+          console.log('ttttttttttttt');
+          
           newTop = Math.max(
             mapContainer.offsetTop,
             Math.min(polygonPoint.y + mapContainer.offsetTop - dialogHeight / 2, mapHeight - dialogHeight - 20)
@@ -1224,7 +1381,7 @@ private openDialogAtPosition(polygon: any, metadata: any): void {
         }
 
         dialogRef.updatePosition({
-          top: `${newTop}px`,
+         
           left: `${newLeft}px`,
         });
       }
@@ -1238,11 +1395,10 @@ private openDialogAtPosition(polygon: any, metadata: any): void {
 
 receiveData(data: any) {
   console.log(data, 'parentparentparentparentparentparentparent');
-
   // Check if coordinates exist
   if (data?.coordinates_record?.coordinates) {
     // Extract the coordinates and map them to Leaflet's LatLng format
-    const coordinates = data.coordinates_record.coordinates[0].map((coord: number[]) => 
+    const coordinates = data.coordinates_record.coordinates[0].map((coord: number[]) =>
       new L.LatLng(coord[1], coord[0]) // Convert [lon, lat] to [lat, lon]
     );
 
@@ -1257,22 +1413,32 @@ receiveData(data: any) {
     // Create and add the image overlay to the map
     this.imageOverlay = L.imageOverlay(data.presigned_url, bounds, {
       opacity: 1, // Optional: Adjust opacity if needed
-      zIndex:1000,
+      zIndex: 1000,
     });
     this.imageOverlay.addTo(this.map);
 
-    // Fit the map view to the overlay bounds (optional)
-    this.map.fitBounds(bounds);
+    // Center the map view on the image while ensuring it's fully visible
+    const padding = { paddingTopLeft: [50, 50], paddingBottomRight: [50, 50] };
+   
 
     // Add a polygon overlay to visualize the shape (optional)
     L.polygon(coordinates, { color: 'red', weight: 2 }).addTo(this.map);
+    this.map.fitBounds(bounds,{maxZoom: 13,padding: [50, 50]});
+      // Ensure the map is centered at the midpoint of the image bounds with a specific zoom level
+      const appliedZoom = this.map.getZoom();
+console.log("Applied Zoom Level:", appliedZoom);
+      const imageCenter = bounds.getNorthEast();
+      const imageSIze = bounds.getSouthWest()
+      this.map.setView(imageCenter, appliedZoom,{ animate: true },);
   } else {
+    // Handle case where there are no coordinates or the overlay needs to be removed
     if (this.imageOverlay) {
       this.map.removeLayer(this.imageOverlay);
-      this.map.setZoom(4)
     }
   }
 }
+
+
 
 setDynamicHeight(): void {
   // Get the height of the elements above

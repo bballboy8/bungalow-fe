@@ -27,12 +27,16 @@ module.exports = {
         primary: '#1D2428',
         secondary: '#293237',
         'custom-border': '#272F34',
-        'custom-secondary': '#4A5863'
+        'custom-secondary': '#4A5863',
+        'yellow': '#FCCA40'
       },
       boxShadow: {
         'custom-black': '0px 2px 1px 0px rgba(0, 0, 0, 0.5)', // #00000080 in RGBA
         'custom-light': '0px 0px 5px 0px rgba(255, 255, 255, 0.20), 0px 0px 10px 0px rgba(255, 255, 255, 0.25)',
         'custom': '5px 5px 5px 0px rgba(0, 0, 0, 0.10)',
+      },
+      width: {
+        'fill-available': '-webkit-fill-available',
       },
     },
   },

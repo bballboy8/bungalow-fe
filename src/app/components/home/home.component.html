@@ -38,7 +38,7 @@
         [ngClass]="{
           'z-0': isGoogleLayerActive !== 'OpenStreetMapDark' && isGoogleLayerActive !== 'GoogleStreetMapDark',
           'opacity-50': isGoogleLayerActive === 'OpenStreetMapDark' || isGoogleLayerActive === 'GoogleStreetMapDark',
-          'ml-[820px] w-fill-available': type === 'library'
+          'ml-[820px] !w-fill-available': type === 'library'
         }"        
       ></div>
       <div

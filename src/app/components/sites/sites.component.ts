@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 
 @Component({
   selector: 'app-sites',
@@ -7,10 +7,25 @@ import { Component, EventEmitter, Output } from '@angular/core';
   templateUrl: './sites.component.html',
   styleUrl: './sites.component.scss'
 })
-export class SitesComponent {
-@Output() closeDrawer = new EventEmitter<boolean>();
-
-closeLibraryDrawer() {
-  this.closeDrawer.emit(true);
-}
+export class SitesComponent implements OnInit {
+  @Output() closeDrawer = new EventEmitter<boolean>();
+  sitesData: any = [
+    { name: 'Selection name', type: 'polygon', frequency: '2 days', mostRecent: '1 day', gap: '2 days', recentAquization: '16 min', recentClear: '25 min' },
+    { name: 'Selection name', type: 'square', frequency: '2 days', mostRecent: '1 day', gap: '2 days', recentAquization: '16 min', recentClear: '25 min' },
+    { name: 'Selection name', type: 'polygon', frequency: '2 days', mostRecent: '1 day', gap: '2 days', recentAquization: '16 min', recentClear: '25 min' },
+    { name: 'Selection name', type: 'square', frequency: '2 days', mostRecent: '1 day', gap: '2 days', recentAquization: '16 min', recentClear: '25 min' },
+    { name: 'Selection name', type: 'polygon', frequency: '2 days', mostRecent: '1 day', gap: '2 days', recentAquization: '16 min', recentClear: '25 min' },
+    { name: 'Selection name', type: 'square', frequency: '2 days', mostRecent: '1 day', gap: '2 days', recentAquization: '16 min', recentClear: '25 min' }]
+  closeLibraryDrawer() {
+    this.closeDrawer.emit(true);
+  }
+  ngOnInit(): void {
+    this.sitesData = [
+      { name: 'Selection name', type: 'polygon', frequency: '2 days', mostRecent: '1 day', gap: '2 days', recentAquization: '16 min', recentClear: '25 min' },
+      { name: 'Selection name', type: 'square', frequency: '2 days', mostRecent: '1 day', gap: '2 days', recentAquization: '16 min', recentClear: '25 min' },
+      { name: 'Selection name', type: 'polygon', frequency: '2 days', mostRecent: '1 day', gap: '2 days', recentAquization: '16 min', recentClear: '25 min' },
+      { name: 'Selection name', type: 'square', frequency: '2 days', mostRecent: '1 day', gap: '2 days', recentAquization: '16 min', recentClear: '25 min' },
+      { name: 'Selection name', type: 'polygon', frequency: '2 days', mostRecent: '1 day', gap: '2 days', recentAquization: '16 min', recentClear: '25 min' },
+      { name: 'Selection name', type: 'square', frequency: '2 days', mostRecent: '1 day', gap: '2 days', recentAquization: '16 min', recentClear: '25 min' }]
+  }
 }

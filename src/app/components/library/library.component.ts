@@ -322,6 +322,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
 
   closeLibraryDrawer() {
     this.closeDrawer.emit(true);
+    this.sharedService.setIsOpenedEventCalendar(false);
   }
 
   /** Selects all rows if they are not all selected; otherwise clear selection. */

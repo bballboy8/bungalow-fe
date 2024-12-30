@@ -31,6 +31,8 @@ export class MapCalendarComponent implements OnInit {
     { date: "2024-12-19", value: 5 },
     { date: "2025-01-23", value: 3 },
   ];
+  @Input() endDateCal:any
+  @Input() startDateCal:any
   constructor(private sharedService:SharedService,
     private satelliteService:SatelliteService
   ){}
@@ -39,7 +41,9 @@ export class MapCalendarComponent implements OnInit {
     console.log(this.polygon_wkt,'inputting polygoninputting polygoninputting polygoninputting polygon');
     if(this.polygon_wkt){
       const payload = {
-        polygon_wkt: this.polygon_wkt
+        polygon_wkt: this.polygon_wkt,
+        start_date:this.startDateCal,
+        end_date: this.endDateCal
       }
       this.satelliteService.getPolygonCalenderDays(payload).subscribe({
         next: (resp) => {

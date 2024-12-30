@@ -43,6 +43,7 @@ import { catchError, debounceTime, of, Subject, switchMap } from "rxjs";
 import { MapControllersPopupComponent } from "../../dailogs/map-controllers-popup/map-controllers-popup.component";
 import { MatSort, MatSortModule, Sort } from "@angular/material/sort";
 import { LiveAnnouncer } from "@angular/cdk/a11y";
+import moment from "moment";
 
 export class Group {
   name?: string;
@@ -903,5 +904,14 @@ getTimePeriod(datetime: string): string {
     return "Overnight";
   }
 }
+
+//Formated Date into YYYY-MM-DD
+getDateTimeFormat(dateTime: string) {
+    if (dateTime) {
+      return moment(dateTime, 'YYYY-MM-DD')?.format('YYYY-MM-DD');
+
+    }
+    return '';
+  }
 
 }

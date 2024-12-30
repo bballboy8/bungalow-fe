@@ -384,6 +384,8 @@
                                             referenced: </span> <span
                                             class="text-secondaryText">{{element?.georeferenced?'True':'False'}}</span>
                                     </div>
+                                    <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Collection Date:
+                                    </span> <span class="text-secondaryText">{{getDateTimeFormat(element?.acquisition_datetime)}}</span> </div>
                                     <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Off NADIR Angle: </span> <span
                                             class="text-secondaryText">{{element?.sun_elevation.toFixed(3)}}°</span> </div>
                                 </div>

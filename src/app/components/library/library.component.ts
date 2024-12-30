@@ -161,6 +161,8 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   @ViewChild(MatSort) sort!: MatSort;
   originalData: any[] = [];
   selectedZone:string = 'UTC'
+  @ViewChild('scrollableDiv') scrollableDiv!: ElementRef<HTMLDivElement>;
+  page_size = '16'
   constructor(
     private dialog: MatDialog,
     private sharedService: SharedService,
@@ -210,7 +212,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
       })
       let queryParams ={
         page_number: '1',
-        page_size: '100',
+        page_size: '16',
         start_date:this.startDate,
         end_date: this.endDate,
         source: 'library'
@@ -219,20 +221,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
         wkt_polygon: this.polygon_wkt
       }
      
-      this.satelliteService.getDataFromPolygon(payload,queryParams).subscribe({
-        next: (resp) => {
-          console.log(resp,'queryParamsqueryParamsqueryParamsqueryParams');
-          this.dataSource.data = resp.data
-          this.originalData = [...this.dataSource.data];
-          setTimeout(() => {
-            this.setDynamicHeight();
-            window.addEventListener('resize', this.setDynamicHeight.bind(this))
-        }, 300); 
-        },
-        error: (err) => {
-          console.log("err getPolyGonData: ", err);
-        },
-      });
+      this.getSatelliteCatalog(payload,queryParams)
     }
     
   }
@@ -246,13 +235,20 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
     }
     this.dataSource.sort = this.sort;
     console.log(this.dataSource,'sortsortsortsortsort');
-    this.sort?.sortChange.subscribe((sortState) => {
+    this.sort?.sortChange.pipe(
+      debounceTime(300) // Adjust the time as needed
+    ).subscribe((sortState) => {
       console.log('Sorting changed:', sortState);
       console.log('Sorted Data:', this.dataSource.filteredData);
-      this.sortData()
+      this.sortData(); // Will only be called once after the debounce time
     });
-    
-    
+    const div = this.scrollableDiv.nativeElement;
+
+    // Add scroll event listener
+  
+    div.addEventListener('wheel', this.handleWheelEvent);
+
+    // Add mouse events
   }
 
   sortData() {
@@ -264,53 +260,111 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
       return;
     }
 
-    console.log(activeColumn,'activeColumnactiveColumnactiveColumn');
+    console.log(activeColumn,'activeColumnactiveColumnactiveColumn',direction);
     
-    const sortedData = this.dataSource.data.sort((a, b) => {
-      let compareResult = 0;
+   
 
       if (activeColumn === 'selectDate') {
-        const dateA = new Date(a.acquisition_datetime).getTime();
-        const dateB = new Date(b.acquisition_datetime).getTime();
+        // const dateA = new Date(a.acquisition_datetime).getTime();
+        // const dateB = new Date(b.acquisition_datetime).getTime();
+        let queryParams ={
+          page_number: '1',
+          page_size: '16',
+          start_date:this.startDate,
+          end_date: this.endDate,
+          source: 'library',
+          sort_by:'acquisition_datetime',
+          sort_order:direction
+        }
+        const payload = {
+          wkt_polygon: this.polygon_wkt
+        }
        
+        this.getSatelliteCatalog(payload,queryParams)
         
         
-        compareResult = dateA > dateB ? 1 : dateA < dateB ? -1 : 0;
+        // compareResult = dateA > dateB ? 1 : dateA < dateB ? -1 : 0;
       } else if (activeColumn === 'Sensor') {
-        const sensorA = a.sensor.toLowerCase();
-        const sensorB = b.sensor.toLowerCase();
-        compareResult = sensorA.localeCompare(sensorB);
-        console.log(sensorA,'dateAdateAdateAdateA');
-        console.log(sensorB,'dateBdateBdateBdateBdateB');
+        // const sensorA = a.sensor.toLowerCase();
+        // const sensorB = b.sensor.toLowerCase();
+        // compareResult = sensorA.localeCompare(sensorB);
+        // console.log(sensorA,'dateAdateAdateAdateA');
+        // console.log(sensorB,'dateBdateBdateBdateBdateB');
+        let queryParams ={
+          page_number: '1',
+          page_size: '16',
+          start_date:this.startDate,
+          end_date: this.endDate,
+          source: 'library',
+          sort_by:'sensor',
+          sort_order:direction
+        }
+        const payload = {
+          wkt_polygon: this.polygon_wkt
+        }
+        this.getSatelliteCatalog(payload,queryParams)
+      } else if (activeColumn === 'Vendor') {
+        // const sensorA = a.sensor.toLowerCase();
+        // const sensorB = b.sensor.toLowerCase();
+        // compareResult = sensorA.localeCompare(sensorB);
+        // console.log(sensorA,'dateAdateAdateAdateA');
+        // console.log(sensorB,'dateBdateBdateBdateBdateB');
+        let queryParams ={
+          page_number: '1',
+          page_size: '16',
+          start_date:this.startDate,
+          end_date: this.endDate,
+          source: 'library',
+          sort_by:'vendor_name',
+          sort_order:direction
+        }
+        const payload = {
+          wkt_polygon: this.polygon_wkt
+        }
+        this.getSatelliteCatalog(payload,queryParams)
       }
-      console.log(compareResult,'compareResultcompareResultcompareResult');
+     
       
 
-      return direction === 'asc' ? compareResult : -compareResult;
-    });
-    console.log(this.expandedElement,'aaaaaaaaaaaaaaaaaaaa');
     
-    // Update the dataSource with the sorted data
-    this.dataSource.data = sortedData;
-    this.dataSource._updateChangeSubscription();
-    this.expandedElement = null
-    console.log('Sorted Data:', this.dataSource.data.length);
-    this.cdr.detectChanges()
+  
+   
+  }
+
+  getSatelliteCatalog(payload:any,queryParams:any){
+    console.log('getSatelliteCatalog');
+    
+    this.satelliteService.getDataFromPolygon(payload,queryParams).subscribe({
+      next: (resp) => {
+        // console.log(resp,'queryParamsqueryParamsqueryParamsqueryParams');
+        this.dataSource.data = resp.data
+        this.originalData = [...this.dataSource.data];
+        setTimeout(() => {
+          this.setDynamicHeight();
+          window.addEventListener('resize', this.setDynamicHeight.bind(this))
+      }, 300); 
+      },
+      error: (err) => {
+        console.log("err getPolyGonData: ", err);
+      },
+    });
   }
 
   resetSorting() {
     // Reset the dataSource to the original unsorted data
-    this.dataSource.data = [...this.originalData];
-  
-    // Reset the sorting state
-    this.sort.direction = '';
-    this.sort.active = '';
-  
-    // Update the table
-    this.dataSource._updateChangeSubscription();
-  
-    // Trigger change detection if needed
-    this.cdr.detectChanges();
+    let queryParams ={
+      page_number: '1',
+      page_size: '16',
+      start_date:this.startDate,
+      end_date: this.endDate,
+      source: 'library',
+     
+      
+    }
+    const payload = {
+      wkt_polygon: this.polygon_wkt
+    }
+    this.getSatelliteCatalog(payload,queryParams)
   }
 
   /** Whether the number of selected elements matches the total number of rows. */
@@ -725,6 +779,10 @@ setDynamicHeight(): void {
 }
 ngOnDestroy(): void {
   window.removeEventListener('resize', this.setDynamicHeight.bind(this));  // Clean up event listener
+  const div = this.scrollableDiv.nativeElement;
+
+    // Remove all listeners to avoid memory leaks
+   
 }
 
 // Round off value
@@ -772,6 +830,77 @@ getDayOfWeek(date: Date): string {
   } else {
     // Get day of the week in local time
     return dayjs(date).local().format('dddd');
+  }
+}
+
+private canTriggerAction = true;
+private isAtBottom = false;
+
+//Scroll to bottom event 
+private handleWheelEvent = (event: WheelEvent): void => {
+  const div = this.scrollableDiv.nativeElement;
+
+  // Detect if at the bottom
+  const isAtBottom = div.scrollTop + div.clientHeight >= div.scrollHeight;
+
+  // Only trigger if at the bottom and trying to scroll down
+  if (isAtBottom && event.deltaY > 0 && this.canTriggerAction) {
+    if (!this.isAtBottom) {
+      this.isAtBottom = true; // Lock the event trigger
+      //  this.customAction('Scroll beyond bottom');
+      let num = parseInt(this.page_size, 10)
+    let  new_pageSize = num + 16 ;
+    this.page_size = new_pageSize.toString()
+    console.log(this.page_size,'new_pageSizenew_pageSizenew_pageSize');
+    
+      let queryParams ={
+        page_number: '1',
+        page_size: this.page_size,
+        start_date:this.startDate,
+        end_date: this.endDate,
+        source: 'library'
+      }
+      const payload = {
+        wkt_polygon: this.polygon_wkt
+      }
+     
+      this.satelliteService.getDataFromPolygon(payload,queryParams).subscribe({
+        next: (resp) => {
+          console.log(resp,'queryParamsqueryParamsqueryParamsqueryParams');
+          this.dataSource.data = resp.data
+          this.originalData = [...this.dataSource.data];
+          setTimeout(() => {
+            this.setDynamicHeight();
+            window.addEventListener('resize', this.setDynamicHeight.bind(this))
+        }, 300); 
+        },
+        error: (err) => {
+          console.log("err getPolyGonData: ", err);
+        },
+      });
+      // Set debounce flag to false and reset it after 3 seconds
+      this.canTriggerAction = false;
+      setTimeout(() => {
+        this.canTriggerAction = true;
+        this.isAtBottom = false; // Reset at bottom flag
+      }, 3000); // 3 seconds delay
+    }
+  }
+};
+
+//Getting time in Day sessions
+getTimePeriod(datetime: string): string {
+  const date = new Date(datetime); // Parse the ISO string to a Date object
+  const hours = date.getHours(); // Get the hour (0-23)
+
+  if (hours >= 5 && hours < 11) {
+    return "Morning";
+  } else if (hours >= 11 && hours < 16) {
+    return "Midday";
+  } else if (hours >= 16 && hours < 21) {
+    return "Evening";
+  } else {
+    return "Overnight";
   }
 }
 

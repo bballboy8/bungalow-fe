@@ -1,9 +1,10 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'app-sites',
   standalone: true,
-  imports: [],
+  imports: [MatInputModule],
   templateUrl: './sites.component.html',
   styleUrl: './sites.component.scss'
 })

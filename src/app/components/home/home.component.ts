@@ -404,6 +404,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
       if(this.drawer._animationState =='void'){
         const mapContainer = this.mapContainer.nativeElement;
         mapContainer.style.marginLeft = `0px`;
+        this.sharedService.setIsOpenedEventCalendar(false);
 
       } else{
         const mapContainer = this.mapContainer.nativeElement;

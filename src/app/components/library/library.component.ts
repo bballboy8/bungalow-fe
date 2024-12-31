@@ -396,6 +396,8 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
     setTimeout(() => {
       this.setDynamicHeight();
       window.addEventListener('resize', this.setDynamicHeight.bind(this))
+      const div = this.scrollableDiv.nativeElement;
+      div.addEventListener('wheel', this.handleWheelEvent);
   }, 300); 
    
   }

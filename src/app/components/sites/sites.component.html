@@ -21,7 +21,7 @@
         </span>
     </div>
     <div class="flex flex-col items-start flex-0 self-stretch">
-        @for (site of sitesData; track site) {
+        @for (site of sitesData; track site;let index = $index) {
         <div
             class="flex p-[15px] items-center gap-[15px] self-stretch bg-primaryBg border-b border-b-solid border-custom-border">
             <div class="flex flex-col items-start gap-[15px] flex-0">
@@ -64,11 +64,13 @@
                         <span class="text-secondary-heiglight text-xs font-bold leading-[18px]">Most recent clear</span>
                         <span class="text-yellow text-xs font-bold leading-normal">{{site?.recentClear}}</span>
                     </div>
-                    <div
-                        class="flex flex-col justify-center w-[229px] p-[15px] items-start self-stretch gap-[5px] rounded-[5px] border border-solid border-custom-border bg-primaryBg">
-                        <span class="text-secondary-heiglight text-xs font-bold leading-[18px]">Most recent clear</span>
-                        <span class="text-yellow text-xs font-bold leading-normal">{{site?.recentClear}}</span>
+                     @if (site) {
+                        <div
+                        class="flex relative flex-col justify-start w-[229px] p-[5px] items-start self-stretch gap-[5px] rounded-[5px] border border-solid border-custom-border bg-primaryBg">
+                       
+                        <div class="absolute -left-[22px] -top-[24px]" [id]="'chart' + index"></div>
                     </div>
+                     }
                 </div>
             </div>
         </div>

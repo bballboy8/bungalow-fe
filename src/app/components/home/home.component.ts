@@ -119,6 +119,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
   polygon:any;
   leftMargin:any
   private highlightedPolygon: L.Polygon | null = null;
+  calendarApiData:any;
   constructor(@Inject(PLATFORM_ID) private platformId: Object,
    private satelliteService:SatelliteService,private dialog: MatDialog,
    private http: HttpClient,
@@ -140,8 +141,32 @@ hybridLayer:L.TileLayer = L.tileLayer(
     }
     
     
-    this.sharedService.isOpenedEventCalendar$.subscribe((state) => {this.OpenEventCalendar = state
-      console.log(this.polygon_wkt,'isOpenedEventCalendarisOpenedEventCalendarisOpenedEventCalendar',state);
+    this.sharedService.isOpenedEventCalendar$.subscribe((state) => {
+
+    if(state){
+      if(this.polygon_wkt ){
+        const payload = {
+          polygon_wkt: this.polygon_wkt,
+          start_date: this.startDate,
+          end_date: this.endDate
+        }
+        
+        // Start the loader
+       
+      
+        this.satelliteService.getPolygonCalenderDays(payload).subscribe({
+          next: (resp) => {
+            
+            this.calendarApiData = resp.data;
+            this.OpenEventCalendar = state
+          },
+          error: (err) => {
+            console.error('Error fetching calendar data', err);
+            // Hide loader on error
+           
+          },
+          
+        });
       // if(state){
       //    const payload = {
       //   polygon_wkt: this.polygon_wkt
@@ -152,7 +177,11 @@ hybridLayer:L.TileLayer = L.tileLayer(
             
       //     }})
       // }
-    });
+    }
+    } else{
+      this.OpenEventCalendar = state
+    }
+     });
     this.setDynamicHeight();
     window.addEventListener('resize', this.setDynamicHeight.bind(this))
   }

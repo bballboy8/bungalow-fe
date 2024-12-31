@@ -5,6 +5,7 @@ import { SharedService } from "../../shared/shared.service";
 import { CommonModule } from "@angular/common";
 import { SatelliteService } from "../../../services/satellite.service";
 import minMax from "dayjs/plugin/minMax";
+import { LoadingService } from "../../../services/loading.service";
 dayjs.extend(minMax);
 
 type CalendarDay = { date: string; value: number | null; colorValue:any };
@@ -22,6 +23,7 @@ export class MapCalendarComponent implements OnInit {
   endDate: dayjs.Dayjs = dayjs().add(0, "days"); // Initialize with current date
   maxDate: dayjs.Dayjs = dayjs();
   @Input() polygon_wkt:any
+  @Input() calendarApiData:any
   @Output() dateRangeSelected = new EventEmitter<{ start: dayjs.Dayjs; end: dayjs.Dayjs }>();
   weekDays: string[] = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
 
@@ -38,25 +40,44 @@ export class MapCalendarComponent implements OnInit {
   ];
   @Input() endDateCal:any
   @Input() startDateCal:any
+  showCalendar:boolean = false
   constructor(private sharedService:SharedService,
-    private satelliteService:SatelliteService
+    private satelliteService:SatelliteService,
+    private loadingService: LoadingService
   ){}
 
   ngOnInit(): void {
-    console.log(this.polygon_wkt,'inputting polygoninputting polygoninputting polygoninputting polygon');
-    if(this.polygon_wkt){
-      const payload = {
-        polygon_wkt: this.polygon_wkt,
-        start_date:this.startDateCal,
-        end_date: this.endDateCal
-      }
-      this.satelliteService.getPolygonCalenderDays(payload).subscribe({
-        next: (resp) => {
-          console.log(resp,'getPolygonCalenderDaysgetPolygonCalenderDaysgetPolygonCalenderDays');
-          this.generateCalendarData(resp.data)
-          
-        }})
+    console.log(this.calendarApiData,'inputting polygoninputting polygoninputting polygoninputting polygon');
+    if(this.calendarApiData){
+      this.generateCalendarData(this.calendarApiData);
+      // const payload = {
+      //   polygon_wkt: this.polygon_wkt,
+      //   start_date: this.startDateCal,
+      //   end_date: this.endDateCal
+      // }
+      
+      // // Start the loader
+      // this.loadingService.show();
+    
+      // this.satelliteService.getPolygonCalenderDays(payload).subscribe({
+      //   next: (resp) => {
+      //     console.log(resp, 'getPolygonCalenderDaysgetPolygonCalenderDaysgetPolygonCalenderDays');
+      //     this.generateCalendarData(resp.data);
+      //   },
+      //   error: (err) => {
+      //     console.error('Error fetching calendar data', err);
+      //     // Hide loader on error
+      //     this.loadingService.hide();
+      //   },
+      //   complete: () => {
+      //     // Hide loader once the data is loaded and processed
+      //     console.log('Complete loading calendar data');
+      //     this.showCalendar = true
+      //     this.loadingService.hide();
+      //   }
+      // });
     }
+    
     
   }
   choosedDate(event: any) {
@@ -66,6 +87,7 @@ export class MapCalendarComponent implements OnInit {
 
   // Close calendar event
   closeEventCalendar() {
+    this.showCalendar = false;
     this.sharedService.setIsOpenedEventCalendar(false);
   }
 

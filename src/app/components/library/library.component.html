@@ -376,7 +376,7 @@
                                             class="text-secondary-heiglight font-semibold">Platform: </span> <span
                                             class="text-secondaryText">{{element?.sensor}}</span> </div>
                                             <div class="flex py-2"> <span
-                                                class="text-secondary-heiglight font-semibold">GSD: </span> <span
+                                                class="text-secondary-heiglight font-semibold">GSD:</span> <span
                                                 class="text-secondaryText">{{element?.resolution}}</span> </div>
                                     <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Area:
                                         </span> <span class="text-secondaryText">{{element?.area}}km²</span> </div>
@@ -387,7 +387,12 @@
                                     <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Collection Date:
                                     </span> <span class="text-secondaryText">{{getDateTimeFormat(element?.acquisition_datetime)}}</span> </div>
                                     <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Off NADIR Angle: </span> <span
-                                            class="text-secondaryText">{{element?.sun_elevation.toFixed(3)}}°</span> </div>
+                                        class="text-secondaryText">{{element?.sun_elevation.toFixed(3)}}°</span> 
+                                    </div>
+                                    <div class="flex gap-2 py-2"> <span class="text-secondary-heiglight font-semibold">Centroid Lat: </span> <div
+                                        class="flex gap-2" *ngFor="let center of element.centroid">
+                                        <span  class="text-secondaryText">{{center.toFixed(3)}}</span></div> 
+                                    </div>
                                 </div>
                             </div>
                         </div>

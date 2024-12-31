@@ -47,4 +47,9 @@ export class SatelliteService extends BaseService {
   getPolygonCalenderDays(data:any): Observable<any> {
     return this.post(createUrl("/get-polygon-selection-acquisition-calender-days-frequency"),data)
   }
+  getSites(data: {name:any,page_number:any,per_page:any}): Observable<any> {
+    return this.get(createUrl("/get-sites"),{
+      params:data
+    });
+  }
 }

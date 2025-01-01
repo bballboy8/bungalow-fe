@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, inject, OnInit, Output, ViewChild } from '@angular/core';
 import { MatInputModule } from '@angular/material/input';
-import { ChartComponent, NgApexchartsModule } from 'ng-apexcharts';
+import { NgApexchartsModule } from 'ng-apexcharts';
 import ApexCharts from 'apexcharts';
 import { MatMenuModule } from '@angular/material/menu';
 import { CommonModule } from '@angular/common';

@@ -44,6 +44,7 @@ import { MapControllersPopupComponent } from "../../dailogs/map-controllers-popu
 import { MatSort, MatSortModule, Sort } from "@angular/material/sort";
 import { LiveAnnouncer } from "@angular/cdk/a11y";
 import moment from "moment";
+import { NgxUiLoaderModule, NgxUiLoaderService } from "ngx-ui-loader";
 
 export class Group {
   name?: string;
@@ -87,7 +88,8 @@ export interface PeriodicElement {
     MatIconModule,
     MatTableModule,
     GroupsListComponent,
-    MatSortModule
+    MatSortModule,
+    NgxUiLoaderModule
 ],
   templateUrl: "./library.component.html",
   styleUrl: "./library.component.scss",
@@ -136,7 +138,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
     "type",
     "Id",
   ];
-
+  total_count:any
   selection = new SelectionModel<PeriodicElement>(true, []);
 
 
@@ -163,13 +165,15 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   originalData: any[] = [];
   selectedZone:string = 'UTC'
   @ViewChild('scrollableDiv') scrollableDiv!: ElementRef<HTMLDivElement>;
-  page_size = '16'
+  page_size = '16';
+  loader:boolean = false;
   constructor(
     private dialog: MatDialog,
     private sharedService: SharedService,
      private satelliteService:SatelliteService,
      private el: ElementRef, private renderer: Renderer2,
-     private cdr:ChangeDetectorRef
+     private cdr:ChangeDetectorRef,
+     private ngxLoader: NgxUiLoaderService
   ) {
      this.searchInput.pipe(
           debounceTime(1000),  // Wait for 1000ms after the last key press
@@ -221,8 +225,10 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
       const payload = {
         wkt_polygon: this.polygon_wkt
       }
-     
+     setTimeout(() => {
       this.getSatelliteCatalog(payload,queryParams)
+     },300)
+      
     }
     
   }
@@ -340,6 +346,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
         // console.log(resp,'queryParamsqueryParamsqueryParamsqueryParams');
         this.dataSource.data = resp.data
         this.originalData = [...this.dataSource.data];
+        this.total_count = resp.total_records
         setTimeout(() => {
           this.setDynamicHeight();
           window.addEventListener('resize', this.setDynamicHeight.bind(this))
@@ -494,42 +501,42 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
     return `${formattedHours}:${formattedMinutes}${this.selectedZone =='UTC' ? ' UTC' : ''}`;
   }
   
-  imageHoverView(data:any){
-    console.log(data,'datadatadatadatadatadata');
+  // imageHoverView(data:any){
+  //   console.log(data,'datadatadatadatadatadata');
     
-    this.imageHover = data
-    if (data !== null && !this.vendorData) {
-      let queryParams ={
-        page_number: '1',
-        page_size: '100',
-        start_date:'',
-        end_date: '',
-        vendor_id:data.vendor_id
-      }
-      this.satelliteService.getDataFromPolygon('',queryParams).subscribe({
-        next: (resp) => {
-          console.log(resp,'queryParamsqueryParamsqueryParamsqueryParams');
-          this.vendorData = resp.data[0]
-          const dialogRef = this.dialog.open(MapControllersPopupComponent, {
-              width: `300px`,
-              height: 'auto',
-              data: { type: 'vendor', vendorData: this.vendorData },
-              panelClass: 'checkbox-dialog',
-            });
-            dialogRef.afterClosed().subscribe((result) => {
-              console.log('Dialog closed', result);
-              this.selectedRow = null;
-              this.vendorData = null;
-            });
-        },
-        error: (err) => {
-          console.log("err getPolyGonData: ", err);
-        },
-      });
-    } else {
-      this.vendorData = null
-    }
-  }
+  //   this.imageHover = data
+  //   if (data !== null && !this.vendorData) {
+  //     let queryParams ={
+  //       page_number: '1',
+  //       page_size: '100',
+  //       start_date:'',
+  //       end_date: '',
+  //       vendor_id:data.vendor_id
+  //     }
+  //     this.satelliteService.getDataFromPolygon('',queryParams).subscribe({
+  //       next: (resp) => {
+  //         console.log(resp,'queryParamsqueryParamsqueryParamsqueryParams');
+  //         this.vendorData = resp.data[0]
+  //         const dialogRef = this.dialog.open(MapControllersPopupComponent, {
+  //             width: `300px`,
+  //             height: 'auto',
+  //             data: { type: 'vendor', vendorData: this.vendorData },
+  //             panelClass: 'checkbox-dialog',
+  //           });
+  //           dialogRef.afterClosed().subscribe((result) => {
+  //             console.log('Dialog closed', result);
+  //             this.selectedRow = null;
+  //             this.vendorData = null;
+  //           });
+  //       },
+  //       error: (err) => {
+  //         console.log("err getPolyGonData: ", err);
+  //       },
+  //     });
+  //   } else {
+  //     this.vendorData = null
+  //   }
+  // }
   formatToThreeDecimalPlaces(value: string): string {
     // Check if the string ends with "m"
     // Extract the numeric part and parse it as a float
@@ -855,7 +862,7 @@ private handleWheelEvent = (event: WheelEvent): void => {
     let  new_pageSize = num + 16 ;
     this.page_size = new_pageSize.toString()
     console.log(this.page_size,'new_pageSizenew_pageSizenew_pageSize');
-    
+    if(this.page_size<=this.total_count){
       let queryParams ={
         page_number: '1',
         page_size: this.page_size,
@@ -866,21 +873,30 @@ private handleWheelEvent = (event: WheelEvent): void => {
       const payload = {
         wkt_polygon: this.polygon_wkt
       }
-     
-      this.satelliteService.getDataFromPolygon(payload,queryParams).subscribe({
-        next: (resp) => {
-          console.log(resp,'queryParamsqueryParamsqueryParamsqueryParams');
-          this.dataSource.data = resp.data
-          this.originalData = [...this.dataSource.data];
-          setTimeout(() => {
-            this.setDynamicHeight();
-            window.addEventListener('resize', this.setDynamicHeight.bind(this))
-        }, 300); 
-        },
-        error: (err) => {
-          console.log("err getPolyGonData: ", err);
-        },
-      });
+     this.loader = true
+      this.ngxLoader.start(); // Start the loader
+
+  this.satelliteService.getDataFromPolygon(payload, queryParams).subscribe({
+    next: (resp) => {
+      console.log(resp, 'queryParamsqueryParamsqueryParamsqueryParams');
+      this.dataSource.data = resp.data;
+      this.originalData = [...this.dataSource.data];
+      
+      setTimeout(() => {
+        this.setDynamicHeight();
+        window.addEventListener('resize', this.setDynamicHeight.bind(this));
+      }, 300);
+      this.loader = false
+      this.ngxLoader.stop(); // Stop the loader when the data is successfully fetched
+    },
+    error: (err) => {
+      console.log("err getPolyGonData: ", err);
+      this.loader = false
+      this.ngxLoader.stop(); // Stop the loader even if there is an error
+    }
+  });
+    }
+    
       // Set debounce flag to false and reset it after 3 seconds
       this.canTriggerAction = false;
       setTimeout(() => {

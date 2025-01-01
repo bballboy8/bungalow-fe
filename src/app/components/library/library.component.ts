@@ -41,6 +41,10 @@ import { MatSnackBar } from "@angular/material/snack-bar";
 import { GroupsListComponent } from "../../common/groups-list/groups-list.component";
 import { catchError, debounceTime, of, Subject, switchMap } from "rxjs";
 import { MapControllersPopupComponent } from "../../dailogs/map-controllers-popup/map-controllers-popup.component";
+import { MatSort, MatSortModule, Sort } from "@angular/material/sort";
+import { LiveAnnouncer } from "@angular/cdk/a11y";
+import moment from "moment";
+import { NgxUiLoaderModule, NgxUiLoaderService } from "ngx-ui-loader";
 
 export class Group {
   name?: string;
@@ -49,18 +53,21 @@ export class Group {
 }
 
 export interface PeriodicElement {
-  select: boolean;
-  Date: string;
-  time: string;
-  Sensor: string;
-  Vendor: string;
-  Cover: string;
-  Resolution: string;
-  type: string;
-  Id: string;
-  sun_elevation: string;
+  acquisition_datetime: string;  // Store date as string, but we'll sort it as Date
+  sensor: string;
   area: number;
-  geo_reference: boolean;
+  cloud_cover: number;
+  coordinates_record: { type: string; coordinates: any[] };
+  georeferenced: any;
+  id: number;
+  image_uploaded: boolean;
+  presigned_url: string;
+  resolution: string;
+  sun_elevation: number;
+  type: string;
+  vendor_id: string;
+  vendor_name: string;
+  [key: string]: string | number | boolean | any;
 }
 
 
@@ -80,7 +87,9 @@ export interface PeriodicElement {
     MatListModule,
     MatIconModule,
     MatTableModule,
-    GroupsListComponent
+    GroupsListComponent,
+    MatSortModule,
+    NgxUiLoaderModule
 ],
   templateUrl: "./library.component.html",
   styleUrl: "./library.component.scss",
@@ -101,7 +110,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   @Output() closeDrawer = new EventEmitter<boolean>();
   @Input() polygon_wkt:any;
   //#endregion
-
+  @Output() rowHoveredData: EventEmitter<any> = new EventEmitter();
   //#region variables
   renderGroup!: TemplateRef<any> | null;
   checked: boolean = false;
@@ -119,7 +128,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   ];
 
   expandedElement: PeriodicElement | null = null;
-  dataSource :any=[];
+  dataSource = new MatTableDataSource<any>(/* your data source */);
   displayedColumns: string[] = [
     "selectDate",
     "Sensor",
@@ -129,7 +138,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
     "type",
     "Id",
   ];
-
+  total_count:any
   selection = new SelectionModel<PeriodicElement>(true, []);
 
 
@@ -151,12 +160,20 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   @Input() endDate:any
   @Input() startDate:any
   selectedRow:any = null;
-  imageData:any
+  imageData:any;
+  @ViewChild(MatSort) sort!: MatSort;
+  originalData: any[] = [];
+  selectedZone:string = 'UTC'
+  @ViewChild('scrollableDiv') scrollableDiv!: ElementRef<HTMLDivElement>;
+  page_size = '16';
+  loader:boolean = false;
   constructor(
     private dialog: MatDialog,
     private sharedService: SharedService,
      private satelliteService:SatelliteService,
-     private el: ElementRef, private renderer: Renderer2
+     private el: ElementRef, private renderer: Renderer2,
+     private cdr:ChangeDetectorRef,
+     private ngxLoader: NgxUiLoaderService
   ) {
      this.searchInput.pipe(
           debounceTime(1000),  // Wait for 1000ms after the last key press
@@ -200,7 +217,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
       })
       let queryParams ={
         page_number: '1',
-        page_size: '100',
+        page_size: '16',
         start_date:this.startDate,
         end_date: this.endDate,
         source: 'library'
@@ -208,20 +225,10 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
       const payload = {
         wkt_polygon: this.polygon_wkt
       }
-     
-      this.satelliteService.getDataFromPolygon(payload,queryParams).subscribe({
-        next: (resp) => {
-          console.log(resp,'queryParamsqueryParamsqueryParamsqueryParams');
-          this.dataSource = resp.data
-          setTimeout(() => {
-            this.setDynamicHeight();
-            window.addEventListener('resize', this.setDynamicHeight.bind(this))
-        }, 300); 
-        },
-        error: (err) => {
-          console.log("err getPolyGonData: ", err);
-        },
-      });
+     setTimeout(() => {
+      this.getSatelliteCatalog(payload,queryParams)
+     },300)
+      
     }
     
   }
@@ -233,8 +240,141 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
         window.addEventListener('resize', this.setDynamicHeight.bind(this))
     }, 300); 
     }
+    this.dataSource.sort = this.sort;
+    console.log(this.dataSource,'sortsortsortsortsort');
+    this.sort?.sortChange.pipe(
+      debounceTime(300) // Adjust the time as needed
+    ).subscribe((sortState) => {
+      console.log('Sorting changed:', sortState);
+      console.log('Sorted Data:', this.dataSource.filteredData);
+      this.sortData(); // Will only be called once after the debounce time
+    });
+    const div = this.scrollableDiv.nativeElement;
+
+    // Add scroll event listener
+  
+    div.addEventListener('wheel', this.handleWheelEvent);
+
+    // Add mouse events
+  }
+
+  sortData() {
+    this.expandedElement = null
+    const activeColumn = this.sort.active;
+    const direction = this.sort.direction;
+
+    if (!activeColumn || direction === '') {
+      return;
+    }
+
+    console.log(activeColumn,'activeColumnactiveColumnactiveColumn',direction);
+    
+   
+
+      if (activeColumn === 'selectDate') {
+        // const dateA = new Date(a.acquisition_datetime).getTime();
+        // const dateB = new Date(b.acquisition_datetime).getTime();
+        let queryParams ={
+          page_number: '1',
+          page_size: '16',
+          start_date:this.startDate,
+          end_date: this.endDate,
+          source: 'library',
+          sort_by:'acquisition_datetime',
+          sort_order:direction
+        }
+        const payload = {
+          wkt_polygon: this.polygon_wkt
+        }
+       
+        this.getSatelliteCatalog(payload,queryParams)
+        
+        
+        // compareResult = dateA > dateB ? 1 : dateA < dateB ? -1 : 0;
+      } else if (activeColumn === 'Sensor') {
+        // const sensorA = a.sensor.toLowerCase();
+        // const sensorB = b.sensor.toLowerCase();
+        // compareResult = sensorA.localeCompare(sensorB);
+        // console.log(sensorA,'dateAdateAdateAdateA');
+        // console.log(sensorB,'dateBdateBdateBdateBdateB');
+        let queryParams ={
+          page_number: '1',
+          page_size: '16',
+          start_date:this.startDate,
+          end_date: this.endDate,
+          source: 'library',
+          sort_by:'sensor',
+          sort_order:direction
+        }
+        const payload = {
+          wkt_polygon: this.polygon_wkt
+        }
+        this.getSatelliteCatalog(payload,queryParams)
+      } else if (activeColumn === 'Vendor') {
+        // const sensorA = a.sensor.toLowerCase();
+        // const sensorB = b.sensor.toLowerCase();
+        // compareResult = sensorA.localeCompare(sensorB);
+        // console.log(sensorA,'dateAdateAdateAdateA');
+        // console.log(sensorB,'dateBdateBdateBdateBdateB');
+        let queryParams ={
+          page_number: '1',
+          page_size: '16',
+          start_date:this.startDate,
+          end_date: this.endDate,
+          source: 'library',
+          sort_by:'vendor_name',
+          sort_order:direction
+        }
+        const payload = {
+          wkt_polygon: this.polygon_wkt
+        }
+        this.getSatelliteCatalog(payload,queryParams)
+      }
+     
+      
+
+    
+  
    
   }
+
+  getSatelliteCatalog(payload:any,queryParams:any){
+    console.log('getSatelliteCatalog');
+    
+    this.satelliteService.getDataFromPolygon(payload,queryParams).subscribe({
+      next: (resp) => {
+        // console.log(resp,'queryParamsqueryParamsqueryParamsqueryParams');
+        this.dataSource.data = resp.data
+        this.originalData = [...this.dataSource.data];
+        this.total_count = resp.total_records
+        setTimeout(() => {
+          this.setDynamicHeight();
+          window.addEventListener('resize', this.setDynamicHeight.bind(this))
+      }, 300); 
+      },
+      error: (err) => {
+        console.log("err getPolyGonData: ", err);
+      },
+    });
+  }
+
+  resetSorting() {
+    // Reset the dataSource to the original unsorted data
+    let queryParams ={
+      page_number: '1',
+      page_size: '16',
+      start_date:this.startDate,
+      end_date: this.endDate,
+      source: 'library',
+     
+      
+    }
+    const payload = {
+      wkt_polygon: this.polygon_wkt
+    }
+    this.getSatelliteCatalog(payload,queryParams)
+  }
+
   /** Whether the number of selected elements matches the total number of rows. */
   isAllSelected() {
     const numSelected = this.selection.selected.length;
@@ -244,6 +384,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
 
   closeLibraryDrawer() {
     this.closeDrawer.emit(true);
+    this.sharedService.setIsOpenedEventCalendar(false);
   }
 
   /** Selects all rows if they are not all selected; otherwise clear selection. */
@@ -262,14 +403,16 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
     setTimeout(() => {
       this.setDynamicHeight();
       window.addEventListener('resize', this.setDynamicHeight.bind(this))
+      const div = this.scrollableDiv.nativeElement;
+      div.addEventListener('wheel', this.handleWheelEvent);
   }, 300); 
    
   }
 
   openImagePreviewDialog(index:any) {
     const dialogRef = this.dialog.open(ImagePreviewComponent, {
-      width: "880px",
-      maxHeight:'694px',
+      width: "auto",
+      maxHeight:'auto',
       data:  {images:this.dataSource, currentIndex:index} ,
       panelClass: "custom-preview",
     });
@@ -331,7 +474,11 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   }
 
   getFormattedDate(date: Date): string {
-      return dayjs(date).format('MM.DD.YYYY');
+    if (this.selectedZone =='UTC') {
+      return dayjs(date).utc().format('MM.DD.YYYY'); // Format for UTC
+    } else {
+      return dayjs(date).local().format('MM.DD.YYYY'); // Format for local time
+    }
   }
   formatUtcTime(payload: string | Date): string {
     // If payload is a string, convert it to Date first
@@ -342,49 +489,54 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
       throw new Error('Invalid date passed');
     }
   
-    // Get the UTC hours and minutes
-    const hours = date.getUTCHours().toString().padStart(2, '0');
-    const minutes = date.getUTCMinutes().toString().padStart(2, '0');
+    // Get the hours and minutes based on the desired time zone
+    const hours = this.selectedZone =='UTC' ? date.getUTCHours() : date.getHours();
+    const minutes = this.selectedZone =='UTC' ? date.getUTCMinutes() : date.getMinutes();
   
-    // Return formatted time in "HH:mm UTC" format
-    return `${hours}:${minutes} UTC`;
+    // Format the hours and minutes with leading zeros
+    const formattedHours = hours.toString().padStart(2, '0');
+    const formattedMinutes = minutes.toString().padStart(2, '0');
+  
+    // Return formatted time, appending "UTC" if in UTC
+    return `${formattedHours}:${formattedMinutes}${this.selectedZone =='UTC' ? ' UTC' : ''}`;
   }
-  imageHoverView(data:any){
-    console.log(data,'datadatadatadatadatadata');
+  
+  // imageHoverView(data:any){
+  //   console.log(data,'datadatadatadatadatadata');
     
-    this.imageHover = data
-    if (data !== null && !this.vendorData) {
-      let queryParams ={
-        page_number: '1',
-        page_size: '100',
-        start_date:'',
-        end_date: '',
-        vendor_id:data.vendor_id
-      }
-      this.satelliteService.getDataFromPolygon('',queryParams).subscribe({
-        next: (resp) => {
-          console.log(resp,'queryParamsqueryParamsqueryParamsqueryParams');
-          this.vendorData = resp.data[0]
-          const dialogRef = this.dialog.open(MapControllersPopupComponent, {
-              width: `300px`,
-              height: 'auto',
-              data: { type: 'vendor', vendorData: this.vendorData },
-              panelClass: 'checkbox-dialog',
-            });
-            dialogRef.afterClosed().subscribe((result) => {
-              console.log('Dialog closed', result);
-              this.selectedRow = null;
-              this.vendorData = null;
-            });
-        },
-        error: (err) => {
-          console.log("err getPolyGonData: ", err);
-        },
-      });
-    } else {
-      this.vendorData = null
-    }
-  }
+  //   this.imageHover = data
+  //   if (data !== null && !this.vendorData) {
+  //     let queryParams ={
+  //       page_number: '1',
+  //       page_size: '100',
+  //       start_date:'',
+  //       end_date: '',
+  //       vendor_id:data.vendor_id
+  //     }
+  //     this.satelliteService.getDataFromPolygon('',queryParams).subscribe({
+  //       next: (resp) => {
+  //         console.log(resp,'queryParamsqueryParamsqueryParamsqueryParams');
+  //         this.vendorData = resp.data[0]
+  //         const dialogRef = this.dialog.open(MapControllersPopupComponent, {
+  //             width: `300px`,
+  //             height: 'auto',
+  //             data: { type: 'vendor', vendorData: this.vendorData },
+  //             panelClass: 'checkbox-dialog',
+  //           });
+  //           dialogRef.afterClosed().subscribe((result) => {
+  //             console.log('Dialog closed', result);
+  //             this.selectedRow = null;
+  //             this.vendorData = null;
+  //           });
+  //       },
+  //       error: (err) => {
+  //         console.log("err getPolyGonData: ", err);
+  //       },
+  //     });
+  //   } else {
+  //     this.vendorData = null
+  //   }
+  // }
   formatToThreeDecimalPlaces(value: string): string {
     // Check if the string ends with "m"
     // Extract the numeric part and parse it as a float
@@ -553,6 +705,7 @@ onKeyPress(event: KeyboardEvent): void {
   this.searchInput.next(inputValue);
 }
 
+// On table row expand click
 expandedData(data:any,expandedElement:any){
  
   console.log(expandedElement,'expandedElementexpandedElementexpandedElement');
@@ -565,7 +718,14 @@ expandedData(data:any,expandedElement:any){
   }
 }
 
+//Table Row hover event Emit
+onRowHover(data:any){
 
+    this.rowHoveredData.emit(data)
+  
+}
+
+//Setting Dynamic Height
 setDynamicHeight(): void {
   // Get the height of the elements above
   if(this.viewType === "table"){
@@ -629,12 +789,18 @@ setDynamicHeight(): void {
 }
 ngOnDestroy(): void {
   window.removeEventListener('resize', this.setDynamicHeight.bind(this));  // Clean up event listener
+  const div = this.scrollableDiv.nativeElement;
+
+    // Remove all listeners to avoid memory leaks
+   
 }
 
+// Round off value
 roundOff(value: number): number {
   return Math.round(value);
 }
 
+// On checkbox change
 onCheckboxChange(row: any) {
   console.log(row,'imageHoverViewimageHoverViewimageHoverViewimageHoverViewimageHoverView');
   
@@ -659,5 +825,111 @@ onCheckboxChange(row: any) {
     });
   }
 }
+
+//Time Zone Change
+selectedTimeZone(zone: string){
+  this.selectedZone = zone;
+  this.cdr.detectChanges();
+}
+
+//Get Day of Week
+getDayOfWeek(date: Date): string {
+  if (this.selectedZone === 'UTC') {
+    // Get day of the week in UTC
+    return dayjs(date).utc().format('dddd');
+  } else {
+    // Get day of the week in local time
+    return dayjs(date).local().format('dddd');
+  }
+}
+
+private canTriggerAction = true;
+private isAtBottom = false;
+
+//Scroll to bottom event 
+private handleWheelEvent = (event: WheelEvent): void => {
+  const div = this.scrollableDiv.nativeElement;
+
+  // Detect if at the bottom
+  const isAtBottom = div.scrollTop + div.clientHeight >= div.scrollHeight;
+
+  // Only trigger if at the bottom and trying to scroll down
+  if (isAtBottom && event.deltaY > 0 && this.canTriggerAction) {
+    if (!this.isAtBottom) {
+      this.isAtBottom = true; // Lock the event trigger
+      //  this.customAction('Scroll beyond bottom');
+      let num = parseInt(this.page_size, 10)
+    let  new_pageSize = num + 16 ;
+    this.page_size = new_pageSize.toString()
+    console.log(this.page_size,'new_pageSizenew_pageSizenew_pageSize');
+    if(this.page_size<=this.total_count){
+      let queryParams ={
+        page_number: '1',
+        page_size: this.page_size,
+        start_date:this.startDate,
+        end_date: this.endDate,
+        source: 'library'
+      }
+      const payload = {
+        wkt_polygon: this.polygon_wkt
+      }
+     this.loader = true
+      this.ngxLoader.start(); // Start the loader
+
+  this.satelliteService.getDataFromPolygon(payload, queryParams).subscribe({
+    next: (resp) => {
+      console.log(resp, 'queryParamsqueryParamsqueryParamsqueryParams');
+      this.dataSource.data = resp.data;
+      this.originalData = [...this.dataSource.data];
+      
+      setTimeout(() => {
+        this.setDynamicHeight();
+        window.addEventListener('resize', this.setDynamicHeight.bind(this));
+      }, 300);
+      this.loader = false
+      this.ngxLoader.stop(); // Stop the loader when the data is successfully fetched
+    },
+    error: (err) => {
+      console.log("err getPolyGonData: ", err);
+      this.loader = false
+      this.ngxLoader.stop(); // Stop the loader even if there is an error
+    }
+  });
+    }
+    
+      // Set debounce flag to false and reset it after 3 seconds
+      this.canTriggerAction = false;
+      setTimeout(() => {
+        this.canTriggerAction = true;
+        this.isAtBottom = false; // Reset at bottom flag
+      }, 3000); // 3 seconds delay
+    }
+  }
+};
+
+//Getting time in Day sessions
+getTimePeriod(datetime: string): string {
+  const date = new Date(datetime); // Parse the ISO string to a Date object
+  const hours = date.getHours(); // Get the hour (0-23)
+
+  if (hours >= 5 && hours < 11) {
+    return "Morning";
+  } else if (hours >= 11 && hours < 16) {
+    return "Midday";
+  } else if (hours >= 16 && hours < 21) {
+    return "Evening";
+  } else {
+    return "Overnight";
+  }
+}
+
+//Formated Date into YYYY-MM-DD
+getDateTimeFormat(dateTime: string) {
+    if (dateTime) {
+      return moment(dateTime, 'YYYY-MM-DD')?.format('YYYY-MM-DD');
+
+    }
+    return '';
+  }
 
 }

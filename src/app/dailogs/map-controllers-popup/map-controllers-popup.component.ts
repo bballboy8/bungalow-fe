@@ -274,7 +274,7 @@ export class MapControllersPopupComponent implements OnInit {
       const text =  this.getPolygonCenter(data)
       // Create a temporary input element to copy text
       const inputElement = document.createElement('input');
-      inputElement.value = `${text?.lat.toFixed(4)} ${text?.lon.toFixed(4)}`;
+      inputElement.value = `${text?.lat.toFixed(4)}',' ${text?.lon.toFixed(4)}`;
       document.body.appendChild(inputElement);
       inputElement.select();
       document.execCommand('copy');
@@ -347,5 +347,27 @@ export class MapControllersPopupComponent implements OnInit {
     return `${formattedNumber}m`;
 }
 
+getDayOfWeek(date: Date): string {
+  
+    // Get day of the week in local time
+    return dayjs(date).utc().format('dddd');
+  
+}
+
+//Getting time in Day sessions
+getTimePeriod(datetime: string): string {
+  const date = new Date(datetime); // Parse the ISO string to a Date object
+  const hours = date.getHours(); // Get the hour (0-23)
+
+  if (hours >= 5 && hours < 11) {
+    return "Morning";
+  } else if (hours >= 11 && hours < 16) {
+    return "Midday";
+  } else if (hours >= 16 && hours < 21) {
+    return "Evening";
+  } else {
+    return "Overnight";
+  }
+}
 
 }

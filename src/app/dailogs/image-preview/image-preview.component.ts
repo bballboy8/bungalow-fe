@@ -17,7 +17,7 @@ import dayjs from "dayjs";
   templateUrl: "./image-preview.component.html",
   styleUrl: "./image-preview.component.scss",
 })
-export class ImagePreviewComponent implements OnInit {
+export class ImagePreviewComponent implements OnInit,AfterViewInit {
   constructor(
     public dialogRef: MatDialogRef<ImagePreviewComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
@@ -25,7 +25,11 @@ export class ImagePreviewComponent implements OnInit {
   currentIndex:any;
   ngOnInit(): void {
     this.currentIndex = this.data.currentIndex;
-    console.log("dialog dat: ", this.data);
+    console.log("dialog dat: ", this.data.images.data);
+  }
+
+  ngAfterViewInit() {
+    this.adjustImageHeight();
   }
 
   closeDialog(): void {
@@ -55,12 +59,12 @@ export class ImagePreviewComponent implements OnInit {
       if (this.currentIndex > 0) {
         this.currentIndex--;
       } else {
-        this.currentIndex = this.data.images.length - 1; // Wrap around to the last image
+        this.currentIndex = this.data.images.data.length - 1; // Wrap around to the last image
       }
     }
   
     nextImage() {
-      if (this.currentIndex < this.data.images.length - 1) {
+      if (this.currentIndex < this.data.images.data.length - 1) {
         this.currentIndex++;
       } else {
         this.currentIndex = 0; // Wrap around to the first image
@@ -73,6 +77,17 @@ export class ImagePreviewComponent implements OnInit {
         this.previousImage(); // Call previousImage() on left arrow key press
       } else if (event.key === 'ArrowRight') {
         this.nextImage(); // Call nextImage() on right arrow key press
+      }
+    }
+
+    adjustImageHeight() {
+      const dialogContainer = document.querySelector('.dialog-content');
+      const image = document.querySelector('.resizable-image') as HTMLImageElement;
+      console.log(dialogContainer?.clientHeight,'dialogContainer.clientHeightdialogContainer.clientHeight');
+      
+      if (dialogContainer && image) {
+        const dialogHeight = dialogContainer.clientHeight;
+        image.style.height = `${dialogHeight}px`; // Adjust the image height to match the dialog height
       }
     }
 }

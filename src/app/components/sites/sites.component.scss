@@ -18,6 +18,19 @@
       font-weight: 700 !important;
       font-size: 12px !important;
     }
+    .mat-mdc-form-field-subscript-wrapper {
+      display: none !important;
+    }
+    .mat-mdc-form-field-infix {
+      display: flex !important;
+    }
+    .mdc-text-field--outlined:not(.mdc-text-field--disabled)
+      .mdc-text-field__input {
+      color: #4a5863 !important;
+    }
+    .mat-form-field-label {
+      color: #4a5863 !important;
+    }
   }
   ::ng-deep {
     .mat-mdc-menu-panel {
@@ -55,3 +68,7 @@
    
     
   }
+
+  ::ng-deep .mat-mdc-menu-panel {
+      max-width: 350px !important;
+    }

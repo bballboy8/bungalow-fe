@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
 import { MatInputModule } from '@angular/material/input';
 import { ChartComponent, NgApexchartsModule } from 'ng-apexcharts';
 import ApexCharts from 'apexcharts';
@@ -8,6 +8,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SatelliteService } from '../../services/satellite.service';
 import dayjs from 'dayjs';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { catchError, debounceTime, of, Subject, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-sites',
@@ -18,11 +20,12 @@ import dayjs from 'dayjs';
 })
 export class SitesComponent implements OnInit, AfterViewInit {
   @Output() closeDrawer = new EventEmitter<boolean>();
-  
+  private _snackBar = inject(MatSnackBar);
     options: any;
     notification:boolean = false;
     name:string=''
     sitesData:any[] = [];
+     searchInput = new Subject<string>();
   closeLibraryDrawer() {
     this.closeDrawer.emit(true);
   }
@@ -33,15 +36,7 @@ export class SitesComponent implements OnInit, AfterViewInit {
         per_page: '12',
         name:'',
       }
-      this.sateliteService.getSites(queryParams).subscribe({
-        next: (resp) => {
-          console.log(resp,'successsuccesssuccesssuccesssuccess');
-          this.sitesData = resp.data;
-          setTimeout(() => {
-            this.initializeCharts();
-          },300)
-         
-        }})
+     this.getSitesData(queryParams)
   }
   constructor(private sateliteService:SatelliteService){
     this.options = {
@@ -110,51 +105,174 @@ export class SitesComponent implements OnInit, AfterViewInit {
         }
       }
     };
-  }    
-    ngAfterViewInit(): void {
-     
-    }
-  
-    initializeCharts() {
-      for (let i = 0; i < this.sitesData.length; i++) {
-        console.log(`#chart${i}`);
-        
-        const chartElement = document.querySelector(`#chart${i}`);
-        console.log('Chart Element:', chartElement);
-        
-        if (chartElement && !chartElement.hasChildNodes()) {
-          const heatmapData = this.sitesData[i].heatmap.map((item: { date: string; count: number }) => ({
-            x: item.date,
-            y: item.count,
-          }));
-    
-          const chartOptions = {
-            ...this.options,
-            series: [
-              {
-                name: `Site ${i + 1}`,
-                data: heatmapData,
+   
+    this.searchInput.pipe(
+              debounceTime(1000),  // Wait for 1000ms after the last key press
+              switchMap((inputValue) => {
+                let queryParams ={
+                  page_number: '1',
+                  per_page: '12',
+                  name:inputValue,
+                }
+                
+                return this.sateliteService.getSites(queryParams).pipe(
+                  catchError((err) => {
+                    console.error('API error:', err);
+                    // Return an empty array to allow subsequent API calls to be made
+                    return of({ data: [] });
+                  })
+                );
+              })
+            ).subscribe({
+              next: (resp:any) => {
+                console.log(resp, 'API Response');
+                this.sitesData = resp?.data;
               },
-            ],
-          };
+              error: (err:any) => {
+                console.error('API call failed', err);
+              }
+            });
+  }    
+  ngAfterViewInit(): void {
     
-          console.log('Chart Options:', chartOptions);
-    
-          const chart = new ApexCharts(chartElement, chartOptions);
-          chart.render()
-            .then(() => console.log(`Chart ${i} rendered successfully.`))
-            .catch((err) => console.error(`Error rendering chart ${i}:`, err));
-        }
+  }
+
+  initializeCharts() {
+    for (let i = 0; i < this.sitesData.length; i++) {     
+      const chartElement = document.querySelector(`#chart${i}`);
+      if (chartElement && !chartElement.hasChildNodes()) {
+        const heatmapData = this.sitesData[i].heatmap.map((item: { date: string; count: number }) => ({
+          x: item.date,
+          y: item.count,
+        }));
+  
+        const chartOptions = {
+          ...this.options,
+          series: [
+            {
+              name: `Site ${i + 1}`,
+              data: heatmapData,
+            },
+          ],
+        };
+
+        const chart = new ApexCharts(chartElement, chartOptions);
+        chart.render()
+          .then(() => console.log(''))
+          .catch((err) => console.error(`Error rendering chart ${i}:`, err));
       }
     }
+  }
   
-    generateData(count: number, range: { min: number, max: number }) {
-      return Array.from({ length: count }, () => Math.floor(Math.random() * (range.max - range.min + 1)) + range.min);
+  generateData(count: number, range: { min: number, max: number }) {
+    return Array.from({ length: count }, () => Math.floor(Math.random() * (range.max - range.min + 1)) + range.min);
+  }
+
+  //Date format functions
+  getFormattedDate(date: Date): string {
+      return dayjs(date).format('MM.DD.YYYY');
+  }
+
+  //Getting sites data
+  getSitesData(queryParams:any){
+    this.sateliteService.getSites(queryParams).subscribe({
+      next: (resp) => {
+        console.log(resp,'successsuccesssuccesssuccesssuccess');
+        this.sitesData = resp.data;
+        setTimeout(() => {
+          this.initializeCharts();
+        },300)
+       
+      }})
+  }
+
+  //Patch name value into input field
+  patchNameValue(site:any){
+    this.name = site.name
+  }
+
+  //Notifications ative status 
+  notificatioStatus(type:boolean,site:any){
+    this.notification = type;
+    console.log(site,'sitesitesitesitesitesitesite');
+    const payload = {
+      site_id:site.id,
+      name:site.name,
+      notification:type,
+      is_deleted:false,
     }
 
-    //Date format functions
-     getFormattedDate(date: Date): string {
-          return dayjs(date).format('MM.DD.YYYY');
+    this.sateliteService.updateSite(payload).subscribe({
+      next: (resp) => {
+        let queryParams ={
+          page_number: '1',
+          per_page: '12',
+          name:'',
+        }
+        this.getSitesData(queryParams)
+        
       }
+    })
+    
   }
+
+  updateSite(type:any,site:any){
+    let payload:any
+    if(type=='rename'){
+      payload = {
+        site_id:site.id,
+        name:this.name,
+        notification:site.notification,
+        is_deleted:false,
+      }
+      const updatedSitesData = this.sitesData.map((item:any) =>
+        item.id === site.id ? { ...site, name: this.name } : item
+      );
+      this.sitesData = updatedSitesData
+    } else if (type == 'delete') {
+      
+      const index = this.sitesData.findIndex((item) => item.id === site.id);
+
+      // Remove the object if found
+      if (index !== -1) {
+        this.sitesData.splice(index, 1); // Removes 1 element at the found index
+      }
+      
+    } else{
+     
+      const updatedSitesData = this.sitesData.map((item:any) =>
+        item.id === site.id ? { ...site, notification: type } : item
+      );
+      this.sitesData = updatedSitesData
+    }
+    this.sateliteService.updateSite(payload).subscribe({
+      next: (resp) => {
+       if(resp){
+        this._snackBar.open('Site updated successfully.', 'Ok', {
+          duration: 2000  // Snackbar will disappear after 300 milliseconds
+        });
+       }
+       
+       
+      }
+    })
+  }
+
+  //On Keypress filter sites data
+  onKeyPress(event: KeyboardEvent): void {
+    const inputValue = (event.target as HTMLInputElement).value;
+    console.log(inputValue, 'inputValueinputValueinputValue'); // Log the current input value to the console
+    
+    // this.satelliteService.getGroupsForAssignment(data).subscribe({
+    //   next: (resp) => {
+    //     console.log(resp,'respresprespresprespresprespresprespresp');
+  
+    //     this.groups = resp?.data
+  
+    //   }})
+    console.log(this.searchInput, 'searchiiiiiiiiiiiiiiiii');
+  
+    this.searchInput.next(inputValue);
+  }
+}
 

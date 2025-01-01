@@ -52,4 +52,9 @@ export class SatelliteService extends BaseService {
       params:data
     });
   }
+  updateSite(data:any): Observable<any> {
+    return this.put(createUrl("/update-site"),
+      data
+    );
+  }
 }

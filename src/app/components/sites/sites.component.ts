@@ -172,7 +172,7 @@ export class SitesComponent implements OnInit, AfterViewInit {
         const chart = new ApexCharts(chartElement, chartOptions);
         chart.render()
           .then(() => console.log(''))
-          .catch((err) => console.error(`Error rendering chart ${i}:`, err));
+          .catch((err: any) => console.error(`Error rendering chart ${i}:`, err));
       }
     }
   }

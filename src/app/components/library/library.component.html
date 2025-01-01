@@ -232,7 +232,7 @@
                 <span class="p-[10px] flex bg-yellow rounded-[10px] text-secondaryBg font-Barlow text-sm font-medium cursor-pointer" (click)="resetSorting()"> Reset Sorting</span>
              </div>
         </div>
-
+        <div *ngIf="loader" class="z-[1000000] absolute" id="loader"> <ngx-ui-loader></ngx-ui-loader></div>
         @if (viewType=='browse') {
         <div class="w-[820px] overflow-auto browser-content" #scrollableDiv>
             <div class="flex flex-start all_wrap flex-wrap ml-[20px]">

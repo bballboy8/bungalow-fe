@@ -26,7 +26,7 @@ export const LoadingInterceptor = (
   const paramString = JSON.stringify(plainParams);
   let params= JSON.stringify(req.params);
   
-  if(!paramString?.includes('library')){
+  if(!paramString?.includes('library') && !req.url.includes('/get-sites')){
     mainLoader.setValue(true)
     ngxLoader.start();
    

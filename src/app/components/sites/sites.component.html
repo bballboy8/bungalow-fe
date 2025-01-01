@@ -20,7 +20,8 @@
             <img src="assets/svg-icons/drawer-toggle-icon.svg" />
         </span>
     </div>
-    <div class="flex flex-col items-start flex-0 overflow-y-auto self-stretch">
+    <div *ngIf="loader" class="z-[1000000] absolute" id="loader"> <ngx-ui-loader></ngx-ui-loader></div>
+    <div class="flex flex-col items-start flex-0 overflow-y-auto self-stretch" #scrollableDiv>
         @for (site of sitesData; track site;let index = $index) {
         <div
             class="flex p-[15px] items-center gap-[15px] self-stretch bg-primaryBg border-b border-b-solid border-custom-border">

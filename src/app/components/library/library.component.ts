@@ -868,7 +868,7 @@ private handleWheelEvent = (event: WheelEvent): void => {
     let  new_pageSize = num + 16 ;
     this.page_size = new_pageSize.toString()
     console.log(this.page_size,'new_pageSizenew_pageSizenew_pageSize');
-    if(this.page_size<=this.total_count){
+    if(this.dataSource.data.length<this.total_count){
       let queryParams ={
         page_number: '1',
         page_size: this.page_size,

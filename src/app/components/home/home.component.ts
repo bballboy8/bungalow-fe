@@ -1498,18 +1498,38 @@ receiveData(data: any) {
     this.imageOverlay.addTo(this.map);
 
     // Center the map view on the image while ensuring it's fully visible
-    const padding = { paddingTopLeft: [50, 50], paddingBottomRight: [50, 50] };
+    // const padding = { paddingTopLeft: [50, 50], paddingBottomRight: [50, 50] };
    
 
     // Add a polygon overlay to visualize the shape (optional)
-   
+    setTimeout(() => {
+       
+      if(this.drawer?._animationState === 'open'){
+        const mapContainer = this.mapContainer.nativeElement;
+      
+       const containerElement = this.mapContainer.nativeElement;
+       containerElement.style.marginLeft = '820px'
+       const interactiveElement = mapContainer.querySelector('.leaflet-interactive');
+      
+       const mapViewportWidth = containerElement.offsetWidth;
+       // Get the width if the element exists
+       if (interactiveElement && mapViewportWidth) {
+         const width = interactiveElement.getBoundingClientRect().width; // Or use interactiveElement.offsetWidth
+         
+       const  marginLeft = mapViewportWidth - width;
+       this.leftMargin = marginLeft
+       containerElement.style.marginLeft = marginLeft >= 403 ?`${marginLeft}px`: '403px';
+       }
+         
+     }
+     }, 800);
     this.map.fitBounds(bounds,{maxZoom: 13,padding: [50, 50]});
       // Ensure the map is centered at the midpoint of the image bounds with a specific zoom level
-      const appliedZoom = this.map.getZoom();
-console.log("Applied Zoom Level:", appliedZoom);
-      const imageCenter = bounds.getNorthEast();
-      const imageSIze = bounds.getSouthWest()
-      this.map.setView(imageCenter, appliedZoom,{ animate: true },);
+      // const appliedZoom = this.map.getZoom();
+      // const imageCenter = bounds.getNorthEast();
+      // const imageSIze = bounds.getSouthWest()
+      // this.map.setView(imageCenter, appliedZoom,{ animate: true },);
+     
   } else {
     // Handle case where there are no coordinates or the overlay needs to be removed
     if (this.imageOverlay) {

@@ -330,7 +330,7 @@
                     <td mat-cell *matCellDef="let row" class="w-[150px] p-[10px] text-secondaryText">
                         <div class="flex">
                             <span class="w-[100px] truncate">{{ row?.vendor_id }}</span>
-                            <span (click)="expandedData(row,expandedElement)"><img src="assets/svg-icons/marker-icon.svg" alt=""></span>
+                            <span (click)="$event.stopPropagation();expandedData(row)"><img src="assets/svg-icons/marker-icon.svg" alt=""></span>
                         </div>
                     </td>
                 </ng-container>

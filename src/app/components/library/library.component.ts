@@ -938,4 +938,22 @@ getDateTimeFormat(dateTime: string) {
     return '';
   }
 
+  //Copy Table row data 
+  copyData(data: any) {
+    const { acquisition_datetime, vendor_name, vendor_id, centroid } = data;
+
+    // Combine the values into a single comma-separated string
+    const result = `${acquisition_datetime},${vendor_name},${vendor_id},${centroid.join(",")}`;
+    navigator.clipboard.writeText(result)
+  .then(() => {
+    console.log("Text copied to clipboard:", result);
+    this.snackBar.open('Copied successfully!', 'Ok', {
+      duration: 2000  // Snackbar will disappear after 300 milliseconds
+    });
+  })
+  .catch(err => {
+    console.error("Could not copy text:", err);
+  });
+  }
+
 }

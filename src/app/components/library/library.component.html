@@ -331,6 +331,7 @@
                         <div class="flex">
                             <span class="w-[100px] truncate">{{ row?.vendor_id }}</span>
                             <span (click)="$event.stopPropagation();expandedData(row)"><img src="assets/svg-icons/marker-icon.svg" alt=""></span>
+                            <span class="w-[16px] h-[16px] ml-[5px]" (click)="$event.stopPropagation();copyData(row)"><img src="assets/svg-icons/copy-icon.svg" alt=""></span>
                         </div>
                     </td>
                 </ng-container>

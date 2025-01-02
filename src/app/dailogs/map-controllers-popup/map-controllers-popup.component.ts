@@ -270,6 +270,8 @@ export class MapControllersPopupComponent implements OnInit {
   }
 
   copyToClipboard(data: any): void {
+    console.log(data,'datadatadatadatadatadatadatadatadata');
+    
     if (data) {
       const text =  this.getPolygonCenter(data)
       // Create a temporary input element to copy text
@@ -286,6 +288,7 @@ export class MapControllersPopupComponent implements OnInit {
         duration: 2000  // Snackbar will disappear after 300 milliseconds
       });
     }
+    
   }
 
   getDateTimeFormat(dateTime: string) {
@@ -368,6 +371,24 @@ getTimePeriod(datetime: string): string {
   } else {
     return "Overnight";
   }
+}
+
+//Copy thumbnail data to clipboard
+copyData(data:any){
+  let { acquisition_datetime, vendor_name, vendor_id, centroid } = data;
+acquisition_datetime = moment(acquisition_datetime, 'YYYY-MM-DD, HH:mm:ss')?.format('YYYY-MM-DD, HH:mm:ss')
+  // Combine the values into a single comma-separated string
+  const result = `${acquisition_datetime},${vendor_name},${vendor_id},${centroid.join(",")}`;
+  navigator.clipboard.writeText(result)
+.then(() => {
+  console.log("Text copied to clipboard:", result);
+  this.snackBar.open('Copied successfully!', 'Ok', {
+    duration: 2000  // Snackbar will disappear after 300 milliseconds
+  });
+})
+.catch(err => {
+  console.error("Could not copy text:", err);
+});
 }
 
 }

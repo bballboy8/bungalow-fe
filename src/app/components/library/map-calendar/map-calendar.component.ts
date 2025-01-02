@@ -8,8 +8,8 @@ import minMax from "dayjs/plugin/minMax";
 import { LoadingService } from "../../../services/loading.service";
 dayjs.extend(minMax);
 
-type CalendarDay = { date: string; value: number | null; colorValue:any };
-type CalendarWeek = { date: number; value: number; colorValue:any }[];
+type CalendarDay = { date: string; value: number | null; colorValue:any,backgroundValue:any };
+type CalendarWeek = { date: number; value: number; colorValue:any,backgroundValue:any }[];
 type CalendarMonth = { name: string; weeks: CalendarWeek[] };
 @Component({
   selector: "app-map-calendar",
@@ -28,7 +28,7 @@ export class MapCalendarComponent implements OnInit {
   weekDays: string[] = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
 
   // Dynamically populated calendar data
-  calendarData: { name: string; weeks: { date: number; value: number,colorValue:any }[][] }[] = [];
+  calendarData: { name: string; weeks: { date: number; value: number,colorValue:any,backgroundValue:any }[][] }[] = [];
   events: { date: string; value: number }[] = [
     { date: "2024-08-01", value: 2 },
     { date: "2024-08-15", value: 5 },
@@ -117,7 +117,8 @@ export class MapCalendarComponent implements OnInit {
         monthDays.push({
           date: dateString,
           value: value,
-          colorValue: value && value > 0 ? this.generateHexColor(value) : "#ffffff", // Default to white
+          colorValue: value && value > 0 ? this.generateColor('color') : "", // Default to white
+          backgroundValue: value && value > 0 ? this.generateColor('background'):"#ffffff"
         });
   
         day = day.add(1, "day");
@@ -143,6 +144,8 @@ export class MapCalendarComponent implements OnInit {
         date: dayjs(day.date).date(),
         value: dayValue,
         colorValue: dayValue>0 ? day.colorValue : '', // Include colorValue
+        backgroundValue: dayValue >0 ? day.backgroundValue :''
+
       });
   
       // If the week is complete or the last day of the month, push the week
@@ -184,5 +187,44 @@ export class MapCalendarComponent implements OnInit {
     const formattedDate = dayjs(fullDate).format('MMMM DD YYYY');
     console.log(fullDate, 'formatted date');
     return fullDate;
+  }
+
+  usedColors = new Set<string>();
+  // Dynamically generate colors using HSL
+  generateColor(type:any): string {
+    if(type === 'color'){
+      let color: string;
+  
+      // Keep generating random colors until a new one is found
+      do {
+        const hue = 255; // Random hue between 0 and 360
+        const saturation = 255; // Vibrant colors (can be adjusted)
+        const lightness = 255; // Balanced brightness (can be adjusted) 
+        
+        color = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+      } while (this.usedColors.has(color)); // Keep generating until a unique color is found
+    
+      // Store the new color to avoid using it again
+      this.usedColors.add(color);
+    
+      return color;
+    } else{
+      let color: string;
+  
+    // Keep generating random colors until a new one is found
+    do {
+      const hue = Math.floor(Math.random() * 360); // Random hue between 0 and 360
+      const saturation = 70; // Vibrant colors (can be adjusted)
+      const lightness = 50; // Balanced brightness (can be adjusted)
+      
+      color = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+    } while (this.usedColors.has(color)); // Keep generating until a unique color is found
+  
+    // Store the new color to avoid using it again
+    this.usedColors.add(color);
+  
+    return color;
+    }
+    
   }
 }

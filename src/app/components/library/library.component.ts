@@ -226,6 +226,8 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
         wkt_polygon: this.polygon_wkt
       }
      setTimeout(() => {
+      this.loader = true
+      this.ngxLoader.start(); // Start the loader
       this.getSatelliteCatalog(payload,queryParams)
      },300)
       
@@ -347,12 +349,16 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
         this.dataSource.data = resp.data
         this.originalData = [...this.dataSource.data];
         this.total_count = resp.total_records
+        this.loader = false
+        this.ngxLoader.stop();
         setTimeout(() => {
           this.setDynamicHeight();
           window.addEventListener('resize', this.setDynamicHeight.bind(this))
       }, 300); 
       },
       error: (err) => {
+        this.loader = false
+        this.ngxLoader.stop();
         console.log("err getPolyGonData: ", err);
       },
     });

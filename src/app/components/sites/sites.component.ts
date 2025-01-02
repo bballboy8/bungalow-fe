@@ -43,77 +43,14 @@ export class SitesComponent implements OnInit, AfterViewInit {
       per_page: 12,
       name: '',
     }
+    this.loader = true
+    this.ngxLoader.start();
     this.getSitesData(queryParams)
   }
   constructor(private sateliteService: SatelliteService,
     private ngxLoader: NgxUiLoaderService
   ) {
-    this.options = {
-      chart: {
-        height: 105,
-        width: '255px',
-        type: 'heatmap',
-        toolbar: {
-          show: false,
-        },
-      },
-      plotOptions: {
-        heatmap: {
-          shadeIntensity: 0.5,
-          radius: 0,
-          useFillColorAsStroke: true,
-          columnWidth: '21px',
-          rowHeight: '21px',
-          colorScale: {
-            ranges: [
-              {
-                from: 0,
-                to: 1,
-                name: 'low',
-                color: '#00A100',
-              },
-              {
-                from: 2,
-                to: 3,
-                name: 'medium',
-                color: '#128FD9',
-              },
-              {
-                from: 4,
-                to: 5,
-                name: 'high',
-                color: '#FFB200',
-              },
-            ],
-          },
-        },
-      },
-      dataLabels: {
-        enabled: false,
-      },
-      stroke: {
-        width: 0,
-      },
-      legend: {
-        show: false,
-      },
-      xaxis: {
-        labels: {
-          show: false, // Hides the x-axis labels
-        },
-        axisBorder: {
-          show: false, // Hides the x-axis line
-        },
-        axisTicks: {
-          show: false, // Hides the x-axis ticks
-        },
-      },
-      yaxis: {
-        labels: {
-          show: false
-        }
-      }
-    };
+    this.options = {}
 
     this.searchInput.pipe(
       debounceTime(1000),  // Wait for 1000ms after the last key press
@@ -123,9 +60,12 @@ export class SitesComponent implements OnInit, AfterViewInit {
           per_page: '12',
           name: inputValue,
         }
-
+        this.loader = true
+        this.ngxLoader.start();
         return this.sateliteService.getSites(queryParams).pipe(
           catchError((err) => {
+            this.loader = false
+            this.ngxLoader.stop();
             console.error('API error:', err);
             // Return an empty array to allow subsequent API calls to be made
             return of({ data: [] });
@@ -134,6 +74,8 @@ export class SitesComponent implements OnInit, AfterViewInit {
       })
     ).subscribe({
       next: (resp: any) => {
+        this.loader = false
+        this.ngxLoader.stop();
         console.log(resp, 'API Response');
         this.sitesData = resp?.data;
       },
@@ -150,6 +92,7 @@ export class SitesComponent implements OnInit, AfterViewInit {
     div.addEventListener('wheel', this.handleWheelEvent);
   }
 
+  //heatmap chart initialization functionality
   initializeCharts() {
     for (let i = 0; i < this.sitesData.length; i++) {
       const chartElement = document.querySelector(`#chart${i}`);
@@ -177,6 +120,7 @@ export class SitesComponent implements OnInit, AfterViewInit {
     }
   }
 
+  //Heatmap chart data generate function
   generateData(count: number, range: { min: number, max: number }) {
     return Array.from({ length: count }, () => Math.floor(Math.random() * (range.max - range.min + 1)) + range.min);
   }
@@ -193,10 +137,74 @@ export class SitesComponent implements OnInit, AfterViewInit {
         console.log(resp, 'successsuccesssuccesssuccesssuccess');
         this.sitesData = resp.data;
         this.total_count = resp.total_count
+        this.loader = false
+        this.ngxLoader.stop();
+        const colorRanges = this.generateUniqueColorRanges(this.sitesData);
+        console.log(colorRanges,'colorRangescolorRangescolorRangescolorRanges');
+        
+        this.options = {
+          chart: {
+            height: 105,
+            width: '255px',
+            type: 'heatmap',
+            toolbar: {
+              show: false,
+            },
+          },
+          plotOptions: {
+            heatmap: {
+              shadeIntensity: 0.5,
+              radius: 0,
+              useFillColorAsStroke: true,
+              columnWidth: '21px',
+              rowHeight: '21px',
+              colorScale: {
+                ranges:colorRanges.map(range =>({
+                  from: range.from,
+                to: range.to,
+                name: '',
+                color: range.color,
+                }))
+              }
+            },
+          },
+          dataLabels: {
+            enabled: false,
+          },
+          stroke: {
+            show: true,               // Enable borders
+            width: 1,                 // Set the width of the border
+            colors: '#FFFFFF'         // Set the border color, you can change this to any color
+          },
+          legend: {
+            show: false,
+          },
+          xaxis: {
+            labels: {
+              show: false, // Hides the x-axis labels
+            },
+            axisBorder: {
+              show: false, // Hides the x-axis line
+            },
+            axisTicks: {
+              show: false, // Hides the x-axis ticks
+            },
+          },
+          yaxis: {
+            labels: {
+              show: false
+            }
+          }
+        };
         setTimeout(() => {
           this.initializeCharts();
         }, 300)
 
+      },
+      error: (err: any) => {
+        this.loader = false
+        this.ngxLoader.stop();
+        console.error('API call failed', err);
       }
     })
   }
@@ -231,8 +239,11 @@ export class SitesComponent implements OnInit, AfterViewInit {
 
   }
 
+  //Site update functionality
   updateSite(type: any, site: any) {
     let payload: any
+    console.log(site,'updateupdateupdateupdateupdate');
+    
     if (type == 'rename') {
       payload = {
         site_id: site.id,
@@ -245,7 +256,12 @@ export class SitesComponent implements OnInit, AfterViewInit {
       );
       this.sitesData = updatedSitesData
     } else if (type == 'delete') {
-
+      payload = {
+        site_id: site.id,
+        name: site.name,
+        notification: site.notification,
+        is_deleted: true,
+      }
       const index = this.sitesData.findIndex((item) => item.id === site.id);
 
       // Remove the object if found
@@ -254,6 +270,12 @@ export class SitesComponent implements OnInit, AfterViewInit {
       }
 
     } else {
+      payload = {
+        site_id: site.id,
+        name: site.name,
+        notification: type,
+        is_deleted: false,
+      }
 
       const updatedSitesData = this.sitesData.map((item: any) =>
         item.id === site.id ? { ...site, notification: type } : item
@@ -343,5 +365,41 @@ export class SitesComponent implements OnInit, AfterViewInit {
       }
     }
   };
+  usedColors = new Set<string>();
+  // Dynamically generate colors using HSL
+  generateColor(): string {
+    let color: string;
+  
+    // Keep generating random colors until a new one is found
+    do {
+      const hue = Math.floor(Math.random() * 360); // Random hue between 0 and 360
+      const saturation = 70; // Vibrant colors (can be adjusted)
+      const lightness = 50; // Balanced brightness (can be adjusted)
+      
+      color = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+    } while (this.usedColors.has(color)); // Keep generating until a unique color is found
+  
+    // Store the new color to avoid using it again
+    this.usedColors.add(color);
+  
+    return color;
+  }
+
+  // Generate unique color ranges for each value
+  generateUniqueColorRanges(data: any): any[] {
+    const ranges = [];
+
+    data.forEach((value, index) => {
+      value.heatmap.forEach((item) => {
+        ranges.push({
+          from: item.count,
+          to: item.count,
+          color: this.generateColor()
+        });
+      });
+    });
+
+    return ranges;
+  }
 }
 

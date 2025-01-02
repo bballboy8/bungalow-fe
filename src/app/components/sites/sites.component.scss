@@ -64,7 +64,14 @@
     .mat-form-field-label {
       color: #4a5863 !important;
     }
-   
+    .apexcharts-heatmap-series rect {
+     stroke: black !important; /* Set border color here (e.g., black) */
+    }
+    
+    /* To prevent border from being applied to the last cell in each row */
+    .apexcharts-heatmap-series rect:nth-child(4n) {
+      stroke: transparent !important; /* Remove border for the last column in each row (adjust 4n to your column count) */
+    }
    
     
   }

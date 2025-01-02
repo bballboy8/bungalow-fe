@@ -43,6 +43,8 @@ export class SitesComponent implements OnInit, AfterViewInit {
       per_page: 12,
       name: '',
     }
+    this.loader = true
+    this.ngxLoader.start();
     this.getSitesData(queryParams)
   }
   constructor(private sateliteService: SatelliteService,
@@ -58,9 +60,12 @@ export class SitesComponent implements OnInit, AfterViewInit {
           per_page: '12',
           name: inputValue,
         }
-
+        this.loader = true
+        this.ngxLoader.start();
         return this.sateliteService.getSites(queryParams).pipe(
           catchError((err) => {
+            this.loader = false
+            this.ngxLoader.stop();
             console.error('API error:', err);
             // Return an empty array to allow subsequent API calls to be made
             return of({ data: [] });
@@ -69,6 +74,8 @@ export class SitesComponent implements OnInit, AfterViewInit {
       })
     ).subscribe({
       next: (resp: any) => {
+        this.loader = false
+        this.ngxLoader.stop();
         console.log(resp, 'API Response');
         this.sitesData = resp?.data;
       },
@@ -130,6 +137,8 @@ export class SitesComponent implements OnInit, AfterViewInit {
         console.log(resp, 'successsuccesssuccesssuccesssuccess');
         this.sitesData = resp.data;
         this.total_count = resp.total_count
+        this.loader = false
+        this.ngxLoader.stop();
         const colorRanges = this.generateUniqueColorRanges(this.sitesData);
         console.log(colorRanges,'colorRangescolorRangescolorRangescolorRanges');
         
@@ -191,6 +200,11 @@ export class SitesComponent implements OnInit, AfterViewInit {
           this.initializeCharts();
         }, 300)
 
+      },
+      error: (err: any) => {
+        this.loader = false
+        this.ngxLoader.stop();
+        console.error('API call failed', err);
       }
     })
   }

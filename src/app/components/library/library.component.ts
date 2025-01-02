@@ -712,8 +712,8 @@ onKeyPress(event: KeyboardEvent): void {
 }
 
 // On table row expand click
-expandedData(data:any,expandedElement:any){
- 
+expandedData(data:any){
+  let expandedElement = data
   console.log(expandedElement,'expandedElementexpandedElementexpandedElement');
   if(this.imageData !== expandedElement.id){
     this.imageData = expandedElement.id

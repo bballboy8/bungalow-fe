@@ -1610,8 +1610,10 @@ layercalculateVisibleWKT(): void {
     console.error('Draw layer bounds are invalid or empty.');
     return;
   }
-  if(this.shapeType){
-    return this.shapeType =null;
+
+  if (this.shapeType) {
+    this.shapeType = null;
+    return;
   }
 
   // Get the visible map bounds
@@ -1623,9 +1625,6 @@ layercalculateVisibleWKT(): void {
     return;
   }
 
-  console.log(visibleBounds, 'Visible Bounds');
-  console.log(drawLayerBounds, 'Draw Layer Bounds');
-
   // Calculate the intersection of drawLayerBounds and visibleBounds
   const intersectionBounds = this.getIntersectionBounds(visibleBounds, drawLayerBounds);
 
@@ -1633,11 +1632,16 @@ layercalculateVisibleWKT(): void {
     // Construct WKT manually for the intersection bounds
     const wkt = this.boundsToWKT(intersectionBounds);
 
-    // Log the WKT string of the visible polygon
-    this.zoomed_wkt_polygon = wkt;
+    // Compare wkt with this.polygon_wkt
+    if (this.isWktGreater(wkt, this.polygon_wkt)) {
+      // Log the WKT string of the visible polygon
+      this.zoomed_wkt_polygon = '';
+    } else {
+      this.zoomed_wkt_polygon = wkt; // Return empty string if not greater
+    }
     this.cdr.detectChanges();
   } else {
-    console.log('No intersection between the draw layer and the visible map bounds.');
+   
   }
 }
 
@@ -1671,5 +1675,63 @@ boundsToWKT(bounds: L.LatLngBounds): string {
 
   return wkt;
 }
+
+// Helper function to compare WKT values
+isWktGreater(wkt1: string, wkt2: string): boolean {
+  // Convert WKT to LatLngBounds to calculate the area
+  // console.log(wkt2,'wkt2wkt2wkt2wkt2wkt2',wkt1);
+  
+  const bounds1 = this.wktToBounds(wkt1);
+  const bounds2 = this.wktToBounds(wkt2);
+  
+  // Compare areas of the bounds
+  const area1 = this.calculateArea(bounds1);
+  const area2 = this.calculateArea(bounds2);
+  
+  return area1 > area2;
+}
+
+// Helper function to calculate area of bounds
+calculateArea(bounds: L.LatLngBounds): number {
+  if (!bounds) return 0;
+
+  const width = bounds.getEast() - bounds.getWest();
+  const height = bounds.getNorth() - bounds.getSouth();
+  return Math.abs(width * height); // Return absolute area
+}
+
+// Helper function to convert WKT to LatLngBounds
+wktToBounds(wkt: string): L.LatLngBounds {
+  
+  // Match the coordinates part of the WKT
+  const match = wkt.match(/POLYGON\s*\(\(\s*(.*?)\s*\)\)/);
+
+  if (!match || !match[1]) {
+    console.error('Invalid WKT format.');
+    return null;
+  }
+
+  // Split coordinates by commas
+  const coords = match[1]
+    .split(',')
+    .map(coord => coord.trim().split(/\s+/).map(Number)); // Split by space or multiple spaces
+
+  // Ensure we have at least four points (including the closing point)
+  if (coords.length < 4) {
+    console.error('Invalid WKT: Not enough coordinates to form a polygon.');
+    return null;
+  }
+
+  // Convert to LatLngs and ensure valid format
+  try {
+    const latLngs = coords.map(([lng, lat]) => L.latLng(lat, lng));
+    return L.latLngBounds(latLngs);
+  } catch (error) {
+    console.error('Error creating LatLngBounds:', error);
+    return null;
+  }
+}
+
+
 
 }

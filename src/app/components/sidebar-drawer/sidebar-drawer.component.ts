@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from "@angular/core";
 import { LibraryComponent } from "../library/library.component";
 import { SitesComponent } from "../sites/sites.component";
 
@@ -17,10 +17,27 @@ export class SidebarDrawerComponent implements OnInit {
   @Input() endDate:any
   @Input() startDate:any;
   @Output() rowHoveredData: EventEmitter<any> = new EventEmitter();
+  // @Input() zoomed_wkt:any ='';
   ngOnInit(): void {
-    console.log(this.polygon_wkt,'polygon_wktpolygon_wkt');
+    // console.log(this.zoomed_wkt,'polygon_wktpolygon_wkt');
     
   }
+
+  private _zoomed_wkt: string;
+
+@Input()
+set zoomed_wkt(value: string) {
+  if (value !== this._zoomed_wkt) {
+    this._zoomed_wkt = value;
+    console.log('zoomed_wkt updated:', this._zoomed_wkt);
+    // Add logic to handle the updated value, e.g., redraw shapes
+  }
+  console.log('valuevaluevaluevaluevalue', value);
+}
+
+get zoomed_wkt(): string {
+  return this._zoomed_wkt;
+}
   closeDrawer(event: boolean) {
     if (event) this.closeSidebar.emit(true);
   }

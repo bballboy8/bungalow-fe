@@ -9,6 +9,7 @@ import {
   OnInit,
   OnDestroy,
   Renderer2,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -120,11 +121,13 @@ hybridLayer:L.TileLayer = L.tileLayer(
   leftMargin:any
   private highlightedPolygon: L.Polygon | null = null;
   calendarApiData:any;
+  zoomed_wkt_polygon:any = ''
   constructor(@Inject(PLATFORM_ID) private platformId: Object,
    private satelliteService:SatelliteService,private dialog: MatDialog,
    private http: HttpClient,
    private sharedService:SharedService,
-   private el: ElementRef, private renderer: Renderer2
+   private el: ElementRef, private renderer: Renderer2,
+   private cdr: ChangeDetectorRef
   )
   {
     this.data = null;
@@ -280,13 +283,24 @@ hybridLayer:L.TileLayer = L.tileLayer(
     this.getPolygonFromCoordinates({ geometry: geoJSON.geometry }, polygonBounds);
   
     // Add zoom change listener
-    this.map.on('zoomend', () => {
-      console.log('Zoom changed:', this.map.getZoom());
-      this.zoomLevel = this.map.getZoom();
-      if (this.map.getZoom() < 4) {
-        this.map.setZoom(4); // Prevent zooming out below the minimum level
-      }
-    });
+    // this.map.on('zoomend', () => {
+    //   console.log('Zoom changed:', this.map.getZoom());
+    //   this.zoomLevel = this.map.getZoom();
+    //   if (this.map.getZoom() < 4) {
+    //     this.map.setZoom(4); // Prevent zooming out below the minimum level
+    //   }
+    //   if (this.polygon) {
+    //     // Get the bounds of the drawn shape
+    //      // Get the bounds of the drawn shape
+    //      const bounds = this.polygon.getBounds();
+
+    //      // Construct WKT manually for the bounds
+    //      const wkt = this.boundsToWKT(bounds);
+ 
+    //      // Log the WKT string of the zoomed polygon
+    //      console.log('WKT of the zoomed polygon:', wkt);
+    // }
+    // });
   
     // Add mousemove event to track coordinates
     this.map.on('mousemove', (event: L.LeafletMouseEvent) => {
@@ -333,6 +347,18 @@ hybridLayer:L.TileLayer = L.tileLayer(
       // Debugging: Log GeoJSON of the created feature
       const geoJSON = layer.toGeoJSON();
       console.log('GeoJSON of created feature:', geoJSON);
+    });
+    this.map.on('zoomend', () => {
+      console.log('Zoom changed:', this.map.getZoom());
+      this.zoomLevel = this.map.getZoom();
+      if (this.map.getZoom() < 4) {
+        this.map.setZoom(4); // Prevent zooming out below the minimum level
+      }
+      
+        // Get the bounds of the drawn shape
+         // Get the bounds of the drawn shape
+         this.layercalculateVisibleWKT();
+    
     });
   
     // Re-fit bounds on window resize to maintain visibility of shapes
@@ -420,25 +446,36 @@ hybridLayer:L.TileLayer = L.tileLayer(
     this.parentZoomLevel = newZoomLevel;
     console.log('Zoom level updated in parent:', this.parentZoomLevel);
     this.map.setZoom(this.parentZoomLevel);
+    if (this.drawLayer) {
+      // Get the bounds of the drawn shape
+      const bounds = this.drawLayer.getBounds();
+      
+      // Log the coordinates of the zoomed area (bounds)
+      console.log('Bounds of the drawn shape:', bounds);
+      
+      // Optionally, log the north-east and south-west coordinates
+      console.log('South-West corner:', bounds.getSouthWest());
+      console.log('North-East corner:', bounds.getNorthEast());
+  }
   }
 
   //angular drawer toggle function
   toggleDrawer(): void {
-    if (this.drawer) {
-      this.type = ''
+    if (this.drawer && this.type) {
+      
       console.log(this.drawer,'drawerdrawerdrawerdrawerdrawerdrawer');
-      this.isDrawerOpen = !this.isDrawerOpen
       this.drawer.toggle();
       this.handleDropdownToggle(this.isDrawerOpen)
-      if(this.drawer._animationState =='void'){
-        const mapContainer = this.mapContainer.nativeElement;
-        mapContainer.style.marginLeft = `0px`;
-        this.sharedService.setIsOpenedEventCalendar(false);
-
-      } else{
+     
         const mapContainer = this.mapContainer.nativeElement;
         mapContainer.style.marginLeft = `${this.leftMargin}px`;
-      }
+      
+    } else {
+      this.drawer._animationState = 'void';
+      this.isDrawerOpen = false;
+      const mapContainer = this.mapContainer.nativeElement;
+      mapContainer.style.marginLeft = `0px`;
+      this.sharedService.setIsOpenedEventCalendar(false);
     }
   }
 
@@ -578,22 +615,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
     }
 }
 
-
-  showSatelliteWithinPolygon(bounds: L.LatLngBounds): void {
-    // Define the satellite image URL (or any other map layer)
-    const satelliteImageUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
-  
-    // Create an image overlay based on the bounds of the polygon
-    const imageBounds = bounds; // This is the bounding box of the polygon
-    const satelliteLayer = L.imageOverlay(satelliteImageUrl, imageBounds, {
-      attribution: 'Tiles &copy; Esri &mdash; Source: Esri, USGS, NOAA',
-      opacity: 0.6, // Set the opacity as needed
-    });
-  
-    // Add the satellite layer within the polygon bounds
-    satelliteLayer.addTo(this.map);
-  }
-
+  //Getting the polygon from cordinates functionality
   getPolygonFromCoordinates(payload:{geometry:{type:string,coordinates:any[]}},bound:any) {
     console.log('aaaaaaaaaaaaaaa');
     
@@ -631,7 +653,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
   }
 
 
-
+  //Polygon data getting by using polygon fucntionality
   getDataUsingPolygon(payload: any,queryParams: any) {
     this.satelliteService.getDataFromPolygon(payload,queryParams).subscribe({
       next: (resp) => {
@@ -641,8 +663,10 @@ hybridLayer:L.TileLayer = L.tileLayer(
             this.addPolygonWithMetadata(item);
           });
           if(!this.isDrawerOpen){
+            this.isDrawerOpen = true
+             this.type = 'library'
             this.toggleDrawer()
-            this.type = 'library'
+           
             
 
   // Find the .leaflet-interactive element
@@ -757,82 +781,43 @@ if (data.vendor_name === 'planet') {
     console.log('Drawing tools disabled');
 }
 
-  
-
+//Extra shapes  clearing functionality
   private clearExtraShapes(): void {
     this.extraShapesLayer?.clearLayers();
   }
-
+  //Snackbar opening functionality
   private openSnackbar(message:string){
     this._snackBar.open(message, 'Ok', {
       duration: 4000  // Snackbar will disappear after 300 milliseconds
     });
   }
 
-
-  addCatalogMarker(catalogItem: any): void {
-    const { latitude, longitude, vendor_name, type, resolution } = catalogItem;
-  
-    // Ensure valid geographic data exists
-    if (!latitude || !longitude) {
-      console.warn("Invalid catalog item, missing coordinates:", catalogItem);
-      return;
-    }
-  
-    // Create a marker or another layer type (like a circle)
-    const marker = L.marker([latitude, longitude], {
-      icon: L.icon({
-        iconUrl: 'assets/svg-icons/satellite-icon.svg', // Customize icon if needed
-        iconSize: [25, 25], // Adjust size
-        iconAnchor: [12, 25], // Anchor point
-      }),
-    });
-  
-    // Bind a popup to display catalog details
-    marker.bindPopup(`
-      <div>
-        <strong>Vendor:</strong> ${vendor_name}<br>
-        <strong>Type:</strong> ${type}<br>
-        <strong>Resolution:</strong> ${resolution}<br>
-      </div>
-    `);
-  
-    // Add marker to the map or a specific layer group
-    this.vectorLayer.addLayer(marker);
-  }
-  
-
-  // private addDrawingControls(): void {
-  //   const drawControl = new L.Control.Draw({
-  //     edit: { featureGroup: this.drawLayer },
-  //     draw: {
-  //       polygon: {},
-  //       circle: {},
-  //       rectangle: {},
-  //     },
-  //   });
-
-  //   this.map.addControl(drawControl);
-
-  //   this.map.on(L.Draw.Event.CREATED, (event:  any) => {
-  //     const layer = event.layer;
-  //     this.drawLayer.addLayer(layer);
-
-  //     if (event.layerType === 'polygon') {
-  //       console.log('Polygon Coordinates:', (layer as L.Polygon).getLatLngs());
-  //     } else if (event.layerType === 'circle') {
-  //       const circle = layer as L.Circle;
-  //       console.log('Circle Center:', circle.getLatLng());
-  //       console.log('Circle Radius:', circle.getRadius());
-  //     } else if (event.layerType === 'rectangle') {
-  //       console.log('Rectangle Bounds:', (layer as L.Rectangle).getBounds());
-  //     }
-  //   });
-  // }
-
+  //handle toggle events
   handleToggleEvent(data: string): void {
     console.log('Received data from child:', data);
+  
+    // if (this.type === data && this.isDrawerOpen) {
+    //   // If the clicked type is the same as the current one and the drawer is already open, do nothing
+    //   return;
+    // }
+    // Update the type to switch the drawer's content
+    console.log(this.type,'switch');
+    
+  if(this.type !== data){
     this.type = data;
+    console.log(this.type,'typetypetypetypetype');
+    
+    this.isDrawerOpen = true;
+    
+      this.toggleDrawer()
+
+  }else{
+    this.toggleDrawer();
+    this.isDrawerOpen = false;
+    this.type = ''
+    return;
+  }
+    // Ensure the drawer stays open
   }
 
    //Handles various button actions.
@@ -976,17 +961,12 @@ handleAction(action: string): void {
               });
             });
           }
-          // if (Array.isArray(resp?.data)) {
-          //   resp.data.forEach((item:any) => {
-          //     this.addPolygonWithMetadata(item);
-          //   });
-          // }
+         
         },
         error: (err) => {
           console.log("err getPolyGonData: ", err);
         },
       });
-        // Fetch address and open the dialog
        
       });
       
@@ -995,7 +975,7 @@ handleAction(action: string): void {
   
   
   
-  
+  //Geting address function
   async getAddress(lat: number, lng: number): Promise<string> {
     const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
     try {
@@ -1166,46 +1146,6 @@ handleAction(action: string): void {
   }
   
   
-  
-  
-  
-  
-  // Helper function to calculate the centroid of a polygon
-  // private getCentroid(latLngs: L.LatLng[]): L.LatLng {
-  //   let latSum = 0;
-  //   let lngSum = 0;
-  
-  //   // Log latLngs to ensure valid data
-  //   console.log('Polygon coordinates:', latLngs);
-  
-  //   latLngs.forEach(latLng => {
-  //     if (latLng instanceof L.LatLng) {
-  //       console.log('Valid LatLng:', latLng);  // Check if latLng is an instance of L.LatLng
-  
-  //       // Make sure latLng has valid lat and lng values
-  //       if (latLng.lat && latLng.lng) {
-  //         latSum += latLng.lat;
-  //         lngSum += latLng.lng;
-  //       } else {
-  //         console.warn('Invalid LatLng object (missing lat/lng):', latLng);
-  //       }
-  //     } else {
-  //       console.warn('Non-LatLng object in latLngs:', latLng);
-  //     }
-  //   });
-  
-  //   const length = latLngs.length;
-  
-  //   // Check if there are valid LatLngs
-  //   if (length === 0 || latSum === 0 || lngSum === 0) {
-  //     console.error('Invalid LatLng data for centroid calculation');
-  //     return L.latLng(0, 0); // Return default invalid LatLng if centroid calculation fails
-  //   }
-  
-  //   // Calculate and return the centroid
-  //   return L.latLng(latSum / length, lngSum / length);
-  // }
-
   // Toggle zoom controls on the map
   private toggleZoomControl(): void {
     console.log(this.zoomControlEnabled,'zoomControlEnabledzoomControlEnabledzoomControlEnabled');
@@ -1473,70 +1413,56 @@ private openDialogAtPosition(polygon: any, metadata: any): void {
   });
 }
 
-receiveData(data: any) {
-  console.log(data, 'parentparentparentparentparentparentparent');
-  // Check if coordinates exist
-  if (data?.coordinates_record?.coordinates) {
-    // Extract the coordinates and map them to Leaflet's LatLng format
-    const coordinates = data.coordinates_record.coordinates[0].map((coord: number[]) =>
-      new L.LatLng(coord[1], coord[0]) // Convert [lon, lat] to [lat, lon]
-    );
+receiveData(dataArray: any[]) {
+  console.log(dataArray, 'parentparentparentparentparentparentparent');
 
-    // Calculate bounds from the coordinates
-    const bounds = new L.LatLngBounds(coordinates);
+  // Remove any existing overlays
+  if (this.imageOverlay) {
+    this.map.removeLayer(this.imageOverlay);
+  }
 
-    // Remove any existing overlay
-    if (this.imageOverlay) {
-      this.map.removeLayer(this.imageOverlay);
-    }
+  // Check if the data array is valid and has coordinates
+  if (dataArray && dataArray.length > 0) {
+    const allBounds: L.LatLngBounds[] = [];
 
-    // Create and add the image overlay to the map
-    this.imageOverlay = L.imageOverlay(data.presigned_url, bounds, {
-      opacity: 1, // Optional: Adjust opacity if needed
-      zIndex: 1000,
+    dataArray.forEach((data) => {
+      if (data?.coordinates_record?.coordinates) {
+        // Extract the coordinates and map them to Leaflet's LatLng format
+        const coordinates = data.coordinates_record.coordinates[0].map((coord: number[]) =>
+          new L.LatLng(coord[1], coord[0]) // Convert [lon, lat] to [lat, lon]
+        );
+
+        // Create bounds for the current image
+        const bounds = L.latLngBounds(coordinates);
+        allBounds.push(bounds);
+
+        // Add the image overlay to the map
+        const imageOverlay = L.imageOverlay(data.presigned_url, bounds, {
+          opacity: 1, // Optional: Adjust opacity if needed
+          zIndex: 1000,
+        });
+        imageOverlay.addTo(this.map);
+      }
     });
-    this.imageOverlay.addTo(this.map);
 
-    // Center the map view on the image while ensuring it's fully visible
-    // const padding = { paddingTopLeft: [50, 50], paddingBottomRight: [50, 50] };
-   
+    // Combine all bounds into one
+    const combinedBounds = allBounds.reduce((acc, bounds) => acc.extend(bounds), L.latLngBounds([]));
 
-    // Add a polygon overlay to visualize the shape (optional)
-    setTimeout(() => {
-       
-      if(this.drawer?._animationState === 'open'){
-        const mapContainer = this.mapContainer.nativeElement;
-      
-       const containerElement = this.mapContainer.nativeElement;
-       containerElement.style.marginLeft = '820px'
-       const interactiveElement = mapContainer.querySelector('.leaflet-interactive');
-      
-       const mapViewportWidth = containerElement.offsetWidth;
-       // Get the width if the element exists
-       if (interactiveElement && mapViewportWidth) {
-         const width = interactiveElement.getBoundingClientRect().width; // Or use interactiveElement.offsetWidth
-         
-       const  marginLeft = mapViewportWidth - width;
-       this.leftMargin = marginLeft
-       containerElement.style.marginLeft = marginLeft >= 403 ?`${marginLeft}px`: '403px';
-       }
-         
-     }
-     }, 800);
-    this.map.fitBounds(bounds,{maxZoom: 13,padding: [50, 50]});
-      // Ensure the map is centered at the midpoint of the image bounds with a specific zoom level
-      // const appliedZoom = this.map.getZoom();
-      // const imageCenter = bounds.getNorthEast();
-      // const imageSIze = bounds.getSouthWest()
-      // this.map.setView(imageCenter, appliedZoom,{ animate: true },);
-     
+    // Get the center of the combined bounds
+    const center = combinedBounds.getCenter();
+
+    // Set the map view to the center without changing the zoom level
+    const currentZoom = this.map.getZoom();
+    this.map.setView(center, currentZoom); // Retain the current zoom
   } else {
-    // Handle case where there are no coordinates or the overlay needs to be removed
+    // Handle case where there are no valid coordinates
     if (this.imageOverlay) {
       this.map.removeLayer(this.imageOverlay);
     }
   }
 }
+
+
 
 
 
@@ -1623,5 +1549,79 @@ highLightShape(data: any): void {
   this.highlightedPolygon.addTo(this.map); // Replace `this.map` with your Leaflet map variable
 }
 
+// Function to construct WKT from bounds
+// Function to calculate the WKT polygon for the visible portion of the draw 
+layercalculateVisibleWKT(): void {
+  if (!this.polygon || !this.map) {
+    console.error('Draw layer or map is not initialized.');
+    return;
+  }
+
+  // Get the bounds of the drawn shapes
+  const drawLayerBounds = this.polygon.getBounds();
+
+  // Ensure drawLayerBounds is valid
+  if (!drawLayerBounds || !drawLayerBounds.isValid()) {
+    console.error('Draw layer bounds are invalid or empty.');
+    return;
+  }
+
+  // Get the visible map bounds
+  const visibleBounds = this.map.getBounds();
+
+  // Ensure visibleBounds is valid
+  if (!visibleBounds || !visibleBounds.isValid()) {
+    console.error('Visible map bounds are invalid or empty.');
+    return;
+  }
+
+  console.log(visibleBounds, 'Visible Bounds');
+  console.log(drawLayerBounds, 'Draw Layer Bounds');
+
+  // Calculate the intersection of drawLayerBounds and visibleBounds
+  const intersectionBounds = this.getIntersectionBounds(visibleBounds, drawLayerBounds);
+
+  if (intersectionBounds) {
+    // Construct WKT manually for the intersection bounds
+    const wkt = this.boundsToWKT(intersectionBounds);
+
+    // Log the WKT string of the visible polygon
+    this.zoomed_wkt_polygon = wkt;
+    this.cdr.detectChanges();
+  } else {
+    console.log('No intersection between the draw layer and the visible map bounds.');
+  }
+}
+
+// Helper function to calculate intersection bounds
+getIntersectionBounds(bounds1: L.LatLngBounds, bounds2: L.LatLngBounds): L.LatLngBounds | null {
+  const north = Math.min(bounds1.getNorth(), bounds2.getNorth());
+  const south = Math.max(bounds1.getSouth(), bounds2.getSouth());
+  const east = Math.min(bounds1.getEast(), bounds2.getEast());
+  const west = Math.max(bounds1.getWest(), bounds2.getWest());
+
+  if (north >= south && east >= west) {
+    return L.latLngBounds(L.latLng(south, west), L.latLng(north, east));
+  }
+
+  return null; // No intersection
+}
+
+// Helper function to convert bounds to WKT polygon
+boundsToWKT(bounds: L.LatLngBounds): string {
+  const corners = [
+    bounds.getSouthWest(),
+    bounds.getNorthWest(),
+    bounds.getNorthEast(),
+    bounds.getSouthEast(),
+    bounds.getSouthWest(), // Close the polygon
+  ];
+
+  const wkt = `POLYGON((${corners
+    .map((latLng) => `${latLng.lng} ${latLng.lat}`)
+    .join(', ')}))`;
+
+  return wkt;
+}
 
 }

@@ -16,6 +16,7 @@ import { GroupsListComponent } from '../../common/groups-list/groups-list.compon
 import { catchError, debounceTime, of, Subject, switchMap } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import moment from 'moment';
+import { DateFormatPipe, DateTimeFormatPipe } from '../../pipes/date-format.pipe';
 
 export class Group {
   name?: string;
@@ -37,7 +38,9 @@ export class Group {
     MatCheckboxModule,
     MatListModule,
     MatIconModule,
-    GroupsListComponent
+    GroupsListComponent,
+    DateFormatPipe,
+    DateTimeFormatPipe
   ],
   templateUrl: './map-controllers-popup.component.html',
   styleUrls: ['./map-controllers-popup.component.scss']
@@ -357,17 +360,17 @@ getDayOfWeek(date: Date): string {
 //Getting time in Day sessions
 getTimePeriod(datetime: string): string {
   const date = new Date(datetime); // Parse the ISO string to a Date object
-  const hours = date.getHours(); // Get the hour (0-23)
-
-  if (hours >= 5 && hours < 11) {
-    return "Morning";
-  } else if (hours >= 11 && hours < 16) {
-    return "Midday";
-  } else if (hours >= 16 && hours < 21) {
-    return "Evening";
-  } else {
-    return "Overnight";
-  }
+    const hours = date.getHours(); // Get the hour (0-23)
+  
+    if (hours >= 5 && hours < 11) {
+      return "Morning";
+    } else if (hours >= 11 && hours < 16) {
+      return "Midday";
+    } else if (hours >= 16 && hours < 21) {
+      return "Evening";
+    } else {
+      return "Overnight";
+    }
 }
 
 }

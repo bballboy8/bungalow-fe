@@ -479,6 +479,13 @@ hybridLayer:L.TileLayer = L.tileLayer(
       this.sharedService.setIsOpenedEventCalendar(false);
     }
   }
+  closeDrawer(){
+    this.drawer._animationState = 'void';
+      this.isDrawerOpen = false;
+      const mapContainer = this.mapContainer.nativeElement;
+      mapContainer.style.marginLeft = `0px`;
+      this.sharedService.setIsOpenedEventCalendar(false);
+  }
 
   //map shape drawing function
   setDrawType(type: any): void {
@@ -1460,23 +1467,23 @@ receiveData(dataArray: any[]) {
           this.imageOverlays.set(data.presigned_url, imageOverlay);
         } else {
           // Update the bounds of the existing overlay if necessary
-          const existingOverlay = this.imageOverlays.get(data.presigned_url);
-          if (existingOverlay) {
-            existingOverlay.setBounds(bounds);
-          }
+          // const existingOverlay = this.imageOverlays.get(data.presigned_url);
+          // if (existingOverlay) {
+          //   existingOverlay.setBounds(bounds);
+          // }
         }
       }
     });
 
     // Combine all bounds into one
-    const combinedBounds = allBounds.reduce((acc, bounds) => acc.extend(bounds), L.latLngBounds([]));
+    // const combinedBounds = allBounds.reduce((acc, bounds) => acc.extend(bounds), L.latLngBounds([]));
 
-    // Get the center of the combined bounds
-    const center = combinedBounds.getCenter();
+    // // Get the center of the combined bounds
+    // const center = combinedBounds.getCenter();
 
-    // Set the map view to the center without changing the zoom level
-    const currentZoom = this.map.getZoom();
-    this.map.setView(center, currentZoom); // Retain the current zoom
+    // // Set the map view to the center without changing the zoom level
+    // const currentZoom = this.map.getZoom();
+    // this.map.setView(center, currentZoom); // Retain the current zoom
   } else {
     // Handle case where there are no valid coordinates
     this.imageOverlays.forEach((overlay) => this.map.removeLayer(overlay));

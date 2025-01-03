@@ -201,7 +201,7 @@
                 <button (click)="selectPreviewMethod('table')"
                     class="text-xs leading-[18px] py-[9px] font-semibold my-[7px] mr-[10px] ml-[7px] rounded-[19px] px-[20px]"
                     [ngClass]="viewType ==='table'?'text-[#453303] bg-yellow':'text-secondary-heiglight'">Image library
-                    {{total_count}}{{dataSource.data.length}}</button>
+                    {{total_count}}</button>
                 <button (click)="selectPreviewMethod('browse')"
                     class="text-xs leading-[18px] py-[9px] font-semibold my-[7px] mr-[7px] rounded-[19px] px-[20px] "
                     [ngClass]="viewType ==='browse'?'text-[#453303] bg-yellow':'text-secondary-heiglight'">Browse</button>
@@ -272,7 +272,7 @@
                 <div class="w-full flex justify-center items-center" *ngIf="!dataSource.data.length">
                     <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Data not found</span>
                 </div>
-                <table mat-table [dataSource]="dataSource" matSort multiTemplateDataRows
+                <table id="library-table" mat-table [dataSource]="dataSource" matSort multiTemplateDataRows
                 class="font-Barlow mat-elevation-z8 bg-primaryBg w-full border border-secondaryText rounded-lg" [ngClass]="dataSource.data.length ? 'opacity-100':'opacity-0'">
                 <ng-container matColumnDef="selectDate">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header class="w-[185px] p-[10px] text-secondaryText font-semibold">

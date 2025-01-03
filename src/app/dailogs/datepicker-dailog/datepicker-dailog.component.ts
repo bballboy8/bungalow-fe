@@ -44,14 +44,14 @@ export class DatepickerDailogComponent implements OnInit,AfterViewInit  {
   selectedDate: Date | null = null; // Initialize with today's date
   dateRange: { start: Date | null; end: Date | null } = { start: null, end: null };
   selectedRange: { start: Date | null; end: Date | null } = { start: null, end: null };
-  maxDate:dayjs.Dayjs = dayjs();
+  maxDate:any = dayjs();
   isSelectingStart = true;
   currentUtcTime:dayjs.Dayjs = dayjs().utc();
   dateRangeForm: FormGroup;
   @ViewChild('startDateInput') startDateInput!: ElementRef<HTMLInputElement>;
   ngOnInit(): void {
-    console.log(this.data,'sssssssssssssssss');
-    
+    console.log(this.maxDate,'sssssssssssssssss');
+    this.maxDate = this.maxDate.format(('YYYY.MM.DD HH:mm [UTC]'))
     if (this.data.startDate && this.data.endDate) {
       this.startDate = this.data.startDate;
       this.endDate = this.data.endDate;

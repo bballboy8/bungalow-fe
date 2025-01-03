@@ -273,6 +273,8 @@ export class MapControllersPopupComponent implements OnInit {
   }
 
   copyToClipboard(data: any): void {
+    console.log(data,'datadatadatadatadatadatadatadatadata');
+    
     if (data) {
       const text =  this.getPolygonCenter(data)
       // Create a temporary input element to copy text
@@ -289,6 +291,7 @@ export class MapControllersPopupComponent implements OnInit {
         duration: 2000  // Snackbar will disappear after 300 milliseconds
       });
     }
+    
   }
 
   getDateTimeFormat(dateTime: string) {
@@ -372,5 +375,40 @@ getTimePeriod(datetime: string): string {
       return "Overnight";
     }
 }
+
+//Copy thumbnail data to clipboard
+copyData(data: any) {
+  const { acquisition_datetime,sensor, vendor_name, vendor_id, centroid } = data;
+  if (!centroid || !Array.isArray(centroid)) {
+    this.snackBar.open('Invalid data format!', 'Ok', { duration: 2000 });
+    return;
+  }
+
+  const result = `${acquisition_datetime},${sensor},${vendor_name},${vendor_id},${centroid.join(",")}`;
+
+  const tempTextArea = document.createElement('textarea');
+  tempTextArea.value = result;
+  tempTextArea.style.position = 'fixed'; // Avoid scrolling to view the element
+  tempTextArea.style.opacity = '0';     // Make it invisible
+  document.body.appendChild(tempTextArea);
+
+  tempTextArea.select();
+  try {
+    const successful = document.execCommand('copy');
+    if (successful) {
+    
+      this.snackBar.open('Copied successfully!', 'Ok', { duration: 2000 });
+    } else {
+     
+      this.snackBar.open('Failed to copy text.', 'Retry', { duration: 2000 });
+    }
+  } catch (err) {
+   
+    this.snackBar.open('Failed to copy text.', 'Retry', { duration: 2000 });
+  }
+
+  document.body.removeChild(tempTextArea);
+}
+
 
 }

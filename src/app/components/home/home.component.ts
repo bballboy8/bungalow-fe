@@ -1601,9 +1601,19 @@ layercalculateVisibleWKT(): void {
     console.error('Draw layer or map is not initialized.');
     return;
   }
+  let drawLayerBounds
+ 
+  const newBounds = this.drawLayer.getBounds()
+  const newEast = newBounds.getNorthEast()
+  if(newEast){
+// Get the bounds of the drawn shapes
+  drawLayerBounds = this.drawLayer?.getBounds();
+  } else  {
+// Get the bounds of the drawn shapes
+  drawLayerBounds = this.polygon.getBounds();
+  }
 
-  // Get the bounds of the drawn shapes
-  const drawLayerBounds = this.polygon.getBounds();
+  
 
   // Ensure drawLayerBounds is valid
   if (!drawLayerBounds || !drawLayerBounds.isValid()) {
@@ -1687,6 +1697,7 @@ isWktGreater(wkt1: string, wkt2: string): boolean {
   // Compare areas of the bounds
   const area1 = this.calculateArea(bounds1);
   const area2 = this.calculateArea(bounds2);
+  console.log(area1,'area1area1area1area1area1area1area1', area2);
   
   return area1 > area2;
 }

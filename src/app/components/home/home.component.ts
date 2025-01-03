@@ -681,6 +681,14 @@ hybridLayer:L.TileLayer = L.tileLayer(
   
             // this.type === 'library'? this.parentZoomLevel = 5: this.parentZoomLevel=4;
             // this.onZoomLevelChange(this.parentZoomLevel)
+          } else if (this.type === 'library'){
+            console.log('yyyyyyyyyyyyyy');
+            
+            this.isDrawerOpen = true
+            this.drawer._animationState = 'open'
+            this.type = 'library'
+           this.toggleDrawer()
+           this.cdr.detectChanges();
           }
           setTimeout(() => {
        
@@ -1288,6 +1296,7 @@ onDateRangeChanged(event: { startDate: string, endDate: string }) {
     }
   this.getDataUsingPolygon(this.data,queryParams);
   }
+  this.cdr.detectChanges();
 
 }
 

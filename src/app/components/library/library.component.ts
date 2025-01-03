@@ -159,8 +159,50 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   searchInput = new Subject<string>();
   @ViewChild(MatMenuTrigger) menuTrigger!: MatMenuTrigger;
   @Output() notifyParent: EventEmitter<any> = new EventEmitter();
-  @Input() endDate:any
-  @Input() startDate:any
+  private _startDate: any;
+  private _endDate: any;
+
+  @Input()
+  set startDate(value: any) {
+    if (value !== this._startDate) {
+      this._startDate = value;
+      console.log('startDate updated:', this._startDate);
+      let queryParams ={
+        page_number: '1',
+        page_size: '16',
+        start_date:this.startDate,
+        end_date: this.endDate,
+        source: 'library',
+        
+      }
+      const payload = {
+        wkt_polygon: this.polygon_wkt
+      }
+     setTimeout(() => {
+      this.loader = true
+      this.ngxLoader.start(); // Start the loader
+      this.getSatelliteCatalog(payload,queryParams)
+     },300)
+      // Add logic to handle the updated value, e.g., update calculations or UI
+    }
+  }
+
+  get startDate(): any {
+    return this._startDate;
+  }
+
+  @Input()
+  set endDate(value: any) {
+    if (value !== this._endDate) {
+      this._endDate = value;
+      console.log('endDate updated:', this._endDate);
+      // Add logic to handle the updated value, e.g., validate the date range
+    }
+  }
+
+  get endDate(): any {
+    return this._endDate;
+  }
   selectedRow:any = null;
   imageData:any;
   @ViewChild(MatSort) sort!: MatSort;

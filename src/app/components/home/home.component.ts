@@ -117,6 +117,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
   polygon_wkt:any;
   isDrawerOpen:boolean = false;
   imageOverlay: L.ImageOverlay | undefined;
+  imageOverlays: Map<string, L.ImageOverlay> = new Map();
   polygon:any;
   leftMargin:any
   private highlightedPolygon: L.Polygon | null = null;
@@ -466,7 +467,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
       console.log(this.drawer,'drawerdrawerdrawerdrawerdrawerdrawer');
       this.drawer.toggle();
       this.handleDropdownToggle(this.isDrawerOpen)
-     
+      this.drawer._animationState = 'open';
         const mapContainer = this.mapContainer.nativeElement;
         mapContainer.style.marginLeft = `${this.leftMargin}px`;
       
@@ -812,10 +813,9 @@ if (data.vendor_name === 'planet') {
       this.toggleDrawer()
 
   }else{
+    this.type = ''
     this.toggleDrawer();
     this.isDrawerOpen = false;
-    this.type = ''
-    return;
   }
     // Ensure the drawer stays open
   }
@@ -1416,10 +1416,21 @@ private openDialogAtPosition(polygon: any, metadata: any): void {
 receiveData(dataArray: any[]) {
   console.log(dataArray, 'parentparentparentparentparentparentparent');
 
-  // Remove any existing overlays
-  if (this.imageOverlay) {
-    this.map.removeLayer(this.imageOverlay);
+  // Track existing image overlays
+  if (!this.imageOverlays) {
+    this.imageOverlays = new Map<string, L.ImageOverlay>();
   }
+
+  // Create a set to track currently visible image URLs
+  const currentImageUrls = new Set(dataArray.map(data => data.presigned_url));
+
+  // Remove overlays that are no longer in the data array
+  this.imageOverlays.forEach((overlay, url) => {
+    if (!currentImageUrls.has(url)) {
+      this.map.removeLayer(overlay);
+      this.imageOverlays.delete(url);
+    }
+  });
 
   // Check if the data array is valid and has coordinates
   if (dataArray && dataArray.length > 0) {
@@ -1436,12 +1447,24 @@ receiveData(dataArray: any[]) {
         const bounds = L.latLngBounds(coordinates);
         allBounds.push(bounds);
 
-        // Add the image overlay to the map
-        const imageOverlay = L.imageOverlay(data.presigned_url, bounds, {
-          opacity: 1, // Optional: Adjust opacity if needed
-          zIndex: 1000,
-        });
-        imageOverlay.addTo(this.map);
+        // Check if the image overlay already exists
+        if (!this.imageOverlays.has(data.presigned_url)) {
+          // Add the image overlay to the map
+          const imageOverlay = L.imageOverlay(data.presigned_url, bounds, {
+            opacity: 1, // Optional: Adjust opacity if needed
+            zIndex: 1000,
+          });
+          imageOverlay.addTo(this.map);
+
+          // Store the overlay in the map for tracking
+          this.imageOverlays.set(data.presigned_url, imageOverlay);
+        } else {
+          // Update the bounds of the existing overlay if necessary
+          const existingOverlay = this.imageOverlays.get(data.presigned_url);
+          if (existingOverlay) {
+            existingOverlay.setBounds(bounds);
+          }
+        }
       }
     });
 
@@ -1456,11 +1479,11 @@ receiveData(dataArray: any[]) {
     this.map.setView(center, currentZoom); // Retain the current zoom
   } else {
     // Handle case where there are no valid coordinates
-    if (this.imageOverlay) {
-      this.map.removeLayer(this.imageOverlay);
-    }
+    this.imageOverlays.forEach((overlay) => this.map.removeLayer(overlay));
+    this.imageOverlays.clear();
   }
 }
+
 
 
 

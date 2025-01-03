@@ -94,11 +94,11 @@
             <div class="flex items-center gap-[5px] self-stretch">
                 <div class="flex h-[60px] min-w-[61.25px] p-[8px] bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
                     <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px]">Oldest</span>
-                    <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px]">{{formatDate(data?.markerData?.oldest_date)}}</span>
+                    <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px]">{{data?.markerData?.oldest_date | dateFormat}}</span>
                 </div>
                 <div class="flex h-[60px] min-w-[61.25px] p-[8px] bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
                     <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px]">Newest</span>
-                    <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px]">{{formatDate(data?.markerData?.newest_info?.acquisition_datetime)}}</span>
+                    <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px]">{{data?.markerData?.newest_info?.acquisition_datetime | dateFormat}}</span>
                 </div>
                 <div class="flex h-[60px] min-w-[61.25px] p-[8px] bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
                     <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px]">Total</span>
@@ -167,7 +167,7 @@
       <div class="flex flex-col items-start gap-[5px] self-stretch">
         <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Date of Image</span>
         <div class="flex items-center gap-[15px] self-stretch w-full">
-            <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{getDateTimeFormat(data?.vendorData?.acquisition_datetime)}}</span>
+            <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{data?.vendorData?.acquisition_datetime | dateTimeFormat}}</span>
             <span class="h-[17px] w-[16px] cursor-pointer" matTooltip="Coppy Address">
                 <img src="/assets/svg-icons/calender-icon.svg" alt="" />
             </span>          

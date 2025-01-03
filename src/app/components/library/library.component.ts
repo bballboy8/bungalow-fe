@@ -338,6 +338,8 @@ set zoomed_wkt(value: string) {
         const payload = {
           wkt_polygon: this.polygon_wkt
         }
+        this.loader = true
+      this.ngxLoader.start(); // Start the loader
        
         this.getSatelliteCatalog(payload,queryParams)
         
@@ -361,6 +363,8 @@ set zoomed_wkt(value: string) {
         const payload = {
           wkt_polygon: this.polygon_wkt
         }
+        this.loader = true
+      this.ngxLoader.start(); // Start the loader
         this.getSatelliteCatalog(payload,queryParams)
       } else if (activeColumn === 'Vendor') {
         // const sensorA = a.sensor.toLowerCase();
@@ -380,6 +384,8 @@ set zoomed_wkt(value: string) {
         const payload = {
           wkt_polygon: this.polygon_wkt
         }
+        this.loader = true
+      this.ngxLoader.start(); // Start the loader
         this.getSatelliteCatalog(payload,queryParams)
       }
      

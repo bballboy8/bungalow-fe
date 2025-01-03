@@ -440,6 +440,8 @@ set zoomed_wkt(value: string) {
     const payload = {
       wkt_polygon: this.polygon_wkt
     }
+    this.loader = true
+      this.ngxLoader.start(); // Start the loader
     this.getSatelliteCatalog(payload,queryParams)
   }
 

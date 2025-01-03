@@ -122,7 +122,8 @@ hybridLayer:L.TileLayer = L.tileLayer(
   leftMargin:any
   private highlightedPolygon: L.Polygon | null = null;
   calendarApiData:any;
-  zoomed_wkt_polygon:any = ''
+  zoomed_wkt_polygon:any = '';
+  shapeType:string=''
   constructor(@Inject(PLATFORM_ID) private platformId: Object,
    private satelliteService:SatelliteService,private dialog: MatDialog,
    private http: HttpClient,
@@ -491,6 +492,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
   setDrawType(type: any): void {
     console.log("Selected Draw Type:", type);
     this.currentAction = null;
+   this.shapeType = type
 
     // Remove existing shapes and event listeners
     if (this.polygon) {
@@ -567,6 +569,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
               const bounds = (layer as L.Polygon).getBounds();
               console.log('Polygon Bounds:', bounds);
               const geoJSON = layer.toGeoJSON();
+               this.zoomed_wkt_polygon = ''
               this.getPolygonFromCoordinates({ geometry: geoJSON?.geometry }, bounds);
               setTimeout(() => {
                 this.map.fitBounds(bounds, {
@@ -580,6 +583,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
               const bounds = (layer as L.Circle).getBounds();
               console.log('Circle Bounds:', bounds);
               const geoJSON = layer.toGeoJSON();
+               this.zoomed_wkt_polygon = ''
               this.getPolygonFromCoordinates({ geometry: geoJSON?.geometry }, bounds);
               setTimeout(() => {
                 this.map.fitBounds(bounds, {
@@ -592,6 +596,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
               const bounds = (layer as L.Rectangle).getBounds();
               console.log('Rectangle Bounds:', bounds);
               const geoJSON = layer.toGeoJSON();
+               this.zoomed_wkt_polygon = ''
               this.getPolygonFromCoordinates({ geometry: geoJSON?.geometry }, bounds);
              
               setTimeout(() => {
@@ -610,6 +615,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
 
             console.log("Drawing disabled after shape creation.");
         });
+         this.zoomed_wkt_polygon = ''
 
         // Add event listener to remove tooltip when drawing starts/stops
         this.map.on('draw:drawstart', () => {
@@ -705,7 +711,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
                const width = interactiveElement.getBoundingClientRect().width; // Or use interactiveElement.offsetWidth
                console.log('Width of leaflet-interactive:', width);
              const  marginLeft = mapViewportWidth - width;
-             this.leftMargin = marginLeft
+             this.leftMargin = marginLeft <0 ? 0: marginLeft
              containerElement.style.marginLeft = marginLeft >= 403 ?`${marginLeft}px`: '403px';
              }
                // Get element width
@@ -1603,6 +1609,9 @@ layercalculateVisibleWKT(): void {
   if (!drawLayerBounds || !drawLayerBounds.isValid()) {
     console.error('Draw layer bounds are invalid or empty.');
     return;
+  }
+  if(this.shapeType){
+    return this.shapeType =null;
   }
 
   // Get the visible map bounds

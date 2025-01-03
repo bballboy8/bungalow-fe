@@ -249,7 +249,7 @@ set zoomed_wkt(value: string) {
   }
   this.setDynamicHeight();
   window.addEventListener('resize', this.setDynamicHeight.bind(this))
-  const div = this.scrollableDiv.nativeElement;
+  const div = this.scrollableDiv?.nativeElement;
   this.canTriggerAction = true
   div.addEventListener('wheel', this.handleWheelEvent);
   console.log('valuevaluevaluevaluevalue', value);
@@ -343,7 +343,7 @@ set zoomed_wkt(value: string) {
       console.log('Sorted Data:', this.dataSource.filteredData);
       this.sortData(); // Will only be called once after the debounce time
     });
-    const div = this.scrollableDiv.nativeElement;
+    const div = this.scrollableDiv?.nativeElement;
 
     // Add scroll event listener
   
@@ -456,7 +456,7 @@ set zoomed_wkt(value: string) {
         setTimeout(() => {
           this.setDynamicHeight();
           window.addEventListener('resize', this.setDynamicHeight.bind(this))
-          const div = this.scrollableDiv.nativeElement;
+          const div = this.scrollableDiv?.nativeElement;
           div.addEventListener('wheel', this.handleWheelEvent);
       }, 800); 
       },
@@ -515,7 +515,7 @@ set zoomed_wkt(value: string) {
     setTimeout(() => {
       this.setDynamicHeight();
       window.addEventListener('resize', this.setDynamicHeight.bind(this))
-      const div = this.scrollableDiv.nativeElement;
+      const div = this.scrollableDiv?.nativeElement;
       div.addEventListener('wheel', this.handleWheelEvent);
   }, 300); 
    
@@ -916,7 +916,7 @@ setDynamicHeight(): void {
 }
 ngOnDestroy(): void {
   window.removeEventListener('resize', this.setDynamicHeight.bind(this));  // Clean up event listener
-  const div = this.scrollableDiv.nativeElement;
+  const div = this.scrollableDiv?.nativeElement;
 
     // Remove all listeners to avoid memory leaks
    
@@ -975,7 +975,7 @@ private isAtBottom = false;
 
 //Scroll to bottom event 
 private handleWheelEvent = (event: WheelEvent): void => {
-  const div = this.scrollableDiv.nativeElement;
+  const div = this.scrollableDiv?.nativeElement;
 
 
   // Detect if at the bottom

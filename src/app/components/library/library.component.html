@@ -401,9 +401,9 @@
                 </ng-container>
 
                 <tr mat-header-row *matHeaderRowDef="displayedColumns" class="bg-secondaryBg"></tr>
-                <tr mat-row *matRowDef="let row; let i = index; columns: displayedColumns;" 
+                <tr mat-row *matRowDef="let row; let i = dataIndex; columns: displayedColumns; trackBy: trackByIndex" 
                 class="hover:bg-secondaryHighlight cursor-pointer"
-                [ngClass]="row.index === this.zoomed_captures_count && this.zoomed_captures_count > 0 ? 'border-b-2 border-b-solid border-b-white':''"
+                [ngClass]="zoomed_captures_count > 0 && (i+1) == zoomed_captures_count  ? 'border-b-2 border-b-solid border-b-white':''"
                 (click)="expandedElement = expandedElement === row ? null : row;"
                 (mouseover)="onRowHover(row)"
                 (mouseout)="onRowHover(null)"

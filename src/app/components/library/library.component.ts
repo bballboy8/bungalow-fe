@@ -46,6 +46,7 @@ import { LiveAnnouncer } from "@angular/cdk/a11y";
 import moment from "moment";
 import { NgxUiLoaderModule, NgxUiLoaderService } from "ngx-ui-loader";
 import { DateFormatPipe } from "../../pipes/date-format.pipe";
+import { log } from "console";
 
 export class Group {
   name?: string;
@@ -178,11 +179,13 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
       const payload = {
         wkt_polygon: this.polygon_wkt
       }
-     setTimeout(() => {
-      this.loader = true
-      this.ngxLoader.start(); // Start the loader
-      this.getSatelliteCatalog(payload,queryParams)
-     },300)
+      if (this.polygon_wkt) {
+        setTimeout(() => {
+          this.loader = true
+          this.ngxLoader.start(); // Start the loader
+          this.getSatelliteCatalog(payload,queryParams)
+         },300)
+      }
       // Add logic to handle the updated value, e.g., update calculations or UI
     }
   }
@@ -210,7 +213,8 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   selectedZone:string = 'UTC'
   @ViewChild('scrollableDiv') scrollableDiv!: ElementRef<HTMLDivElement>;
   page_size = '16';
-  perPageSize= 16
+  perPageSize= 16;
+  page_number = '1';
   loader:boolean = false;
   private _zoomed_wkt: string ='';
   zoomed_captures_count:number ;
@@ -985,14 +989,13 @@ private handleWheelEvent = (event: WheelEvent): void => {
     if (!this.isAtBottom) {
       this.isAtBottom = true; // Lock the event trigger
       //  this.customAction('Scroll beyond bottom');
-      let num = parseInt(this.page_size, 10)
-    let  new_pageSize = num + 16 ;
-    this.perPageSize = new_pageSize
-    this.page_size = new_pageSize.toString()
-    console.log(this.perPageSize,'new_pageSizenew_pageSizenew_pageSize',this.zoomed_captures_count);
+      let num = parseInt(this.page_number, 10)
+    let  new_pageNumber = num + 1 ;
+    this.page_number = new_pageNumber.toString()
+    console.log(this.page_number,'new_pageSizenew_pageSizenew_pageSize',this.zoomed_captures_count);
     if(this.dataSource.data.length<this.total_count){
       let queryParams ={
-        page_number: '1',
+        page_number: this.page_number,
         page_size: this.page_size,
         start_date:this.startDate,
         end_date: this.endDate,
@@ -1008,10 +1011,11 @@ private handleWheelEvent = (event: WheelEvent): void => {
   this.satelliteService.getDataFromPolygon(payload, queryParams).subscribe({
     next: (resp) => {
      
-      this.dataSource.data = resp.data.map((item, idx) => ({
+      const data = resp.data.map((item, idx) => ({
         ...item,
         index: idx
       }));
+      this.dataSource.data = this.dataSource.data.concat(data);
       this.originalData = [...this.dataSource.data];
       
       setTimeout(() => {
@@ -1119,6 +1123,12 @@ getDateTimeFormat(dateTime: string) {
     }
   
     document.body.removeChild(tempTextArea);
+  }
+
+  trackByIndex(index: number, item: any): number {
+    console.log("indexindexindexindexindex", index);
+    
+    return index;
   }
   
 

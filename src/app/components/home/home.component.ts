@@ -931,7 +931,7 @@ handleAction(action: string): void {
             const markerData = resp?.data?.analytics
             this.getAddress(clickLat, clickLng).then((address) => {
               const dialogRef = this.dialog.open(MapControllersPopupComponent, {
-                width: '320px',
+                width: '357px',
                 data: { type: 'marker', markerData:markerData,pointData:payload },
                 position,
                 panelClass: 'custom-dialog-class',

@@ -410,5 +410,9 @@ copyData(data: any) {
   document.body.removeChild(tempTextArea);
 }
 
+getVendors(vendorCount) {
+    return Object.keys(vendorCount) || [];
+}
+
 
 }

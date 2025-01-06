@@ -245,6 +245,7 @@ set zoomed_wkt(value: string) {
         };
         this.loader = true;
         this.ngxLoader.start(); // Start the loader
+        this.page_number = '1';
         this.getSatelliteCatalog(payload, queryParams);
         
       }

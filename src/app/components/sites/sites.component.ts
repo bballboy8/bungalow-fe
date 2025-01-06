@@ -44,6 +44,7 @@ export class SitesComponent implements OnInit, AfterViewInit {
   per_page = 12;
   total_count: any;
   loader: boolean = false;
+  page_number:number=1
   closeLibraryDrawer() {
     this.closeDrawer.emit(true);
   }
@@ -146,7 +147,11 @@ export class SitesComponent implements OnInit, AfterViewInit {
     this.sateliteService.getSites(queryParams).subscribe({
       next: (resp) => {
         console.log(resp, 'successsuccesssuccesssuccesssuccess');
-        this.sitesData = resp.data;
+        this.sitesData = resp.data.map((item, idx) => ({
+          ...item,
+          index: idx
+        }));
+       
         this.total_count = resp.total_count
         this.loader = false
         this.ngxLoader.stop();
@@ -340,22 +345,28 @@ export class SitesComponent implements OnInit, AfterViewInit {
         //  this.customAction('Scroll beyond bottom');
 
 
-        this.per_page = this.per_page + 12;
-        this.per_page > this.total_count ? this.per_page = this.total_count : this.per_page
+      
+        let  new_pageNumber = this.page_number + 1 ;
+        this.page_number = new_pageNumber
         console.log(this.per_page, 'per_pageper_pageper_pageper_pageper_page');
 
-        if (this.per_page <= this.total_count) {
+        if (this.sitesData.length < this.total_count) {
 
 
           this.loader = true
           this.ngxLoader.start(); // Start the loader
           let payload = {
-            page_number: '1',
+            page_number: this.page_number,
             per_page: this.per_page,
             name: '',
           }
           this.sateliteService.getSites(payload).subscribe({
             next: (resp) => {
+              const data = resp.data.map((item, idx) => ({
+                ...item,
+                index: idx
+              }));
+              this.sitesData = this.sitesData.concat(data);
               this.loader = false
               this.ngxLoader.stop(); // Stop the loader when the data is successfully fetched
             },

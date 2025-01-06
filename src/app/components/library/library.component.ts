@@ -170,7 +170,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
       console.log('startDate updated:', this._startDate);
       let queryParams ={
         page_number: '1',
-        page_size: '16',
+        page_size: '20',
         start_date:this.startDate,
         end_date: this.endDate,
         source: 'library',
@@ -212,8 +212,8 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   originalData: any[] = [];
   selectedZone:string = 'UTC'
   @ViewChild('scrollableDiv') scrollableDiv!: ElementRef<HTMLDivElement>;
-  page_size = '16';
-  perPageSize= 16;
+  page_size = '20';
+  perPageSize= 20;
   page_number = '1';
   loader:boolean = false;
   private _zoomed_wkt: string ='';
@@ -313,7 +313,7 @@ set zoomed_wkt(value: string) {
       })
       let queryParams ={
         page_number: '1',
-        page_size: '16',
+        page_size: '20',
         start_date:this.startDate,
         end_date: this.endDate,
         source: 'library',
@@ -375,7 +375,7 @@ set zoomed_wkt(value: string) {
         // const dateB = new Date(b.acquisition_datetime).getTime();
         let queryParams ={
           page_number: '1',
-          page_size: '16',
+          page_size: '20',
           start_date:this.startDate,
           end_date: this.endDate,
           source: 'library',
@@ -400,7 +400,7 @@ set zoomed_wkt(value: string) {
         // console.log(sensorB,'dateBdateBdateBdateBdateB');
         let queryParams ={
           page_number: '1',
-          page_size: '16',
+          page_size: '20',
           start_date:this.startDate,
           end_date: this.endDate,
           source: 'library',
@@ -421,7 +421,7 @@ set zoomed_wkt(value: string) {
         // console.log(sensorB,'dateBdateBdateBdateBdateB');
         let queryParams ={
           page_number: '1',
-          page_size: '16',
+          page_size: '20',
           start_date:this.startDate,
           end_date: this.endDate,
           source: 'library',
@@ -477,7 +477,7 @@ set zoomed_wkt(value: string) {
     // Reset the dataSource to the original unsorted data
     let queryParams ={
       page_number: '1',
-      page_size: '16',
+      page_size: '20',
       start_date:this.startDate,
       end_date: this.endDate,
       source: 'library',

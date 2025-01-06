@@ -256,8 +256,11 @@ set zoomed_wkt(value: string) {
   window.addEventListener('resize', this.setDynamicHeight.bind(this))
   const div = this.scrollableDiv?.nativeElement;
   this.canTriggerAction = true
-  div.addEventListener('wheel', this.handleWheelEvent);
-  console.log('valuevaluevaluevaluevalue', value);
+  if (div) {
+    div.addEventListener('wheel', this.handleWheelEvent);
+    console.log('valuevaluevaluevaluevalue', value);
+  }
+ 
 }
   
   get zoomed_wkt(): string {

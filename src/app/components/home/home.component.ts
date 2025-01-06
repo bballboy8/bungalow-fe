@@ -362,6 +362,16 @@ hybridLayer:L.TileLayer = L.tileLayer(
          this.layercalculateVisibleWKT();
     
     });
+
+    this.map.on('dragend', () => {
+      console.log('Drag changed:', this.map.getZoom());
+
+      
+        // Get the bounds of the drawn shape
+         // Get the bounds of the drawn shape
+         this.layercalculateVisibleWKT();
+    
+    });
   
     // Re-fit bounds on window resize to maintain visibility of shapes
     // window.addEventListener('resize', () => {

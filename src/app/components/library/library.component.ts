@@ -47,6 +47,8 @@ import moment from "moment";
 import { NgxUiLoaderModule, NgxUiLoaderService } from "ngx-ui-loader";
 import { DateFormatPipe } from "../../pipes/date-format.pipe";
 import { log } from "console";
+import { MapCalendarComponent } from "./map-calendar/map-calendar.component";
+import { stat } from "fs";
 
 export class Group {
   name?: string;
@@ -92,7 +94,8 @@ export interface PeriodicElement {
     GroupsListComponent,
     MatSortModule,
     NgxUiLoaderModule,
-    DateFormatPipe
+    DateFormatPipe,
+    MapCalendarComponent
 ],
   templateUrl: "./library.component.html",
   styleUrl: "./library.component.scss",
@@ -219,7 +222,9 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   private _zoomed_wkt: string ='';
   zoomed_captures_count:number ;
   private debounceTimeout: any;
-  selectedObjects:any[]
+  selectedObjects:any[];
+  calendarApiData:any;
+  OpenEventCalendar:boolean=false;
   @Input()
 set zoomed_wkt(value: string) {
   if (value !== this._zoomed_wkt) {
@@ -547,6 +552,37 @@ set zoomed_wkt(value: string) {
   calendarEventsOpen() {
     this.isEventsOpened = !this.isEventsOpened;
     this.sharedService.setIsOpenedEventCalendar(this.isEventsOpened);
+   
+    setTimeout(() => {
+      if(this.isEventsOpened){
+        if(this.polygon_wkt ){
+          const payload = {
+            polygon_wkt: this.polygon_wkt,
+            start_date: this.startDate,
+            end_date: this.endDate
+          }
+          
+          // Start the loader
+         
+        
+          this.satelliteService.getPolygonCalenderDays(payload).subscribe({
+            next: (resp) => {
+              this.ngxLoader.stop()
+              this.calendarApiData = resp.data;
+             
+            },
+            error: (err) => {
+              this.ngxLoader.stop()
+              console.error('Error fetching calendar data', err);
+              // Hide loader on error
+             
+            },
+            
+          });
+      }
+      }
+    },300)
+
   }
 
   //calculate newest and oldest in days week months or year

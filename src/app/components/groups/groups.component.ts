@@ -4,64 +4,58 @@ import { GroupsListComponent } from '../../common/groups-list/groups-list.compon
 import { SatelliteService } from '../../services/satellite.service';
 import { MatInputModule } from '@angular/material/input';
 import { catchError, debounceTime, of, Subject, switchMap } from 'rxjs';
+import { DateFormatPipe } from '../../pipes/date-format.pipe';
+import { MatMenuModule } from '@angular/material/menu';
 
-export class Group {
-  name?: string;
-  icon?: string; // icon name for Angular Material icons
-  children?: Group[]; // nested groups
-}
+// export class Group {
+//   name?: string;
+//   icon?: string; // icon name for Angular Material icons
+//   children?: Group[]; // nested groups
+// }
 
 @Component({
   selector: 'app-groups',
   standalone: true,
-  imports: [CommonModule,GroupsListComponent,MatInputModule],
+  imports: [CommonModule,GroupsListComponent,MatInputModule,DateFormatPipe,MatMenuModule],
   templateUrl: './groups.component.html',
   styleUrl: './groups.component.scss'
 })
 export class GroupsComponent implements OnInit {
-groups: Group[] = [
-    { name: "Group name", icon: "folder", children: [] },
-    {
-      name: "Group name",
-      icon: "folder",
-      children: [
-        { name: "Subgroup name", icon: "folder_open", children: [] },
-        { name: "Another subgroup", icon: "folder", children: [] },
-      ],
-    },
-  ];
+  groups = [];
   activeGroup:any;
   @Output() closeDrawer = new EventEmitter<boolean>();
-    searchInput = new Subject<string>();
+  searchInput = new Subject<string>();
+  activeIndex:number  = null;
+  nestedGroupsData:any = []
   constructor(
     private satelliteService:SatelliteService,
   ){
-     this.searchInput.pipe(
-          debounceTime(1000),  // Wait for 1000ms after the last key press
-          switchMap((inputValue) => {
-            const data = {
-              group_name:inputValue
-            }
+    //  this.searchInput.pipe(
+    //       debounceTime(1000),  // Wait for 1000ms after the last key press
+    //       switchMap((inputValue) => {
+    //         const data = {
+    //           group_name:inputValue
+    //         }
             
-            return this.satelliteService.getGroupsForAssignment(data).pipe(
-              catchError((err) => {
+    //         return this.satelliteService.getGroupsForAssignment(data).pipe(
+    //           catchError((err) => {
                 
-                console.error('API error:', err);
-                // Return an empty array to allow subsequent API calls to be made
-                return of({ data: [] });
-              })
-            );
-          })
-        ).subscribe({
-          next: (resp: any) => {
+    //             console.error('API error:', err);
+    //             // Return an empty array to allow subsequent API calls to be made
+    //             return of({ data: [] });
+    //           })
+    //         );
+    //       })
+    //     ).subscribe({
+    //       next: (resp: any) => {
             
-            console.log(resp, 'API Response');
-            this.groups = resp?.data;
-          },
-          error: (err: any) => {
-            console.error('API call failed', err);
-          }
-        });
+    //         console.log(resp, 'API Response');
+    //         this.groups = resp?.data;
+    //       },
+    //       error: (err: any) => {
+    //         console.error('API call failed', err);
+    //       }
+    //     });
   }
 
   ngOnInit(): void {
@@ -71,10 +65,8 @@ groups: Group[] = [
   getGroups() {
     this.selectedGroupEvent(null)
     
-      const data = {
-        group_name: ''
-      }
-      this.satelliteService.getGroupsForAssignment(data).subscribe({
+  
+      this.satelliteService.getParentGroups().subscribe({
         next: (resp) => {
           console.log(resp, 'respresprespresprespresprespresprespresp');
           this.groups = resp
@@ -109,5 +101,23 @@ groups: Group[] = [
     console.log(this.searchInput, 'searchiiiiiiiiiiiiiiiii');
 
     this.searchInput.next(inputValue);
+  }
+
+  rowExpanded(i,group){
+    if(this.activeIndex !== i){
+      this.activeIndex = i
+      const data = {group_id:group.id}
+      this.satelliteService.getNestedGroup(data).subscribe({
+      next: (resp) => {
+        console.log(resp,'respresprespresprespresprespresprespresp');
+
+        this.nestedGroupsData = resp
+
+      }})
+
+    } else {
+      this.activeIndex = null
+    }
+   
   }
 }

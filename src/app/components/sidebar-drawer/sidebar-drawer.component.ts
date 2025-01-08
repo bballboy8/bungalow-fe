@@ -46,6 +46,8 @@ export class SidebarDrawerComponent implements OnInit {
   @Output() rowHoveredData: EventEmitter<any> = new EventEmitter();
   // @Input() zoomed_wkt:any ='';
   ngOnInit(): void {
+    console.log(this.type,'qqqqqqqqqqqqqqqqqqqqqqqqqqqq');
+    
     // console.log(this.zoomed_wkt,'polygon_wktpolygon_wkt');
     
   }

@@ -586,6 +586,8 @@ hybridLayer:L.TileLayer = L.tileLayer(
               console.log('Polygon Bounds:', bounds);
               const geoJSON = layer.toGeoJSON();
                this.zoomed_wkt_polygon = ''
+               this.closeDrawer()
+               this.removeAllImageOverlays()
               this.getPolygonFromCoordinates({ geometry: geoJSON?.geometry }, bounds);
               setTimeout(() => {
                 this.map.fitBounds(bounds, {
@@ -600,6 +602,8 @@ hybridLayer:L.TileLayer = L.tileLayer(
               console.log('Circle Bounds:', bounds);
               const geoJSON = layer.toGeoJSON();
                this.zoomed_wkt_polygon = ''
+               this.closeDrawer()
+               this.removeAllImageOverlays()
               this.getPolygonFromCoordinates({ geometry: geoJSON?.geometry }, bounds);
               setTimeout(() => {
                 this.map.fitBounds(bounds, {
@@ -613,6 +617,8 @@ hybridLayer:L.TileLayer = L.tileLayer(
               console.log('Rectangle Bounds:', bounds);
               const geoJSON = layer.toGeoJSON();
                this.zoomed_wkt_polygon = ''
+               this.closeDrawer()
+               this.removeAllImageOverlays()
               this.getPolygonFromCoordinates({ geometry: geoJSON?.geometry }, bounds);
              
               setTimeout(() => {
@@ -1523,10 +1529,6 @@ receiveData(dataArray: any[]) {
 }
 
 
-
-
-
-
 setDynamicHeight(): void {
   // Get the height of the elements above
   const header = document.getElementById('header');
@@ -1759,10 +1761,20 @@ wktToBounds(wkt: string): L.LatLngBounds {
   }
 }
 
-@HostListener('window:resize', ['$event'])
+  @HostListener('window:resize', ['$event'])
   onResize(): void {
     if (this.map) {
       this.map.invalidateSize();
+    }
+  }
+
+  //Image layers removing functionality
+  removeAllImageOverlays() {
+    if (this.imageOverlays) {
+      this.imageOverlays.forEach((overlay) => {
+        this.map.removeLayer(overlay); // Remove the overlay from the map
+      });
+      this.imageOverlays.clear(); // Clear the map to remove all stored overlays
     }
   }
 

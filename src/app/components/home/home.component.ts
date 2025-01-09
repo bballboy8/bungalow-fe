@@ -263,7 +263,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
     this.polygon = L.polygon(polygonCoordinates, {
       color: 'rgba(102, 204, 102, 0.8)', // Border color
       fillColor: 'rgba(102, 204, 102, 0.1)', // Fill color with opacity
-      weight: 1, // Border thickness,
+      weight: 3, // Border thickness,
       dashArray: '10, 10'
       
     }).addTo(this.map);
@@ -548,7 +548,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
             shapeOptions: {
                 color: '#ff6666',
                 fillColor: 'rgba(102, 204, 102, 0.1)',
-                weight:1,
+                weight:3,
                 dashArray: '10, 10',
             },
         });
@@ -567,7 +567,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
             shapeOptions: {
                 color: '#66cc66',
                 fillColor: 'rgba(102, 204, 102, 0.1)',
-                weight:1,
+                weight:3,
                 dashArray: '10, 10'
             },
         });
@@ -596,7 +596,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
               setTimeout(() => {
                 this.map.fitBounds(bounds, {
                     padding: [50, 50], // Adds padding around the bounds
-                    maxZoom: 16        // Caps the zoom level
+                    maxZoom: 20        // Caps the zoom level
                 });
             }, 1000);            
              
@@ -612,7 +612,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
               setTimeout(() => {
                 this.map.fitBounds(bounds, {
                     padding: [50, 50], // Adds padding around the bounds
-                    maxZoom: 16        // Caps the zoom level
+                    maxZoom: 20       // Caps the zoom level
                 });
             }, 1000);            
              

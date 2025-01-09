@@ -263,7 +263,9 @@ hybridLayer:L.TileLayer = L.tileLayer(
     this.polygon = L.polygon(polygonCoordinates, {
       color: 'rgba(102, 204, 102, 0.8)', // Border color
       fillColor: 'rgba(102, 204, 102, 0.1)', // Fill color with opacity
-      weight: 1, // Border thickness
+      weight: 1, // Border thickness,
+      dashArray: '10, 10'
+      
     }).addTo(this.map);
   
     // Calculate the bounds of the polygon
@@ -546,7 +548,8 @@ hybridLayer:L.TileLayer = L.tileLayer(
             shapeOptions: {
                 color: '#ff6666',
                 fillColor: 'rgba(102, 204, 102, 0.1)',
-                weight:1
+                weight:1,
+                dashArray: '10, 10',
             },
         });
     } else if (type === 'Circle') {
@@ -564,7 +567,8 @@ hybridLayer:L.TileLayer = L.tileLayer(
             shapeOptions: {
                 color: '#66cc66',
                 fillColor: 'rgba(102, 204, 102, 0.1)',
-                weight:1
+                weight:1,
+                dashArray: '10, 10'
             },
         });
     }

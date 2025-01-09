@@ -484,7 +484,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
       this.handleDropdownToggle(this.isDrawerOpen)
       this.drawer._animationState = 'open';
         const mapContainer = this.mapContainer.nativeElement;
-        mapContainer.style.marginLeft = `${this.leftMargin}px`;
+        mapContainer.style.marginLeft = this.leftMargin >820 ? '820px': `${this.leftMargin}px`;
       
     } else {
       this.drawer._animationState = 'void';
@@ -733,8 +733,10 @@ hybridLayer:L.TileLayer = L.tileLayer(
                const width = interactiveElement.getBoundingClientRect().width; // Or use interactiveElement.offsetWidth
                console.log('Width of leaflet-interactive:', width);
              const  marginLeft = mapViewportWidth - width;
-             this.leftMargin = marginLeft <0 ? 0: marginLeft
-             containerElement.style.marginLeft = marginLeft >= 403 ?`${marginLeft}px`: '403px';
+             this.leftMargin = marginLeft <0 ? 0: marginLeft;
+             this.leftMargin = marginLeft >= 403 ? marginLeft : 403;
+             this.leftMargin = marginLeft >820 ? 820: marginLeft;
+             containerElement.style.marginLeft = `${this.leftMargin}px`;
              }
                // Get element width
                
@@ -1713,7 +1715,7 @@ isWktGreater(wkt1: string, wkt2: string): boolean {
   const bounds2 = this.wktToBounds(wkt2);
   
   // Compare areas of the bounds
-  const area1 = this.calculateArea(bounds1);
+  const area1 = this.calculateArea(bounds1)+ 10;
   const area2 = this.calculateArea(bounds2);
   console.log(area1,'area1area1area1area1area1area1area1', area2);
   

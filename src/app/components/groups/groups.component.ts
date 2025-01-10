@@ -167,6 +167,9 @@ export class GroupsComponent implements OnInit {
       });
       dialogRef.afterClosed().subscribe((result) => {
         console.log('Dialog closed', result);
+        // this.getUpdateGroup(result)
+        this.getGroups();
+
         this._snackBar.open('Group updated successfully.', 'Ok', {
           duration: 2000  // Snackbar will disappear after 300 milliseconds
         });
@@ -180,8 +183,17 @@ export class GroupsComponent implements OnInit {
       notification: status,
     }
     this.satelliteService.updateGroup(payload).subscribe({
-      next: (resp) =>{}
+      next: (resp) =>{
+        // this.getUpdateGroup(resp)
+        this.getGroups()
+      }
     })
   }
 
+  getUpdateGroup(data) {
+    const index = this.groups.findIndex(x => x.id == data.id);
+    if (index>-1) {
+      this.groups[index] = data;
+    }
+  }
 }

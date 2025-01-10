@@ -72,7 +72,7 @@ export class CommonDailogsComponent implements OnInit  {
   updateGroup(payload: any) {
     this.satelliteService.updateGroup(payload).subscribe({
       next: (resp) =>{
-        this.dialogRef.close({type:this.data.type,name:this.name,groupId:this.data.group.id})
+        this.dialogRef.close(resp)
       },
       error(err) {
         

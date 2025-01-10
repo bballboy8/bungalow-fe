@@ -64,6 +64,7 @@ export class CommonDailogsComponent implements OnInit  {
     const payload = {
       group_id: this.data.group.id,
       is_deleted: true,
+      name: this.data.group.name
     }
     this.updateGroup(payload)
   }

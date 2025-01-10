@@ -254,7 +254,7 @@ set zoomed_wkt(value: string) {
         this.getSatelliteCatalog(payload, queryParams);
         
       }
-    }, 600);
+    }, 800);
      // Debounce time: 600ms
   }
   this.setDynamicHeight();

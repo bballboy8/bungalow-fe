@@ -176,6 +176,7 @@ export class GroupsComponent implements OnInit {
   setNotifications(status:boolean,group:any){
     const payload = {
       group_id: group.id,
+      name: group?.name,
       notification: status,
     }
     this.satelliteService.updateGroup(payload).subscribe({

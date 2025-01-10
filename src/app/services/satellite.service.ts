@@ -73,6 +73,6 @@ export class SatelliteService extends BaseService {
     return this.post(createUrl("/add-group"),data)
   }
   updateGroup(data:any): Observable<any> {
-    return this.post(createUrl("/update-group"),data)
+    return this.put(createUrl("/update-group"),data)
   }
 }

@@ -19,20 +19,6 @@
   }
 }
 ::ng-deep {
-  .mat-mdc-menu-panel {
-    background-color: #20272d !important;
-    width: 350px !important;
-    max-width: 350px !important;
-    box-shadow: 5px 5px 5px 0px #0000001a !important;
-  }
-  .cdk-overlay-connected-position-bounding-box {
-    top: 150px !important;
-    left: 235px !important;
-    width: 350px !important;
-  }
-  .cdk-overlay-pane {
-    width: 100%;
-  }
   .mdc-checkbox
     .mdc-checkbox__native-control:enabled:checked
     ~ .mdc-checkbox__background {
@@ -231,4 +217,19 @@
   }
 }
 
-
+::ng-deep .library-overlay-container{
+  .mat-mdc-menu-panel {
+    background-color: #20272d !important;
+    width: 350px !important;
+    max-width: 350px !important;
+    box-shadow: 5px 5px 5px 0px #0000001a !important;
+  }
+  .cdk-overlay-connected-position-bounding-box {
+    top: 150px !important;
+    left: 235px !important;
+    width: 350px !important;
+  }
+  .cdk-overlay-pane {
+    width: 100%;
+  }
+}

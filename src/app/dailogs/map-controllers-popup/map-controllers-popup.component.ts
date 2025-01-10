@@ -414,5 +414,24 @@ getVendors(vendorCount) {
     return Object.keys(vendorCount) || [];
 }
 
+//Get time in local and utc time zone functionality
+getTime(datetime:any,type:any){
+  if (type === 'utc') {
+    // Get UTC time
+    const utcDate = dayjs(datetime).utc();
+    const utcTime = utcDate.format('HH:mm'); // Format as 'HH:mm'
+  
+    return `${utcTime}`;
+  } else {
+    // Get local time
+    const localDate = new Date(datetime);
+    const localHours = localDate.getHours().toString().padStart(2, '0');
+    const localMinutes = localDate.getMinutes().toString().padStart(2, '0');
+    const localTime = `${localHours}:${localMinutes}`; // Format as 'HH:mm'
+  
+    return `${localTime}`;
+  }
+  
+}
 
 }

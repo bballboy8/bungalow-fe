@@ -32,6 +32,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { HttpClient } from '@angular/common/http';
 import dayjs from 'dayjs';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
+import * as martinez from 'martinez-polygon-clipping';
 (window as any).type = undefined;
 
 
@@ -125,7 +126,8 @@ hybridLayer:L.TileLayer = L.tileLayer(
   private highlightedPolygon: L.Polygon | null = null;
   calendarApiData:any;
   zoomed_wkt_polygon:any = '';
-  shapeType:string=''
+  shapeType:string='';
+  zoomed_status:boolean = false;
   constructor(@Inject(PLATFORM_ID) private platformId: Object,
    private satelliteService:SatelliteService,private dialog: MatDialog,
    private http: HttpClient,
@@ -145,6 +147,8 @@ hybridLayer:L.TileLayer = L.tileLayer(
 
   ngAfterViewInit(): void {
     if (isPlatformBrowser(this.platformId)) {
+      console.log('Platform');
+      
       this.initMap();
     }
     
@@ -235,7 +239,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
       maxZoom: 20, // Maximum zoom level
       scrollWheelZoom: true, // Enable zooming via scroll wheel
       dragging: true, // Enable dragging
-      worldCopyJump: true, // Allow world wrapping
+      // worldCopyJump: true, // Allow world wrapping
     });
   
     // Add Tile Layer (Dark mode basemap)
@@ -365,7 +369,10 @@ hybridLayer:L.TileLayer = L.tileLayer(
       
         // Get the bounds of the drawn shape
          // Get the bounds of the drawn shape
-         this.layercalculateVisibleWKT();
+       
+          this.layercalculateVisibleWKT();
+        
+        
     
     });
 
@@ -375,7 +382,9 @@ hybridLayer:L.TileLayer = L.tileLayer(
       
         // Get the bounds of the drawn shape
          // Get the bounds of the drawn shape
-         this.layercalculateVisibleWKT();
+        
+          this.layercalculateVisibleWKT();
+        
     
     });
   
@@ -642,6 +651,26 @@ hybridLayer:L.TileLayer = L.tileLayer(
             console.log("Drawing disabled after shape creation.");
         });
          this.zoomed_wkt_polygon = ''
+         this.map.on('zoomend', () => {
+          console.log('Zoom changed:', this.map.getZoom());
+          this.zoomLevel = this.map.getZoom();
+          if (this.map.getZoom() < 4) {
+            this.map.setZoom(4); // Prevent zooming out below the minimum level
+          }
+          
+            
+              this.layercalculateVisibleWKT();
+            
+            
+        
+        });
+    
+        this.map.on('dragend', () => {
+          console.log('Drag changed:', this.map.getZoom());
+              this.layercalculateVisibleWKT();
+            
+        
+        });
 
         // Add event listener to remove tooltip when drawing starts/stops
         this.map.on('draw:drawstart', () => {
@@ -1621,63 +1650,100 @@ highLightShape(data: any): void {
 // Function to construct WKT from bounds
 // Function to calculate the WKT polygon for the visible portion of the draw 
 layercalculateVisibleWKT(): void {
-  if (!this.polygon || !this.map) {
-    console.error('Draw layer or map is not initialized.');
+  if (!this.map || !this.drawLayer || !this.polygon) {
+    console.error('Map, draw layer, or polygon is not initialized.');
     return;
   }
-  let drawLayerBounds
- 
-  const newBounds = this.drawLayer.getBounds()
-  const newEast = newBounds.getNorthEast()
-  if(newEast){
-// Get the bounds of the drawn shapes
-  drawLayerBounds = this.drawLayer?.getBounds();
-  } else  {
-// Get the bounds of the drawn shapes
-  drawLayerBounds = this.polygon.getBounds();
-  }
 
-  
+  // Ensure map size is recalculated if the container has changed
+  // this.map.invalidateSize();
 
-  // Ensure drawLayerBounds is valid
+  // Get the bounds of the drawn shapes or fallback to polygon bounds
+  let drawLayerBounds: L.LatLngBounds | null = this.drawLayer.getBounds();
+
   if (!drawLayerBounds || !drawLayerBounds.isValid()) {
-    console.error('Draw layer bounds are invalid or empty.');
-    return;
-  }
-
-  if (this.shapeType) {
-    this.shapeType = null;
-    return;
+    console.warn('Draw layer bounds are invalid. Falling back to polygon bounds.');
+    drawLayerBounds = this.polygon.getBounds();
   }
 
   // Get the visible map bounds
   const visibleBounds = this.map.getBounds();
 
-  // Ensure visibleBounds is valid
   if (!visibleBounds || !visibleBounds.isValid()) {
-    console.error('Visible map bounds are invalid or empty.');
+    console.error('Visible map bounds are invalid.');
     return;
   }
 
-  // Calculate the intersection of drawLayerBounds and visibleBounds
-  const intersectionBounds = this.getIntersectionBounds(visibleBounds, drawLayerBounds);
+  // Convert bounds to polygons
+  const drawPolygon = this.boundsToPolygon(drawLayerBounds);
+  const visiblePolygon = this.boundsToPolygon(visibleBounds);
 
-  if (intersectionBounds) {
-    // Construct WKT manually for the intersection bounds
-    const wkt = this.boundsToWKT(intersectionBounds);
+  console.log('Draw Polygon:', drawPolygon);
+  console.log('Visible Polygon:', visiblePolygon);
 
-    // Compare wkt with this.polygon_wkt
-    if (this.isWktGreater(wkt, this.polygon_wkt)) {
-      // Log the WKT string of the visible polygon
-      this.zoomed_wkt_polygon = '';
+  try {
+    // Calculate the intersection using martinez-polygon-clipping
+    const intersection = martinez.intersection(drawPolygon.coordinates, visiblePolygon.coordinates);
+
+    if (intersection && intersection.length > 0) {
+      console.log('Intersection Found:', intersection);
+
+      // Convert the intersection to WKT
+      const intersectionWKT = this.polygonToWKT(intersection);
+
+      console.log('Intersection WKT:', intersectionWKT);
+
+      if (this.isWktGreater(intersectionWKT, this.polygon_wkt)) {
+        console.log('Intersection is not greater than the existing WKT.',this.zoomed_status)
+        this.zoomed_wkt_polygon = intersectionWKT; // Reset value if not greater
+      } else if(this.zoomed_status) {
+        console.log('Intersection is valid and greater. Updating WKT.',this.zoomed_status);
+        this.zoomed_wkt_polygon = intersectionWKT; // Store the new WKT;
+       
+        console.log('Decoded WKT:',  this.zoomed_wkt_polygon);
+      } else {
+        console.log('Decoded WKT:qqqqqqqqqqqq');
+        
+        this.zoomed_wkt_polygon = ''
+      }
     } else {
-      this.zoomed_wkt_polygon = wkt; // Return empty string if not greater
+      console.log('No intersection detected.');
+      this.zoomed_wkt_polygon = ''; // Reset if no intersection
     }
+
     this.cdr.detectChanges();
-  } else {
-   
+  } catch (error) {
+    console.error('Error calculating intersection:', error);
   }
 }
+
+
+
+boundsToPolygon(bounds: L.LatLngBounds): any {
+  const corners = [
+    bounds.getSouthWest(),
+    bounds.getNorthWest(),
+    bounds.getNorthEast(),
+    bounds.getSouthEast(),
+    bounds.getSouthWest() // Close the polygon
+  ];
+
+  const coordinates = corners.map((latLng) => [latLng.lng, latLng.lat]);
+  return {
+    type: 'Polygon',
+    coordinates: [coordinates] // Martinez requires an array of arrays
+  };
+}
+polygonToWKT(polygon: any): string {
+  const wktCoordinates = polygon[0]
+    .map((ring: any) =>
+      ring.map((coord: any) => `${coord[0]} ${coord[1]}`).join(', ')
+    )
+    .join('), (');
+
+  return `POLYGON((${wktCoordinates}))`;
+}
+
 
 // Helper function to calculate intersection bounds
 getIntersectionBounds(bounds1: L.LatLngBounds, bounds2: L.LatLngBounds): L.LatLngBounds | null {
@@ -1719,11 +1785,11 @@ isWktGreater(wkt1: string, wkt2: string): boolean {
   const bounds2 = this.wktToBounds(wkt2);
   
   // Compare areas of the bounds
-  const area1 = this.calculateArea(bounds1)+ 10;
+  const area1 = this.calculateArea(bounds1);
   const area2 = this.calculateArea(bounds2);
-  console.log(area1,'area1area1area1area1area1area1area1', area2);
-  
-  return area1 > area2;
+  console.log(area1,'area1area1area1area1area1area1area1', area1.toFixed(1) > area2.toFixed(1));
+  this.zoomed_status = area1.toFixed(1) > area2.toFixed(1)
+  return area1.toFixed(1) > area2.toFixed(1);
 }
 
 // Helper function to calculate area of bounds

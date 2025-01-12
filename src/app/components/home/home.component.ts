@@ -495,7 +495,8 @@ hybridLayer:L.TileLayer = L.tileLayer(
       this.handleDropdownToggle(this.isDrawerOpen)
       this.drawer._animationState = 'open';
         const mapContainer = this.mapContainer.nativeElement;
-        mapContainer.style.marginLeft = this.leftMargin >820 ? '820px': `${this.leftMargin}px`;
+        // mapContainer.style.marginLeft = this.leftMargin >820 ? '820px': `${this.leftMargin}px`;
+        mapContainer.style.marginLeft = '420px'
       
     } else {
       this.drawer._animationState = 'void';
@@ -769,7 +770,9 @@ hybridLayer:L.TileLayer = L.tileLayer(
              this.leftMargin = marginLeft <0 ? 0: marginLeft;
              this.leftMargin = marginLeft >= 403 ? marginLeft : 403;
              this.leftMargin = marginLeft >820 ? 820: marginLeft;
-             containerElement.style.marginLeft = `${this.leftMargin}px`;
+             console.log("leftMarginleftMarginleftMargin", this.leftMargin, marginLeft);
+             
+             containerElement.style.marginLeft = `420px`;
              }
                // Get element width
                
@@ -778,7 +781,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
                console.log('Map viewport width:', mapViewportWidth);
                
            }
-           }, 800);
+           }, 600);
           
         }
       },

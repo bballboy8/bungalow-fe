@@ -1635,7 +1635,7 @@ highLightShape(data: any): void {
       color = '#A900E6';
       break;
     default:
-      color = '#FF00C5';
+      color = '#7A00B3';
       break;
   }
 

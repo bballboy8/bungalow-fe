@@ -1790,9 +1790,9 @@ isWktGreater(wkt1: string, wkt2: string): boolean {
   // Compare areas of the bounds
   const area1 = this.calculateArea(bounds1);
   const area2 = this.calculateArea(bounds2);
-  console.log(area1,'area1area1area1area1area1area1area1', area1.toFixed(1) > area2.toFixed(1));
-  this.zoomed_status = area1.toFixed(1) > area2.toFixed(1)
-  return area1.toFixed(1) > area2.toFixed(1);
+  console.log(area1.toFixed(1), area2.toFixed(1),'area1area1area1area1area1area1area1', +area1.toFixed(1) < +area2.toFixed(1));
+  this.zoomed_status = +area1.toFixed(1) < +area2.toFixed(1)
+  return +area1.toFixed(1) < +area2.toFixed(1);
 }
 
 // Helper function to calculate area of bounds

@@ -358,6 +358,11 @@ set zoomed_wkt(value: string) {
       console.log('Sorted Data:', this.dataSource.filteredData);
       this.sortData(); // Will only be called once after the debounce time
     });
+    this.sharedService.isOpenedEventCalendar$.subscribe((isOpened) => {
+      console.log(isOpened,'isOpenedisOpenedisOpened');
+      
+      this.isEventsOpened = isOpened
+    })
     const div = this.scrollableDiv?.nativeElement;
 
     // Add scroll event listener

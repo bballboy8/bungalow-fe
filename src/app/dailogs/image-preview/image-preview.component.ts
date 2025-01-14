@@ -35,8 +35,8 @@ export class ImagePreviewComponent implements OnInit,AfterViewInit {
   @ViewChild('container') 'container': ElementRef;
   @ViewChild('img') 'img': ElementRef;
   ngOnInit(): void {
-    this.currentIndex = this.data.currentIndex;
-    console.log("dialog dat: ", this.data.images.data);
+    this.currentIndex = this.data?.currentIndex;
+    console.log("dialog dat: ", this.data);
   }
 
   ngAfterViewInit() {

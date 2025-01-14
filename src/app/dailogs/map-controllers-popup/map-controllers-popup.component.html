@@ -195,9 +195,13 @@
         </div>
       </div>
       
-      <span class="w-[240px] max-h-[300px] flex justify-center items-center"
+      <span class="w-[240px] relative group cursor-pointer max-h-[300px] flex justify-center items-center" (click)="imagePreview(data?.vendorData,'vendor')"
       >
-      <img class="max-h-[300px] w-full object-cover" [src]="data?.vendorData?.presigned_url" (click)="imagePreview(data?.vendorData,'vendor')" />
+        <img class="max-h-[300px] w-full object-cover" [src]="data?.vendorData?.presigned_url"  />
+        <div
+            class="absolute inset-0 bg-black/70 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <img src="assets/svg-icons/magnifying-icon.svg" alt="" srcset="">
+        </div>
       </span>
       <div class="flex flex-col items-start gap-[5px] self-stretch">
         <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Latitude and Longitude</span>

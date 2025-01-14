@@ -3,7 +3,7 @@
         <div class="flex flex-col">
             <div
             #container
-            class="h-[700px] overflow-hidden relative resizable-image bg-secondary-heiglight flex justify-center items-center"
+            class="h-[700px] overflow-auto relative resizable-image bg-secondary-heiglight flex justify-center items-center"
           >
             @if (data?.images?.presigned_url) {
               <img
@@ -42,7 +42,7 @@
         <div class="flex flex-col">
             <div
             #container
-            class="h-[700px] overflow-hidden relative resizable-image bg-secondary-heiglight flex justify-center items-center"
+            class="h-[700px] overflow-auto relative resizable-image bg-secondary-heiglight flex justify-center items-center"
           >
             @if (data.images.data[currentIndex].presigned_url) {
               <img

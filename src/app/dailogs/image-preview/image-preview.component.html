@@ -26,11 +26,6 @@
           </div>      
             <div class="flex bg-primaryBg p-[15px] gap-[15px] items-center justify-between font-Barlow">
                 <div class="flex gap-[15px]">
-                    <div class="flex gap-[15px] h-[20px] items-center justify-between">
-                        <span class="cursor-pointer flex w-[20px] h-[20px]"><img src="assets/svg-icons/left-arrow-icon.svg" alt="" (click)="previousImage()"></span>
-                        <span class="cursor-pointer flex w-[20px] h-[20px]"><img src="assets/svg-icons/right-arrow-icon.svg" alt="" (click)="nextImage()"></span>
-                    </div>
-                    
                     <div class="flex gap-[15px]">
                         <span class="text-secondaryText font-medium leading-[18px]">{{ data?.images?.acquisition_datetime | dateFormat}}</span>
                         <span class=" text-secondaryText font-medium leading-[18px]">{{data?.images?.acquisition_datetime | timeFormat}}</span>

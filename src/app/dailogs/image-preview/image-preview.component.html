@@ -1,13 +1,28 @@
 <div class="dialog-content  bg-secondaryBg p-[15px]">
     <div class="flex flex-col">
-        <div class="resizable-image bg-secondary-heiglight flex justify-center items-center">
-            @if (data.images.data[currentIndex].presigned_url) {
-                <img  [src]="data?.images?.data[currentIndex]?.presigned_url" alt="Preview" class="resizable-image object-contain w-full">
-            } @else {
-                <span class="text-lg leading-6 font-semibold text-secondary-heiglight">Image not found</span>
-            }
-        </div>
-
+        <div
+        #container
+        class="h-[700px] overflow-hidden relative resizable-image bg-secondary-heiglight flex justify-center items-center"
+      >
+        @if (data.images.data[currentIndex].presigned_url) {
+          <img
+            [src]="data?.images?.data[currentIndex]?.presigned_url"
+            alt="Preview"
+            class="resizable-image object-contain w-full"
+            (click)="onClick($event)"
+            (mousedown)="onMouseDown($event)"
+            (mousemove)="mouseMoveHandler($event)"
+            (mouseup)="onMouseUp()"
+            (mouseleave)="onMouseUp()"
+            #img
+            style="cursor: zoom-in; width: 100%; transition: all 0.3s; position: absolute;height: -webkit-fill-available ;"
+          />
+        } @else {
+          <span class="text-lg leading-6 font-semibold text-secondary-heiglight">
+            Image not found
+          </span>
+        }
+      </div>      
         <div class="flex bg-primaryBg p-[15px] gap-[15px] items-center justify-between font-Barlow">
             <div class="flex gap-[15px]">
                 <div class="flex gap-[15px] h-[20px] items-center justify-between">

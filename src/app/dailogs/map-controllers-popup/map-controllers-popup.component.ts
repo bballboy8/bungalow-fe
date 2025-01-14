@@ -282,7 +282,7 @@ export class MapControllersPopupComponent implements OnInit {
       const text =  this.getPolygonCenter(data)
       // Create a temporary input element to copy text
       const inputElement = document.createElement('input');
-      inputElement.value = `${text?.lat.toFixed(4)}',' ${text?.lon.toFixed(4)}`;
+      inputElement.value = `${text?.lat.toFixed(4)},${text?.lon.toFixed(4)}`;
       document.body.appendChild(inputElement);
       inputElement.select();
       document.execCommand('copy');

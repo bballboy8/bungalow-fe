@@ -306,12 +306,12 @@
         <div class="w-[820px] overflow-auto browser-content" #scrollableDiv>
             <div class="flex flex-start all_wrap flex-wrap ml-[20px]">
                @if(dataSource?.data?.length){
-                <div *ngFor="let item of dataSource.data; let index = index" 
-                
+                <div *ngFor="let item of dataSource.data; let index = index"                 
                  class="bg-secondaryBg rounded-[5px] relative font-Barlow single_browse w-[182px]">
                 
-                    <div class="flex flex-col" >
-                        <div class="relative h-[220px] bg-[#232B32] w-[181.262px] group cursor-pointer" (mouseover)="onRowHover(item)"
+                    <div class="flex flex-col" 
+                        >
+                        <div [ngClass]="zoomed_captures_count > 0 && (index+1) == zoomed_captures_count  ? 'verticalLine':''" class="relative h-[220px] bg-[#232B32] w-[181.262px] group cursor-pointer" (mouseover)="onRowHover(item)"
                         (mouseout)="onRowHover(null)" (click)="openImagePreviewDialog(index)">
                             @if (item?.presigned_url) {
                                 <img [src]="item?.presigned_url" alt="Map" class="w-full h-full object-contain">
@@ -329,7 +329,7 @@
                             <span class="text-secondaryText text-xs font-bold">{{formatUtcTime(item?.acquisition_datetime)}}</span>
                         </div>
                     </div>
-                    <div [ngClass]="zoomed_captures_count > 0 && (index+1) == zoomed_captures_count  ? 'h-[1px] w-[800px] -bottom-[5px] bg-white absolute left-0':'hidden'"></div>
+                    <!-- <div [ngClass]="zoomed_captures_count > 0 && (index+1) == zoomed_captures_count  ? 'h-[1px] w-[800px] -bottom-[5px] bg-white absolute left-0':'hidden'"></div> -->
                 </div>
                } @else {
                 <div class="w-full flex justify-center items-center">

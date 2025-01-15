@@ -147,7 +147,7 @@
                     Avg
                 </span>
                 <span class="text-sm font-semibold leading-[18px] text-secondaryText">
-                    {{analyticsData?.average_per_day.toFixed(3)}}
+                    {{analyticsData?.average_per_day.toFixed(2)}}
                 </span>
             </div>
             <div
@@ -457,11 +457,11 @@
                                     <!-- <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Collection Date:
                                     </span> <span class="text-secondaryText">{{getDateTimeFormat(element?.acquisition_datetime)}}</span> </div> -->
                                     <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Off NADIR Angle: </span> <span
-                                        class="text-secondaryText">{{element?.sun_elevation.toFixed(3)}}°</span> 
+                                        class="text-secondaryText">{{element?.sun_elevation.toFixed(2)}}°</span> 
                                     </div>
                                     <div class="flex gap-2 py-2"> <span class="text-secondary-heiglight font-semibold">Centroid Lat: </span> <div
                                         class="flex gap-2" *ngFor="let center of element.centroid">
-                                        <span  class="text-secondaryText">{{center.toFixed(3)}}</span></div> 
+                                        <span  class="text-secondaryText">{{center.toFixed(2)}}</span></div> 
                                     </div>
                                 </div>
                             </div>

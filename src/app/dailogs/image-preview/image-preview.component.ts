@@ -26,11 +26,13 @@ export class ImagePreviewComponent implements OnInit,AfterViewInit {
   ) {}
   currentIndex:any;
   isZoomed = false;
-  isDragging = false;
+ isDragging = false;
   startX = 0;
   startY = 0;
   offsetX = 0;
   offsetY = 0;
+  scale = 1;
+  imgTransform = 'scale(1) translate(0px, 0px)';
 
   @ViewChild('container') 'container': ElementRef;
   @ViewChild('img') 'img': ElementRef;
@@ -93,47 +95,60 @@ export class ImagePreviewComponent implements OnInit,AfterViewInit {
 
     onClick(event: MouseEvent): void {
       this.isZoomed = !this.isZoomed;
-  
+    
       const imgElement = this.img.nativeElement;
       const containerElement = this.container.nativeElement;
-  
+    
       if (this.isZoomed) {
         const rect = containerElement.getBoundingClientRect();
         const clickX = event.clientX - rect.left;
         const clickY = event.clientY - rect.top;
-  
+    
         imgElement.style.transformOrigin = `${clickX}px ${clickY}px`;
-        imgElement.style.transform = 'scale(2)';
-        imgElement.style.cursor = 'zoom-out';
+        imgElement.style.transform = 'scale(3)';
       } else {
         imgElement.style.transform = 'scale(1)';
-        imgElement.style.cursor = 'zoom-in';
-        this.offsetX = 0;
-        this.offsetY = 0;
+        this.resetDragState();
       }
     }
-  
+    
     onMouseDown(event: MouseEvent): void {
       if (!this.isZoomed) return;
-  
+    
       this.isDragging = true;
       this.startX = event.clientX - this.offsetX;
       this.startY = event.clientY - this.offsetY;
     }
-  
+    
     mouseMoveHandler(event: MouseEvent): void {
       if (!this.isDragging) return;
-  
+    
       const imgElement = this.img.nativeElement;
-  
+    
       this.offsetX = event.clientX - this.startX;
       this.offsetY = event.clientY - this.startY;
-  
-      imgElement.style.transform = `scale(4) translate(${this.offsetX}px, ${this.offsetY}px)`;
+    
+      imgElement.style.transform = `scale(3) translate(${this.offsetX}px, ${this.offsetY}px)`;
     }
-  
+    
     onMouseUp(): void {
       this.isDragging = false;
+    }
+    
+    onMouseLeave(): void {
+      if (!this.isZoomed) return;
+      this.isDragging = false;
+    }
+    
+    onMouseEnter(): void {
+      // Re-enable dragging when mouse enters the container.
+      if (this.isZoomed) this.isDragging = false;
+    }
+    
+    private resetDragState(): void {
+      this.isDragging = false;
+      this.offsetX = 0;
+      this.offsetY = 0;
     }
 
     // adjustImageHeight() {

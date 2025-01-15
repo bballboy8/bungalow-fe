@@ -1097,6 +1097,9 @@ roundOff(value: number): number {
   return Math.round(value);
 }
 
+toDecimal(value:number){
+  return parseFloat(value.toFixed(2));
+}
 // On checkbox change
 onCheckboxChange(row: any) {
   console.log(row,'imageHoverViewimageHoverViewimageHoverViewimageHoverViewimageHoverView');

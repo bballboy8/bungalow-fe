@@ -175,7 +175,7 @@ export class MapControllersPopupComponent implements OnInit {
     }
 
     // Return null if the acquisition date is not within the last 24 hours
-    return dayjs(acquisition_datetime).format('DD.MM.YY');;
+    return dayjs(acquisition_datetime).format('DD.MM.YY HH:mm:ss');
   }
 
   //Function to generate circle plygon when marker added to the map

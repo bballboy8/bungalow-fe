@@ -203,10 +203,11 @@
                 <button (click)="selectPreviewMethod('table')"
                     class="text-xs leading-[18px] py-[9px] font-semibold my-[7px] mr-[10px] ml-[7px] rounded-[19px] px-[20px]"
                     [ngClass]="viewType ==='table'?'text-[#453303] bg-yellow':'text-secondary-heiglight'">Image Library
-                    {{total_count}}</button>
+                     {{viewType ==='table'? dataSource.data.length + ' / ':''}}{{viewType ==='table'?total_count:''}}</button>
                 <button (click)="selectPreviewMethod('browse')"
                     class="text-xs leading-[18px] py-[9px] font-semibold my-[7px] mr-[7px] rounded-[19px] px-[20px] "
-                    [ngClass]="viewType ==='browse'?'text-[#453303] bg-yellow':'text-secondary-heiglight'">Browse</button>
+                    [ngClass]="viewType ==='browse'?'text-[#453303] bg-yellow':'text-secondary-heiglight'">Browse
+                    {{viewType ==='browse'? dataSource.data.length + ' / ':''}}{{viewType ==='browse'?total_count:''}}</button>
             </div>
             <div class="Menu">
                 <div class="flex">
@@ -305,8 +306,11 @@
         <div class="w-[820px] overflow-auto browser-content" #scrollableDiv>
             <div class="flex flex-start all_wrap flex-wrap ml-[20px]">
                @if(dataSource?.data?.length){
-                <div *ngFor="let item of dataSource.data; let index = index" class="bg-secondaryBg rounded-[5px] font-Barlow single_browse w-[182px]">
-                    <div class="flex flex-col">
+                <div *ngFor="let item of dataSource.data; let index = index" 
+                
+                 class="bg-secondaryBg rounded-[5px] relative font-Barlow single_browse w-[182px]">
+                
+                    <div class="flex flex-col" >
                         <div class="relative h-[220px] bg-[#232B32] w-[181.262px] group cursor-pointer" (mouseover)="onRowHover(item)"
                         (mouseout)="onRowHover(null)" (click)="openImagePreviewDialog(index)">
                             @if (item?.presigned_url) {
@@ -325,6 +329,7 @@
                             <span class="text-secondaryText text-xs font-bold">{{formatUtcTime(item?.acquisition_datetime)}}</span>
                         </div>
                     </div>
+                    <div [ngClass]="zoomed_captures_count > 0 && (index+1) == zoomed_captures_count  ? 'h-[1px] w-[800px] -bottom-[5px] bg-white absolute left-0':'hidden'"></div>
                 </div>
                } @else {
                 <div class="w-full flex justify-center items-center">
@@ -353,7 +358,7 @@
                     
                     >
                         <mat-checkbox (click)="$event.stopPropagation()"
-                        (change)="expandedData(row)" [checked]="isRowSelected(row.id)"
+                        (change)="expandedData(row)" [checked]="isRowSelected(row.id) || matchedObject?.id === row.id"
                             [aria-label]="'Select Row'">
                         </mat-checkbox>
                         <span class="text-secondaryText font-Barlow">{{getFormattedDate(row?.acquisition_datetime) +' '+ formatUtcTime(row?.acquisition_datetime)}}</span>
@@ -383,7 +388,7 @@
                 <ng-container matColumnDef="Resolution">
                     <th mat-header-cell *matHeaderCellDef class="w-[90px] p-[10px] text-secondaryText font-semibold">
                         Resolution</th>
-                    <td mat-cell *matCellDef="let row" class="w-[90px] p-[10px] text-secondaryText">{{ row?.gsd }}
+                    <td mat-cell *matCellDef="let row" class="w-[90px] p-[10px] text-secondaryText">{{toDecimal(row?.gsd)}}m
                     </td>
                 </ng-container>
 
@@ -447,7 +452,7 @@
                                             class="text-secondaryText">{{element?.sensor}}</span> </div>
                                             <div class="flex py-2"> <span
                                                 class="text-secondary-heiglight font-semibold">GSD:</span> <span
-                                                class="text-secondaryText">{{element?.gsd}}</span> </div>
+                                                class="text-secondaryText">{{toDecimal(element?.gsd)}}m</span> </div>
                                     <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Area:
                                         </span> <span class="text-secondaryText">{{element?.area}}km²</span> </div>
                                     <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Geo

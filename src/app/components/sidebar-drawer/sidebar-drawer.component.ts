@@ -18,7 +18,19 @@ export class SidebarDrawerComponent implements OnInit {
   @Output() addMarkerToMap: EventEmitter<any> = new EventEmitter();
   private _startDate: any;
   private _endDate: any;
+  private _popUpData:any
+  @Input()
+  set popUpData(value: any) {
+    if (value !== this._popUpData) {
+      this._popUpData = value;
+      console.log('_popUpData _popUpData _popUpData:', this._popUpData);
+      // Add logic to handle the updated value, e.g., update calculations or UI
+    }
+  }
 
+  get popUpData(): any {
+    return this._popUpData;
+  }
   @Input()
   set startDate(value: any) {
     if (value !== this._startDate) {

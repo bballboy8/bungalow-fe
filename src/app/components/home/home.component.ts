@@ -128,6 +128,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
   zoomed_wkt_polygon:any = '';
   shapeType:string='';
   zoomed_status:boolean = false;
+  popUpData:any;
   constructor(@Inject(PLATFORM_ID) private platformId: Object,
    private satelliteService:SatelliteService,private dialog: MatDialog,
    private http: HttpClient,
@@ -844,6 +845,8 @@ if (data.vendor_name === 'planet') {
                 console.log(resp, 'Data received');
                 const vendorData = resp.data[0];
                 this.openDialogAtPosition(polygon, vendorData);
+                this.popUpData = vendorData
+
             },
             error: (err) => {
                 console.error("Error fetching polygon data: ", err);
@@ -1492,6 +1495,7 @@ private openDialogAtPosition(polygon: any, metadata: any): void {
 
   dialogRef.afterClosed().subscribe((result) => {
     console.log('Dialog closed', result);
+    this.popUpData = null
   });
 }
 

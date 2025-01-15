@@ -171,7 +171,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   @Output() addMarkerToMap: EventEmitter<any> = new EventEmitter();
   private _startDate: any;
   private _endDate: any;
-
+  matchedObject:any
   @Input()
   set startDate(value: any) {
     if (value !== this._startDate) {
@@ -293,6 +293,35 @@ set zoomed_wkt(value: string) {
     return this._zoomed_wkt;
   }
   formGroup: FormGroup;
+  private _popUpData:any
+  @Input()
+  set popUpData(value: any) {
+    if (value !== this._popUpData && value !== null) {
+      this._popUpData = value;
+      console.log('popUpData popUpData popUpData popUpData:', this._popUpData);
+      this.matchedObject = this.dataSource.data.find(item => item.id === this.popUpData?.id);
+
+      if (this.matchedObject) {
+        console.log('Matched Object:', this.matchedObject);
+        // Access the matched object's value as needed
+       // Replace 'value' with the actual key you need
+        this.isRowSelected(this.matchedObject.id)
+        this.expandedData(this.matchedObject)
+        console.log('Matched Value:', value);
+      } else {
+       
+        console.log('No matching object found');
+      }
+      
+      // Add logic to handle the updated value, e.g., update calculations or UI
+    } else {
+      this.matchedObject = null
+    }
+  }
+
+  get popUpData(): any {
+    return this._popUpData;
+  }
   constructor(
     private dialog: MatDialog,
     private sharedService: SharedService,
@@ -962,7 +991,7 @@ expandedData(data: any) {
   }
 
   // Check if the object with the given ID already exists in the array
-  const index = this.selectedObjects.findIndex(obj => obj.id === expandedElement.id);
+  const index = this.selectedObjects.findIndex(obj => obj?.id === expandedElement?.id);
 
   if (index === -1) {
     // If the object does not exist, push it to the array
@@ -1120,7 +1149,9 @@ private handleWheelEvent = (event: WheelEvent): void => {
 
 
   // Detect if at the bottom
-  const isAtBottom = div.scrollTop + div.clientHeight+0.5 >= div.scrollHeight;
+  const isAtBottom = div.scrollTop + div.clientHeight+120 >= div.scrollHeight;
+  console.log(isAtBottom,'isAtBottomisAtBottomisAtBottom');
+  
   // Only trigger if at the bottom and trying to scroll down
   if (isAtBottom && event.deltaY > 0 && this.canTriggerAction) {
     if (!this.isAtBottom) {
@@ -1234,7 +1265,7 @@ getDateTimeFormat(dateTime: string) {
   }
 
   isRowSelected(id: any): boolean {
-    return this.selectedObjects?.some(obj => obj.id === id);
+    return this.selectedObjects?.some(obj => obj?.id === id);
   }
   //Copy Table row data 
   copyData(data: any) {

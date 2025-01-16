@@ -145,7 +145,7 @@
                 <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Most recent</span>
             <div class="flex items-center gap-[5px] self-stretch">
                 <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-yellow w-full">{{getTimeIfWithin24Hours(data?.markerData?.newest_info?.acquisition_datetime)}}</span>
-                <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText">{{data?.markerData?.newest_info?.cloud_cover.toFixed(2)}}%</span>
+                <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText">{{roundOff(data?.markerData?.newest_info?.cloud_cover)}}%</span>
                 <span class="flex w-[15px] h-[15px] flex-col justify-center items-center gap-[10px]">
                     <img src="/assets/svg-icons/cloud-icon.svg" alt="" />
                 </span>

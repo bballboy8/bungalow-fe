@@ -146,7 +146,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
     "selectDate",
     "Sensor",
     "Vendor",
-    "Cover",
+    "Clouds",
     "Resolution",
     "type",
     "Id",
@@ -754,9 +754,9 @@ set zoomed_wkt(value: string) {
 
   getFormattedDate(date: Date): string {
     if (this.selectedZone =='UTC') {
-      return dayjs(date).utc().format('YYYY.MM.DD'); // Format for UTC
+      return dayjs(date).utc().format('YYYY-MM-DD'); // Format for UTC
     } else {
-      return dayjs(date).local().format('YYYY.MM.DD'); // Format for local time
+      return dayjs(date).local().format('YYYY-MM-DD'); // Format for local time
     }
   }
   formatUtcTime(payload: string | Date): string {

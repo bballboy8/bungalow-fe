@@ -52,6 +52,7 @@ import { stat } from "fs";
 import { OverlayContainer } from "@angular/cdk/overlay";
 import { MatDatepickerModule } from "@angular/material/datepicker";
 import { provideNativeDateAdapter } from "@angular/material/core";
+import { MatSelectModule } from "@angular/material/select";
 
 export class Group {
   name?: string;
@@ -100,6 +101,7 @@ export interface PeriodicElement {
     DateFormatPipe,
     MapCalendarComponent,
     MatDatepickerModule,
+    MatSelectModule
 ],
 providers: [provideNativeDateAdapter()],
   templateUrl: "./library.component.html",
@@ -322,6 +324,8 @@ set zoomed_wkt(value: string) {
   get popUpData(): any {
     return this._popUpData;
   }
+
+  vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra']
   constructor(
     private dialog: MatDialog,
     private sharedService: SharedService,

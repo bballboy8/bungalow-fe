@@ -188,8 +188,8 @@
                 </span>
                 <div class="absolute font-Barlow text-secondaryText group-hover:block hidden bg-primaryBg p-[5px]">
                     <div class="flex flex-col gap-[5px]">
-                        <span class="text-sm font-semibold leading-[18px]">Cur count: {{toDecimal(level.current_count)}}</span>
-                        <span class="text-sm font-semibold leading-[18px]">Pre count: {{toDecimal(level.previous_count)}}</span>
+                        <span class="text-sm font-semibold leading-[18px]">Current: {{toDecimal(level.current_count)}}</span>
+                        <span class="text-sm font-semibold leading-[18px]">Previous: {{toDecimal(level.previous_count)}}</span>
                     </div>    
                 </div>
             </div>
@@ -235,21 +235,25 @@
                             <form class="flex flex-col font-Barlow gap-[15px]" [formGroup]="formGroup" (ngSubmit)="onSubmit()">
                                 <span class="text-sm text-secondaryText font-Barlow font-bold leading-[18px]">Apply filters</span>
                                 <mat-form-field appearance="outline" id="filter" (click)="$event.stopPropagation()">
-                                    <mat-label>Vendor name</mat-label>
-                                    <input matInput type="text" formControlName="vendor">
+                                    <mat-label class="!text-secondaryText">Vendor name</mat-label>
+                                    <mat-select class="!text-secondaryText" formControlName="vendor" name="vendor">
+                                    @for (vendor of vendorsList; track vendor) {
+                                        <mat-option [value]="vendor">{{vendor}}</mat-option>
+                                    }
+                                    </mat-select>
                                 </mat-form-field>
                                 <mat-form-field appearance="outline" id="filter" (click)="$event.stopPropagation()">
-                                    <mat-label>Vendor ID</mat-label>
-                                    <input matInput type="text" formControlName="vendorId">
+                                    <mat-label class="!text-secondaryText">Vendor ID</mat-label>
+                                    <input class="!text-secondaryText" matInput type="text" formControlName="vendorId">
                                 </mat-form-field>
                                 <div class="flex gap-2">
                                     <mat-form-field class="w-1/2" appearance="outline" id="filter" (click)="$event.stopPropagation()">
-                                        <mat-label>Min Cloud Cover</mat-label>
-                                        <input matInput [max]="100" type="number" formControlName="min_cloud">
+                                        <mat-label class="!text-secondaryText">Min Cloud Cover</mat-label>
+                                        <input class="!text-secondaryText" matInput [max]="100" type="number" formControlName="min_cloud">
                                     </mat-form-field>
                                     <mat-form-field class="w-1/2" appearance="outline" id="filter" (click)="$event.stopPropagation()">
-                                        <mat-label>Max Cloud Cover</mat-label>
-                                        <input matInput [max]="100" type="number" formControlName="max_cloud">
+                                        <mat-label class="!text-secondaryText">Max Cloud Cover</mat-label>
+                                        <input class="!text-secondaryText" matInput [max]="100" type="number" formControlName="max_cloud">
                                     </mat-form-field>
                                 </div>
                                 <!-- <mat-form-field appearance="outline" id="filter" (click)="$event.stopPropagation()">
@@ -258,22 +262,22 @@
                                 </mat-form-field> -->
                                 <div class="flex gap-2">
                                     <mat-form-field class="w-1/2" appearance="outline" id="filter" (click)="$event.stopPropagation()">
-                                        <mat-label>Min Off NADIR Angle</mat-label>
-                                        <input matInput [max]="360" type="number" formControlName="min_angle">
+                                        <mat-label class="!text-secondaryText">Min Off NADIR Angle</mat-label>
+                                        <input class="!text-secondaryText" matInput [max]="360" type="number" formControlName="min_angle">
                                     </mat-form-field>
                                     <mat-form-field class="w-1/2" appearance="outline" id="filter" (click)="$event.stopPropagation()">
-                                        <mat-label>Max Off NADIR Angle</mat-label>
-                                        <input matInput [max]="360" type="number" formControlName="max_angle">
+                                        <mat-label class="!text-secondaryText">Max Off NADIR Angle</mat-label>
+                                        <input class="!text-secondaryText" matInput [max]="360" type="number" formControlName="max_angle">
                                     </mat-form-field>
                                 </div>
                                 <div class="flex gap-2">
-                                    <mat-form-field class="w-1/2" appearance="outline" id="filter" (click)="$event.stopPropagation()">
-                                        <mat-label>Min GSD</mat-label>
-                                        <input matInput [max]="100" type="number" formControlName="min_gsd">
+                                    <mat-form-field  class="w-1/2" appearance="outline" id="filter" (click)="$event.stopPropagation()">
+                                        <mat-label class="!text-secondaryText">Min GSD</mat-label>
+                                        <input class="!text-secondaryText" matInput [max]="100" type="number" formControlName="min_gsd">
                                     </mat-form-field>
                                     <mat-form-field class="w-1/2" appearance="outline" id="filter" (click)="$event.stopPropagation()">
-                                        <mat-label>Max GSD</mat-label>
-                                        <input matInput [max]="100" type="number" formControlName="max_gsd">
+                                        <mat-label class="!text-secondaryText">Max GSD</mat-label>
+                                        <input class="!text-secondaryText" matInput [max]="100" type="number" formControlName="max_gsd">
                                     </mat-form-field>
                                 </div>
                                 <!-- <mat-form-field appearance="outline" id="filter" (click)="$event.stopPropagation()">

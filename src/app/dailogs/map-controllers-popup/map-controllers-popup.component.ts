@@ -175,7 +175,7 @@ export class MapControllersPopupComponent implements OnInit {
     }
 
     // Return null if the acquisition date is not within the last 24 hours
-    return dayjs(acquisition_datetime).format('DD.MM.YY HH:mm:ss');
+    return dayjs(acquisition_datetime).format('DD.MM.YY');;
   }
 
   //Function to generate circle plygon when marker added to the map
@@ -278,7 +278,22 @@ export class MapControllersPopupComponent implements OnInit {
   copyToClipboard(data: any): void {
     console.log(data,'datadatadatadatadatadatadatadatadata');
     
-    if (data) {
+   if (data.distance) {
+      const text =  data
+      // Create a temporary input element to copy text
+      const inputElement = document.createElement('input');
+      inputElement.value = `${text?.latitude.toFixed(4)},${text?.longitude.toFixed(4)}`;
+      document.body.appendChild(inputElement);
+      inputElement.select();
+      document.execCommand('copy');
+      document.body.removeChild(inputElement);
+
+      // Optionally alert the user
+
+      this.snackBar.open('Copied successfully!', 'Ok', {
+        duration: 2000  // Snackbar will disappear after 300 milliseconds
+      });
+    } else if(data){
       const text =  this.getPolygonCenter(data)
       // Create a temporary input element to copy text
       const inputElement = document.createElement('input');
@@ -312,6 +327,10 @@ export class MapControllersPopupComponent implements OnInit {
 
   roundOff(value: number): number {
     return Math.round(value);
+  }
+
+  toDecimal(value:number){
+    return parseFloat(value.toFixed(4));
   }
 
   getPolygonCenter(coordinates: number[][]): { lat: number; lon: number } | null {

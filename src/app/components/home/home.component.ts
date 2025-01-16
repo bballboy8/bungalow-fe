@@ -202,32 +202,41 @@ hybridLayer:L.TileLayer = L.tileLayer(
 
   //openstreetmap search and location markers function
   onSearchLocation(result: google.maps.places.PlaceResult) {
-
-
-   
+    // Remove existing markers from the map
     this.map.eachLayer((layer) => {
       if (layer instanceof L.Marker) {
         this.map.removeLayer(layer);
       }
     });
-
+  
+    // Get the latitude and longitude of the searched location
     const lat = result.geometry?.location?.lat()!;
     const lng = result.geometry?.location?.lng()!;
+  
     // Move the map to the searched location
     this.map.setView([lat, lng], this.zoomLevel);
+  
+    // Define the custom marker icon
     const markerIcon = L.icon({
       iconUrl: 'assets/svg-icons/pin-location-icon.svg',  // Adjust the path if necessary
       iconSize: [25, 41],  // Adjust the icon size
       iconAnchor: [12, 41],
       popupAnchor: [1, -34],
     });
-
-    
-    // Add a marker to the map
+  
+    // Add a marker to the map without auto-opening the popup
     const marker = L.marker([lat, lng], { icon: markerIcon }).addTo(this.map);
-    // Optionally bind a popup to the marker
-    marker.bindPopup(`<b>Location:</b> ${result.formatted_address}`).openPopup();
+  
+    // Bind the popup to the marker but do not open it automatically
+    const popupContent = `<b>Latitude:</b> ${lat.toFixed(4)} <b>Longitude</b> ${lng.toFixed(4)} `;
+    marker.bindPopup(popupContent);
+  
+    // Add a click event listener to open the popup
+    marker.on('click', () => {
+      marker.openPopup();
+    });
   }
+  
 
   //openstreetmap initialization
   private initMap(): void {
@@ -830,7 +839,10 @@ if (data.vendor_name === 'planet') {
     // Attach the click event to open the component dialog
     polygon.on('click', (event: L.LeafletMouseEvent) => {
         const clickedPosition = event.latlng; // Get the clicked position
-  
+        if (this.currentAction === 'location') {
+          console.log('Handle action is location, dialog will not open.');
+          return; // Prevent dialog from opening
+      }
         // Convert clicked position to pixel position relative to the map
         const containerPoint = this.map.latLngToContainerPoint(clickedPosition);
         let queryParams = {

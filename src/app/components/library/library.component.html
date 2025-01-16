@@ -172,7 +172,7 @@
 
         <div class="mx-[15px] flex font-Barlow">
             <div *ngFor="let level of percentageArray;let isLast = last"
-                class="w-[182px] flex p-[10px] flex-col gap-1 my-3 text-center items-center justify-center font-Barlow"
+                class="w-[182px] group relative flex p-[10px] flex-col gap-1 my-3 text-center items-center justify-center font-Barlow"
                 [ngClass]="{ 'border-r-[2px] border-[#2D343D]': !isLast }">
 
                 <div class="custom-progress-container">
@@ -186,7 +186,14 @@
                     <img [src]="level.current_count >=level.previous_count?'assets/svg-icons/up-icon.svg' :'assets/svg-icons/down-icon.svg'"
                         alt="up_icon" class="ml-1" />
                 </span>
+                <div class="absolute font-Barlow text-secondaryText group-hover:block hidden bg-primaryBg p-[5px]">
+                    <div class="flex flex-col gap-[5px]">
+                        <span class="text-sm font-semibold leading-[18px]">Cur count: {{toDecimal(level.current_count)}}</span>
+                        <span class="text-sm font-semibold leading-[18px]">Pre count: {{toDecimal(level.previous_count)}}</span>
+                    </div>    
+                </div>
             </div>
+            
         </div>
     </div>
     } @else {

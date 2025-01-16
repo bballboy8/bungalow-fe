@@ -228,13 +228,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
     const marker = L.marker([lat, lng], { icon: markerIcon }).addTo(this.map);
   
     // Bind the popup to the marker but do not open it automatically
-    const popupContent = `<b>Latitude:</b> ${lat.toFixed(4)} <b>Longitude</b> ${lng.toFixed(4)} `;
-    marker.bindPopup(popupContent);
-  
-    // Add a click event listener to open the popup
-    marker.on('click', () => {
-      marker.openPopup();
-    });
+    marker.bindPopup(`<b>Location:</b> ${result.formatted_address}`).openPopup()
   }
   
 

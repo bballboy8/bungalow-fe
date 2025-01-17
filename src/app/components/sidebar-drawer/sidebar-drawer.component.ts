@@ -16,6 +16,7 @@ export class SidebarDrawerComponent implements OnInit {
   @Output() closeSidebar = new EventEmitter<boolean>();
   @Output() notifyParent: EventEmitter<any> = new EventEmitter();
   @Output() addMarkerToMap: EventEmitter<any> = new EventEmitter();
+  @Output() parentFilter:EventEmitter<any> = new EventEmitter();
   private _startDate: any;
   private _endDate: any;
   private _popUpData:any
@@ -93,5 +94,9 @@ get zoomed_wkt(): string {
 
   highlightData(data:any){
     this.rowHoveredData.emit(data)
+  }
+
+  parentDataFilter(data:any){
+    this.parentFilter.emit(data)
   }
 }

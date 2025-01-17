@@ -317,6 +317,26 @@ hybridLayer:L.TileLayer = L.tileLayer(
     //      console.log('WKT of the zoomed polygon:', wkt);
     // }
     // });
+
+    // Add right-click event listener
+    this.map.on('contextmenu', (event: L.LeafletMouseEvent) => {
+      const { lat, lng } = event.latlng;
+
+      // Format the coordinates
+      const coords = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+
+      // Try to copy using Clipboard API
+      navigator.clipboard.writeText(coords).then(() => {
+        this._snackBar.open("Latitude and Longitude copied to clipboard!", "Ok", {
+          duration: 2000, // Snackbar will disappear after 300 milliseconds
+        });
+        console.log(`Copied coordinates: ${coords}`);
+      }).catch((err) => {
+        console.error('Clipboard API failed. Falling back to execCommand:', err);
+        // Fallback method
+        this.fallbackCopyToClipboard(coords);
+      });
+    });
   
     // Add mousemove event to track coordinates
     this.map.on('mousemove', (event: L.LeafletMouseEvent) => {
@@ -424,6 +444,35 @@ hybridLayer:L.TileLayer = L.tileLayer(
     this.map.off('add');
     this.map.off('click');
   }
+
+  // Fallback method to copy text
+private fallbackCopyToClipboard(text: string): void {
+  // Create a temporary textarea element
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.style.position = 'fixed'; // Prevent scrolling to the textarea
+  textarea.style.opacity = '0'; // Make it invisible
+  document.body.appendChild(textarea);
+
+  // Select and copy the text
+  textarea.select();
+  try {
+    const successful = document.execCommand('copy');
+    if (successful) {
+      this._snackBar.open("Latitude and Longitude copied to clipboard!", "Ok", {
+        duration: 2000, // Snackbar will disappear after 300 milliseconds
+      });
+      console.log(`Copied coordinates (fallback): ${text}`);
+    } else {
+      console.error('Fallback copy failed');
+    }
+  } catch (err) {
+    console.error('Fallback copy failed:', err);
+  }
+
+  // Clean up the textarea element
+  document.body.removeChild(textarea);
+}
   
   
   private adjustMapCenter(containerWidth: number): void {
@@ -1892,6 +1941,11 @@ wktToBounds(wkt: string): L.LatLngBounds {
       });
       this.imageOverlays.clear(); // Clear the map to remove all stored overlays
     }
+  }
+
+  //Map data filtering functionality
+  filterData(queryParams:any){
+    this.getDataUsingPolygon(this.data,queryParams);
   }
 
 }

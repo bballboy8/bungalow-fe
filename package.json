@@ -9,6 +9,7 @@
   },
   "private": true,
   "dependencies": {
+    "@angular-slider/ngx-slider": "^18.0.0",
     "@angular/animations": "^18.2.13",
     "@angular/cdk": "^18.2.14",
     "@angular/common": "^18.2.13",
@@ -37,7 +38,6 @@
     "tslib": "^2.3.0",
     "typescript": "^5.5.4",
     "zone.js": "~0.14.3"
-    
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^18.2.12",

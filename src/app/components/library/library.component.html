@@ -399,7 +399,7 @@
                 <ng-container matColumnDef="Resolution">
                     <th mat-header-cell *matHeaderCellDef class="w-[90px] p-[10px] text-secondaryText font-semibold">
                         Resolution</th>
-                    <td mat-cell *matCellDef="let row" class="w-[90px] p-[10px] text-secondaryText">{{toDecimal(row?.gsd)}}m
+                    <td mat-cell *matCellDef="let row" class="w-[90px] p-[10px] text-secondaryText">{{roundOff(row?.gsd)}}m
                     </td>
                 </ng-container>
 
@@ -463,7 +463,7 @@
                                             class="text-secondaryText">{{element?.sensor}}</span> </div>
                                             <div class="flex py-2"> <span
                                                 class="text-secondary-heiglight font-semibold">GSD:</span> <span
-                                                class="text-secondaryText">{{toDecimal(element?.gsd)}}m</span> </div>
+                                                class="text-secondaryText">{{roundOff(element?.gsd)}}m</span> </div>
                                     <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Area:
                                         </span> <span class="text-secondaryText">{{element?.area}}km²</span> </div>
                                     <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Geo

@@ -1097,8 +1097,8 @@ ngOnDestroy(): void {
 }
 
 // Round off value
-roundOff(value: number): number {
-  return Math.round(value);
+roundOff(value: number): any {
+    return Math.round(value);
 }
 
 toDecimal(value:number){

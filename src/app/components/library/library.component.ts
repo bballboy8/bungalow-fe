@@ -171,6 +171,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   @ViewChild(MatMenuTrigger) menuTrigger!: MatMenuTrigger;
   @Output() notifyParent: EventEmitter<any> = new EventEmitter();
   @Output() addMarkerToMap: EventEmitter<any> = new EventEmitter();
+  @Output() onFilterset: EventEmitter<any> = new EventEmitter();
   private _startDate: any;
   private _endDate: any;
   matchedObject:any
@@ -621,6 +622,7 @@ set zoomed_wkt(value: string) {
     this.loader = true
       this.ngxLoader.start(); // Start the loader
     this.getSatelliteCatalog(payload,queryParams)
+    this.onFilterset.emit({params: queryParams, payload});
   }
 
   /** Whether the number of selected elements matches the total number of rows. */
@@ -1348,6 +1350,7 @@ getDateTimeFormat(dateTime: string) {
       const payload = {
         wkt_polygon: this.polygon_wkt
       }
+      this.onFilterset.emit({params, payload});
      setTimeout(() => {
       this.loader = true
       this.ngxLoader.start(); // Start the loader

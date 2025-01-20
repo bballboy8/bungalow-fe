@@ -236,7 +236,7 @@
                                 <span class="text-sm text-secondaryText font-Barlow font-bold leading-[18px]">Apply filters</span>
                                 <mat-form-field appearance="outline" id="filter" (click)="$event.stopPropagation()">
                                     <mat-label class="!text-secondaryText">Vendor name</mat-label>
-                                    <mat-select class="!text-secondaryText" formControlName="vendor" name="vendor">
+                                    <mat-select class="!text-secondaryText" multiple formControlName="vendor" name="vendor">
                                     @for (vendor of vendorsList; track vendor) {
                                         <mat-option [value]="vendor">{{vendor}}</mat-option>
                                     }

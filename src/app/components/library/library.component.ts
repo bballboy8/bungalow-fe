@@ -191,7 +191,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
         max_off_nadir_angle: this.formGroup.get('max_angle')?.value?this.formGroup.get('max_angle').value:360,
         min_off_nadir_angle:this.formGroup.get('min_angle')?.value ?this.formGroup.get('min_angle').value:0,
         vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
-        vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value:'',
+        vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value.join(','):'',
         max_gsd:this.formGroup.get('max_gsd')?.value ? this.formGroup.get('max_gsd')?.value:100,
         min_gsd:this.formGroup.get('min_gsd')?.value ? this.formGroup.get('min_gsd')?.value:0
       }
@@ -265,7 +265,7 @@ set zoomed_wkt(value: string) {
           max_off_nadir_angle: this.formGroup.get('max_angle')?.value?this.formGroup.get('max_angle').value:360,
           min_off_nadir_angle:this.formGroup.get('min_angle')?.value ?this.formGroup.get('min_angle').value:0,
           vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
-          vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value:'',
+          vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value.join(','):'',
           max_gsd:this.formGroup.get('max_gsd')?.value ? this.formGroup.get('max_gsd')?.value:100,
           min_gsd:this.formGroup.get('min_gsd')?.value ? this.formGroup.get('min_gsd')?.value:0
         };
@@ -415,7 +415,7 @@ set zoomed_wkt(value: string) {
         max_off_nadir_angle: this.formGroup.get('max_angle')?.value?this.formGroup.get('max_angle').value:360,
         min_off_nadir_angle:this.formGroup.get('min_angle')?.value ?this.formGroup.get('min_angle').value:0,
         vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
-        vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value:'',
+        vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value.join(','):'',
         max_gsd:this.formGroup.get('max_gsd')?.value ? this.formGroup.get('max_gsd')?.value:100,
         min_gsd:this.formGroup.get('min_gsd')?.value ? this.formGroup.get('min_gsd')?.value:0
         
@@ -492,7 +492,7 @@ set zoomed_wkt(value: string) {
           max_off_nadir_angle: this.formGroup.get('max_angle')?.value?this.formGroup.get('max_angle').value:360,
           min_off_nadir_angle:this.formGroup.get('min_angle')?.value ?this.formGroup.get('min_angle').value:0,
           vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
-          vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value:'',
+          vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value.join(','):'',
           max_gsd:this.formGroup.get('max_gsd')?.value ? this.formGroup.get('max_gsd')?.value:100,
           min_gsd:this.formGroup.get('min_gsd')?.value ? this.formGroup.get('min_gsd')?.value:0
         }
@@ -525,7 +525,7 @@ set zoomed_wkt(value: string) {
           max_off_nadir_angle: this.formGroup.get('max_angle')?.value?this.formGroup.get('max_angle').value:360,
           min_off_nadir_angle:this.formGroup.get('min_angle')?.value ?this.formGroup.get('min_angle').value:0,
           vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
-          vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value:'',
+          vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value.join(','):'',
           max_gsd:this.formGroup.get('max_gsd')?.value ? this.formGroup.get('max_gsd')?.value:100,
           min_gsd:this.formGroup.get('min_gsd')?.value ? this.formGroup.get('min_gsd')?.value:0
         }
@@ -554,7 +554,7 @@ set zoomed_wkt(value: string) {
           max_off_nadir_angle: this.formGroup.get('max_angle')?.value?this.formGroup.get('max_angle').value:360,
           min_off_nadir_angle:this.formGroup.get('min_angle')?.value ?this.formGroup.get('min_angle').value:0,
           vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
-          vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value:'',
+          vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value.join(','):'',
           max_gsd:this.formGroup.get('max_gsd')?.value ? this.formGroup.get('max_gsd')?.value:100,
           min_gsd:this.formGroup.get('min_gsd')?.value ? this.formGroup.get('min_gsd')?.value:0
         }
@@ -1183,7 +1183,7 @@ private handleWheelEvent = (event: WheelEvent): void => {
         max_off_nadir_angle: this.formGroup.get('max_angle')?.value?this.formGroup.get('max_angle').value:360,
         min_off_nadir_angle:this.formGroup.get('min_angle')?.value ?this.formGroup.get('min_angle').value:0,
         vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
-        vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value:'',
+        vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value.join(','):'',
         max_gsd:this.formGroup.get('max_gsd')?.value ? this.formGroup.get('max_gsd')?.value:100,
         min_gsd:this.formGroup.get('min_gsd')?.value ? this.formGroup.get('min_gsd')?.value:0
       }
@@ -1342,7 +1342,7 @@ getDateTimeFormat(dateTime: string) {
         page_size:20,
         source:'library',
         vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
-        vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value:'',
+        vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value.join(','):'',
         max_gsd:this.formGroup.get('max_gsd')?.value ? this.formGroup.get('max_gsd')?.value:100,
         min_gsd:this.formGroup.get('min_gsd')?.value ? this.formGroup.get('min_gsd')?.value:0
       }

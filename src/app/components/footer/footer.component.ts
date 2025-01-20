@@ -75,20 +75,29 @@ export class FooterComponent implements OnInit {
   // EventEmitter to send the close event to the parent
   constructor(private dialog: MatDialog) {
     const now = dayjs().utc();
+    console.log(now.format("YYYY-MM-DD"),'nownownownownow',now.format("HH:mm:ss"));
+    
+    // Start of yesterday
     this.startDate = now.subtract(1, "day").startOf("day").format("YYYY-MM-DD");
-    // End of the previous day
-    this.endDate = now.subtract(1, "day").endOf("day").format("YYYY-MM-DD");
-    this.endTime = now.subtract(1, "day").endOf("day").format("HH:mm:ss");
-    this.startTime = now.subtract(1, "day").startOf("day").format("HH:mm:ss ");
+    this.startTime = now.subtract(1, "day").startOf("day").format("HH:mm:ss");
+
+    // Current date and time
+    this.endDate = now.format("YYYY-MM-DD");
+    this.endTime = now.format("HH:mm:ss");
+
   }
 
   ngOnInit(): void {
     const now = dayjs().utc();
+    console.log(now.format("YYYY-MM-DD"),'nownownownownow',now.format("HH:mm:ss"));
+    // Start of yesterday
     this.startDate = now.subtract(1, "day").startOf("day").format("YYYY-MM-DD");
-    // End of the previous day
-    this.endDate = now.subtract(1, "day").endOf("day").format("YYYY-MM-DD");
-    this.endTime = now.subtract(1, "day").endOf("day").format("HH:mm:ss");
-    this.startTime = now.subtract(1, "day").startOf("day").format("HH:mm:ss ");
+    this.startTime = now.subtract(1, "day").startOf("day").format("HH:mm:ss");
+    
+    // Current date and time
+    this.endDate = now.format("YYYY-MM-DD");
+    this.endTime = now.format("HH:mm:ss");
+    
     console.log(this.startDate, "startTimestartTimestartTime");
   }
 

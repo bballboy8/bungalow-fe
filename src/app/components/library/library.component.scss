@@ -255,6 +255,24 @@
   .mat-mdc-select-arrow svg{
     fill: #ABB7C0 !important;
   }
+
+  
+}
+
+::ng-deep {
+  div.mat-mdc-select-panel{
+    background-color: #20272D !important;
+    box-shadow: 5px 5px 5px 0px #0000001a !important;
+  }
+  .mdc-list-item__primary-text {
+    color: #ABB7C0 !important;
+  }
+  .mat-pseudo-checkbox-full {
+    border-color: #4A5863 !important;
+  }
+  .mat-pseudo-checkbox-full.mat-pseudo-checkbox-checked {
+    background-color: #FCCA40 !important;
+  }
 }
 
 ::ng-deep .filter-overlay-container{
@@ -268,6 +286,7 @@
     top: 120px !important;
     left: 155px !important;
     width: 350px !important;
+    height: 480px !important;
   }
   .cdk-overlay-pane {
     width: 100%;
@@ -275,4 +294,53 @@
     top: 0px !important;
   }
   
+}
+
+::ng-deep {
+  .custom-slider .ngx-slider .ngx-slider-bar {
+    background: #ABB7C0;
+    height: 5px;
+  }
+
+  // .custom-slider .ngx-slider {
+  //   width: 98% !important;
+  // }
+  .custom-slider .ngx-slider .ngx-slider-selection {
+    background: #FCCA40;
+  }
+
+  .custom-slider .ngx-slider .ngx-slider-pointer {
+    width: 8px;
+    height: 22px;
+    top: auto; /* to remove the default positioning */
+    bottom: -10px;
+    background-color: #ABB7C0;
+    border-radius: 5px;
+  }
+
+  .custom-slider .ngx-slider .ngx-slider-pointer:after {
+    display: none;
+  }
+
+  .custom-slider .ngx-slider .ngx-slider-bubble {
+    bottom: 14px;
+  }
+
+  .custom-slider .ngx-slider .ngx-slider-limit {
+    font-weight: bold;
+    color: #FCCA40;
+  }
+
+  .custom-slider .ngx-slider .ngx-slider-tick {
+    width: 1px;
+    height: 10px;
+    margin-left: 4px;
+    border-radius: 0;
+    background: #ABB7C0;
+    top: -1px;
+  }
+
+  .custom-slider .ngx-slider .ngx-slider-tick.ngx-slider-selected {
+    background: #FCCA40;
+  }
 }

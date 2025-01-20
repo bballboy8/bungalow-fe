@@ -151,6 +151,35 @@ export class ImagePreviewComponent implements OnInit,AfterViewInit {
       this.offsetY = 0;
     }
 
+    // Round off value
+    roundOff(value: number): any {
+      return Math.round(value);
+    }
+
+    toDecimal(value:number){
+    return value.toFixed(2);
+    }
+
+    //Getting time in Day sessions
+    getTimePeriod(datetime: string): string {
+      
+      const utcDate = dayjs(datetime).utc();
+  
+      // Get the hour in UTC
+      const hours = utcDate.hour();
+    
+      // Determine the time period based on the UTC hour
+      if (hours >= 5 && hours < 11) {
+        return "Morning";
+      } else if (hours >= 11 && hours < 16) {
+        return "Midday";
+      } else if (hours >= 16 && hours < 21) {
+        return "Evening";
+      } else {
+        return "Overnight";
+      }
+    }
+
     // adjustImageHeight() {
     //   const dialogContainer = document.querySelector('.dialog-content');
     //   const image = document.querySelector('.resizable-image') as HTMLImageElement;

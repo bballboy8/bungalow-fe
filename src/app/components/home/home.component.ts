@@ -321,22 +321,58 @@ hybridLayer:L.TileLayer = L.tileLayer(
     // Add right-click event listener
     this.map.on('contextmenu', (event: L.LeafletMouseEvent) => {
       const { lat, lng } = event.latlng;
-
-      // Format the coordinates
       const coords = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-
-      // Try to copy using Clipboard API
-      navigator.clipboard.writeText(coords).then(() => {
-        this._snackBar.open("Latitude and Longitude copied to clipboard!", "Ok", {
-          duration: 2000, // Snackbar will disappear after 300 milliseconds
+    
+      // Create a context menu if it doesn't exist
+      let contextMenu = document.getElementById('context-menu');
+      if (!contextMenu) {
+        contextMenu = document.createElement('div');
+        contextMenu.id = 'context-menu';
+        contextMenu.style.position = 'absolute';
+        contextMenu.style.zIndex = '1000';
+        contextMenu.style.backgroundColor = '#20272D';
+        contextMenu.style.border = '1px solid #20272D';
+        contextMenu.style.padding = '5px';
+        contextMenu.style.boxShadow = '0px 2px 1px 0px rgba(0, 0, 0, 0.50)';
+        contextMenu.style.cursor = 'pointer';
+        document.body.appendChild(contextMenu);
+    
+        // Add menu option
+        const menuOption = document.createElement('div');
+        menuOption.textContent = 'Copy lat/lng coordinates';
+        menuOption.style.padding = '5px';
+        menuOption.style.whiteSpace = 'nowrap';
+        menuOption.style.fontSize = '14px';
+        menuOption.style.color = '#ABB7C0'
+    
+        menuOption.addEventListener('click', () => {
+          navigator.clipboard.writeText(coords).then(() => {
+            this._snackBar.open('Latitude and Longitude copied to clipboard!', 'Ok', {
+              duration: 2000,
+            });
+          }).catch((err) => {
+            console.error('Clipboard API failed. Falling back to execCommand:', err);
+            this.fallbackCopyToClipboard(coords);
+          });
+    
+          // Hide the context menu
+          contextMenu.style.display = 'none';
         });
-        console.log(`Copied coordinates: ${coords}`);
-      }).catch((err) => {
-        console.error('Clipboard API failed. Falling back to execCommand:', err);
-        // Fallback method
-        this.fallbackCopyToClipboard(coords);
+    
+        contextMenu.appendChild(menuOption);
+      }
+    
+      // Position and show the context menu
+      contextMenu.style.left = `${event.originalEvent.pageX}px`;
+      contextMenu.style.top = `${event.originalEvent.pageY}px`;
+      contextMenu.style.display = 'block';
+    
+      // Hide the menu on any other click
+      this.map.once('click', () => {
+        contextMenu.style.display = 'none';
       });
     });
+    
   
     // Add mousemove event to track coordinates
     this.map.on('mousemove', (event: L.LeafletMouseEvent) => {

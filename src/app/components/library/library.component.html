@@ -231,7 +231,7 @@
                         <button class="py-[9px] px-[20px] my-0 ml-[8px] rounded-[19px] bg-primaryBg" (click)="setFilterClass()" [matMenuTriggerFor]="filter">
                             <img src="assets/svg-icons/filter-icon.svg" alt="">
                         </button>
-                        <mat-menu class="bg-primaryBg p-[15px]" #filter="matMenu" id="filter">
+                        <mat-menu class="bg-primaryBg p-[15px]" #filter="matMenu" id="filter" (closed)="onMenuClose()">
                             <form class="flex flex-col font-Barlow gap-[15px]" [formGroup]="formGroup" (ngSubmit)="onSubmit()">
                                 <span class="text-sm text-secondaryText font-Barlow font-bold leading-[18px]">Apply filters</span>
                                 <mat-form-field appearance="outline" id="filter" (click)="$event.stopPropagation()">
@@ -255,7 +255,7 @@
                                         <mat-label class="!text-secondaryText">Max Cloud Cover</mat-label>
                                         <input class="!text-secondaryText" matInput [max]="100" type="number" formControlName="max_cloud">
                                     </mat-form-field> -->
-                                    <ngx-slider [(value)]="min_cloud" [(highValue)]="max_cloud" [options]="options"></ngx-slider>
+                                    <ngx-slider *ngIf="sliderShow" #sliderElement [(value)]="min_cloud" [(highValue)]="max_cloud" [options]="options"></ngx-slider>
                                 </div>
                                 <!-- <mat-form-field appearance="outline" id="filter" (click)="$event.stopPropagation()">
                                     <mat-label>GSD</mat-label>
@@ -270,9 +270,9 @@
                                         <mat-label class="!text-secondaryText">Max Off NADIR Angle</mat-label>
                                         <input class="!text-secondaryText" matInput [max]="360" type="number" formControlName="max_angle">
                                     </mat-form-field> -->
-                                    <ngx-slider [(value)]="min_angle" [(highValue)]="max_angle" [options]="angleOptions"></ngx-slider>
+                                    <ngx-slider *ngIf="sliderShow" #sliderElement [(value)]="min_angle" [(highValue)]="max_angle" [options]="angleOptions"></ngx-slider>
                                 </div>
-                                <div class="flex gap-2 custom-slider">
+                                <div class="flex gap-2 custom-slider" (click)="$event.stopPropagation()">
                                     <!-- <mat-form-field  class="w-1/2" appearance="outline" id="filter" (click)="$event.stopPropagation()">
                                         <mat-label class="!text-secondaryText">Min GSD</mat-label>
                                         <input class="!text-secondaryText" matInput [max]="100" type="number" formControlName="min_gsd">
@@ -281,7 +281,7 @@
                                         <mat-label class="!text-secondaryText">Max GSD</mat-label>
                                         <input class="!text-secondaryText" matInput [max]="100" type="number" formControlName="max_gsd">
                                     </mat-form-field> -->
-                                    <ngx-slider [(value)]="min_gsd" [(highValue)]="max_gsd" [options]="options"></ngx-slider>
+                                    <ngx-slider *ngIf="sliderShow" #sliderElement [(value)]="min_gsd" [(highValue)]="max_gsd" [options]="options"></ngx-slider>
                                 </div>
                                 <!-- <mat-form-field appearance="outline" id="filter" (click)="$event.stopPropagation()">
                                     <mat-label>Start date</mat-label>

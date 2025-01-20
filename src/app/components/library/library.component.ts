@@ -9,7 +9,9 @@ import {
   OnDestroy,
   OnInit,
   Output,
+  QueryList,
   Renderer2,
+  ViewChildren,
 } from "@angular/core";
 import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -346,7 +348,8 @@ set zoomed_wkt(value: string) {
     ceil: 360,
   };
   min_gsd:number =0;
-  max_gsd:number =100
+  max_gsd:number =100;
+  @ViewChildren('sliderElement') sliderElements!: QueryList<ElementRef>;
   constructor(
     private dialog: MatDialog,
     private sharedService: SharedService,
@@ -1336,6 +1339,7 @@ getDateTimeFormat(dateTime: string) {
     return index;
   }
   
+  sliderShow:boolean = false;
   //Overlay container customization class add functionality
   setClass(){
     const containerElement = this.overlayContainer.getContainerElement();
@@ -1345,6 +1349,19 @@ getDateTimeFormat(dateTime: string) {
   setFilterClass(){
     const containerElement = this.overlayContainer.getContainerElement();
     containerElement.classList.add('filter-overlay-container');
+    setTimeout(()=>{
+      this.sliderShow = true;
+      // Apply styles to each slider element
+      const sliders = document.querySelectorAll('.ngx-slider');
+    sliders.forEach((slider) => {
+      this.renderer.setStyle(slider, 'width', '100%');
+    });
+    },100)
+    
+  }
+
+  onMenuClose(){
+    this.sliderShow = false;
   }
 
   //Filter Form submit functionality

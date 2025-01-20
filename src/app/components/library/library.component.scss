@@ -255,6 +255,24 @@
   .mat-mdc-select-arrow svg{
     fill: #ABB7C0 !important;
   }
+
+  
+}
+
+::ng-deep {
+  div.mat-mdc-select-panel{
+    background-color: #20272D !important;
+    box-shadow: 5px 5px 5px 0px #0000001a !important;
+  }
+  .mdc-list-item__primary-text {
+    color: #ABB7C0 !important;
+  }
+  .mat-pseudo-checkbox-full {
+    border-color: #4A5863 !important;
+  }
+  .mat-pseudo-checkbox-full.mat-pseudo-checkbox-checked {
+    background-color: #FCCA40 !important;
+  }
 }
 
 ::ng-deep .filter-overlay-container{
@@ -282,6 +300,10 @@
     background: #ABB7C0;
     height: 5px;
   }
+
+  // .custom-slider .ngx-slider {
+  //   width: 98% !important;
+  // }
   .custom-slider .ngx-slider .ngx-slider-selection {
     background: #FCCA40;
   }

@@ -176,6 +176,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   @Output() notifyParent: EventEmitter<any> = new EventEmitter();
   @Output() addMarkerToMap: EventEmitter<any> = new EventEmitter();
   @Output() parentFilter:EventEmitter<any> = new EventEmitter();
+  @Output() onFilterset: EventEmitter<any> = new EventEmitter();
   private _startDate: any;
   private _endDate: any;
   matchedObject:any
@@ -641,6 +642,7 @@ set zoomed_wkt(value: string) {
     this.loader = true
       this.ngxLoader.start(); // Start the loader
     this.getSatelliteCatalog(payload,queryParams)
+    this.onFilterset.emit({params: queryParams, payload});
   }
 
   /** Whether the number of selected elements matches the total number of rows. */
@@ -1117,12 +1119,12 @@ ngOnDestroy(): void {
 }
 
 // Round off value
-roundOff(value: number): number {
-  return Math.round(value);
+roundOff(value: number): any {
+    return Math.round(value);
 }
 
 toDecimal(value:number){
-  return parseFloat(value.toFixed(2));
+  return value.toFixed(2);
 }
 // On checkbox change
 onCheckboxChange(row: any) {
@@ -1381,6 +1383,7 @@ getDateTimeFormat(dateTime: string) {
         min_gsd:this.min_gsd
       }
       this.parentFilter.emit(queryParams)
+      this.onFilterset.emit({params, payload});
      setTimeout(() => {
       this.loader = true
       this.ngxLoader.start(); // Start the loader

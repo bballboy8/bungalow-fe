@@ -921,6 +921,14 @@ if (data.vendor_name === 'planet') {
     console.log('Drawing tools disabled');
 }
 
+
+onFilterset(data) {
+  data.params = {...data.params, source: 'home',  page_number: '1', page_size: '100'}
+  this.getDataUsingPolygon(data.payload,  data.params);
+  this.cdr.detectChanges();
+
+}
+
 //Extra shapes  clearing functionality
   private clearExtraShapes(): void {
     this.extraShapesLayer?.clearLayers();

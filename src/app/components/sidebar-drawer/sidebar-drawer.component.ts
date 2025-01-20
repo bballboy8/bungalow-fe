@@ -17,6 +17,7 @@ export class SidebarDrawerComponent implements OnInit {
   @Output() notifyParent: EventEmitter<any> = new EventEmitter();
   @Output() addMarkerToMap: EventEmitter<any> = new EventEmitter();
   @Output() parentFilter:EventEmitter<any> = new EventEmitter();
+  @Output() onFilterset: EventEmitter<any> = new EventEmitter();
   private _startDate: any;
   private _endDate: any;
   private _popUpData:any
@@ -27,6 +28,10 @@ export class SidebarDrawerComponent implements OnInit {
       console.log('_popUpData _popUpData _popUpData:', this._popUpData);
       // Add logic to handle the updated value, e.g., update calculations or UI
     }
+  }
+
+  onFiltersetData(data) {
+    this.onFilterset.emit(data);
   }
 
   get popUpData(): any {

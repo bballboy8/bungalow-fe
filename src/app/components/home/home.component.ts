@@ -357,7 +357,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
         menuOption.style.color = '#ABB7C0'
     
         menuOption.addEventListener('click', () => {
-          navigator.clipboard.writeText(coords).then(() => {
+          navigator?.clipboard?.writeText(coords).then(() => {
             this._snackBar.open('Latitude and Longitude copied to clipboard!', 'Ok', {
               duration: 2000,
             });

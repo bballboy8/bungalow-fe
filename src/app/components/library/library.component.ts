@@ -1181,7 +1181,7 @@ private handleWheelEvent = (event: WheelEvent): void => {
 
 
   // Detect if at the bottom
-  const isAtBottom = div.scrollTop + div.clientHeight+120 >= div.scrollHeight;
+  const isAtBottom = div.scrollTop + div.clientHeight+150 >= div.scrollHeight;
   console.log(isAtBottom,'isAtBottomisAtBottomisAtBottom');
   
   // Only trigger if at the bottom and trying to scroll down

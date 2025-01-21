@@ -204,7 +204,7 @@
 
 
     <div class="bg-secondaryBg w-full relative" id="custom_table" >
-        <div id="container" [ngClass]="dataSource?.data?.length ? 'mb-[70px]': '' " class="flex m-[20px] justify-between items-center">
+        <div id="container"  class="flex m-[20px] justify-between items-center">
             <!-- <p class="text-xs font-semibold leading-[18px] text-secondaryText">Image library 11</p> -->
             <div class="rounded-[25px] bg-primaryBg flex items-center justify-between">
                 <button (click)="selectPreviewMethod('table')"
@@ -360,7 +360,7 @@
                 <div class="w-full flex justify-center items-center" *ngIf="!dataSource.data.length">
                     <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Data not found</span>
                 </div>
-                <table id="library-table" mat-table [dataSource]="dataSource" matSort multiTemplateDataRows
+                <table id="library-table" style="    background-color: rgb(32 39 45 / var(--tw-bg-opacity, 1)) !important;" mat-table [dataSource]="dataSource" matSort multiTemplateDataRows
                 class="font-Barlow mat-elevation-z8 bg-primaryBg w-full border border-secondaryText rounded-lg" [ngClass]="dataSource.data.length ? 'opacity-100':'opacity-0'">
                 <ng-container matColumnDef="selectDate">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header class="w-[185px] p-[10px] text-secondaryText font-semibold">
@@ -488,7 +488,7 @@
                     </td>
                 </ng-container>
 
-                <tr mat-header-row *matHeaderRowDef="displayedColumns" class="bg-secondaryBg"></tr>
+                <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true" class="bg-secondaryBg"></tr>
                 <tr mat-row *matRowDef="let row; let i = dataIndex; columns: displayedColumns; trackBy: trackByIndex" 
                 class="hover:bg-secondaryHighlight cursor-pointer"
                 [ngClass]="zoomed_captures_count > 0 && (i+1) == zoomed_captures_count  ? 'border-b-2 border-b-solid border-b-white':''"

@@ -1,4 +1,4 @@
-<div class="flex h-full flex-col gap-3 z-[1000000000]">
+<div class="flex h-full flex-col gap-3 z-[1000000000]" (click)="hideMenu()">
     <div class="flex">
         <div class="flex flex-col gap-3 !w-[820px]">
     <div id="header" class="flex items-center justify-between h-[48px] bg-secondaryBg p-3">
@@ -396,7 +396,7 @@
                 <ng-container matColumnDef="Clouds">
                     <th mat-header-cell *matHeaderCellDef class="w-[70px] p-[10px] text-secondaryText font-semibold">
                         Clouds</th>
-                    <td mat-cell *matCellDef="let row" class="w-[70px] p-[10px] text-secondaryText">{{row?.vendor_name !== 'capella' && row?.vendor_name !== 'skyfi-umbra'? toDecimal(row?.cloud_cover)+ '%':'SAR'}}</td>
+                    <td mat-cell *matCellDef="let row" class="w-[70px] p-[10px] text-secondaryText">{{row?.vendor_name !== 'capella' && row?.vendor_name !== 'skyfi-umbra'? roundOff(row?.cloud_cover)+ '%':'SAR'}}</td>
                 </ng-container>
 
                 <ng-container matColumnDef="Resolution">
@@ -456,7 +456,7 @@
                                     <!-- <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Time:
                                         </span> <span class="text-secondaryText">{{formatUtcTime(element?.acquisition_datetime)}}</span> </div> -->
                                     <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Cloud Cover:
-                                             </span> <span class="text-secondaryText">{{ element?.vendor_name !== 'capella' && element?.vendor_name !== 'skyfi-umbra' ? toDecimal(element?.cloud_cover)+'%' : 'SAR' }}</span>
+                                             </span> <span class="text-secondaryText">{{ element?.vendor_name !== 'capella' && element?.vendor_name !== 'skyfi-umbra' ? roundOff(element?.cloud_cover)+'%' : 'SAR' }}</span>
                                     </div>
                                     <!-- <div class="flex py-2"> <span
                                         class="text-secondary-heiglight font-semibold">Constellation: </span> <span
@@ -493,7 +493,7 @@
                 class="hover:bg-secondaryHighlight cursor-pointer"
                 [ngClass]="{
                     'border-b-2 border-b-solid border-b-white': zoomed_captures_count > 0 && (i + 1) === zoomed_captures_count,
-                    '!bg-[#3c3e3f]': shapeHoverData === row.vendor_id
+                    '!bg-[#3c3e3f]': tableRowHovered === row.vendor_id
                   }"
                   
                 (click)="expandedElement = expandedElement === row ? null : row;"

@@ -114,4 +114,8 @@ export class HeaderComponent implements OnInit,OnChanges {
       });
     });
   }
+
+  hideMenu(){
+    this.sharedService.setRightMenuHide(false)
+  }
 }

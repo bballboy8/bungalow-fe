@@ -263,8 +263,11 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   set shapeHoverData(value: any) {
     if (value !== this._shapeHoverData) {
       this._shapeHoverData = value;
-      console.log('_shapeHoverData _shapeHoverData _shapeHoverData:', this._shapeHoverData);
+      console.log('_shapeHoverData _shapeHoverData _shapeHoverData:', this.shapeHoverData);
       // Add logic to handle the updated value, e.g., update calculations or UI
+    } else {
+      console.log('shapeHoverDatashapeHoverDatashapeHoverData');
+      
     }
   }
   get shapeHoverData(): any {
@@ -286,6 +289,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   selectedObjects:any[];
   calendarApiData:any;
   OpenEventCalendar:boolean=false;
+  tableRowHovered:boolean=false;
   @Input()
 set zoomed_wkt(value: string) {
   if (value !== this._zoomed_wkt) {
@@ -520,7 +524,11 @@ set zoomed_wkt(value: string) {
     // Add scroll event listener
   
     div.addEventListener('wheel', this.handleWheelEvent);
-
+    this.sharedService.rowHover$.subscribe((rowHover) => {
+      console.log(rowHover,'rowHoverrowHoverrowHoverrowHover');
+      
+      this.tableRowHovered = rowHover
+    })
     // Add mouse events
   }
 
@@ -1484,5 +1492,9 @@ if (endDateControlValue) {
 
   resetForm(){
     this.formGroup.reset();
+  }
+
+  hideMenu(){
+    this.sharedService.setRightMenuHide(false)
   }
 }

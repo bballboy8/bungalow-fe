@@ -129,7 +129,8 @@ hybridLayer:L.TileLayer = L.tileLayer(
   shapeType:string='';
   zoomed_status:boolean = false;
   popUpData:any;
-  shapeHoverData:any
+  shapeHoverData:any;
+  contextMenu:any
   constructor(@Inject(PLATFORM_ID) private platformId: Object,
    private satelliteService:SatelliteService,private dialog: MatDialog,
    private http: HttpClient,
@@ -199,6 +200,15 @@ hybridLayer:L.TileLayer = L.tileLayer(
      });
     this.setDynamicHeight();
     window.addEventListener('resize', this.setDynamicHeight.bind(this))
+    this.sharedService.rightMenuHide$.subscribe((event) =>{
+      if(event === false){
+          
+          if (this.contextMenu) {
+            this.contextMenu.style.display = 'none';
+          }
+       
+    }
+    })
   }
 
   //openstreetmap search and location markers function
@@ -325,18 +335,18 @@ hybridLayer:L.TileLayer = L.tileLayer(
       const coords = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
     
       // Create a context menu if it doesn't exist
-      let contextMenu = document.getElementById('context-menu');
-      if (!contextMenu) {
-        contextMenu = document.createElement('div');
-        contextMenu.id = 'context-menu';
-        contextMenu.style.position = 'absolute';
-        contextMenu.style.zIndex = '1000';
-        contextMenu.style.backgroundColor = '#20272D';
-        contextMenu.style.border = '1px solid #20272D';
-        contextMenu.style.padding = '5px';
-        contextMenu.style.boxShadow = '0px 2px 1px 0px rgba(0, 0, 0, 0.50)';
-        contextMenu.style.cursor = 'pointer';
-        document.body.appendChild(contextMenu);
+       this.contextMenu = document.getElementById('context-menu');
+      if (!this.contextMenu) {
+        this.contextMenu = document.createElement('div');
+        this.contextMenu.id = 'context-menu';
+        this.contextMenu.style.position = 'absolute';
+        this.contextMenu.style.zIndex = '1000';
+        this.contextMenu.style.backgroundColor = '#20272D';
+        this.contextMenu.style.border = '1px solid #20272D';
+        this.contextMenu.style.padding = '5px';
+        this.contextMenu.style.boxShadow = '0px 2px 1px 0px rgba(0, 0, 0, 0.50)';
+        this.contextMenu.style.cursor = 'pointer';
+        document.body.appendChild(this.contextMenu);
     
         // Add menu option
         const menuOption = document.createElement('div');
@@ -357,20 +367,20 @@ hybridLayer:L.TileLayer = L.tileLayer(
           });
     
           // Hide the context menu
-          contextMenu.style.display = 'none';
+          this.contextMenu.style.display = 'none';
         });
     
-        contextMenu.appendChild(menuOption);
+        this.contextMenu.appendChild(menuOption);
       }
     
       // Position and show the context menu
-      contextMenu.style.left = `${event.originalEvent.pageX}px`;
-      contextMenu.style.top = `${event.originalEvent.pageY}px`;
-      contextMenu.style.display = 'block';
+      this.contextMenu.style.left = `${event.originalEvent.pageX}px`;
+      this.contextMenu.style.top = `${event.originalEvent.pageY}px`;
+      this.contextMenu.style.display = 'block';
     
       // Hide the menu on any other click
       this.map.once('click', () => {
-        contextMenu.style.display = 'none';
+        this.contextMenu.style.display = 'none';
       });
     });
     
@@ -941,6 +951,7 @@ if (data.vendor_name === 'planet') {
             next: (resp) => {
                 console.log(resp, 'Data received');
                 const vendorData = resp.data[0];
+                this.onPolygonOut(null)
                 this.openDialogAtPosition(polygon, vendorData);
                 this.popUpData = vendorData
 
@@ -1607,7 +1618,7 @@ private openDialogAtPosition(polygon: any, metadata: any): void {
 receiveData(dataArray: any[]) {
   console.log(dataArray, 'parentparentparentparentparentparentparent');
 
-  // Track existing image overlays
+  // Initialize the imageOverlays map if it doesn't exist
   if (!this.imageOverlays) {
     this.imageOverlays = new Map<string, L.ImageOverlay>();
   }
@@ -1645,35 +1656,38 @@ receiveData(dataArray: any[]) {
             opacity: 1, // Optional: Adjust opacity if needed
             zIndex: 1000,
           });
+
+          // Add mouseover and mouseout event listeners
+          imageOverlay.on('mouseover', (event) => {
+            console.log(`Mouse entered image: ${data.vendor_id}`);
+            this.onPolygonHover(data?.vendor_id)
+            // Change opacity on hover
+          });
+
+          imageOverlay.on('mouseout', (event) => {
+            console.log(`Mouse left image: ${data.presigned_url}`);
+            this.onPolygonOut(null)
+             // Restore original opacity
+          });
+
           imageOverlay.addTo(this.map);
 
           // Store the overlay in the map for tracking
           this.imageOverlays.set(data.presigned_url, imageOverlay);
-        } else {
-          // Update the bounds of the existing overlay if necessary
-          // const existingOverlay = this.imageOverlays.get(data.presigned_url);
-          // if (existingOverlay) {
-          //   existingOverlay.setBounds(bounds);
-          // }
         }
       }
     });
 
-    // Combine all bounds into one
+    // Combine all bounds into one if needed
     // const combinedBounds = allBounds.reduce((acc, bounds) => acc.extend(bounds), L.latLngBounds([]));
-
-    // // Get the center of the combined bounds
-    // const center = combinedBounds.getCenter();
-
-    // // Set the map view to the center without changing the zoom level
-    // const currentZoom = this.map.getZoom();
-    // this.map.setView(center, currentZoom); // Retain the current zoom
+    // this.map.fitBounds(combinedBounds); // Fit the map to the bounds of all overlays
   } else {
     // Handle case where there are no valid coordinates
     this.imageOverlays.forEach((overlay) => this.map.removeLayer(overlay));
     this.imageOverlays.clear();
   }
 }
+
 
 handleMakerData(data: any) {
   console.log(data, 'handling marker data');
@@ -1999,13 +2013,11 @@ wktToBounds(wkt: string): L.LatLngBounds {
   }
   // Define hover functions
   onPolygonHover(data) {
-    this.shapeHoverData = data;
-    console.log('Hovered over polygon:',data);
+    this.sharedService.setRowHover(data)
   }
 
   onPolygonOut(data) {
-   this.shapeHoverData = data;
-    console.log('Hover out of polygon:',data);
+   this.sharedService.setRowHover(data)
   }
 
 }

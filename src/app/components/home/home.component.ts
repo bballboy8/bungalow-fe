@@ -332,7 +332,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
     // Add right-click event listener
     this.map.on('contextmenu', (event: L.LeafletMouseEvent) => {
       const { lat, lng } = event.latlng;
-      const coords = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+      const coords = `${lat.toFixed(6)},${lng.toFixed(6)}`;
     
       // Create a context menu if it doesn't exist
        this.contextMenu = document.getElementById('context-menu');
@@ -1290,7 +1290,7 @@ handleAction(action: string): void {
                       const markerData = res?.data?.analytics;
                       this.getAddress(center.lat, center.lng).then((address) => {
                         const dialogRef = this.dialog.open(MapControllersPopupComponent, {
-                          width: '320px',
+                          width: '355px',
                           data: { type: 'polygon', markerData: markerData, shapeData: shapeData },
                           position,
                           panelClass: 'custom-dialog-class',

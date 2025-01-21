@@ -29,7 +29,7 @@ type CalendarMonth = { name: string; weeks: CalendarWeek[] };
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MapCalendarComponent implements OnInit {
-  @Input() calendarApiData: Record<string, number> = {};
+  // @Input() calendarApiData: Record<string, number> = {};
   @Output() dateRangeSelected = new EventEmitter<{
     start: dayjs.Dayjs;
     end: dayjs.Dayjs;
@@ -39,11 +39,22 @@ export class MapCalendarComponent implements OnInit {
   calendarData: CalendarMonth[] = [];
   showCalendar: boolean = true;
   @Input() endDateCal:any
-  @Input() startDateCal:any
-  ngOnInit(): void {
-    if (this.calendarApiData) {
-      this.generateCalendarData(this.calendarApiData);
+  @Input() startDateCal:any;
+  private _calendarApiData:any
+  @Input()
+  set calendarApiData(value: any) {
+    if (value !== this._calendarApiData) {
+      this._calendarApiData = value;
+      console.log('_calendarApiData _calendarApiData _calendarApiData:', this._calendarApiData);
+      this.generateCalendarData(this._calendarApiData);
+      // Add logic to handle the updated value, e.g., validate the date range
     }
+  }
+
+  get calendarApiData(): any {
+    return this._calendarApiData;
+  }
+  ngOnInit(): void {
   }
 
   closeEventCalendar(): void {
@@ -52,38 +63,42 @@ export class MapCalendarComponent implements OnInit {
   }
 
   generateCalendarData(apiData: Record<string, number>): void {
+    // Clear the existing calendarData
+    this.calendarData = [];
+  
     const dates = Object.keys(apiData).map((date) => dayjs(date));
     const start = dayjs.min(dates)!;
     const end = dayjs.max(dates)!;
     const dataMap = new Map(Object.entries(apiData));
     let current = start;
-
+  
     while (current.isBefore(end) || current.isSame(end, "month")) {
       const monthDays: CalendarDay[] = [];
       const monthStart = current.startOf("month");
       const monthEnd = current.endOf("month");
       let day = monthStart;
-
+  
       while (day.isBefore(monthEnd) || day.isSame(monthEnd, "day")) {
         const dateString = day.format("YYYY-MM-DD");
         const value = dataMap.get(dateString) || null;
         monthDays.push({
           date: dateString,
           value,
-          colorValue:  "#ffffff",
-          backgroundValue: value && value >0 ? this.getBackgroundColor(value) : "",
+          colorValue: "#ffffff",
+          backgroundValue: value && value > 0 ? this.getBackgroundColor(value) : "",
         });
         day = day.add(1, "day");
       }
-
+  
       this.calendarData.push({
         name: current.format("MMMM"),
         weeks: this.generateWeeksForMonth(monthDays),
       });
-
+  
       current = current.add(1, "month");
     }
   }
+  
 
   generateWeeksForMonth(monthDays: CalendarDay[]): CalendarWeek[] {
     const weeks: CalendarWeek[] = [];

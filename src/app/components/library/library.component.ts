@@ -207,11 +207,38 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
       }
       if (this.polygon_wkt) {
         setTimeout(() => {
-          this.loader = true
-          this.ngxLoader.start(); // Start the loader
-          this.getSatelliteCatalog(payload,queryParams)
-         },300)
+        if(this.isEventsOpened){
+          
+          const payload = {
+            polygon_wkt: this.polygon_wkt,
+            start_date: this.startDate,
+            end_date: this.endDate
+          }
+          
+          // Start the loader
+         
+        
+          this.satelliteService.getPolygonCalenderDays(payload).subscribe({
+            next: (resp) => {
+            
+              this.calendarApiData = resp.data;
+              this.loader = true
+              this.ngxLoader.start(); // Start the loader
+              this.getSatelliteCatalog(payload,queryParams)
+            },
+            error: (err) => {
+              
+              console.error('Error fetching calendar data', err);
+              // Hide loader on error
+             
+            },
+            
+          });
+     
+          }   
+        },300)
       }
+
       // Add logic to handle the updated value, e.g., update calculations or UI
     }
   }
@@ -774,13 +801,13 @@ set zoomed_wkt(value: string) {
   //Total Number formatting in human-readable format with suffixes like k (thousands), m (millions), b (billions), etc.
   formatNumber(totalCount: number): string {
     if (totalCount >= 1_000_000_000) {
-      return `${(totalCount / 1_000_000_000).toFixed(1)}b`; // Billions
+      return `${parseFloat((totalCount / 1_000_000_000)?.toFixed(1))}b`; // Billions
     } else if (totalCount >= 1_000_000) {
-      return `${(totalCount / 1_000_000).toFixed(1)}m`; // Millions
+      return `${parseFloat((totalCount / 1_000_000)?.toFixed(1))}m`; // Millions
     } else if (totalCount >= 1_000) {
-      return `${(totalCount / 1_000).toFixed(1)}k`; // Thousands
+      return `${parseFloat((totalCount / 1_000)?.toFixed(1))}k`; // Thousands
     } else {
-      return totalCount.toString(); // Less than 1,000
+      return totalCount?.toString(); // Less than 1,000
     }
   }
 

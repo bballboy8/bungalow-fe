@@ -357,14 +357,20 @@ hybridLayer:L.TileLayer = L.tileLayer(
         menuOption.style.color = '#ABB7C0'
     
         menuOption.addEventListener('click', () => {
-          navigator?.clipboard?.writeText(coords).then(() => {
-            this._snackBar.open('Latitude and Longitude copied to clipboard!', 'Ok', {
-              duration: 2000,
+          try {
+            navigator.clipboard.writeText(coords).then(() => {
+              this._snackBar.open('Latitude and Longitude copied to clipboard!', 'Ok', {
+                duration: 2000,
+              });
+            }).catch((err) => {
+              console.error('Clipboard API failed. Falling back to execCommand:', err);
+              this.fallbackCopyToClipboard(coords);
             });
-          }).catch((err) => {
-            console.error('Clipboard API failed. Falling back to execCommand:', err);
+          } catch(e) {
+            console.error('Clipboard API failed. Falling back to execCommand:', e);
             this.fallbackCopyToClipboard(coords);
-          });
+          }
+
     
           // Hide the context menu
           this.contextMenu.style.display = 'none';

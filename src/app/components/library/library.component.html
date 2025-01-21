@@ -491,7 +491,11 @@
                 <tr mat-header-row *matHeaderRowDef="displayedColumns" class="bg-secondaryBg"></tr>
                 <tr mat-row *matRowDef="let row; let i = dataIndex; columns: displayedColumns; trackBy: trackByIndex" 
                 class="hover:bg-secondaryHighlight cursor-pointer"
-                [ngClass]="zoomed_captures_count > 0 && (i+1) == zoomed_captures_count  ? 'border-b-2 border-b-solid border-b-white':''"
+                [ngClass]="{
+                    'border-b-2 border-b-solid border-b-white': zoomed_captures_count > 0 && (i + 1) === zoomed_captures_count,
+                    '!bg-[#3c3e3f]': shapeHoverData === row.vendor_id
+                  }"
+                  
                 (click)="expandedElement = expandedElement === row ? null : row;"
                 (mouseover)="onRowHover(row)"
                 (mouseout)="onRowHover(null)"

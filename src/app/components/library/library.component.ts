@@ -219,7 +219,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   get startDate(): any {
     return this._startDate;
   }
-
+  private _shapeHoverData:any
   @Input()
   set endDate(value: any) {
     if (value !== this._endDate) {
@@ -231,6 +231,17 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
 
   get endDate(): any {
     return this._endDate;
+  }
+  @Input()
+  set shapeHoverData(value: any) {
+    if (value !== this._shapeHoverData) {
+      this._shapeHoverData = value;
+      console.log('_shapeHoverData _shapeHoverData _shapeHoverData:', this._shapeHoverData);
+      // Add logic to handle the updated value, e.g., update calculations or UI
+    }
+  }
+  get shapeHoverData(): any {
+    return this._shapeHoverData;
   }
   selectedRow:any = null;
   imageData:any;

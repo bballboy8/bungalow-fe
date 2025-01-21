@@ -449,7 +449,7 @@ set zoomed_wkt(value: string) {
         max_off_nadir_angle: this.max_angle,
         min_off_nadir_angle:this.min_angle,
         vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
-        vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value:'',
+        vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
         max_gsd:this.formGroup.get('max_gsd')?.value ? this.formGroup.get('max_gsd')?.value:100,
         min_gsd:this.formGroup.get('min_gsd')?.value ? this.formGroup.get('min_gsd')?.value:0
         
@@ -526,7 +526,7 @@ set zoomed_wkt(value: string) {
           max_off_nadir_angle: this.max_angle,
           min_off_nadir_angle:this.min_angle,
           vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
-          vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value:'',
+          vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
           max_gsd:this.formGroup.get('max_gsd')?.value ? this.formGroup.get('max_gsd')?.value:100,
           min_gsd:this.formGroup.get('min_gsd')?.value ? this.formGroup.get('min_gsd')?.value:0
         }
@@ -559,7 +559,7 @@ set zoomed_wkt(value: string) {
           max_off_nadir_angle: this.max_angle,
           min_off_nadir_angle:this.min_angle,
           vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
-          vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value:'',
+          vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
           max_gsd:this.formGroup.get('max_gsd')?.value ? this.formGroup.get('max_gsd')?.value:100,
           min_gsd:this.formGroup.get('min_gsd')?.value ? this.formGroup.get('min_gsd')?.value:0
         }
@@ -588,7 +588,7 @@ set zoomed_wkt(value: string) {
           max_off_nadir_angle: this.max_angle,
           min_off_nadir_angle:this.min_angle,
           vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
-          vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value:'',
+          vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
           max_gsd:this.formGroup.get('max_gsd')?.value ? this.formGroup.get('max_gsd')?.value:100,
           min_gsd:this.formGroup.get('min_gsd')?.value ? this.formGroup.get('min_gsd')?.value:0
         }
@@ -1390,7 +1390,7 @@ getDateTimeFormat(dateTime: string) {
         max_off_nadir_angle: this.max_angle,
         min_off_nadir_angle:this.min_angle,
         vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
-        vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value:'',
+        vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
         max_gsd:this.formGroup.get('max_gsd')?.value ? this.formGroup.get('max_gsd')?.value:100,
         min_gsd:this.formGroup.get('min_gsd')?.value ? this.formGroup.get('min_gsd')?.value:0
       }
@@ -1406,7 +1406,7 @@ getDateTimeFormat(dateTime: string) {
         max_off_nadir_angle: this.max_angle,
         min_off_nadir_angle:this.min_angle,
         vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
-        vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value:'',
+        vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
         max_gsd:this.max_gsd,
         min_gsd:this.min_gsd
       }

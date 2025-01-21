@@ -21,6 +21,7 @@ export class SidebarDrawerComponent implements OnInit {
   private _startDate: any;
   private _endDate: any;
   private _popUpData:any
+  private _shapeHoverData:any
   @Input()
   set popUpData(value: any) {
     if (value !== this._popUpData) {
@@ -29,7 +30,17 @@ export class SidebarDrawerComponent implements OnInit {
       // Add logic to handle the updated value, e.g., update calculations or UI
     }
   }
-
+  @Input()
+  set shapeHoverData(value: any) {
+    if (value !== this._popUpData) {
+      this._shapeHoverData = value;
+      console.log('_popUpData _popUpData _popUpData:', this._popUpData);
+      // Add logic to handle the updated value, e.g., update calculations or UI
+    }
+  }
+  get shapeHoverData(): any {
+    return this._shapeHoverData;
+  }
   onFiltersetData(data) {
     this.onFilterset.emit(data);
   }

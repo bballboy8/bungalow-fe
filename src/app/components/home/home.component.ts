@@ -129,6 +129,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
   shapeType:string='';
   zoomed_status:boolean = false;
   popUpData:any;
+  shapeHoverData:any
   constructor(@Inject(PLATFORM_ID) private platformId: Object,
    private satelliteService:SatelliteService,private dialog: MatDialog,
    private http: HttpClient,
@@ -915,6 +916,11 @@ if (data.vendor_name === 'planet') {
     }).addTo(this.map);
     console.log(polygon, 'Polygon added');
   
+    // Attach hover events to the polygon
+    polygon.on('mouseover', (e) => this.onPolygonHover(data.vendor_id));
+    polygon.on('mouseout', (e) => this.onPolygonOut(null));
+
+    console.log(polygon, 'Polygon added');
     // Attach the click event to open the component dialog
     polygon.on('click', (event: L.LeafletMouseEvent) => {
         const clickedPosition = event.latlng; // Get the clicked position
@@ -1991,5 +1997,19 @@ wktToBounds(wkt: string): L.LatLngBounds {
   filterData(queryParams:any){
     this.getDataUsingPolygon(this.data,queryParams);
   }
+  // Define hover functions
+  onPolygonHover(data) {
+    this.shapeHoverData = data;
+    console.log('Hovered over polygon:',data);
+  }
+
+  onPolygonOut(data) {
+   this.shapeHoverData = data;
+    console.log('Hover out of polygon:',data);
+  }
 
 }
+function onPolygonHover(e: any, LeafletMouseEvent: any) {
+  throw new Error('Function not implemented.');
+}
+

@@ -172,7 +172,7 @@
 
         <div class="mx-[15px] flex font-Barlow">
             <div *ngFor="let level of percentageArray;let isLast = last"
-                class="w-[182px] group relative flex p-[10px] flex-col gap-1 my-3 text-center items-center justify-center font-Barlow"
+                class="w-[182px] group cursor-pointer flex p-[10px] flex-col gap-1 my-3 text-center items-center justify-center font-Barlow"
                 [ngClass]="{ 'border-r-[2px] border-[#2D343D]': !isLast }">
 
                 <div class="custom-progress-container">
@@ -186,10 +186,9 @@
                     <img [src]="level.current_count >=level.previous_count?'assets/svg-icons/up-icon.svg' :'assets/svg-icons/down-icon.svg'"
                         alt="up_icon" class="ml-1" />
                 </span>
-                <div class="absolute font-Barlow text-secondaryText group-hover:block hidden bg-primaryBg p-[5px]">
+                <div class="absolute z-10 top-[348px] max-w-[200px] font-Barlow text-secondaryText group-hover:block hidden bg-primaryBg p-[10px]">
                     <div class="flex flex-col gap-[5px]">
-                        <span class="text-sm font-semibold leading-[18px]">Current: {{toDecimal(level.current_count)}}</span>
-                        <span class="text-sm font-semibold leading-[18px]">Previous: {{toDecimal(level.previous_count)}}</span>
+                        <span class="text-sm font-semibold leading-[18px] flex-wrap">Calculated by dividing {{roundOff(level.current_count)}} by {{roundOff(level.previous_count)}} which are {{level.key}} days from today and {{getDouble(level.key)}} days from today</span>
                     </div>    
                 </div>
             </div>
@@ -285,7 +284,7 @@
                                     </mat-form-field> -->
                                     <mat-label class="!text-secondaryText">GSD</mat-label>
 
-                                    <ngx-slider *ngIf="sliderShow" #sliderElement [(value)]="min_gsd" [(highValue)]="max_gsd" [options]="options"></ngx-slider>
+                                    <ngx-slider *ngIf="sliderShow" #sliderElement [(value)]="min_gsd" [(highValue)]="max_gsd" [options]="gsd_options"></ngx-slider>
                                 </div>
                                 <!-- <mat-form-field appearance="outline" id="filter" (click)="$event.stopPropagation()">
                                     <mat-label>Start date</mat-label>
@@ -344,7 +343,7 @@
 
                         <div class="flex justify-between">
                             <span class="text-secondaryText text-xs font-bold">{{getFormattedDate(item?.acquisition_datetime)}}</span>
-                            <span class="text-secondaryText text-xs font-bold">{{formatUtcTime(item?.acquisition_datetime)}}</span>
+                            <span class="text-secondaryText text-xs font-bold">{{formatUtcTime(item)}}</span>
                         </div>
                     </div>
                     <!-- <div [ngClass]="zoomed_captures_count > 0 && (index+1) == zoomed_captures_count  ? 'h-[1px] w-[800px] -bottom-[5px] bg-white absolute left-0':'hidden'"></div> -->
@@ -379,7 +378,7 @@
                         (change)="expandedData(row)" [checked]="isRowSelected(row.id) || matchedObject?.id === row.id"
                             [aria-label]="'Select Row'">
                         </mat-checkbox>
-                        <span class="text-secondaryText font-Barlow">{{getFormattedDate(row?.acquisition_datetime) +' '+ formatUtcTime(row?.acquisition_datetime)}}</span>
+                        <span class="text-secondaryText font-Barlow">{{getFormattedDate(row?.acquisition_datetime) +' '+ formatUtcTime(row)}}</span>
                     </td>
                 </ng-container>
 

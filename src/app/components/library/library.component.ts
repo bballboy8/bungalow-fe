@@ -795,9 +795,7 @@ set zoomed_wkt(value: string) {
     // Check if payload contains valid acquisition_datetime
     if (!payload?.acquisition_datetime) {
       throw new Error('Invalid payload or acquisition_datetime missing');
-    }
-    console.log(payload,'payloadpayloadpayloadpayloadpayload');
-    
+    }    
 
     const date = new Date(payload.acquisition_datetime);
   
@@ -1277,7 +1275,7 @@ private handleWheelEvent = (event: WheelEvent): void => {
 };
 
 //Getting time in Day sessions
-getTimePeriod(datetime: string): string {
+getTimePeriod(datetime: string, centroid?: [number, number]): string {
   if(this.selectedZone == 'UTC'){
     const utcDate = dayjs(datetime).utc();
 
@@ -1295,9 +1293,9 @@ getTimePeriod(datetime: string): string {
       return "Overnight";
     }
   } else {
-    const date = new Date(datetime); // Parse the ISO string to a Date object
-    const hours = date.getHours(); // Get the hour (0-23)
-  
+    const [latitude, longitude] = centroid;
+    const timeZone = tzLookup(latitude, longitude);
+    const hours =centroid.length ? momentZone(datetime).tz(timeZone).hour() : new Date(datetime).getHours();  // Parse the ISO string to a Date object        
     if (hours >= 5 && hours < 11) {
       return "Morning";
     } else if (hours >= 11 && hours < 16) {

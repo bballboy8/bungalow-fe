@@ -9,6 +9,7 @@ import {
 } from "@angular/core";
 import dayjs from "dayjs";
 import minMax from "dayjs/plugin/minMax";
+import { SharedService } from "../../shared/shared.service";
 dayjs.extend(minMax);
 
 type CalendarDay = {
@@ -54,12 +55,14 @@ export class MapCalendarComponent implements OnInit {
   get calendarApiData(): any {
     return this._calendarApiData;
   }
+
+  constructor( private sharedService:SharedService,){}
   ngOnInit(): void {
   }
 
-  closeEventCalendar(): void {
+  closeEventCalendar() {
     this.showCalendar = false;
-    console.log("Calendar closed.");
+    this.sharedService.setIsOpenedEventCalendar(false);
   }
 
   generateCalendarData(apiData: Record<string, number>): void {

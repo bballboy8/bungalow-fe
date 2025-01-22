@@ -57,7 +57,8 @@ import { provideNativeDateAdapter } from "@angular/material/core";
 import { MatSelectModule } from "@angular/material/select";
 import { MatSliderModule } from "@angular/material/slider";
 import { Options,NgxSliderModule, LabelType } from '@angular-slider/ngx-slider';
-
+import momentZone from 'moment-timezone';
+import tzLookup from 'tz-lookup';
 export class Group {
   name?: string;
   icon?: string; // icon name for Angular Material icons
@@ -773,16 +774,24 @@ set zoomed_wkt(value: string) {
     return value *100 / total
   }
 
-  getFormattedDate(date: Date): string {
-    if (this.selectedZone =='UTC') {
-      return dayjs(date).utc().format('YYYY-MM-DD'); // Format for UTC
+  getFormattedDate(date: Date, centroid?: [number, number]): string {
+    
+    if (this.selectedZone === 'UTC') {
+      // Format date in UTC
+      return momentZone(date).utc().format('YYYY-MM-DD');
+    } else if (centroid && centroid.length === 2) {
+      // Get the time zone based on latitude and longitude
+      const [latitude, longitude] = centroid;
+      const timeZone = tzLookup(latitude, longitude);
+  
+      // Format the date based on the calculated time zone
+      return momentZone(date).tz(timeZone).format('YYYY-MM-DD');
     } else {
-      return dayjs(date).local().format('YYYY-MM-DD'); // Format for local time
+      // Fallback to local time
+      return moment(date).local().format('YYYY-MM-DD');
     }
   }
   formatUtcTime(payload) {
-    const moment = require('moment-timezone');
-    const tzLookup = require('tz-lookup');
     // Check if payload contains valid acquisition_datetime
     if (!payload?.acquisition_datetime) {
       throw new Error('Invalid payload or acquisition_datetime missing');
@@ -798,7 +807,7 @@ set zoomed_wkt(value: string) {
     }
   
     if (this.selectedZone === 'UTC') {
-      return moment.utc(date).format('HH:mm [UTC]');
+      return momentZone.utc(date).format('HH:mm [UTC]');
     }
   
     if (this.selectedZone === 'local' && payload.centroid?.length === 2) {
@@ -809,7 +818,7 @@ set zoomed_wkt(value: string) {
         const timeZone = tzLookup(latitude, longitude);
   
         // Convert the time to the local time zone
-        const localTime = moment(date).tz(timeZone).format('HH:mm');
+        const localTime = momentZone(date).tz(timeZone).format('HH:mm');
   
         return localTime;
       } catch (error) {

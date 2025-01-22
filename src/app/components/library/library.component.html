@@ -342,7 +342,7 @@
                         </div>
 
                         <div class="flex justify-between">
-                            <span class="text-secondaryText text-xs font-bold">{{getFormattedDate(item?.acquisition_datetime)}}</span>
+                            <span class="text-secondaryText text-xs font-bold">{{getFormattedDate(item?.acquisition_datetime,item?.centroid)}}</span>
                             <span class="text-secondaryText text-xs font-bold">{{formatUtcTime(item)}}</span>
                         </div>
                     </div>
@@ -378,7 +378,7 @@
                         (change)="expandedData(row)" [checked]="isRowSelected(row.id) || matchedObject?.id === row.id"
                             [aria-label]="'Select Row'">
                         </mat-checkbox>
-                        <span class="text-secondaryText font-Barlow">{{getFormattedDate(row?.acquisition_datetime) +' '+ formatUtcTime(row)}}</span>
+                        <span class="text-secondaryText font-Barlow">{{getFormattedDate(row?.acquisition_datetime,row?.centroid) +' '+ formatUtcTime(row)}}</span>
                     </td>
                 </ng-container>
 
@@ -451,7 +451,7 @@
                                     <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Constellation:
                                         </span> <span class="text-secondaryText">{{element?.vendor_name}}</span> </div>
                                     <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Date Time:
-                                        </span> <span class="text-secondaryText">{{getFormattedDate(element?.acquisition_datetime)}}</span> </div>
+                                        </span> <span class="text-secondaryText">{{getFormattedDate(element?.acquisition_datetime,element?.centroid)}}</span> </div>
                                         <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Day of Week:
                                         </span> <span class="text-secondaryText">{{getDayOfWeek(element?.acquisition_datetime)}}</span> </div>
                                         <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Image ID:

@@ -543,103 +543,47 @@ set zoomed_wkt(value: string) {
 
     console.log(activeColumn,'activeColumnactiveColumnactiveColumn',direction);
     
-   
+    let queryParams: any ={
+      page_number: '1',
+      page_size: '20',
+      start_date:this.startDate,
+      end_date: this.endDate,
+      source: 'library',
+      sort_order:direction,
+      max_cloud_cover: this.max_cloud,
+      min_cloud_cover:this.min_cloud,
+      max_off_nadir_angle: this.max_angle,
+      min_off_nadir_angle:this.min_angle,
+      vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
+      vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
+      max_gsd:this.formGroup.get('max_gsd')?.value ? this.formGroup.get('max_gsd')?.value:100,
+      min_gsd:this.formGroup.get('min_gsd')?.value ? this.formGroup.get('min_gsd')?.value:0
+    }
+    const payload = {
+      wkt_polygon: this.polygon_wkt
+    }
 
       if (activeColumn === 'selectDate') {
-        // const dateA = new Date(a.acquisition_datetime).getTime();
-        // const dateB = new Date(b.acquisition_datetime).getTime();
-        let queryParams ={
-          page_number: '1',
-          page_size: '20',
-          start_date:this.startDate,
-          end_date: this.endDate,
-          source: 'library',
+         queryParams ={
+          ...queryParams,
           sort_by:'acquisition_datetime',
-          sort_order:direction,
-          max_cloud_cover: this.max_cloud,
-          min_cloud_cover:this.min_cloud,
-          max_off_nadir_angle: this.max_angle,
-          min_off_nadir_angle:this.min_angle,
-          vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
-          vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
-          max_gsd:this.formGroup.get('max_gsd')?.value ? this.formGroup.get('max_gsd')?.value:100,
-          min_gsd:this.formGroup.get('min_gsd')?.value ? this.formGroup.get('min_gsd')?.value:0
         }
-        const payload = {
-          wkt_polygon: this.polygon_wkt
-        }
-        this.loader = true
-      this.ngxLoader.start(); // Start the loader
-       
-        this.getSatelliteCatalog(payload,queryParams)
-        
-        
-        // compareResult = dateA > dateB ? 1 : dateA < dateB ? -1 : 0;
-      } else if (activeColumn === 'Sensor') {
-        // const sensorA = a.sensor.toLowerCase();
-        // const sensorB = b.sensor.toLowerCase();
-        // compareResult = sensorA.localeCompare(sensorB);
-        // console.log(sensorA,'dateAdateAdateAdateA');
-        // console.log(sensorB,'dateBdateBdateBdateBdateB');
-        let queryParams ={
-          page_number: '1',
-          page_size: '20',
-          start_date:this.startDate,
-          end_date: this.endDate,
-          source: 'library',
+ 
+          } else if (activeColumn === 'Sensor') {
+        queryParams ={
+          ...queryParams,
           sort_by:'sensor',
-          sort_order:direction,
-          max_cloud_cover: this.max_cloud,
-          min_cloud_cover:this.min_cloud,
-          max_off_nadir_angle: this.max_angle,
-          min_off_nadir_angle:this.min_angle,
-          vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
-          vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
-          max_gsd:this.formGroup.get('max_gsd')?.value ? this.formGroup.get('max_gsd')?.value:100,
-          min_gsd:this.formGroup.get('min_gsd')?.value ? this.formGroup.get('min_gsd')?.value:0
         }
-        const payload = {
-          wkt_polygon: this.polygon_wkt
-        }
-        this.loader = true
-      this.ngxLoader.start(); // Start the loader
-        this.getSatelliteCatalog(payload,queryParams)
       } else if (activeColumn === 'Vendor') {
-        // const sensorA = a.sensor.toLowerCase();
-        // const sensorB = b.sensor.toLowerCase();
-        // compareResult = sensorA.localeCompare(sensorB);
-        // console.log(sensorA,'dateAdateAdateAdateA');
-        // console.log(sensorB,'dateBdateBdateBdateBdateB');
-        let queryParams ={
-          page_number: '1',
-          page_size: '20',
-          start_date:this.startDate,
-          end_date: this.endDate,
-          source: 'library',
+        queryParams ={
+          ...queryParams,
           sort_by:'vendor_name',
-          sort_order:direction,
-          max_cloud_cover: this.max_cloud,
-          min_cloud_cover:this.min_cloud,
-          max_off_nadir_angle: this.max_angle,
-          min_off_nadir_angle:this.min_angle,
-          vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
-          vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
-          max_gsd:this.formGroup.get('max_gsd')?.value ? this.formGroup.get('max_gsd')?.value:100,
-          min_gsd:this.formGroup.get('min_gsd')?.value ? this.formGroup.get('min_gsd')?.value:0
         }
-        const payload = {
-          wkt_polygon: this.polygon_wkt
-        }
-        this.loader = true
-      this.ngxLoader.start(); // Start the loader
-        this.getSatelliteCatalog(payload,queryParams)
-      }
-     
-      
 
-    
-  
-   
+      }
+      this.loader = true
+      this.ngxLoader.start(); // Start the loader
+      this.getSatelliteCatalog(payload,queryParams)
   }
 
   getSatelliteCatalog(payload:any,queryParams:any){

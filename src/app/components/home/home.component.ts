@@ -130,7 +130,8 @@ hybridLayer:L.TileLayer = L.tileLayer(
   zoomed_status:boolean = false;
   popUpData:any;
   shapeHoverData:any;
-  contextMenu:any
+  contextMenu:any;
+  contextMenuCoords:any;
   constructor(@Inject(PLATFORM_ID) private platformId: Object,
    private satelliteService:SatelliteService,private dialog: MatDialog,
    private http: HttpClient,
@@ -334,8 +335,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
       const { lat, lng } = event.latlng;
       const coords = `${lat.toFixed(6)},${lng.toFixed(6)}`;
     
-      // Create a context menu if it doesn't exist
-       this.contextMenu = document.getElementById('context-menu');
+      // Create or get the context menu
       if (!this.contextMenu) {
         this.contextMenu = document.createElement('div');
         this.contextMenu.id = 'context-menu';
@@ -350,27 +350,22 @@ hybridLayer:L.TileLayer = L.tileLayer(
     
         // Add menu option
         const menuOption = document.createElement('div');
+        menuOption.id = 'menu-option';
         menuOption.textContent = 'Copy lat/lng coordinates';
         menuOption.style.padding = '5px';
         menuOption.style.whiteSpace = 'nowrap';
         menuOption.style.fontSize = '14px';
-        menuOption.style.color = '#ABB7C0'
+        menuOption.style.color = '#ABB7C0';
     
         menuOption.addEventListener('click', () => {
-          try {
-            navigator.clipboard.writeText(coords).then(() => {
-              this._snackBar.open('Latitude and Longitude copied to clipboard!', 'Ok', {
-                duration: 2000,
-              });
-            }).catch((err) => {
-              console.error('Clipboard API failed. Falling back to execCommand:', err);
-              this.fallbackCopyToClipboard(coords);
+          navigator.clipboard.writeText(this.contextMenuCoords).then(() => {
+            this._snackBar.open('Latitude and Longitude copied to clipboard!', 'Ok', {
+              duration: 2000,
             });
-          } catch(e) {
-            console.error('Clipboard API failed. Falling back to execCommand:', e);
-            this.fallbackCopyToClipboard(coords);
-          }
-
+          }).catch((err) => {
+            console.error('Clipboard API failed. Falling back to execCommand:', err);
+            this.fallbackCopyToClipboard(this.contextMenuCoords);
+          });
     
           // Hide the context menu
           this.contextMenu.style.display = 'none';
@@ -378,6 +373,9 @@ hybridLayer:L.TileLayer = L.tileLayer(
     
         this.contextMenu.appendChild(menuOption);
       }
+    
+      // Store the latest coordinates
+      this.contextMenuCoords = coords;
     
       // Position and show the context menu
       this.contextMenu.style.left = `${event.originalEvent.pageX}px`;

@@ -793,9 +793,8 @@ private fallbackCopyToClipboard(text: string): void {
 
   //Getting the polygon from cordinates functionality
   getPolygonFromCoordinates(payload:{geometry:{type:string,coordinates:any[]}},bound:any) {
-    console.log('aaaaaaaaaaaaaaa');
-    
-    this.satelliteService.getPolyGonData(payload).subscribe({
+    const  updatedPayload = this.normalizePayloadCoordinates(payload);
+    this.satelliteService.getPolyGonData(updatedPayload).subscribe({
       next: (resp) => {
         this.polygon_wkt = resp?.data?.wkt_polygon
         console.log("resp:resp:resp:resp:resp: ", resp?.data);
@@ -828,7 +827,22 @@ private fallbackCopyToClipboard(text: string): void {
     });
   }
 
-
+  normalizePayloadCoordinates(payload: any): any {
+    if (payload.geometry && Array.isArray(payload.geometry.coordinates)) {
+      payload.geometry.coordinates = payload.geometry.coordinates.map(coordinateSet =>
+        coordinateSet.map(([longitude, latitude]: [number, number]) => {
+          // Normalize longitude
+          const normalizedLongitude = ((longitude + 180) % 360 + 360) % 360 - 180;
+  
+          // Clamp latitude
+          const normalizedLatitude = Math.max(-90, Math.min(90, latitude));
+  
+          return [normalizedLongitude, normalizedLatitude];
+        })
+      );
+    }
+    return payload; // Return the updated payload
+  }
   //Polygon data getting by using polygon fucntionality
   getDataUsingPolygon(payload: any,queryParams: any) {
     this.satelliteService.getDataFromPolygon(payload,queryParams).subscribe({

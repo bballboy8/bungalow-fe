@@ -394,20 +394,26 @@ hybridLayer:L.TileLayer = L.tileLayer(
     // Add mousemove event to track coordinates
     this.map.on('mousemove', (event: L.LeafletMouseEvent) => {
       const coords = event.latlng;
-      this.longitude = parseFloat(coords.lng.toFixed(6));
-      this.latitude = parseFloat(coords.lat.toFixed(6));
+
+      // Clamp latitude to [-90, 90] and longitude to [-180, 180]
+      const clampedLat = Math.max(-90, Math.min(90, coords.lat));
+      const clampedLng = ((coords.lng + 180) % 360 + 360) % 360 - 180; // Wrap longitude to [-180, 180]
+    
+      this.longitude = parseFloat(clampedLng.toFixed(6));
+      this.latitude = parseFloat(clampedLat.toFixed(6));
     });
   
     // Adjust view to clamp latitude if necessary
-    this.map.on('move', () => {
+    this.map.on('move', (event: L.LeafletMouseEvent) => {
+      const coords = event.latlng;
+
       const mapSize = this.map.getSize(); // Get the map viewport size
       // const mapViewportWidth = mapSize.x; // Extract the width
       
-     
       const center = this.map.getCenter();
       const lat = Math.max(-90, Math.min(90, center.lat));
       const lng = center.lng; // Allow longitude wrapping
-      if (lat !== center.lat) {
+      if (lat !== center.lat) {        
         this.map.setView([lat, lng], this.map.getZoom(), { animate: false });
       }
     });

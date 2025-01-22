@@ -172,7 +172,7 @@
 
         <div class="mx-[15px] flex font-Barlow">
             <div *ngFor="let level of percentageArray;let isLast = last"
-                class="w-[182px] group relative flex p-[10px] flex-col gap-1 my-3 text-center items-center justify-center font-Barlow"
+                class="w-[182px] group cursor-pointer flex p-[10px] flex-col gap-1 my-3 text-center items-center justify-center font-Barlow"
                 [ngClass]="{ 'border-r-[2px] border-[#2D343D]': !isLast }">
 
                 <div class="custom-progress-container">
@@ -186,10 +186,9 @@
                     <img [src]="level.current_count >=level.previous_count?'assets/svg-icons/up-icon.svg' :'assets/svg-icons/down-icon.svg'"
                         alt="up_icon" class="ml-1" />
                 </span>
-                <div class="absolute font-Barlow text-secondaryText group-hover:block hidden bg-primaryBg p-[5px]">
+                <div class="absolute z-10 top-[348px] max-w-[200px] font-Barlow text-secondaryText group-hover:block hidden bg-primaryBg p-[10px]">
                     <div class="flex flex-col gap-[5px]">
-                        <span class="text-sm font-semibold leading-[18px]">Current: {{toDecimal(level.current_count)}}</span>
-                        <span class="text-sm font-semibold leading-[18px]">Previous: {{toDecimal(level.previous_count)}}</span>
+                        <span class="text-sm font-semibold leading-[18px] flex-wrap">Calculated by dividing {{roundOff(level.current_count)}} by {{roundOff(level.previous_count)}} which are {{level.key}} days from today and {{getDouble(level.key)}} days from today</span>
                     </div>    
                 </div>
             </div>
@@ -246,7 +245,8 @@
                                     <mat-label class="!text-secondaryText">Vendor ID</mat-label>
                                     <input class="!text-secondaryText" matInput type="text" formControlName="vendorId">
                                 </mat-form-field>
-                                <div class="flex-col gap-2 custom-slider" (click)="$event.stopPropagation()">
+
+                                <div  class="flex-col gap-2 custom-slider" (click)="$event.stopPropagation()">
                                     <!-- <mat-form-field class="w-1/2" appearance="outline" id="filter" (click)="$event.stopPropagation()">
                                         <mat-label class="!text-secondaryText">Min Cloud Cover</mat-label>
                                         <input class="!text-secondaryText" matInput [max]="100" type="number" formControlName="min_cloud">
@@ -255,7 +255,8 @@
                                         <mat-label class="!text-secondaryText">Max Cloud Cover</mat-label>
                                         <input class="!text-secondaryText" matInput [max]="100" type="number" formControlName="max_cloud">
                                     </mat-form-field> -->
-                                    <mat-label class="!text-secondaryText">Cloud Cover</mat-label>
+                                    <mat-label class="!text-secondaryText">Cloud Cover <mat-checkbox class="allow_sar" 
+                                        [checked]="allow_sar" (change)="onCheckboxSAR($event)">Allow SAR</mat-checkbox></mat-label>
                                     <ngx-slider *ngIf="sliderShow" #sliderElement [(value)]="min_cloud" [(highValue)]="max_cloud" [options]="options"></ngx-slider>
                                 </div>
                                 <!-- <mat-form-field appearance="outline" id="filter" (click)="$event.stopPropagation()">
@@ -285,7 +286,7 @@
                                     </mat-form-field> -->
                                     <mat-label class="!text-secondaryText">GSD</mat-label>
 
-                                    <ngx-slider *ngIf="sliderShow" #sliderElement [(value)]="min_gsd" [(highValue)]="max_gsd" [options]="options"></ngx-slider>
+                                    <ngx-slider *ngIf="sliderShow" #sliderElement [(value)]="min_gsd" [(highValue)]="max_gsd" [options]="gsd_options"></ngx-slider>
                                 </div>
                                 <!-- <mat-form-field appearance="outline" id="filter" (click)="$event.stopPropagation()">
                                     <mat-label>Start date</mat-label>
@@ -343,8 +344,8 @@
                         </div>
 
                         <div class="flex justify-between">
-                            <span class="text-secondaryText text-xs font-bold">{{getFormattedDate(item?.acquisition_datetime)}}</span>
-                            <span class="text-secondaryText text-xs font-bold">{{formatUtcTime(item?.acquisition_datetime)}}</span>
+                            <span class="text-secondaryText text-xs font-bold">{{getFormattedDate(item?.acquisition_datetime,item?.centroid)}}</span>
+                            <span class="text-secondaryText text-xs font-bold">{{formatUtcTime(item)}}</span>
                         </div>
                     </div>
                     <!-- <div [ngClass]="zoomed_captures_count > 0 && (index+1) == zoomed_captures_count  ? 'h-[1px] w-[800px] -bottom-[5px] bg-white absolute left-0':'hidden'"></div> -->
@@ -379,7 +380,7 @@
                         (change)="expandedData(row)" [checked]="isRowSelected(row.id) || matchedObject?.id === row.id"
                             [aria-label]="'Select Row'">
                         </mat-checkbox>
-                        <span class="text-secondaryText font-Barlow">{{getFormattedDate(row?.acquisition_datetime) +' '+ formatUtcTime(row?.acquisition_datetime)}}</span>
+                        <span class="text-secondaryText font-Barlow">{{getFormattedDate(row?.acquisition_datetime,row?.centroid) +' '+ formatUtcTime(row)}}</span>
                     </td>
                 </ng-container>
 
@@ -413,7 +414,7 @@
                 <ng-container matColumnDef="type">
                     <th mat-header-cell *matHeaderCellDef class="w-[80px] p-[10px] text-secondaryText font-semibold">
                         Type</th>
-                    <td mat-cell *matCellDef="let row" class="w-[80px] p-[10px] text-secondaryText">{{ getTimePeriod(row?.acquisition_datetime) }}</td>
+                    <td mat-cell *matCellDef="let row" class="w-[80px] p-[10px] text-secondaryText">{{ getTimePeriod(row?.acquisition_datetime,row?.centroid) }}</td>
                 </ng-container>
 
                 <ng-container matColumnDef="Id">
@@ -452,9 +453,9 @@
                                     <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Constellation:
                                         </span> <span class="text-secondaryText">{{element?.vendor_name}}</span> </div>
                                     <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Date Time:
-                                        </span> <span class="text-secondaryText">{{getFormattedDate(element?.acquisition_datetime)}}</span> </div>
+                                        </span> <span class="text-secondaryText">{{getFormattedDate(element?.acquisition_datetime,element?.centroid)}}</span> </div>
                                         <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Day of Week:
-                                        </span> <span class="text-secondaryText">{{getDayOfWeek(element?.acquisition_datetime)}}</span> </div>
+                                        </span> <span class="text-secondaryText">{{getDayOfWeek(element?.acquisition_datetime,element?.centroid)}}</span> </div>
                                         <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Image ID:
                                         </span> <span class="text-secondaryText">{{element?.vendor_id}}</span> </div>
                                     <!-- <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Time:
@@ -575,7 +576,7 @@
 </div>
     @if (isEventsOpened && calendarApiData) {
         <div class="z-[1000000] text-secondaryText " >
-          <app-map-calendar [endDateCal]="endDate" [startDateCal]="startDate" [calendarApiData]="calendarApiData"></app-map-calendar>
+          <app-map-calendar [endDateCal]="endDate" [startDateCal]="startDate" (calendarEventsOpen)="calendarEventsOpen()" [calendarApiData]="calendarApiData"></app-map-calendar>
         </div>
       }
    </div>

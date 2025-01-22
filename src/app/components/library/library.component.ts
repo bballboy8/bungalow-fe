@@ -18,7 +18,7 @@ import { MatButtonModule } from "@angular/material/button";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
 import { MatMenuModule, MatMenuTrigger } from "@angular/material/menu";
-import { MatCheckboxModule } from "@angular/material/checkbox";
+import { MatCheckboxChange, MatCheckboxModule } from "@angular/material/checkbox";
 import { MatListModule } from "@angular/material/list";
 import { MatIconModule } from "@angular/material/icon";
 import { CommonModule } from "@angular/common";
@@ -57,7 +57,8 @@ import { provideNativeDateAdapter } from "@angular/material/core";
 import { MatSelectModule } from "@angular/material/select";
 import { MatSliderModule } from "@angular/material/slider";
 import { Options,NgxSliderModule, LabelType } from '@angular-slider/ngx-slider';
-
+import momentZone from 'moment-timezone';
+import tzLookup from 'tz-lookup';
 export class Group {
   name?: string;
   icon?: string; // icon name for Angular Material icons
@@ -167,6 +168,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   imageHover:any ; 
   //#endregion
   vendorData:any;
+  allow_sar= true;
   name:string = "Untitled point";
   siteData:any;
   addGroup:boolean = false;
@@ -182,26 +184,32 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   private _startDate: any;
   private _endDate: any;
   matchedObject:any
+
+  defaultFilter() {
+    return {
+      page_number: '1',
+      page_size: '20',
+      start_date:this.startDate,
+      end_date: this.endDate,
+      source: 'library',
+      zoomed_wkt:this._zoomed_wkt,
+      max_cloud_cover: this.max_cloud,
+      min_cloud_cover:this.min_cloud,
+      max_off_nadir_angle: this.max_angle === 51 ? 1000: this.max_angle,
+      min_off_nadir_angle:this.min_angle,
+      vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
+      vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
+      max_gsd:this.max_gsd === 31 ? 1000 : this.max_gsd,
+      min_gsd:this.min_gsd,
+      allow_sar:  this.allow_sar
+    }
+  }
   @Input()
   set startDate(value: any) {
     if (value !== this._startDate) {
       this._startDate = value;
       console.log('startDate updated:', this._startDate);
-      let queryParams ={
-        page_number: '1',
-        page_size: '20',
-        start_date:this.startDate,
-        end_date: this.endDate,
-        source: 'library',
-        max_cloud_cover: this.formGroup.get('max_cloud')?.value? this.formGroup.get('max_cloud').value:100,
-        min_cloud_cover:this.formGroup.get('min_cloud')?.value?this.formGroup.get('min_cloud').value:0,
-        max_off_nadir_angle: this.formGroup.get('max_angle')?.value?this.formGroup.get('max_angle').value:360,
-        min_off_nadir_angle:this.formGroup.get('min_angle')?.value ?this.formGroup.get('min_angle').value:0,
-        vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
-        vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value.join(','):'',
-        max_gsd:this.formGroup.get('max_gsd')?.value ? this.formGroup.get('max_gsd')?.value:100,
-        min_gsd:this.formGroup.get('min_gsd')?.value ? this.formGroup.get('min_gsd')?.value:0
-      }
+      let queryParams = this.defaultFilter();
       const payload = {
         wkt_polygon: this.polygon_wkt
       }
@@ -241,6 +249,10 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
 
       // Add logic to handle the updated value, e.g., update calculations or UI
     }
+  }
+
+  onCheckboxSAR(event: MatCheckboxChange): void {
+    this.allow_sar = event.checked; // Update the value manually
   }
 
   get startDate(): any {
@@ -311,12 +323,13 @@ set zoomed_wkt(value: string) {
           zoomed_wkt: this._zoomed_wkt,
           max_cloud_cover: this.max_cloud,
           min_cloud_cover:this.min_cloud,
-          max_off_nadir_angle: this.max_angle,
+          max_off_nadir_angle: this.max_angle === 51 ? 1000: this.max_angle,
           min_off_nadir_angle:this.min_angle,
           vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
-          vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value.join(','):'',
-          max_gsd:this.max_gsd,
-          min_gsd:this.min_gsd
+          vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
+          max_gsd:this.max_gsd === 31 ? 1000 : this.max_gsd,
+          min_gsd:this.min_gsd,
+          allow_sar:  this.allow_sar
         };
         const payload = {
           wkt_polygon: this.polygon_wkt
@@ -381,16 +394,36 @@ set zoomed_wkt(value: string) {
   options: Options = {
     floor: 0,
     ceil: 100,
-    
   };
-  max_angle:number = 360;
+  max_angle:number = 51;
   min_angle: number = 0;
   angleOptions: Options = {
     floor: 0,
-    ceil: 360,
+    ceil: 51,
+    translate: (value: number, label: LabelType): string => {
+      if (value === 0) {
+        return '0';
+      } else if (value === 51) {
+        return '50+';
+      }
+      return `${value}`; // Default for other values
+    },
   };
   min_gsd:number =0;
-  max_gsd:number =100;
+  max_gsd:number =31;
+  gsd_options: Options = {
+    floor: 0,
+    ceil:31,
+    translate: (value: number, label: LabelType): string => {
+      if (value === 0) {
+        return '0';
+      } else if (value === 31) {
+        return '30+';
+      }
+      return `${value}`; // Default for other values
+    },
+    
+  };
   @ViewChildren('sliderElement') sliderElements!: QueryList<ElementRef>;
   constructor(
     private dialog: MatDialog,
@@ -469,22 +502,7 @@ set zoomed_wkt(value: string) {
           }));
         }
       })
-      let queryParams ={
-        page_number: '1',
-        page_size: '20',
-        start_date:this.startDate,
-        end_date: this.endDate,
-        source: 'library',
-        max_cloud_cover: this.max_cloud,
-        min_cloud_cover:this.min_cloud,
-        max_off_nadir_angle: this.max_angle,
-        min_off_nadir_angle:this.min_angle,
-        vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
-        vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
-        max_gsd:this.formGroup.get('max_gsd')?.value ? this.formGroup.get('max_gsd')?.value:100,
-        min_gsd:this.formGroup.get('min_gsd')?.value ? this.formGroup.get('min_gsd')?.value:0
-        
-      }
+       let queryParams = this.defaultFilter();
       const payload = {
         wkt_polygon: this.polygon_wkt
       }
@@ -543,22 +561,7 @@ set zoomed_wkt(value: string) {
 
     console.log(activeColumn,'activeColumnactiveColumnactiveColumn',direction);
     
-    let queryParams: any ={
-      page_number: '1',
-      page_size: '20',
-      start_date:this.startDate,
-      end_date: this.endDate,
-      source: 'library',
-      sort_order:direction,
-      max_cloud_cover: this.max_cloud,
-      min_cloud_cover:this.min_cloud,
-      max_off_nadir_angle: this.max_angle,
-      min_off_nadir_angle:this.min_angle,
-      vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
-      vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
-      max_gsd:this.formGroup.get('max_gsd')?.value ? this.formGroup.get('max_gsd')?.value:100,
-      min_gsd:this.formGroup.get('min_gsd')?.value ? this.formGroup.get('min_gsd')?.value:0
-    }
+    let queryParams: any = this.defaultFilter();
     const payload = {
       wkt_polygon: this.polygon_wkt
     }
@@ -767,32 +770,58 @@ set zoomed_wkt(value: string) {
     return value *100 / total
   }
 
-  getFormattedDate(date: Date): string {
-    if (this.selectedZone =='UTC') {
-      return dayjs(date).utc().format('YYYY-MM-DD'); // Format for UTC
+  getFormattedDate(date: Date, centroid?: [number, number]): string {
+    
+    if (this.selectedZone === 'UTC') {
+      // Format date in UTC
+      return momentZone(date).utc().format('YYYY-MM-DD');
+    } else if (centroid && centroid.length === 2) {
+      // Get the time zone based on latitude and longitude
+      const [latitude, longitude] = centroid;
+      const timeZone = tzLookup(latitude, longitude);
+  
+      // Format the date based on the calculated time zone
+      return momentZone(date).tz(timeZone).format('YYYY-MM-DD');
     } else {
-      return dayjs(date).local().format('YYYY-MM-DD'); // Format for local time
+      // Fallback to local time
+      return moment(date).local().format('YYYY-MM-DD');
     }
   }
-  formatUtcTime(payload: string | Date): string {
-    // If payload is a string, convert it to Date first
-    const date = new Date(payload);
+  formatUtcTime(payload) {
+    // Check if payload contains valid acquisition_datetime
+    if (!payload?.acquisition_datetime) {
+      throw new Error('Invalid payload or acquisition_datetime missing');
+    }    
+
+    const date = new Date(payload.acquisition_datetime);
   
     // Check if the date is valid
     if (isNaN(date.getTime())) {
       throw new Error('Invalid date passed');
     }
   
-    // Get the hours and minutes based on the desired time zone
-    const hours = this.selectedZone =='UTC' ? date.getUTCHours() : date.getHours();
-    const minutes = this.selectedZone =='UTC' ? date.getUTCMinutes() : date.getMinutes();
+    if (this.selectedZone === 'UTC') {
+      return momentZone.utc(date).format('HH:mm [UTC]');
+    }
   
-    // Format the hours and minutes with leading zeros
-    const formattedHours = hours.toString().padStart(2, '0');
-    const formattedMinutes = minutes.toString().padStart(2, '0');
+    if (this.selectedZone === 'local' && payload.centroid?.length === 2) {
+      const [latitude, longitude] = payload.centroid;
   
-    // Return formatted time, appending "UTC" if in UTC
-    return `${formattedHours}:${formattedMinutes}${this.selectedZone =='UTC' ? ' UTC' : ''}`;
+      try {
+        // Get the time zone based on latitude and longitude
+        const timeZone = tzLookup(latitude, longitude);
+  
+        // Convert the time to the local time zone
+        const localTime = momentZone(date).tz(timeZone).format('HH:mm');
+  
+        return localTime;
+      } catch (error) {
+        console.error('Failed to determine time zone:', error);
+        throw new Error('Unable to determine local time');
+      }
+    }
+  
+    throw new Error('Invalid selectedZone or centroid information');
   }
   
   // imageHoverView(data:any){
@@ -1152,13 +1181,20 @@ selectedTimeZone(zone: string){
 }
 
 //Get Day of Week
-getDayOfWeek(date: Date): string {
+getDayOfWeek(date: Date, centroid?: [number, number]): string {
   if (this.selectedZone === 'UTC') {
     // Get day of the week in UTC
     return dayjs(date).utc().format('dddd');
+  } else if (centroid && centroid.length === 2) {
+    // Get the time zone based on latitude and longitude
+    const [latitude, longitude] = centroid;
+    const timeZone = tzLookup(latitude, longitude);
+
+    // Format the date based on the calculated time zone
+    return momentZone(date).tz(timeZone).format('dddd');
   } else {
-    // Get day of the week in local time
-    return dayjs(date).local().format('dddd');
+    // Fallback to local time
+    return moment(date).local().format('dddd');
   }
 }
 
@@ -1191,14 +1227,15 @@ private handleWheelEvent = (event: WheelEvent): void => {
         end_date: this.endDate,
         source: 'library',
         zoomed_wkt:this._zoomed_wkt,
-        max_cloud_cover: this.formGroup.get('max_cloud')?.value? this.formGroup.get('max_cloud').value:100,
-        min_cloud_cover:this.formGroup.get('min_cloud')?.value?this.formGroup.get('min_cloud').value:0,
-        max_off_nadir_angle: this.formGroup.get('max_angle')?.value?this.formGroup.get('max_angle').value:360,
-        min_off_nadir_angle:this.formGroup.get('min_angle')?.value ?this.formGroup.get('min_angle').value:0,
+        max_cloud_cover: this.max_cloud,
+        min_cloud_cover:this.min_cloud,
+        max_off_nadir_angle: this.max_angle === 51 ? 1000: this.max_angle,
+        min_off_nadir_angle:this.min_angle,
         vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
-        vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value.join(','):'',
-        max_gsd:this.formGroup.get('max_gsd')?.value ? this.formGroup.get('max_gsd')?.value:100,
-        min_gsd:this.formGroup.get('min_gsd')?.value ? this.formGroup.get('min_gsd')?.value:0
+        vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
+        max_gsd:this.max_gsd === 31 ? 1000 : this.max_gsd,
+        min_gsd:this.min_gsd,
+        allow_sar:  this.allow_sar
       }
       const payload = {
         wkt_polygon: this.polygon_wkt
@@ -1242,7 +1279,7 @@ private handleWheelEvent = (event: WheelEvent): void => {
 };
 
 //Getting time in Day sessions
-getTimePeriod(datetime: string): string {
+getTimePeriod(datetime: string, centroid?: [number, number]): string {
   if(this.selectedZone == 'UTC'){
     const utcDate = dayjs(datetime).utc();
 
@@ -1260,9 +1297,9 @@ getTimePeriod(datetime: string): string {
       return "Overnight";
     }
   } else {
-    const date = new Date(datetime); // Parse the ISO string to a Date object
-    const hours = date.getHours(); // Get the hour (0-23)
-  
+    const [latitude, longitude] = centroid;
+    const timeZone = tzLookup(latitude, longitude);
+    const hours =centroid.length ? momentZone(datetime).tz(timeZone).hour() : new Date(datetime).getHours();  // Parse the ISO string to a Date object        
     if (hours >= 5 && hours < 11) {
       return "Morning";
     } else if (hours >= 11 && hours < 16) {
@@ -1358,22 +1395,8 @@ getDateTimeFormat(dateTime: string) {
   onSubmit() {
    
       const datetime = this.formGroup.value.end_date;
-      const params = {
-        end_date:this.getDateValue(this.endDate),
-        start_date:this.getDateValue(this.startDate),
-        page_number:1,
-        page_size:20,
-        source:'library',
-        max_cloud_cover: this.max_cloud,
-        min_cloud_cover:this.min_cloud,
-        max_off_nadir_angle: this.max_angle,
-        min_off_nadir_angle:this.min_angle,
-        vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
-        vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
-        max_gsd:this.formGroup.get('max_gsd')?.value ? this.formGroup.get('max_gsd')?.value:100,
-        min_gsd:this.formGroup.get('min_gsd')?.value ? this.formGroup.get('min_gsd')?.value:0
-      }
-      console.log('Selected Date and Time:', params);
+     
+     
       const payload = {
         wkt_polygon: this.polygon_wkt
       }
@@ -1382,13 +1405,22 @@ getDateTimeFormat(dateTime: string) {
         start_date:this.getDateValue(this.startDate),
         max_cloud_cover: this.max_cloud,
         min_cloud_cover:this.min_cloud,
-        max_off_nadir_angle: this.max_angle,
+        max_off_nadir_angle: this.max_angle === 51 ? 1000: this.max_angle,
         min_off_nadir_angle:this.min_angle,
         vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
         vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
-        max_gsd:this.max_gsd,
-        min_gsd:this.min_gsd
+        max_gsd:this.max_gsd === 31 ? 1000 : this.max_gsd,
+        min_gsd:this.min_gsd,
+        allow_sar:  this.allow_sar
       }
+      const params = {
+        ...queryParams,
+        page_number:1,
+        page_size:20,
+        source:'library',
+       
+      }
+      console.log('Selected Date and Time:', params);
       this.parentFilter.emit(queryParams)
       this.onFilterset.emit({params, payload});
      setTimeout(() => {
@@ -1440,5 +1472,10 @@ if (endDateControlValue) {
 
   hideMenu(){
     this.sharedService.setRightMenuHide(false)
+  }
+
+  getDouble(data){
+    return parseFloat(data) + parseFloat(data);
+    
   }
 }

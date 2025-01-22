@@ -40,6 +40,8 @@ export class MapCalendarComponent implements OnInit {
   showCalendar: boolean = true;
   @Input() endDateCal:any
   @Input() startDateCal:any;
+
+  @Output() calendarEventsOpen = new EventEmitter();
   private _calendarApiData:any
   @Input()
   set calendarApiData(value: any) {
@@ -59,6 +61,7 @@ export class MapCalendarComponent implements OnInit {
 
   closeEventCalendar(): void {
     this.showCalendar = false;
+    this.calendarEventsOpen.emit()
     console.log("Calendar closed.");
   }
 

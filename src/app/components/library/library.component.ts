@@ -168,7 +168,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   imageHover:any ; 
   //#endregion
   vendorData:any;
-  allow_sar= false;
+  allow_sar= true;
   name:string = "Untitled point";
   siteData:any;
   addGroup:boolean = false;
@@ -1181,13 +1181,20 @@ selectedTimeZone(zone: string){
 }
 
 //Get Day of Week
-getDayOfWeek(date: Date): string {
+getDayOfWeek(date: Date, centroid?: [number, number]): string {
   if (this.selectedZone === 'UTC') {
     // Get day of the week in UTC
     return dayjs(date).utc().format('dddd');
+  } else if (centroid && centroid.length === 2) {
+    // Get the time zone based on latitude and longitude
+    const [latitude, longitude] = centroid;
+    const timeZone = tzLookup(latitude, longitude);
+
+    // Format the date based on the calculated time zone
+    return momentZone(date).tz(timeZone).format('dddd');
   } else {
-    // Get day of the week in local time
-    return dayjs(date).local().format('dddd');
+    // Fallback to local time
+    return moment(date).local().format('dddd');
   }
 }
 

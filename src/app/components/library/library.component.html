@@ -255,8 +255,7 @@
                                         <mat-label class="!text-secondaryText">Max Cloud Cover</mat-label>
                                         <input class="!text-secondaryText" matInput [max]="100" type="number" formControlName="max_cloud">
                                     </mat-form-field> -->
-                                    <mat-label class="!text-secondaryText">Cloud Cover <mat-checkbox class="allow_sar" 
-                                        [checked]="allow_sar" (change)="onCheckboxSAR($event)">Allow SAR</mat-checkbox></mat-label>
+                                    <mat-label class="!text-secondaryText">Cloud Cover</mat-label>
                                     <ngx-slider *ngIf="sliderShow" #sliderElement [(value)]="min_cloud" [(highValue)]="max_cloud" [options]="options"></ngx-slider>
                                 </div>
                                 <!-- <mat-form-field appearance="outline" id="filter" (click)="$event.stopPropagation()">

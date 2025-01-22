@@ -168,7 +168,6 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   imageHover:any ; 
   //#endregion
   vendorData:any;
-  allow_sar= true;
   name:string = "Untitled point";
   siteData:any;
   addGroup:boolean = false;
@@ -201,7 +200,6 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
       vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
       max_gsd:this.max_gsd === 31 ? 1000 : this.max_gsd,
       min_gsd:this.min_gsd,
-      allow_sar:  this.allow_sar
     }
   }
   @Input()
@@ -251,9 +249,6 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
     }
   }
 
-  onCheckboxSAR(event: MatCheckboxChange): void {
-    this.allow_sar = event.checked; // Update the value manually
-  }
 
   get startDate(): any {
     return this._startDate;
@@ -329,7 +324,6 @@ set zoomed_wkt(value: string) {
           vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
           max_gsd:this.max_gsd === 31 ? 1000 : this.max_gsd,
           min_gsd:this.min_gsd,
-          allow_sar:  this.allow_sar
         };
         const payload = {
           wkt_polygon: this.polygon_wkt
@@ -390,9 +384,9 @@ set zoomed_wkt(value: string) {
 
   vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra'];
   max_cloud:number = 100
-  min_cloud: number = 0;
+  min_cloud: number = -1;
   options: Options = {
-    floor: 0,
+    floor: -1,
     ceil: 100,
   };
   max_angle:number = 51;
@@ -1235,7 +1229,6 @@ private handleWheelEvent = (event: WheelEvent): void => {
         vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
         max_gsd:this.max_gsd === 31 ? 1000 : this.max_gsd,
         min_gsd:this.min_gsd,
-        allow_sar:  this.allow_sar
       }
       const payload = {
         wkt_polygon: this.polygon_wkt
@@ -1411,7 +1404,6 @@ getDateTimeFormat(dateTime: string) {
         vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
         max_gsd:this.max_gsd === 31 ? 1000 : this.max_gsd,
         min_gsd:this.min_gsd,
-        allow_sar:  this.allow_sar
       }
       const params = {
         ...queryParams,

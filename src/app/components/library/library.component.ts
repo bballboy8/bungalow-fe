@@ -47,7 +47,7 @@ import { MatSort, MatSortModule, Sort } from "@angular/material/sort";
 import { LiveAnnouncer } from "@angular/cdk/a11y";
 import moment from "moment";
 import { NgxUiLoaderModule, NgxUiLoaderService } from "ngx-ui-loader";
-import { DateFormatPipe } from "../../pipes/date-format.pipe";
+import { DateFormatPipe,UtcDateTimePipe } from "../../pipes/date-format.pipe";
 import { log } from "console";
 import { MapCalendarComponent } from "./map-calendar/map-calendar.component";
 import { stat } from "fs";
@@ -108,7 +108,8 @@ export interface PeriodicElement {
     MatDatepickerModule,
     MatSelectModule,
     MatSliderModule,
-    NgxSliderModule
+    NgxSliderModule,
+    UtcDateTimePipe
 ],
 providers: [provideNativeDateAdapter()],
   templateUrl: "./library.component.html",

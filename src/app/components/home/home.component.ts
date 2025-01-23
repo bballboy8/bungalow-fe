@@ -335,7 +335,9 @@ hybridLayer:L.TileLayer = L.tileLayer(
     // Add right-click event listener
     this.map.on('contextmenu', (event: L.LeafletMouseEvent) => {
       const { lat, lng } = event.latlng;
-      const coords = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+
+      const {normalizedLatitude, normalizedLongitude} =  this.getlatlngNormalized(lat, lng)
+      const coords = `${normalizedLatitude.toFixed(6)}, ${normalizedLongitude.toFixed(6)}`;
     
       // Create a context menu if it doesn't exist
        this.contextMenu = document.getElementById('context-menu');
@@ -843,7 +845,7 @@ private fallbackCopyToClipboard(text: string): void {
 
          const {normalizedLatitude, normalizedLongitude} =  this.getlatlngNormalized(latitude, longitude)
           let direction =  1;
-        if (normalizedLongitude >=0) {
+        if (longitude >=0) {
           direction = 1;       
         } else {      
           direction= -1;  
@@ -1712,7 +1714,7 @@ receiveData(dataArray: any[]) {
       if (data?.coordinates_record?.coordinates) {
         // Extract the coordinates and map them to Leaflet's LatLng format
         const coordinates = data.coordinates_record.coordinates[0].map((coord: number[]) =>
-          new L.LatLng(coord[1], coord[0]) // Convert [lon, lat] to [lat, lon]
+          new L.LatLng(coord[1], coord[0]+ this.mapFormula) // Convert [lon, lat] to [lat, lon]
         );
 
         // Create bounds for the current image
@@ -1766,7 +1768,7 @@ handleMakerData(data: any) {
   if (data?.coordinates_record?.coordinates) {
     // Extract the coordinates and map them to Leaflet's LatLng format
     const coordinates = data.coordinates_record.coordinates[0].map((coord: number[]) =>
-      new L.LatLng(coord[1], coord[0]) // Convert [lon, lat] to [lat, lon]
+      new L.LatLng(coord[1], coord[0]+ this.mapFormula) // Convert [lon, lat] to [lat, lon]
     );
 
     // Create bounds for the current shape

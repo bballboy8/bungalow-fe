@@ -350,7 +350,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
     
         // Add menu option
         const menuOption = document.createElement('div');
-        menuOption.textContent = 'Copy lat/lng coordinates';
+        menuOption.textContent = 'Copy Coordinates';
         menuOption.style.padding = '5px';
         menuOption.style.whiteSpace = 'nowrap';
         menuOption.style.fontSize = '14px';

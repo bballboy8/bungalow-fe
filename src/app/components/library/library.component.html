@@ -123,7 +123,7 @@
                     {{analyticsData?.oldest_date | dateFormat}}
                 </span>
             </div>
-            <div
+            <!-- <div
                 class="w-[182px] flex flex-col p-[10px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">
                 <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">
                     Newest
@@ -131,7 +131,7 @@
                 <span class="text-sm font-semibold leading-[18px] text-secondaryText">
                     {{analyticsData?.newest_info?.acquisition_datetime | dateFormat}}
                 </span>
-            </div>
+            </div> -->
             <div
                 class="w-[182px] flex flex-col p-[10px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">
                 <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">
@@ -188,7 +188,7 @@
                 </span>
                 <div class="absolute z-10 top-[348px] max-w-[200px] font-Barlow text-secondaryText group-hover:block hidden bg-primaryBg p-[10px]">
                     <div class="flex flex-col gap-[5px]">
-                        <span class="text-sm font-semibold leading-[18px] flex-wrap">Calculated by dividing {{roundOff(level.current_count)}} by {{roundOff(level.previous_count)}} which are {{level.key}} days from today and {{getDouble(level.key)}} days from today</span>
+                        <span class="text-sm font-semibold leading-[18px] flex-wrap">{{roundOff(level.current_count)}} ({{level.key}} days)  ÷  {{roundOff(level.previous_count)}} ({{getDouble(level.key)}} days)</span>
                     </div>    
                 </div>
             </div>
@@ -255,8 +255,7 @@
                                         <mat-label class="!text-secondaryText">Max Cloud Cover</mat-label>
                                         <input class="!text-secondaryText" matInput [max]="100" type="number" formControlName="max_cloud">
                                     </mat-form-field> -->
-                                    <mat-label class="!text-secondaryText">Cloud Cover <mat-checkbox class="allow_sar" 
-                                        [checked]="allow_sar" (change)="onCheckboxSAR($event)">Allow SAR</mat-checkbox></mat-label>
+                                    <mat-label class="!text-secondaryText">Cloud Cover</mat-label>
                                     <ngx-slider *ngIf="sliderShow" #sliderElement [(value)]="min_cloud" [(highValue)]="max_cloud" [options]="options"></ngx-slider>
                                 </div>
                                 <!-- <mat-form-field appearance="outline" id="filter" (click)="$event.stopPropagation()">

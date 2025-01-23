@@ -131,6 +131,9 @@ hybridLayer:L.TileLayer = L.tileLayer(
   popUpData:any;
   shapeHoverData:any;
   contextMenu:any
+  mapDirection = 1;
+  mapFormula = 0;
+
   constructor(@Inject(PLATFORM_ID) private platformId: Object,
    private satelliteService:SatelliteService,private dialog: MatDialog,
    private http: HttpClient,
@@ -837,17 +840,42 @@ private fallbackCopyToClipboard(text: string): void {
     if (payload.geometry && Array.isArray(payload.geometry.coordinates)) {
       payload.geometry.coordinates = payload.geometry.coordinates.map(coordinateSet =>
         coordinateSet.map(([longitude, latitude]: [number, number]) => {
-          // Normalize longitude
-          const normalizedLongitude = ((longitude + 180) % 360 + 360) % 360 - 180;
-  
-          // Clamp latitude
-          const normalizedLatitude = Math.max(-90, Math.min(90, latitude));
-  
-          return [normalizedLongitude, normalizedLatitude];
+
+         const {normalizedLatitude, normalizedLongitude} =  this.getlatlngNormalized(latitude, longitude)
+          let direction =  1;
+        if (normalizedLongitude >=0) {
+          direction = 1;       
+        } else {      
+          direction= -1;  
+        }
+        
+       this.mapFormula = (360*(Math.floor((Math.floor((longitude + 180)  / 360)+1) -1)) * direction)
+      return [normalizedLongitude, normalizedLatitude];
         })
       );
     }
     return payload; // Return the updated payload
+  }
+
+  normalizePayloadZoomCoordinates(coordinates: any): any {
+    if (coordinates && Array.isArray(coordinates)) {
+       coordinates = coordinates.map(coordinateSet =>
+        coordinateSet.map(([longitude, latitude]: [number, number]) => {
+
+         const {normalizedLatitude, normalizedLongitude} =  this.getlatlngNormalized(latitude, longitude)
+        //   let direction =  1;
+        // if (normalizedLongitude >=0) {
+        //   direction = 1;       
+        // } else {      
+        //   direction= -1;  
+        // }
+        
+      //  this.mapFormula = (360*(Math.floor((Math.floor((longitude + 180)  / 360)+1) -1)) * direction)
+      return [normalizedLongitude, normalizedLatitude];
+        })
+      );
+    }
+    return coordinates; // Return the updated payload
   }
   //Polygon data getting by using polygon fucntionality
   getDataUsingPolygon(payload: any,queryParams: any) {
@@ -923,7 +951,7 @@ private fallbackCopyToClipboard(text: string): void {
     // Convert [lng, lat] to [lat, lng] (Leaflet requires [lat, lng] format)
     const latLngs = polygonCoordinates.map((coord: [number, number]) => [
         coord[1],
-        coord[0],
+        coord[0] + this.mapFormula,
     ]);
   
     let color = 'rgba(239, 242, 77, 0.8)'; // Default color with 50% opacity
@@ -1122,11 +1150,14 @@ handleAction(action: string): void {
           left: `${markerPoint.x + mapContainer.offsetLeft + 20}px`,
         };
 
+      const {normalizedLatitude, normalizedLongitude} =  this.getlatlngNormalized(clickLat, clickLng)
+
       const  payload= {
-        latitude:clickLat,
-        longitude:clickLng,
+        latitude:normalizedLatitude,
+        longitude:normalizedLongitude,
         distance:1
       }
+    
       this.satelliteService.getPinSelectionAnalytics(payload).subscribe({
         next: (resp) => {
           console.log(resp,'resprespresprespresprespresp');
@@ -1212,6 +1243,16 @@ handleAction(action: string): void {
       return 'Error fetching address';
     }
   }
+
+
+  private getlatlngNormalized(lat, lng) {
+    const normalizedLongitude = ((lng + 180) % 360 + 360) % 360 - 180;
+  
+    // Clamp latitude
+    const normalizedLatitude = Math.max(-90, Math.min(90, lat));
+
+    return {normalizedLatitude, normalizedLongitude}
+  }
   
 
   // Enable drawing mode for polygons or lines
@@ -1284,7 +1325,8 @@ handleAction(action: string): void {
           };
         }
         // API call to get polygon data
-        this.satelliteService.getPolyGonData(payload).subscribe({
+        
+        this.satelliteService.getPolyGonData(this.normalizePayloadCoordinates(payload)).subscribe({
           next: (resp) => {
             console.log(resp, 'Polygon Data Response');
             this.polygon_wkt = resp?.data?.wkt_polygon
@@ -1314,7 +1356,9 @@ handleAction(action: string): void {
   
                       // Mock data for dialog content (replace with actual data if needed)
                       const markerData = res?.data?.analytics;
-                      this.getAddress(center.lat, center.lng).then((address) => {
+                      const {normalizedLatitude, normalizedLongitude} =  this.getlatlngNormalized(center.lat, center.lng)
+
+                      this.getAddress(normalizedLatitude, normalizedLongitude).then((address) => {
                         const dialogRef = this.dialog.open(MapControllersPopupComponent, {
                           width: '355px',
                           data: { type: 'polygon', markerData: markerData, shapeData: shapeData },
@@ -1793,7 +1837,7 @@ highLightShape(data: any): void {
 
   // Extract the coordinates and map them to Leaflet's LatLng format
   const coordinates = data.coordinates_record.coordinates[0].map((coord: number[]) =>
-    new L.LatLng(coord[1], coord[0]) // Convert [lon, lat] to [lat, lon]
+    new L.LatLng(coord[1], coord[0]+this.mapFormula) // Convert [lon, lat] to [lat, lon]
   );
 
   // Determine the color based on the vendor name
@@ -1918,7 +1962,7 @@ boundsToPolygon(bounds: L.LatLngBounds): any {
   };
 }
 polygonToWKT(polygon: any): string {
-  const wktCoordinates = polygon[0]
+  const wktCoordinates = this.normalizePayloadZoomCoordinates(polygon[0])
     .map((ring: any) =>
       ring.map((coord: any) => `${coord[0]} ${coord[1]}`).join(', ')
     )

@@ -16,7 +16,7 @@ import { SharedService } from '../../components/shared/shared.service';
   templateUrl: './groups-list.component.html',
   styleUrl: './groups-list.component.scss'
 })
-export class GroupsListComponent implements AfterViewInit {
+export class GroupsListComponent {
   @Input() group: any; // Current group data
   isExpanded = false; // Tracks expand/collapse state
   @Input() backgroundColor: string = '#191E22';
@@ -34,25 +34,13 @@ export class GroupsListComponent implements AfterViewInit {
   ) { 
   }
 
-  ngAfterViewInit(): void {
-    this.SharedService.nestedPadding$.subscribe((value)=> {
-      console.log(value,'valuevaluevaluevaluevaluevaluevaluevaluevaluevalue');
-      if(value) this.padding = value  
-      
-    })
-  }
-
+  
   toggle(group: any) {
     
     if (group !== this.activeIndex) {
       this.activeIndex = group
-     const newPadding = parseInt(this.padding) +15
-
-      this.SharedService.setNestedPadding(newPadding.toString())
+    
     } else {
-      const newPadding = parseInt(this.padding) - 15
-
-      this.SharedService.setNestedPadding(newPadding.toString()) 
       this.activeIndex = null;
     }
     this.isExpanded = !this.isExpanded; // Toggle expand/collapse
@@ -126,5 +114,15 @@ export class GroupsListComponent implements AfterViewInit {
   // Round off value
   roundOff(value: number): any {
     return Math.round(value);
+  }
+
+  //Padding adjustments
+  getPadding(value){
+    console.log(value,'valuevaluevaluevaluevaluevaluevaluevaluevalue');
+    
+    const newValue = parseInt(value) -10;
+    console.log(newValue.toString(),'valuevaluevaluevaluevaluevaluevaluevaluevalue');
+    
+    return newValue.toString()
   }
 }

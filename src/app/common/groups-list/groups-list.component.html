@@ -11,7 +11,7 @@
                 </span>
             } -->
           <div (click)="toggle(group)" class="py-[10px] cursor-pointer flex border-y border-y-solid border-y-custom-border font-Barlow font-medium leading-[18px] text-secondaryText text-xs">
-            <div class="min-w-[355px] flex gap-[15px]" [ngStyle]="{ 'padding-left': padding }">
+            <div class="min-w-[355px] flex gap-[15px]" [ngStyle]="{ 'padding-left': padding + 'px' }">
                 <img [src]="activeIndex?.id == group?.id ? 'assets/svg-icons/folder-icon-expanded.svg':'assets/svg-icons/folder-icon.svg'" alt="" />
                 <span >{{group.name}}</span>
             </div>
@@ -48,9 +48,9 @@
         @if (activeIndex?.id == group?.id){
             @if (group?.sites.length > 0){
                 @for (site of group?.sites;track site;let j = $index){
-                    <div  class="py-[10px] cursor-pointer flex border-y border-y-solid border-y-custom-border px-[15px] font-Barlow font-medium leading-[18px] text-secondaryText text-xs">
-                        <div class="min-w-[355px] flex gap-[15px]">
-                            <img class="h-[16px] w-[16px]" [src]="site.site_type == 'Rectangle'? 'assets/svg-icons/rectangle-icon.svg':'assets/svg-icons/polygon-icon.svg'" alt="" />
+                    <div  class="py-[10px] items-center cursor-pointer flex border-y border-y-solid border-y-custom-border px-[15px] font-Barlow font-medium leading-[18px] text-secondaryText text-xs">
+                        <div class="min-w-[355px] flex items-center gap-[15px]" [ngStyle]="{ 'padding-left': getPadding(padding) + 'px' }">
+                            <img class="h-[25px] w-[25px] object-cover" height="30" width="30" [src]="site.site_type == 'Rectangle'? 'assets/svg-icons/rectangle-icon.svg':'assets/svg-icons/polygon-icon.svg'" alt="" />
                             <span >{{site.name}}</span>
                         </div>
                         <span class="min-w-[102.324px]"></span>
@@ -86,7 +86,7 @@
             <div class="" >
             @for (subgroup of group.subgroups; track subgroup;let i = $index) {
             <div class="overflow-hidden transition-all duration-300 ease-in-out">
-            <app-groups-list [group]="subgroup" [index]="i" [type]="'Groups'" [padding]="'30px'"></app-groups-list>
+            <app-groups-list [group]="subgroup" [index]="i" [type]="'Groups'" [padding]="'30'"></app-groups-list>
             </div>
              }
         </div>

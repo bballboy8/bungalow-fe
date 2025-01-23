@@ -70,7 +70,7 @@
     >
     @if (nestedGroupsData?.sites?.length > 0){
         @for (site of nestedGroupsData?.sites;track site;let j = $index){
-            <div  class="py-[10px] cursor-pointer flex border-y border-y-solid border-y-custom-border font-Barlow font-medium leading-[18px] text-secondaryText text-xs">
+            <div  class="py-[10px] items-center cursor-pointer flex border-y border-y-solid border-y-custom-border font-Barlow font-medium leading-[18px] text-secondaryText text-xs">
                 <div class="min-w-[355px] items-center flex gap-[15px] pl-[5px]">
                     <img class="h-[25px] w-[25px] object-cover" height="30" width="30" [src]="site.site_type == 'Rectangle'? 'assets/svg-icons/rectangle-icon.svg':'assets/svg-icons/polygon-icon.svg'" alt="" />
                     <span >{{site.name}}</span>
@@ -111,7 +111,7 @@
         (selectedGroup)="selectedGroupEvent($event)" 
         [index]="i"
         [type]="'Groups'"
-        [padding]="'15px'"
+        [padding]="'15'"
       ></app-groups-list>
         </ng-container>
     }

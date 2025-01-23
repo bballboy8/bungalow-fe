@@ -233,4 +233,9 @@ export class GroupsComponent implements OnInit,AfterViewInit {
     console.log(event,'grouppppppppppppppppppppppppppppppppppppp');
     
   }
+
+  // Round off value
+  roundOff(value: number): any {
+    return Math.round(value);
+  }
 }

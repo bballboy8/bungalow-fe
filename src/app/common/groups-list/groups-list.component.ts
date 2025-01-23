@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, inject, input, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, inject, input, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { DateFormatPipe } from '../../pipes/date-format.pipe';
 import { MatMenuModule } from '@angular/material/menu';
@@ -16,7 +16,7 @@ import { SharedService } from '../../components/shared/shared.service';
   templateUrl: './groups-list.component.html',
   styleUrl: './groups-list.component.scss'
 })
-export class GroupsListComponent {
+export class GroupsListComponent implements AfterViewInit {
   @Input() group: any; // Current group data
   isExpanded = false; // Tracks expand/collapse state
   @Input() backgroundColor: string = '#191E22';
@@ -26,18 +26,33 @@ export class GroupsListComponent {
   @Input() type: string = ''
   @Input() padding: string = '';
   private _snackBar = inject(MatSnackBar);
-
+  site_objects_count:any
   constructor(private overlayContainer: OverlayContainer,
     private dialog: MatDialog,
     private satelliteService:SatelliteService,
     private SharedService: SharedService
   ) { 
   }
-  toggle(group: any) {
 
+  ngAfterViewInit(): void {
+    this.SharedService.nestedPadding$.subscribe((value)=> {
+      console.log(value,'valuevaluevaluevaluevaluevaluevaluevaluevaluevalue');
+      if(value) this.padding = value  
+      
+    })
+  }
+
+  toggle(group: any) {
+    
     if (group !== this.activeIndex) {
       this.activeIndex = group
+     const newPadding = parseInt(this.padding) +15
+
+      this.SharedService.setNestedPadding(newPadding.toString())
     } else {
+      const newPadding = parseInt(this.padding) - 15
+
+      this.SharedService.setNestedPadding(newPadding.toString()) 
       this.activeIndex = null;
     }
     this.isExpanded = !this.isExpanded; // Toggle expand/collapse
@@ -108,6 +123,8 @@ export class GroupsListComponent {
      
     });
   }
-
-
+  // Round off value
+  roundOff(value: number): any {
+    return Math.round(value);
+  }
 }

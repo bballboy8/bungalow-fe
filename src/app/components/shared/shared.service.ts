@@ -15,6 +15,8 @@ export class SharedService {
   rowHover$ = this.rowHover.asObservable()
   private rightMenuHide = new BehaviorSubject<any>(false);
   rightMenuHide$ = this.rightMenuHide.asObservable()
+  private nestedPadding = new BehaviorSubject<any>(null);
+  nestedPadding$ = this.nestedPadding.asObservable()
   constructor() {}
 
   setIsOpenedEventCalendar(isOpened: boolean): void {
@@ -32,5 +34,9 @@ export class SharedService {
   }
   setRightMenuHide(data: any): void{
     this.rightMenuHide.next(data);
+  }
+
+  setNestedPadding(data: any): void{
+    this.nestedPadding.next(data);
   }
 }

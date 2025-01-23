@@ -1556,6 +1556,7 @@ onDateRangeChanged(event: { startDate: string, endDate: string }) {
       start_date:this.startDate,
       end_date: this.endDate
     }
+    this.closeDrawer()
   this.getDataUsingPolygon(this.data,queryParams);
   }
   this.cdr.detectChanges();

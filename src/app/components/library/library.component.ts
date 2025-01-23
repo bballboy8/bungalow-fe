@@ -564,17 +564,20 @@ set zoomed_wkt(value: string) {
          queryParams ={
           ...queryParams,
           sort_by:'acquisition_datetime',
+          sort_order: direction
         }
  
           } else if (activeColumn === 'Sensor') {
         queryParams ={
           ...queryParams,
           sort_by:'sensor',
+          sort_order: direction
         }
       } else if (activeColumn === 'Vendor') {
         queryParams ={
           ...queryParams,
           sort_by:'vendor_name',
+          sort_order: direction
         }
 
       }

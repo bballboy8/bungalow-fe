@@ -845,7 +845,7 @@ private fallbackCopyToClipboard(text: string): void {
 
          const {normalizedLatitude, normalizedLongitude} =  this.getlatlngNormalized(latitude, longitude)
           let direction =  1;
-        if (normalizedLongitude >=0) {
+        if (longitude >=0) {
           direction = 1;       
         } else {      
           direction= -1;  
@@ -1714,7 +1714,7 @@ receiveData(dataArray: any[]) {
       if (data?.coordinates_record?.coordinates) {
         // Extract the coordinates and map them to Leaflet's LatLng format
         const coordinates = data.coordinates_record.coordinates[0].map((coord: number[]) =>
-          new L.LatLng(coord[1], coord[0]) // Convert [lon, lat] to [lat, lon]
+          new L.LatLng(coord[1], coord[0]+ this.mapFormula) // Convert [lon, lat] to [lat, lon]
         );
 
         // Create bounds for the current image
@@ -1768,7 +1768,7 @@ handleMakerData(data: any) {
   if (data?.coordinates_record?.coordinates) {
     // Extract the coordinates and map them to Leaflet's LatLng format
     const coordinates = data.coordinates_record.coordinates[0].map((coord: number[]) =>
-      new L.LatLng(coord[1], coord[0]) // Convert [lon, lat] to [lat, lon]
+      new L.LatLng(coord[1], coord[0]+ this.mapFormula) // Convert [lon, lat] to [lat, lon]
     );
 
     // Create bounds for the current shape

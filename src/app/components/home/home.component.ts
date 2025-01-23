@@ -335,7 +335,9 @@ hybridLayer:L.TileLayer = L.tileLayer(
     // Add right-click event listener
     this.map.on('contextmenu', (event: L.LeafletMouseEvent) => {
       const { lat, lng } = event.latlng;
-      const coords = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+
+      const {normalizedLatitude, normalizedLongitude} =  this.getlatlngNormalized(lat, lng)
+      const coords = `${normalizedLatitude.toFixed(6)}, ${normalizedLongitude.toFixed(6)}`;
     
       // Create a context menu if it doesn't exist
        this.contextMenu = document.getElementById('context-menu');

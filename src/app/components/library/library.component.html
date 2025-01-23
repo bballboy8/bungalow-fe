@@ -164,7 +164,7 @@
                         <span>{{analyticsData?.newest_info?.acquisition_datetime | utcDateTimePipe}} UTC</span>
                     </div>
                     <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
-                        <span>Provider:</span>
+                        <span>Vendor:</span>
                         <span>{{analyticsData?.newest_info?.vendor_name }}</span>
                     </div>
                     
@@ -184,7 +184,7 @@
                         <span>{{analyticsData?.newest_clear_cloud_cover_info?.acquisition_datetime | utcDateTimePipe}} UTC</span>
                     </div>
                     <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
-                        <span>Provider:</span>
+                        <span>Vendor:</span>
                         <span>{{analyticsData?.newest_clear_cloud_cover_info?.vendor_name }}</span>
                     </div>
                     
@@ -231,11 +231,11 @@
                 <button (click)="selectPreviewMethod('table')"
                     class="text-xs leading-[18px] py-[9px] font-semibold my-[7px] mr-[10px] ml-[7px] rounded-[19px] px-[20px]"
                     [ngClass]="viewType ==='table'?'text-[#453303] bg-yellow':'text-secondary-heiglight'">Image Library
-                     {{viewType ==='table'? total_count + ' / ':''}}{{viewType ==='table'? formatNumber(analyticsData?.total_count):''}}</button>
+                     {{viewType ==='table'? zoomed_captures_count + ' / ':''}}{{viewType ==='table'? formatNumber(total_count):''}}</button>
                 <button (click)="selectPreviewMethod('browse')"
                     class="text-xs leading-[18px] py-[9px] font-semibold my-[7px] mr-[7px] rounded-[19px] px-[20px] "
                     [ngClass]="viewType ==='browse'?'text-[#453303] bg-yellow':'text-secondary-heiglight'">Browse
-                    {{viewType ==='browse'? total_count + ' / ':''}}{{viewType ==='browse'? formatNumber(analyticsData?.total_count):''}}</button>
+                    {{viewType ==='browse'? zoomed_captures_count + ' / ':''}}{{viewType ==='browse'? formatNumber(total_count):''}}</button>
             </div>
             <div class="Menu">
                 <div class="flex">
@@ -386,9 +386,9 @@
                 <div class="w-full flex justify-center items-center" *ngIf="!dataSource.data.length">
                     <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Data not found</span>
                 </div>
-                <table id="library-table" style="    background-color: rgb(32 39 45 / var(--tw-bg-opacity, 1)) !important;" mat-table [dataSource]="dataSource" matSort multiTemplateDataRows
+                <table id="library-table" style="    background-color: rgb(32 39 45 / var(--tw-bg-opacity, 1)) !important;" mat-table (matSortChange)="onSortChange($event)" [dataSource]="dataSource" matSort multiTemplateDataRows
                 class="font-Barlow mat-elevation-z8 bg-primaryBg w-full border border-secondaryText rounded-lg" [ngClass]="dataSource.data.length ? 'opacity-100':'opacity-0'">
-                <ng-container matColumnDef="selectDate">
+                <ng-container matColumnDef="acquisition_datetime">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header class="w-[185px] p-[10px] text-secondaryText font-semibold">
                         <mat-checkbox class="cursor-default" [aria-label]="'Select All'">
                         </mat-checkbox>
@@ -405,41 +405,41 @@
                     </td>
                 </ng-container>
 
-                <ng-container matColumnDef="Sensor">
+                <ng-container matColumnDef="sensor">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header class="w-[115px] p-[10px] text-secondaryText font-semibold">
                         Sensor</th>
                     <td mat-cell *matCellDef="let row" class="w-[115px] p-[10px] text-secondaryText">{{ row?.sensor }}
                     </td>
                 </ng-container>
 
-                <ng-container matColumnDef="Vendor">
+                <ng-container matColumnDef="vendor_name">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header class="w-[115px] p-[10px] text-secondaryText font-semibold">
                         Vendor</th>
                     <td mat-cell *matCellDef="let row" class="w-[115px] p-[10px] text-secondaryText">{{ row?.vendor_name }}
                     </td>
                 </ng-container>
 
-                <ng-container matColumnDef="Clouds">
-                    <th mat-header-cell *matHeaderCellDef class="w-[70px] p-[10px] text-secondaryText font-semibold">
+                <ng-container matColumnDef="cloud_cover">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header class="w-[70px] p-[10px] text-secondaryText font-semibold">
                         Clouds</th>
                     <td mat-cell *matCellDef="let row" class="w-[70px] p-[10px] text-secondaryText">{{row?.vendor_name !== 'capella' && row?.vendor_name !== 'skyfi-umbra'? roundOff(row?.cloud_cover)+ '%':'SAR'}}</td>
                 </ng-container>
 
-                <ng-container matColumnDef="Resolution">
-                    <th mat-header-cell *matHeaderCellDef class="w-[90px] p-[10px] text-secondaryText font-semibold">
+                <ng-container matColumnDef="gsd">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header class="w-[90px] p-[10px] text-secondaryText font-semibold">
                         Resolution</th>
                     <td mat-cell *matCellDef="let row" class="w-[90px] p-[10px] text-secondaryText">{{toDecimal(row?.gsd)}}m
                     </td>
                 </ng-container>
 
                 <ng-container matColumnDef="type">
-                    <th mat-header-cell *matHeaderCellDef class="w-[80px] p-[10px] text-secondaryText font-semibold">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header class="w-[80px] p-[10px] text-secondaryText font-semibold">
                         Type</th>
                     <td mat-cell *matCellDef="let row" class="w-[80px] p-[10px] text-secondaryText">{{ getTimePeriod(row?.acquisition_datetime,row?.centroid) }}</td>
                 </ng-container>
 
-                <ng-container matColumnDef="Id">
-                    <th mat-header-cell *matHeaderCellDef class="w-[165px] p-[10px] text-secondaryText font-semibold">ID
+                <ng-container matColumnDef="vendor_id">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header class="w-[165px] p-[10px] text-secondaryText font-semibold">ID
                     </th>
                     <td mat-cell *matCellDef="let row" class="w-[165px] p-[10px] text-secondaryText">
                         <div class="flex">

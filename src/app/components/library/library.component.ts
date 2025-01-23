@@ -151,13 +151,13 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   expandedElement: PeriodicElement | null = null;
   dataSource = new MatTableDataSource<any>(/* your data source */);
   displayedColumns: string[] = [
-    "selectDate",
-    "Sensor",
-    "Vendor",
-    "Clouds",
-    "Resolution",
+    "acquisition_datetime",
+    "sensor",
+    "vendor_name",
+    "cloud_cover",
+    "gsd",
     "type",
-    "Id",
+    "vendor_id",
   ];
   total_count:any
   selection = new SelectionModel<PeriodicElement>(true, []);
@@ -199,7 +199,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
       min_off_nadir_angle:this.min_angle,
       vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
       vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
-      max_gsd:this.max_gsd === 31 ? 1000 : this.max_gsd,
+      max_gsd:this.max_gsd === 4 ? 1000 : this.max_gsd,
       min_gsd:this.min_gsd,
     }
   }
@@ -323,7 +323,7 @@ set zoomed_wkt(value: string) {
           min_off_nadir_angle:this.min_angle,
           vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
           vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
-          max_gsd:this.max_gsd === 31 ? 1000 : this.max_gsd,
+          max_gsd:this.max_gsd === 4 ? 1000 : this.max_gsd,
           min_gsd:this.min_gsd,
         };
         const payload = {
@@ -405,15 +405,15 @@ set zoomed_wkt(value: string) {
     },
   };
   min_gsd:number =0;
-  max_gsd:number =31;
+  max_gsd:number =4;
   gsd_options: Options = {
     floor: 0,
-    ceil:31,
+    ceil:4,
     translate: (value: number, label: LabelType): string => {
       if (value === 0) {
         return '0';
-      } else if (value === 31) {
-        return '30+';
+      } else if (value === 4) {
+        return '3+';
       }
       return `${value}`; // Default for other values
     },
@@ -511,6 +511,10 @@ set zoomed_wkt(value: string) {
     
   }
 
+  onSortChange(event: { active: string; direction: string }) {
+    this.sortData();
+  }
+
   ngAfterViewInit(): void {
     if(this.dataSource ){
       setTimeout(() => {
@@ -520,13 +524,6 @@ set zoomed_wkt(value: string) {
     }
     this.dataSource.sort = this.sort;
     console.log(this.dataSource,'sortsortsortsortsort');
-    this.sort?.sortChange.pipe(
-      debounceTime(300) // Adjust the time as needed
-    ).subscribe((sortState) => {
-      console.log('Sorting changed:', sortState);
-      console.log('Sorted Data:', this.dataSource.filteredData);
-      this.sortData(); // Will only be called once after the debounce time
-    });
     this.sharedService.isOpenedEventCalendar$.subscribe((isOpened) => {
       console.log(isOpened,'isOpenedisOpenedisOpened');
       
@@ -561,27 +558,14 @@ set zoomed_wkt(value: string) {
       wkt_polygon: this.polygon_wkt
     }
 
-      if (activeColumn === 'selectDate') {
+      if (activeColumn) {
          queryParams ={
           ...queryParams,
-          sort_by:'acquisition_datetime',
+          sort_by:activeColumn,
           sort_order: direction
         }
  
-          } else if (activeColumn === 'Sensor') {
-        queryParams ={
-          ...queryParams,
-          sort_by:'sensor',
-          sort_order: direction
-        }
-      } else if (activeColumn === 'Vendor') {
-        queryParams ={
-          ...queryParams,
-          sort_by:'vendor_name',
-          sort_order: direction
-        }
-
-      }
+          }   
       this.loader = true
       this.ngxLoader.start(); // Start the loader
       this.getSatelliteCatalog(payload,queryParams)
@@ -1231,7 +1215,7 @@ private handleWheelEvent = (event: WheelEvent): void => {
         min_off_nadir_angle:this.min_angle,
         vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
         vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
-        max_gsd:this.max_gsd === 31 ? 1000 : this.max_gsd,
+        max_gsd:this.max_gsd === 4 ? 1000 : this.max_gsd,
         min_gsd:this.min_gsd,
       }
       const payload = {
@@ -1406,7 +1390,7 @@ getDateTimeFormat(dateTime: string) {
         min_off_nadir_angle:this.min_angle,
         vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
         vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
-        max_gsd:this.max_gsd === 31 ? 1000 : this.max_gsd,
+        max_gsd:this.max_gsd === 4 ? 1000 : this.max_gsd,
         min_gsd:this.min_gsd,
       }
       const params = {

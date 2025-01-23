@@ -338,10 +338,11 @@ hybridLayer:L.TileLayer = L.tileLayer(
 
       const {normalizedLatitude, normalizedLongitude} =  this.getlatlngNormalized(lat, lng)
       const coords = `${normalizedLatitude.toFixed(6)}, ${normalizedLongitude.toFixed(6)}`;
-    
+          
       // Create a context menu if it doesn't exist
        this.contextMenu = document.getElementById('context-menu');
       if (!this.contextMenu) {
+        
         this.contextMenu = document.createElement('div');
         this.contextMenu.id = 'context-menu';
         this.contextMenu.style.position = 'absolute';
@@ -379,6 +380,9 @@ hybridLayer:L.TileLayer = L.tileLayer(
     
           // Hide the context menu
           this.contextMenu.style.display = 'none';
+          this.contextMenu.removeChild(menuOption);
+          document.body.removeChild(this.contextMenu);
+          this.contextMenu = null;
         });
     
         this.contextMenu.appendChild(menuOption);
@@ -1247,13 +1251,14 @@ handleAction(action: string): void {
   }
 
 
-  private getlatlngNormalized(lat, lng) {
+  private getlatlngNormalized(lat: number, lng: number) {
+    // Normalize longitude to [-180, 180]
     const normalizedLongitude = ((lng + 180) % 360 + 360) % 360 - 180;
   
-    // Clamp latitude
+    // Clamp latitude to [-90, 90]
     const normalizedLatitude = Math.max(-90, Math.min(90, lat));
-
-    return {normalizedLatitude, normalizedLongitude}
+  
+    return { normalizedLatitude, normalizedLongitude };
   }
   
 

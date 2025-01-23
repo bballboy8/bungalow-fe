@@ -151,22 +151,44 @@
                 </span>
             </div>
             <div
-                class="w-[182px] flex flex-col p-[10px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">
+                class="w-[182px] group flex flex-col p-[10px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">
                 <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">
                     Most recent
                 </span>
                 <span class="text-sm font-semibold leading-[18px] text-yellow">
                     {{analyticsData?.newest_info?.acquisition_datetime | dateFormat}}
                 </span>
+                <div class="hidden absolute shadow-custom rounded-[10px] z-10 top-[245px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                    <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                        <span>Date time:</span>
+                        <span>{{analyticsData?.newest_info?.acquisition_datetime | utcDateTimePipe}} UTC</span>
+                    </div>
+                    <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                        <span>Provider:</span>
+                        <span>{{analyticsData?.newest_info?.vendor_name }}</span>
+                    </div>
+                    
+                </div>
             </div>
             <div
-                class="w-[182px] flex flex-col p-[10px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">
+                class="w-[182px] group flex flex-col p-[10px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">
                 <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">
                     Most recent clear
                 </span>
                 <span class="text-sm font-semibold leading-[18px] text-yellow">
                     {{analyticsData?.newest_clear_cloud_cover_info?.acquisition_datetime | dateFormat}}
                 </span>
+                <div class="hidden absolute shadow-custom right-[20px] z-10 rounded-[10px] top-[245px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                    <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                        <span>Date time:</span>
+                        <span>{{analyticsData?.newest_clear_cloud_cover_info?.acquisition_datetime | utcDateTimePipe}} UTC</span>
+                    </div>
+                    <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                        <span>Provider:</span>
+                        <span>{{analyticsData?.newest_clear_cloud_cover_info?.vendor_name }}</span>
+                    </div>
+                    
+                </div>
             </div>
         </div>
 

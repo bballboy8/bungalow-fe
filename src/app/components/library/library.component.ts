@@ -315,40 +315,41 @@ set zoomed_wkt(value: string) {
     }
 
     this.debounceTimeout = setTimeout(() => {
+      let minCloud
+      if(this.min_cloud <= -1) {
+        minCloud = -1
+      } else {
+        minCloud = this.min_cloud
+      } 
+      let queryParams: any = {
+        page_number: '1',
+        page_size: this.page_size,
+        start_date: this.startDate,
+        end_date: this.endDate,
+        source: 'library',
+        max_cloud_cover: this.max_cloud,
+        min_cloud_cover:minCloud,
+        max_off_nadir_angle: this.max_angle === 51 ? 1000: this.max_angle,
+        min_off_nadir_angle:this.min_angle,
+        vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
+        vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
+        max_gsd:this.max_gsd === 4 ? 1000 : this.max_gsd,
+        min_gsd:this.min_gsd,
+      };
+      const payload = {
+        wkt_polygon: this.polygon_wkt
+      };
       if (this._zoomed_wkt !== '') {
-        let minCloud
-        if(this.min_cloud <= -1) {
-          minCloud = -1
-        } else {
-          minCloud = this.min_cloud
-        } 
-        let queryParams = {
-          page_number: '1',
-          page_size: this.page_size,
-          start_date: this.startDate,
-          end_date: this.endDate,
-          source: 'library',
-          zoomed_wkt: this._zoomed_wkt,
-          max_cloud_cover: this.max_cloud,
-          min_cloud_cover:minCloud,
-          max_off_nadir_angle: this.max_angle === 51 ? 1000: this.max_angle,
-          min_off_nadir_angle:this.min_angle,
-          vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
-          vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
-          max_gsd:this.max_gsd === 4 ? 1000 : this.max_gsd,
-          min_gsd:this.min_gsd,
-        };
-        const payload = {
-          wkt_polygon: this.polygon_wkt
-        };
-        this.loader = true;
-        this.ngxLoader.start(); // Start the loader
-        this.page_number = '1';
-        this.getSatelliteCatalog(payload, queryParams);
+        queryParams = {...queryParams,  zoomed_wkt: this._zoomed_wkt}
+       
         
       } else {
-        this.resetSorting();
+        queryParams = {...queryParams,  zoomed_wkt: ''}
       }
+      this.loader = true;
+      this.ngxLoader.start(); // Start the loader
+      this.page_number = '1';
+      this.getSatelliteCatalog(payload, queryParams);
     }, 800);
      // Debounce time: 600ms
   }

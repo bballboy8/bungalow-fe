@@ -9,6 +9,7 @@ import {
 } from "@angular/core";
 import dayjs from "dayjs";
 import minMax from "dayjs/plugin/minMax";
+import { legends_calendar } from "../../shared/calrendar-range-colos";
 dayjs.extend(minMax);
 
 type CalendarDay = {
@@ -55,7 +56,9 @@ export class MapCalendarComponent implements OnInit {
 
   get calendarApiData(): any {
     return this._calendarApiData;
-  }
+  };
+  
+  
   ngOnInit(): void {
   }
 
@@ -133,10 +136,11 @@ export class MapCalendarComponent implements OnInit {
   }
   
   getBackgroundColor(value: number): string {
-    // Generate a random color for the background
-    return this.getRandomDarkColor();
+    const matchedRange = legends_calendar.find(
+      range => value >= range.min && value <= range.max
+    );
+    return matchedRange?.color; // Default to black if no match
   }
-
   getDate(month: string, day: any): string {
     // Create the full date string like '2024-12-01' by combining year, month, and day
     const fullDate = `${day.date}`;

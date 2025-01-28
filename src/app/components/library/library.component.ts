@@ -185,13 +185,9 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   private _endDate: any;
   matchedObject:any
 
+  filterParams:any;
+
   defaultFilter() {
-    let minCloud
-    if(this.min_cloud <= -1) {
-      minCloud = -1
-    } else {
-      minCloud = this.min_cloud
-    } 
     return {
       page_number: '1',
       page_size: '20',
@@ -199,14 +195,6 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
       end_date: this.endDate,
       source: 'library',
       zoomed_wkt:this._zoomed_wkt,
-      max_cloud_cover: this.max_cloud,
-      min_cloud_cover:minCloud,
-      max_off_nadir_angle: this.max_angle === 51 ? 1000: this.max_angle,
-      min_off_nadir_angle:this.min_angle,
-      vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
-      vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
-      max_gsd:this.max_gsd === 4 ? 1000 : this.max_gsd,
-      min_gsd:this.min_gsd,
     }
   }
   @Input()
@@ -214,7 +202,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
     if (value !== this._startDate) {
       this._startDate = value;
       console.log('startDate updated:', this._startDate);
-      let queryParams = this.defaultFilter();
+      let queryParams = this.filterParams;
       const payload = {
         wkt_polygon: this.polygon_wkt
       }
@@ -327,14 +315,7 @@ set zoomed_wkt(value: string) {
         start_date: this.startDate,
         end_date: this.endDate,
         source: 'library',
-        max_cloud_cover: this.max_cloud,
-        min_cloud_cover:minCloud,
-        max_off_nadir_angle: this.max_angle === 51 ? 1000: this.max_angle,
-        min_off_nadir_angle:this.min_angle,
-        vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
-        vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
-        max_gsd:this.max_gsd === 4 ? 1000 : this.max_gsd,
-        min_gsd:this.min_gsd,
+        ...this.filterParams
       };
       const payload = {
         wkt_polygon: this.polygon_wkt
@@ -349,6 +330,7 @@ set zoomed_wkt(value: string) {
       this.loader = true;
       this.ngxLoader.start(); // Start the loader
       this.page_number = '1';
+      this.filterParams = {...queryParams}
       this.getSatelliteCatalog(payload, queryParams);
     }, 800);
      // Debounce time: 600ms
@@ -522,14 +504,14 @@ set zoomed_wkt(value: string) {
           }));
         }
       })
-       let queryParams = this.defaultFilter();
+       this.filterParams = this.defaultFilter();
       const payload = {
         wkt_polygon: this.polygon_wkt
       }
      setTimeout(() => {
       this.loader = true
       this.ngxLoader.start(); // Start the loader
-      this.getSatelliteCatalog(payload,queryParams)
+      this.getSatelliteCatalog(payload,this.filterParams)
      },300)
       
     }
@@ -578,7 +560,7 @@ set zoomed_wkt(value: string) {
 
     console.log(activeColumn,'activeColumnactiveColumnactiveColumn',direction);
     
-    let queryParams: any = this.defaultFilter();
+    let queryParams: any = this.filterParams;
     const payload = {
       wkt_polygon: this.polygon_wkt
     }
@@ -1429,6 +1411,7 @@ getDateTimeFormat(dateTime: string) {
         vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
         max_gsd:this.max_gsd === 4 ? 1000 : this.max_gsd,
         min_gsd:this.min_gsd,
+        ...this.filterParams
       }
       const params = {
         ...queryParams,
@@ -1437,9 +1420,11 @@ getDateTimeFormat(dateTime: string) {
         source:'library',
        
       }
+      this.filterParams = {...this.filterParams, ...params}
+
       console.log('Selected Date and Time:', params);
       this.parentFilter.emit(queryParams)
-      this.onFilterset.emit({params, payload});
+      this.onFilterset.emit({params:  this.filterParams, payload});
      setTimeout(() => {
       this.loader = true
       this.ngxLoader.start(); // Start the loader

@@ -855,7 +855,7 @@ private fallbackCopyToClipboard(text: string): void {
           direction= -1;  
         }
         
-       this.mapFormula = (360*(Math.floor((Math.floor((longitude + 180)  / 360)+1) -1)) * direction)
+       this.mapFormula = (360*(Math.floor((Math.floor((longitude + 180)  / 360)+1) -1)))
       return [normalizedLongitude, normalizedLatitude];
         })
       );

@@ -41,7 +41,7 @@ import { SatelliteService } from "../../services/satellite.service";
 import dayjs from "dayjs";
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { GroupsListComponent } from "../../common/groups-list/groups-list.component";
-import { catchError, debounceTime, of, Subject, switchMap } from "rxjs";
+import { catchError, debounceTime, distinctUntilChanged, of, Subject, switchMap } from "rxjs";
 import { MapControllersPopupComponent } from "../../dailogs/map-controllers-popup/map-controllers-popup.component";
 import { MatSort, MatSortModule, Sort } from "@angular/material/sort";
 import { LiveAnnouncer } from "@angular/cdk/a11y";
@@ -150,15 +150,22 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
 
   expandedElement: PeriodicElement | null = null;
   dataSource = new MatTableDataSource<any>(/* your data source */);
-  displayedColumns: string[] = [
-    "acquisition_datetime",
-    "sensor",
-    "vendor_name",
-    "cloud_cover",
-    "gsd",
-    "type",
-    "vendor_id",
+  columns = [
+    { id: 'acquisition_datetime', displayName: 'Date', visible: true },
+    { id: 'sensor', displayName: 'Sensor', visible: true },
+    { id: 'vendor_name', displayName: 'Vendor', visible: true },
+    { id: 'cloud_cover', displayName: 'Clouds', visible: true },
+    { id: 'gsd', displayName: 'Resolution', visible: true },
+    { id: 'type', displayName: 'Type', visible: true },
+    { id: 'vendor_id', displayName: 'ID', visible: true },
   ];
+  
+  get displayedColumns(): string[] {
+    return [
+      ...this.columns.filter(c => c.visible).map(c => c.id),
+      'expand' // Keep expand column always visible
+    ];
+  }
   total_count:any
   selection = new SelectionModel<PeriodicElement>(true, []);
 
@@ -427,6 +434,9 @@ set zoomed_wkt(value: string) {
     
   };
   @ViewChildren('sliderElement') sliderElements!: QueryList<ElementRef>;
+  searchQuery = '';
+  searchSubject$ = new Subject<string>();
+  filteredColumns = this.columns;
   constructor(
     private dialog: MatDialog,
     private sharedService: SharedService,
@@ -485,11 +495,16 @@ set zoomed_wkt(value: string) {
             });
           }
         });
+        this.searchSubject$.pipe(
+          debounceTime(300),
+          distinctUntilChanged()
+        ).subscribe(query => {
+          this.filterColumns(query);
+        });
   }
 
   ngOnInit() {
    
-    
     this.renderGroup = this.myTemplate;
     // this.sharedService.isOpenedEventCalendar$.subscribe(resp=>this.isEventsOpened=resp)
     if(this.polygon_wkt){
@@ -1125,9 +1140,7 @@ setDynamicHeight(): void {
 ngOnDestroy(): void {
   window.removeEventListener('resize', this.setDynamicHeight.bind(this));  // Clean up event listener
   const div = this.scrollableDiv?.nativeElement;
-
-    // Remove all listeners to avoid memory leaks
-   
+    // Remove all listeners to avoid memory leaks  
 }
 
 // Round off value
@@ -1479,5 +1492,33 @@ if (endDateControlValue) {
   getDouble(data){
     return parseFloat(data) + parseFloat(data);
     
+  }
+  //set column selection menu class
+  setColumnMenuClass(){
+    const containerElement = this.overlayContainer.getContainerElement();
+    containerElement.classList.add('column-menu');
+  }
+
+  //Input column change value function
+  onSearchChange(query: string): void {
+    this.searchSubject$.next(query);
+  }
+  
+  //Function to get searched column
+  private filterColumns(query: string): void {
+    this.filteredColumns = this.columns.filter(col => 
+      col.displayName.toLowerCase().includes(query.toLowerCase())
+    );
+  }
+
+  //Reset columns to default values
+  resetColumns(){
+    this.columns.forEach(col => col.visible = true);
+    // Clear search query
+    this.searchQuery = '';
+    // Reset filtered columns to show all
+    this.filterColumns('');
+    // If you need to reset any other filtering states
+    this.filteredColumns = [...this.columns];
   }
 }

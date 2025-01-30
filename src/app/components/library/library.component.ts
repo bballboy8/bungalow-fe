@@ -310,12 +310,13 @@ set zoomed_wkt(value: string) {
         minCloud = this.min_cloud
       } 
       let queryParams: any = {
+        ...this.filterParams,
         page_number: '1',
         page_size: this.page_size,
         start_date: this.startDate,
         end_date: this.endDate,
         source: 'library',
-        ...this.filterParams
+       
       };
       const payload = {
         wkt_polygon: this.polygon_wkt
@@ -1401,6 +1402,7 @@ getDateTimeFormat(dateTime: string) {
         wkt_polygon: this.polygon_wkt
       }
       const queryParams = {
+        ...this.filterParams,
         end_date:this.getDateValue(this.endDate),
         start_date:this.getDateValue(this.startDate),
         max_cloud_cover: this.max_cloud,
@@ -1411,7 +1413,7 @@ getDateTimeFormat(dateTime: string) {
         vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
         max_gsd:this.max_gsd === 4 ? 1000 : this.max_gsd,
         min_gsd:this.min_gsd,
-        ...this.filterParams
+       
       }
       const params = {
         ...queryParams,

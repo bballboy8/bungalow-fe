@@ -385,13 +385,13 @@ set zoomed_wkt(value: string) {
   max_cloud:number = 51
   min_cloud: number = 0;
   options: Options = {
-    floor: -2,
+    floor: -1,
     ceil: 51,
     translate: (value: number, label: LabelType): string => {
       if (value === 0) {
         return '';
       } else if (value === 51) {
-        return '';
+        return '50+';
       }else if (value <= -1) {
         return '';
       }

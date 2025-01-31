@@ -391,11 +391,11 @@ set zoomed_wkt(value: string) {
     ceil: 60,
     translate: (value: number, label: LabelType): string => {
       if (value === 0) {
-        return '';
+        return '0';
       } else if (value === 60) {
         return ' ';
       } else if (value == -10) {        
-        return ' ';
+        return 'SAR';
       }
       return `${value}`; // Default for other values
     },

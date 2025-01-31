@@ -399,8 +399,10 @@ set zoomed_wkt(value: string) {
         return '0';
       } else if (value === 60) {
         return '50+';
-      } else if (value == -10) {        
+      } else if (value == -10 && LabelType.Low == label) {                
         return 'SAR';
+      }else if (value == -10) {                
+        return '';
       }
       return `${value}`; // Default for other values
     },

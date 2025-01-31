@@ -383,16 +383,16 @@ set zoomed_wkt(value: string) {
 
   vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra'];
   max_cloud:number = 51
-  min_cloud: number = -1;
+  min_cloud: number = -5;
   options: Options = {
-    floor: -1,
+    floor: -5,
     ceil: 51,
     translate: (value: number, label: LabelType): string => {
       if (value === 0) {
         return '0';
       } else if (value === 51) {
         return '50+';
-      }else if (value <= -1) {
+      } else if (value <= -1) {
         return 'SAR';
       }
       return `${value}`; // Default for other values
@@ -415,7 +415,7 @@ set zoomed_wkt(value: string) {
   min_gsd:number =0;
   max_gsd:number =4;
   gsd_options: Options = {
-    floor: 0.1,
+    floor: 0,
     ceil:4,
     translate: (value: number, label: LabelType): string => {
       if (value === 0) {

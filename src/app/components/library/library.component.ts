@@ -383,7 +383,7 @@ set zoomed_wkt(value: string) {
 
   vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra'];
   max_cloud:number = 51
-  min_cloud: number = 0;
+  min_cloud: number = -1;
   options: Options = {
     floor: -1,
     ceil: 51,
@@ -1405,7 +1405,7 @@ getDateTimeFormat(dateTime: string) {
         ...this.filterParams,
         end_date:this.getDateValue(this.endDate),
         start_date:this.getDateValue(this.startDate),
-        max_cloud_cover: this.max_cloud,
+        max_cloud_cover: this.max_cloud === 51 ? 1000 : this.max_cloud,
         min_cloud_cover:minCloud,
         max_off_nadir_angle: this.max_angle === 51 ? 1000: this.max_angle,
         min_off_nadir_angle:this.min_angle,

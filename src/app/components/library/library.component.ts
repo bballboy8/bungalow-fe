@@ -405,15 +405,17 @@ set zoomed_wkt(value: string) {
       return `${value}`; // Default for other values
     },
   };
-  max_angle:number = 51;
+  max_angle:number = 55;
   min_angle: number = 0;
   angleOptions: Options = {
+    step: 5,
+    showTicks: true,
     floor: 0,
-    ceil: 51,
+    ceil: 55,
     translate: (value: number, label: LabelType): string => {
       if (value === 0) {
         return '0';
-      } else if (value === 51) {
+      } else if (value === 55) {
         return '50+';
       }
       return `${value}`; // Default for other values
@@ -1237,7 +1239,7 @@ private handleWheelEvent = (event: WheelEvent): void => {
         zoomed_wkt:this._zoomed_wkt,
         max_cloud_cover: this.max_cloud,
         min_cloud_cover:minCloud,
-        max_off_nadir_angle: this.max_angle === 51 ? 1000: this.max_angle,
+        max_off_nadir_angle: this.max_angle === 55 ? 1000: this.max_angle,
         min_off_nadir_angle:this.min_angle,
         vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
         vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
@@ -1421,7 +1423,7 @@ getDateTimeFormat(dateTime: string) {
         start_date:this.getDateValue(this.startDate),
         max_cloud_cover: this.max_cloud === 60 ? 1000 : this.max_cloud,
         min_cloud_cover:minCloud,
-        max_off_nadir_angle: this.max_angle === 51 ? 1000: this.max_angle,
+        max_off_nadir_angle: this.max_angle === 55 ? 1000: this.max_angle,
         min_off_nadir_angle:this.min_angle,
         vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
         vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',

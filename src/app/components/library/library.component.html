@@ -279,7 +279,7 @@
                                         <mat-label class="!text-secondaryText">Max Cloud Cover</mat-label>
                                         <input class="!text-secondaryText" matInput [max]="100" type="number" formControlName="max_cloud">
                                     </mat-form-field> -->
-                                    <mat-label class="!text-secondaryText">Cloud Cover</mat-label>
+                                    <mat-label class="!text-secondaryText">Cloud Cover (%)</mat-label>
                                     <ngx-slider (click)="$event.stopPropagation()" class="z-20" *ngIf="sliderShow" #sliderElement [(value)]="min_cloud" [(highValue)]="max_cloud" [options]="options"></ngx-slider>
                                     <span class="!text-secondaryText absolute -bottom-[5px] -left-[19px]">SAR</span>
                                     <span class="!text-secondaryText absolute -bottom-[5px]  left-[45px]">0</span>
@@ -298,7 +298,7 @@
                                         <mat-label class="!text-secondaryText">Max Off NADIR Angle</mat-label>
                                         <input class="!text-secondaryText" matInput [max]="360" type="number" formControlName="max_angle">
                                     </mat-form-field> -->
-                                    <mat-label class="!text-secondaryText">Off NADIR Angle</mat-label>
+                                    <mat-label class="!text-secondaryText">Off NADIR Angle (°)</mat-label>
                                     <ngx-slider *ngIf="sliderShow" #sliderElement [(value)]="min_angle" [(highValue)]="max_angle" [options]="angleOptions" (click)="$event.stopPropagation()"></ngx-slider>
                                 </div>
                                 <div class="flex-col gap-2 custom-slider" (click)="$event.stopPropagation()">
@@ -310,7 +310,7 @@
                                         <mat-label class="!text-secondaryText">Max GSD</mat-label>
                                         <input class="!text-secondaryText" matInput [max]="100" type="number" formControlName="max_gsd">
                                     </mat-form-field> -->
-                                    <mat-label class="!text-secondaryText">GSD</mat-label>
+                                    <mat-label class="!text-secondaryText">GSD (m)</mat-label>
 
                                     <ngx-slider *ngIf="sliderShow" (click)="$event.stopPropagation()" #sliderElement [(value)]="min_gsd" [(highValue)]="max_gsd" [options]="gsd_options"></ngx-slider>
                                 </div>

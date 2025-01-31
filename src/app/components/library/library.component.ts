@@ -434,7 +434,7 @@ set zoomed_wkt(value: string) {
       } else if (value === 4) {
         return '3+';
       }
-      return `${value}`; // Default for other values
+      return `${value}m`; // Default for other values
     },
     
   };

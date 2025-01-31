@@ -382,18 +382,20 @@ set zoomed_wkt(value: string) {
   }
 
   vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra'];
-  max_cloud:number = 51
-  min_cloud: number = -5;
+  max_cloud:number = 60
+  min_cloud: number = -10;
   options: Options = {
-    floor: -5,
-    ceil: 51,
+    step: 10,
+    showTicks: true,
+    floor: -10,
+    ceil: 60,
     translate: (value: number, label: LabelType): string => {
       if (value === 0) {
-        return '0';
-      } else if (value === 51) {
-        return '50+';
-      } else if (value <= -1) {
-        return 'SAR';
+        return '';
+      } else if (value === 60) {
+        return ' ';
+      } else if (value == -10) {        
+        return ' ';
       }
       return `${value}`; // Default for other values
     },
@@ -415,6 +417,8 @@ set zoomed_wkt(value: string) {
   min_gsd:number =0;
   max_gsd:number =4;
   gsd_options: Options = {
+    step: 0.1,
+    showTicks: true,
     floor: 0,
     ceil:4,
     translate: (value: number, label: LabelType): string => {
@@ -1405,7 +1409,7 @@ getDateTimeFormat(dateTime: string) {
         ...this.filterParams,
         end_date:this.getDateValue(this.endDate),
         start_date:this.getDateValue(this.startDate),
-        max_cloud_cover: this.max_cloud === 51 ? 1000 : this.max_cloud,
+        max_cloud_cover: this.max_cloud === 60 ? 1000 : this.max_cloud,
         min_cloud_cover:minCloud,
         max_off_nadir_angle: this.max_angle === 51 ? 1000: this.max_angle,
         min_off_nadir_angle:this.min_angle,

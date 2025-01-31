@@ -393,7 +393,7 @@ set zoomed_wkt(value: string) {
       if (value === 0) {
         return '0';
       } else if (value === 60) {
-        return ' ';
+        return '50+';
       } else if (value == -10) {        
         return 'SAR';
       }

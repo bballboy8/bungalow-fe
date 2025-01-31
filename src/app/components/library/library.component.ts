@@ -126,6 +126,12 @@ providers: [provideNativeDateAdapter()],
   ],
 })
 export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
+  
+  @ViewChild(MatMenuTrigger) menuTrigger!: MatMenuTrigger;  // Get menu trigger reference
+
+  @ViewChild('menuFilterTrigger') menuFilterTrigger!: MatMenuTrigger;
+
+
   //#region Decorators
   @ViewChild("myTemplate", { static: true }) myTemplate!: TemplateRef<any>;
   @Output() closeDrawer = new EventEmitter<boolean>();
@@ -176,7 +182,6 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   activeGroup:any;
   selectedGroup:any
   searchInput = new Subject<string>();
-  @ViewChild(MatMenuTrigger) menuTrigger!: MatMenuTrigger;
   @Output() notifyParent: EventEmitter<any> = new EventEmitter();
   @Output() addMarkerToMap: EventEmitter<any> = new EventEmitter();
   @Output() parentFilter:EventEmitter<any> = new EventEmitter();
@@ -1376,6 +1381,9 @@ getDateTimeFormat(dateTime: string) {
   setFilterClass(){
     const containerElement = this.overlayContainer.getContainerElement();
     containerElement.classList.add('filter-overlay-container');
+    containerElement.addEventListener('click', (event:  Event)=> {
+      event.stopPropagation()
+    })
     setTimeout(()=>{
       this.sliderShow = true;
       // Apply styles to each slider element
@@ -1435,6 +1443,7 @@ getDateTimeFormat(dateTime: string) {
       this.loader = true
       this.ngxLoader.start(); // Start the loader
       this.getSatelliteCatalog(payload,params)
+      this.closeFilterMenu()
      },300)
   }
 
@@ -1485,5 +1494,13 @@ if (endDateControlValue) {
   getDouble(data){
     return parseFloat(data) + parseFloat(data);
     
+  }
+
+  closeFilterMenu() {
+    console.log('closseeeee', this.menuFilterTrigger);
+    
+    if (this.menuFilterTrigger) {
+      this.menuFilterTrigger.closeMenu();
+    }
   }
 }

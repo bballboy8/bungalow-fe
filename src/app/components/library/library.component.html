@@ -249,13 +249,15 @@
                             time</button>
                     </div>
                     <div class="relative flex justify-center items-center">
-                        <button class="py-[9px] px-[20px] my-0 ml-[8px] rounded-[19px] bg-primaryBg" (click)="setFilterClass()" [matMenuTriggerFor]="filter">
+                        <button class="py-[9px] px-[20px] my-0 ml-[8px] rounded-[19px] bg-primaryBg" (click)="setFilterClass()" [matMenuTriggerFor]="filter" 
+                                #menuFilterTrigger="matMenuTrigger">
                             <img src="assets/svg-icons/filter-icon.svg" alt="">
                         </button>
-                        <mat-menu class="bg-primaryBg p-[15px]" #filter="matMenu" id="filter" (closed)="onMenuClose()">
-                            <form class="flex flex-col font-Barlow gap-[15px] w-[320px]" [formGroup]="formGroup" (ngSubmit)="onSubmit()">
+                        <mat-menu   #filter="matMenu" (click)="$event.stopPropagation()" id="filter" class="bg-primaryBg" (closed)="onMenuClose()">
+                           <div class="p-[15px]" (click)="$event.stopPropagation()">
+                            <form  class="flex flex-col font-Barlow gap-[15px] w-[330px]"  [formGroup]="formGroup" (ngSubmit)="onSubmit()">
                                 <span class="text-sm text-secondaryText font-Barlow font-bold leading-[18px]">Apply filters</span>
-                                <mat-form-field appearance="outline" id="filter" (click)="$event.stopPropagation()">
+                                <mat-form-field appearance="outline" id="filter" >
                                     <mat-label class="!text-secondaryText">Vendor name</mat-label>
                                     <mat-select class="!text-secondaryText" multiple formControlName="vendor" name="vendor">
                                     @for (vendor of vendorsList; track vendor) {
@@ -263,12 +265,12 @@
                                     }
                                     </mat-select>
                                 </mat-form-field>
-                                <mat-form-field appearance="outline" id="filter" (click)="$event.stopPropagation()">
+                                <mat-form-field appearance="outline" id="filter" >
                                     <mat-label class="!text-secondaryText">Vendor ID</mat-label>
                                     <input class="!text-secondaryText" matInput type="text" formControlName="vendorId">
                                 </mat-form-field>
 
-                                <div  class="flex-col gap-2 custom-slider pb-[15px] relative" (click)="$event.stopPropagation()">
+                                <div  class="flex-col gap-2 custom-slider pb-[15px] relative" >
                                     <!-- <mat-form-field class="w-1/2" appearance="outline" id="filter" (click)="$event.stopPropagation()">
                                         <mat-label class="!text-secondaryText">Min Cloud Cover</mat-label>
                                         <input class="!text-secondaryText" matInput [max]="100" type="number" formControlName="min_cloud">
@@ -278,7 +280,7 @@
                                         <input class="!text-secondaryText" matInput [max]="100" type="number" formControlName="max_cloud">
                                     </mat-form-field> -->
                                     <mat-label class="!text-secondaryText">Cloud Cover</mat-label>
-                                    <ngx-slider class="z-20" *ngIf="sliderShow" #sliderElement [(value)]="min_cloud" [(highValue)]="max_cloud" [options]="options"></ngx-slider>
+                                    <ngx-slider (click)="$event.stopPropagation()" class="z-20" *ngIf="sliderShow" #sliderElement [(value)]="min_cloud" [(highValue)]="max_cloud" [options]="options"></ngx-slider>
                                     <span class="!text-secondaryText absolute -bottom-[5px] -left-[19px]">SAR</span>
                                     <span class="!text-secondaryText absolute -bottom-[5px]  left-[45px]">0</span>
                                     <span class="!text-secondaryText absolute -bottom-[5px] -right-[13px]">50+</span>
@@ -297,7 +299,7 @@
                                         <input class="!text-secondaryText" matInput [max]="360" type="number" formControlName="max_angle">
                                     </mat-form-field> -->
                                     <mat-label class="!text-secondaryText">Off NADIR Angle</mat-label>
-                                    <ngx-slider *ngIf="sliderShow" #sliderElement [(value)]="min_angle" [(highValue)]="max_angle" [options]="angleOptions"></ngx-slider>
+                                    <ngx-slider *ngIf="sliderShow" #sliderElement [(value)]="min_angle" [(highValue)]="max_angle" [options]="angleOptions" (click)="$event.stopPropagation()"></ngx-slider>
                                 </div>
                                 <div class="flex-col gap-2 custom-slider" (click)="$event.stopPropagation()">
                                     <!-- <mat-form-field  class="w-1/2" appearance="outline" id="filter" (click)="$event.stopPropagation()">
@@ -310,7 +312,7 @@
                                     </mat-form-field> -->
                                     <mat-label class="!text-secondaryText">GSD</mat-label>
 
-                                    <ngx-slider *ngIf="sliderShow" #sliderElement [(value)]="min_gsd" [(highValue)]="max_gsd" [options]="gsd_options"></ngx-slider>
+                                    <ngx-slider *ngIf="sliderShow" (click)="$event.stopPropagation()" #sliderElement [(value)]="min_gsd" [(highValue)]="max_gsd" [options]="gsd_options"></ngx-slider>
                                 </div>
                                 <!-- <mat-form-field appearance="outline" id="filter" (click)="$event.stopPropagation()">
                                     <mat-label>Start date</mat-label>
@@ -320,7 +322,7 @@
                                       <mat-datepicker #start></mat-datepicker>
                                 </mat-form-field> -->
                                 <div class="flex gap-3 justify-center">
-                                    <button class="text-xs w-1/2 leading-[18px] py-[9px] font-semibold my-[7px] mr-[7px] rounded-[10px] px-[20px] bg-secondary-heiglight text-secondaryText" type="button" >
+                                    <button (click)="closeFilterMenu()" class="text-xs w-1/2 leading-[18px] py-[9px] font-semibold my-[7px] mr-[7px] rounded-[10px] px-[20px] bg-secondary-heiglight text-secondaryText" type="button" >
                                         Cancel
                                     </button>
                                     <button class="text-xs w-1/2 leading-[18px] py-[9px] font-semibold my-[7px] mr-[7px] rounded-[10px] px-[20px] bg-yellow text-[#453303]" type="submit">
@@ -328,6 +330,8 @@
                                     </button>
                                 </div>
                               </form>
+                           </div>
+                           
                               
                         </mat-menu>
                     </div>

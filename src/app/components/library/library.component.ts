@@ -634,10 +634,12 @@ set zoomed_wkt(value: string) {
     const payload = {
       wkt_polygon: this.polygon_wkt
     }
+
+    this.zoomed_wkt = this.polygon_wkt
     this.loader = true
       this.ngxLoader.start(); // Start the loader
-    this.getSatelliteCatalog(payload,queryParams)
-    this.onFilterset.emit({params: queryParams, payload});
+    this.getSatelliteCatalog(payload,{...queryParams, zoomed_wkt: this._zoomed_wkt})
+    this.onFilterset.emit({params: {...queryParams, zoomed_wkt: this._zoomed_wkt}, payload});
   }
 
   /** Whether the number of selected elements matches the total number of rows. */

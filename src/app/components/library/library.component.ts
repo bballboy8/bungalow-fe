@@ -389,7 +389,7 @@ set zoomed_wkt(value: string) {
     ceil: 51,
     translate: (value: number, label: LabelType): string => {
       if (value === 0) {
-        return '';
+        return '0';
       } else if (value === 51) {
         return '50+';
       }else if (value <= -1) {
@@ -415,7 +415,7 @@ set zoomed_wkt(value: string) {
   min_gsd:number =0;
   max_gsd:number =4;
   gsd_options: Options = {
-    floor: 0,
+    floor: 0.1,
     ceil:4,
     translate: (value: number, label: LabelType): string => {
       if (value === 0) {

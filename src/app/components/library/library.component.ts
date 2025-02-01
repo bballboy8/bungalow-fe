@@ -404,7 +404,7 @@ set zoomed_wkt(value: string) {
       }else if (value == -10) {                
         return '';
       }
-      return `${value}`; // Default for other values
+      return `${value}%`; // Default for other values
     },
   };
   max_angle:number = 55;
@@ -420,7 +420,7 @@ set zoomed_wkt(value: string) {
       } else if (value === 55) {
         return '50+';
       }
-      return `${value}`; // Default for other values
+      return `${value}°`; // Default for other values
     },
   };
   min_gsd:number =0;

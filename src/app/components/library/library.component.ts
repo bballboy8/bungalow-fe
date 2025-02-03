@@ -126,6 +126,12 @@ providers: [provideNativeDateAdapter()],
   ],
 })
 export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
+  
+  @ViewChild(MatMenuTrigger) menuTrigger!: MatMenuTrigger;  // Get menu trigger reference
+
+  @ViewChild('menuFilterTrigger') menuFilterTrigger!: MatMenuTrigger;
+
+
   //#region Decorators
   @ViewChild("myTemplate", { static: true }) myTemplate!: TemplateRef<any>;
   @Output() closeDrawer = new EventEmitter<boolean>();
@@ -183,7 +189,6 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   activeGroup:any;
   selectedGroup:any
   searchInput = new Subject<string>();
-  @ViewChild(MatMenuTrigger) menuTrigger!: MatMenuTrigger;
   @Output() notifyParent: EventEmitter<any> = new EventEmitter();
   @Output() addMarkerToMap: EventEmitter<any> = new EventEmitter();
   @Output() parentFilter:EventEmitter<any> = new EventEmitter();
@@ -317,12 +322,13 @@ set zoomed_wkt(value: string) {
         minCloud = this.min_cloud
       } 
       let queryParams: any = {
+        ...this.filterParams,
         page_number: '1',
         page_size: this.page_size,
         start_date: this.startDate,
         end_date: this.endDate,
         source: 'library',
-        ...this.filterParams
+       
       };
       const payload = {
         wkt_polygon: this.polygon_wkt
@@ -388,39 +394,47 @@ set zoomed_wkt(value: string) {
   }
 
   vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra'];
-  max_cloud:number = 51
-  min_cloud: number = 0;
+  max_cloud:number = 60
+  min_cloud: number = -10;
   options: Options = {
-    floor: -2,
-    ceil: 51,
-    translate: (value: number, label: LabelType): string => {
-      if (value === 0) {
-        return '';
-      } else if (value === 51) {
-        return '';
-      }else if (value <= -1) {
-        return '';
-      }
-      return `${value}`; // Default for other values
-    },
-  };
-  max_angle:number = 51;
-  min_angle: number = 0;
-  angleOptions: Options = {
-    floor: 0,
-    ceil: 51,
+    step: 10,
+    showTicks: true,
+    floor: -10,
+    ceil: 60,
     translate: (value: number, label: LabelType): string => {
       if (value === 0) {
         return '0';
-      } else if (value === 51) {
+      } else if (value === 60) {
+        return '50+';
+      } else if (value == -10 && LabelType.Low == label) {                
+        return 'SAR';
+      }else if (value == -10) {                
+        return '';
+      }
+      return `${value}%`; // Default for other values
+    },
+  };
+  max_angle:number = 55;
+  min_angle: number = 0;
+  angleOptions: Options = {
+    step: 5,
+    showTicks: true,
+    floor: 0,
+    ceil: 55,
+    translate: (value: number, label: LabelType): string => {
+      if (value === 0) {
+        return '0';
+      } else if (value === 55) {
         return '50+';
       }
-      return `${value}`; // Default for other values
+      return `${value}°`; // Default for other values
     },
   };
   min_gsd:number =0;
   max_gsd:number =4;
   gsd_options: Options = {
+    step: 0.1,
+    showTicks: true,
     floor: 0,
     ceil:4,
     translate: (value: number, label: LabelType): string => {
@@ -429,7 +443,7 @@ set zoomed_wkt(value: string) {
       } else if (value === 4) {
         return '3+';
       }
-      return `${value}`; // Default for other values
+      return `${value}m`; // Default for other values
     },
     
   };
@@ -639,10 +653,12 @@ set zoomed_wkt(value: string) {
     const payload = {
       wkt_polygon: this.polygon_wkt
     }
+
+    this.zoomed_wkt = this.polygon_wkt
     this.loader = true
       this.ngxLoader.start(); // Start the loader
-    this.getSatelliteCatalog(payload,queryParams)
-    this.onFilterset.emit({params: queryParams, payload});
+    this.getSatelliteCatalog(payload,{...queryParams, zoomed_wkt: this._zoomed_wkt})
+    this.onFilterset.emit({params: {...queryParams, zoomed_wkt: this._zoomed_wkt}, payload});
   }
 
   /** Whether the number of selected elements matches the total number of rows. */
@@ -1238,7 +1254,7 @@ private handleWheelEvent = (event: WheelEvent): void => {
         zoomed_wkt:this._zoomed_wkt,
         max_cloud_cover: this.max_cloud,
         min_cloud_cover:minCloud,
-        max_off_nadir_angle: this.max_angle === 51 ? 1000: this.max_angle,
+        max_off_nadir_angle: this.max_angle === 55 ? 1000: this.max_angle,
         min_off_nadir_angle:this.min_angle,
         vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
         vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
@@ -1384,6 +1400,9 @@ getDateTimeFormat(dateTime: string) {
   setFilterClass(){
     const containerElement = this.overlayContainer.getContainerElement();
     containerElement.classList.add('filter-overlay-container');
+    containerElement.addEventListener('click', (event:  Event)=> {
+      event.stopPropagation()
+    })
     setTimeout(()=>{
       this.sliderShow = true;
       // Apply styles to each slider element
@@ -1414,17 +1433,18 @@ getDateTimeFormat(dateTime: string) {
         wkt_polygon: this.polygon_wkt
       }
       const queryParams = {
+        ...this.filterParams,
         end_date:this.getDateValue(this.endDate),
         start_date:this.getDateValue(this.startDate),
-        max_cloud_cover: this.max_cloud,
+        max_cloud_cover: this.max_cloud === 60 ? 1000 : this.max_cloud,
         min_cloud_cover:minCloud,
-        max_off_nadir_angle: this.max_angle === 51 ? 1000: this.max_angle,
+        max_off_nadir_angle: this.max_angle === 55 ? 1000: this.max_angle,
         min_off_nadir_angle:this.min_angle,
         vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
         vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
         max_gsd:this.max_gsd === 4 ? 1000 : this.max_gsd,
         min_gsd:this.min_gsd,
-        ...this.filterParams
+       
       }
       const params = {
         ...queryParams,
@@ -1442,6 +1462,7 @@ getDateTimeFormat(dateTime: string) {
       this.loader = true
       this.ngxLoader.start(); // Start the loader
       this.getSatelliteCatalog(payload,params)
+      this.closeFilterMenu()
      },300)
   }
 
@@ -1520,5 +1541,13 @@ if (endDateControlValue) {
     this.filterColumns('');
     // If you need to reset any other filtering states
     this.filteredColumns = [...this.columns];
+  }
+
+  closeFilterMenu() {
+    console.log('closseeeee', this.menuFilterTrigger);
+    
+    if (this.menuFilterTrigger) {
+      this.menuFilterTrigger.closeMenu();
+    }
   }
 }

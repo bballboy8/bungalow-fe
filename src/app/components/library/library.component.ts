@@ -41,7 +41,7 @@ import { SatelliteService } from "../../services/satellite.service";
 import dayjs from "dayjs";
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { GroupsListComponent } from "../../common/groups-list/groups-list.component";
-import { catchError, debounceTime, of, Subject, switchMap } from "rxjs";
+import { catchError, debounceTime, distinctUntilChanged, of, Subject, switchMap } from "rxjs";
 import { MapControllersPopupComponent } from "../../dailogs/map-controllers-popup/map-controllers-popup.component";
 import { MatSort, MatSortModule, Sort } from "@angular/material/sort";
 import { LiveAnnouncer } from "@angular/cdk/a11y";
@@ -126,6 +126,12 @@ providers: [provideNativeDateAdapter()],
   ],
 })
 export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
+  
+  @ViewChild(MatMenuTrigger) menuTrigger!: MatMenuTrigger;  // Get menu trigger reference
+
+  @ViewChild('menuFilterTrigger') menuFilterTrigger!: MatMenuTrigger;
+
+
   //#region Decorators
   @ViewChild("myTemplate", { static: true }) myTemplate!: TemplateRef<any>;
   @Output() closeDrawer = new EventEmitter<boolean>();
@@ -150,15 +156,22 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
 
   expandedElement: PeriodicElement | null = null;
   dataSource = new MatTableDataSource<any>(/* your data source */);
-  displayedColumns: string[] = [
-    "acquisition_datetime",
-    "sensor",
-    "vendor_name",
-    "cloud_cover",
-    "gsd",
-    "type",
-    "vendor_id",
+  columns = [
+    { id: 'acquisition_datetime', displayName: 'Date', visible: true },
+    { id: 'sensor', displayName: 'Sensor', visible: true },
+    { id: 'vendor_name', displayName: 'Vendor', visible: true },
+    { id: 'cloud_cover', displayName: 'Clouds', visible: true },
+    { id: 'gsd', displayName: 'Resolution', visible: true },
+    { id: 'type', displayName: 'Type', visible: true },
+    { id: 'vendor_id', displayName: 'ID', visible: true },
   ];
+  
+  get displayedColumns(): string[] {
+    return [
+      ...this.columns.filter(c => c.visible).map(c => c.id),
+      // 'expand' // Keep expand column always visible
+    ];
+  }
   total_count:any
   selection = new SelectionModel<PeriodicElement>(true, []);
 
@@ -176,37 +189,27 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   activeGroup:any;
   selectedGroup:any
   searchInput = new Subject<string>();
-  @ViewChild(MatMenuTrigger) menuTrigger!: MatMenuTrigger;
   @Output() notifyParent: EventEmitter<any> = new EventEmitter();
   @Output() addMarkerToMap: EventEmitter<any> = new EventEmitter();
   @Output() parentFilter:EventEmitter<any> = new EventEmitter();
   @Output() onFilterset: EventEmitter<any> = new EventEmitter();
   private _startDate: any;
   private _endDate: any;
-  matchedObject:any
+  matchedObject:any;
+  overlapListData:any=[];
+  idArray:string[]=[""]
+  filterParams:any;
 
   defaultFilter() {
-    let minCloud
-    if(this.min_cloud <= -1) {
-      minCloud = -1
-    } else {
-      minCloud = this.min_cloud
-    } 
     return {
       page_number: '1',
-      page_size: '20',
+      page_size: '100',
       start_date:this.startDate,
       end_date: this.endDate,
       source: 'library',
       zoomed_wkt:this._zoomed_wkt,
-      max_cloud_cover: this.max_cloud,
-      min_cloud_cover:minCloud,
-      max_off_nadir_angle: this.max_angle === 51 ? 1000: this.max_angle,
-      min_off_nadir_angle:this.min_angle,
-      vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
-      vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
-      max_gsd:this.max_gsd === 4 ? 1000 : this.max_gsd,
-      min_gsd:this.min_gsd,
+      focused_records_ids:this.idArray,
+      
     }
   }
   @Input()
@@ -214,7 +217,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
     if (value !== this._startDate) {
       this._startDate = value;
       console.log('startDate updated:', this._startDate);
-      let queryParams = this.defaultFilter();
+      let queryParams = this.filterParams;
       const payload = {
         wkt_polygon: this.polygon_wkt
       }
@@ -293,7 +296,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   originalData: any[] = [];
   selectedZone:string = 'UTC'
   @ViewChild('scrollableDiv') scrollableDiv!: ElementRef<HTMLDivElement>;
-  page_size = '20';
+  page_size = '100';
   perPageSize= 20;
   page_number = '1';
   loader:boolean = false;
@@ -304,6 +307,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   calendarApiData:any;
   OpenEventCalendar:boolean=false;
   tableRowHovered:boolean=false;
+  focused_captures_count:any;
   @Input()
 set zoomed_wkt(value: string) {
   if (value !== this._zoomed_wkt) {
@@ -322,19 +326,14 @@ set zoomed_wkt(value: string) {
         minCloud = this.min_cloud
       } 
       let queryParams: any = {
+        ...this.filterParams,
         page_number: '1',
         page_size: this.page_size,
         start_date: this.startDate,
         end_date: this.endDate,
         source: 'library',
-        max_cloud_cover: this.max_cloud,
-        min_cloud_cover:minCloud,
-        max_off_nadir_angle: this.max_angle === 51 ? 1000: this.max_angle,
-        min_off_nadir_angle:this.min_angle,
-        vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
-        vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
-        max_gsd:this.max_gsd === 4 ? 1000 : this.max_gsd,
-        min_gsd:this.min_gsd,
+       
+        focused_records_ids: this.idArray
       };
       const payload = {
         wkt_polygon: this.polygon_wkt
@@ -349,6 +348,7 @@ set zoomed_wkt(value: string) {
       this.loader = true;
       this.ngxLoader.start(); // Start the loader
       this.page_number = '1';
+      this.filterParams = {...queryParams}
       this.getSatelliteCatalog(payload, queryParams);
     }, 800);
      // Debounce time: 600ms
@@ -399,39 +399,47 @@ set zoomed_wkt(value: string) {
   }
 
   vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra'];
-  max_cloud:number = 51
-  min_cloud: number = 0;
+  max_cloud:number = 60
+  min_cloud: number = -10;
   options: Options = {
-    floor: -2,
-    ceil: 51,
-    translate: (value: number, label: LabelType): string => {
-      if (value === 0) {
-        return '';
-      } else if (value === 51) {
-        return '';
-      }else if (value <= -1) {
-        return '';
-      }
-      return `${value}`; // Default for other values
-    },
-  };
-  max_angle:number = 51;
-  min_angle: number = 0;
-  angleOptions: Options = {
-    floor: 0,
-    ceil: 51,
+    step: 10,
+    showTicks: true,
+    floor: -10,
+    ceil: 60,
     translate: (value: number, label: LabelType): string => {
       if (value === 0) {
         return '0';
-      } else if (value === 51) {
+      } else if (value === 60) {
+        return '50+';
+      } else if (value == -10 && LabelType.Low == label) {                
+        return 'SAR';
+      }else if (value == -10) {                
+        return '';
+      }
+      return `${value}%`; // Default for other values
+    },
+  };
+  max_angle:number = 55;
+  min_angle: number = 0;
+  angleOptions: Options = {
+    step: 5,
+    showTicks: true,
+    floor: 0,
+    ceil: 55,
+    translate: (value: number, label: LabelType): string => {
+      if (value === 0) {
+        return '0';
+      } else if (value === 55) {
         return '50+';
       }
-      return `${value}`; // Default for other values
+      return `${value}°`; // Default for other values
     },
   };
   min_gsd:number =0;
   max_gsd:number =4;
   gsd_options: Options = {
+    step: 0.1,
+    showTicks: true,
     floor: 0,
     ceil:4,
     translate: (value: number, label: LabelType): string => {
@@ -440,11 +448,15 @@ set zoomed_wkt(value: string) {
       } else if (value === 4) {
         return '3+';
       }
-      return `${value}`; // Default for other values
+      return `${value}m`; // Default for other values
     },
     
   };
   @ViewChildren('sliderElement') sliderElements!: QueryList<ElementRef>;
+  searchQuery = '';
+  searchSubject$ = new Subject<string>();
+  filteredColumns = this.columns;
+  lastMatchId:any = null
   constructor(
     private dialog: MatDialog,
     private sharedService: SharedService,
@@ -503,11 +515,16 @@ set zoomed_wkt(value: string) {
             });
           }
         });
+        this.searchSubject$.pipe(
+          debounceTime(300),
+          distinctUntilChanged()
+        ).subscribe(query => {
+          this.filterColumns(query);
+        });
   }
 
   ngOnInit() {
    
-    
     this.renderGroup = this.myTemplate;
     // this.sharedService.isOpenedEventCalendar$.subscribe(resp=>this.isEventsOpened=resp)
     if(this.polygon_wkt){
@@ -522,14 +539,14 @@ set zoomed_wkt(value: string) {
           }));
         }
       })
-       let queryParams = this.defaultFilter();
+       this.filterParams = this.defaultFilter();
       const payload = {
         wkt_polygon: this.polygon_wkt
       }
      setTimeout(() => {
       this.loader = true
       this.ngxLoader.start(); // Start the loader
-      this.getSatelliteCatalog(payload,queryParams)
+      this.getSatelliteCatalog(payload,this.filterParams)
      },300)
       
     }
@@ -564,6 +581,58 @@ set zoomed_wkt(value: string) {
       
       this.tableRowHovered = rowHover
     })
+    this.sharedService.overlayShapeData$.subscribe((overlayShapeData) => {
+      if(overlayShapeData.length>1){
+        console.log(overlayShapeData,'overlayShapeDataoverlayShapeDataoverlayShapeDataoverlayShapeData');
+       this.idArray = overlayShapeData.map((record) => record.id)?.join(',');
+
+      console.log(this.idArray,'idArrayidArrayidArrayidArrayidArrayidArray');
+        let minCloud
+        if(this.min_cloud <= -1) {
+          minCloud = -1
+        } else {
+          minCloud = this.min_cloud
+        } 
+        let queryParams: any = {
+          ...this.filterParams,
+          page_number: '1',
+          page_size: this.page_size,
+          start_date: this.startDate,
+          end_date: this.endDate,
+          source: 'library'
+        };
+        
+          queryParams = {...queryParams,  focused_records_ids: this.idArray}
+          this.filterParams = {...queryParams}
+          const payload = {
+            wkt_polygon: this.polygon_wkt
+          };
+        this.loader = true;
+        this.ngxLoader.start(); // Start the loader
+        this.page_number = '1';
+        this.getSatelliteCatalog(payload, queryParams);
+        this.overlapListData = overlayShapeData
+        const overlayIds = new Set(overlayShapeData.map(item => item.id));
+  
+    // 2. Find the last matching ID in dataSource.data
+    
+    for (let i = this.dataSource.data.length - 1; i >= 0; i--) {
+      if (overlayIds.has(this.dataSource.data[i].id)) {
+        this.lastMatchId = this.dataSource.data[i].id;
+        break;
+      }
+  }
+  console.log(this.lastMatchId,'lastMatchIdlastMatchIdlastMatchId');
+  // 3. Return the corresponding item from overlayShapeData
+   this.lastMatchId 
+    ? overlayShapeData.find(item => item.id === this.lastMatchId)
+    : null;
+      }
+      
+      
+    })
+   
+    
     // Add mouse events
   }
 
@@ -578,7 +647,7 @@ set zoomed_wkt(value: string) {
 
     console.log(activeColumn,'activeColumnactiveColumnactiveColumn',direction);
     
-    let queryParams: any = this.defaultFilter();
+    let queryParams: any = this.filterParams;
     const payload = {
       wkt_polygon: this.polygon_wkt
     }
@@ -601,6 +670,8 @@ set zoomed_wkt(value: string) {
     
     this.satelliteService.getDataFromPolygon(payload,queryParams).subscribe({
       next: (resp) => {
+        console.log('getSatelliteCataloggetSatelliteCataloggetSatelliteCatalog',resp);
+        
         // console.log(resp,'queryParamsqueryParamsqueryParamsqueryParams');
         this.dataSource.data = resp.data.map((item, idx) => ({
           ...item,
@@ -608,7 +679,8 @@ set zoomed_wkt(value: string) {
         }));
         this.originalData = [...this.dataSource.data];
         this.total_count = resp.total_records
-        this.zoomed_captures_count = resp.zoomed_captures_count
+        this.zoomed_captures_count = resp.zoomed_captures_count;
+        this.focused_captures_count = resp?.focused_captures_count
         this.loader = false
         this.ngxLoader.stop();
         setTimeout(() => {
@@ -630,10 +702,12 @@ set zoomed_wkt(value: string) {
     // Reset the dataSource to the original unsorted data
     let queryParams ={
       page_number: '1',
-      page_size: '20',
+      page_size: '100',
       start_date:this.startDate,
       end_date: this.endDate,
       source: 'library',
+      zoomed_wkt: this._zoomed_wkt? this._zoomed_wkt:''
+
       
      
       
@@ -642,10 +716,12 @@ set zoomed_wkt(value: string) {
     const payload = {
       wkt_polygon: this.polygon_wkt
     }
+
+    this.zoomed_wkt = this.polygon_wkt
     this.loader = true
       this.ngxLoader.start(); // Start the loader
-    this.getSatelliteCatalog(payload,queryParams)
-    this.onFilterset.emit({params: queryParams, payload});
+    this.getSatelliteCatalog(payload,{...queryParams, zoomed_wkt: this._zoomed_wkt})
+    this.onFilterset.emit({params: {...queryParams, zoomed_wkt: this._zoomed_wkt}, payload});
   }
 
   /** Whether the number of selected elements matches the total number of rows. */
@@ -1143,9 +1219,7 @@ setDynamicHeight(): void {
 ngOnDestroy(): void {
   window.removeEventListener('resize', this.setDynamicHeight.bind(this));  // Clean up event listener
   const div = this.scrollableDiv?.nativeElement;
-
-    // Remove all listeners to avoid memory leaks
-   
+    // Remove all listeners to avoid memory leaks  
 }
 
 // Round off value
@@ -1243,7 +1317,7 @@ private handleWheelEvent = (event: WheelEvent): void => {
         zoomed_wkt:this._zoomed_wkt,
         max_cloud_cover: this.max_cloud,
         min_cloud_cover:minCloud,
-        max_off_nadir_angle: this.max_angle === 51 ? 1000: this.max_angle,
+        max_off_nadir_angle: this.max_angle === 55 ? 1000: this.max_angle,
         min_off_nadir_angle:this.min_angle,
         vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
         vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
@@ -1389,6 +1463,9 @@ getDateTimeFormat(dateTime: string) {
   setFilterClass(){
     const containerElement = this.overlayContainer.getContainerElement();
     containerElement.classList.add('filter-overlay-container');
+    containerElement.addEventListener('click', (event:  Event)=> {
+      event.stopPropagation()
+    })
     setTimeout(()=>{
       this.sliderShow = true;
       // Apply styles to each slider element
@@ -1418,35 +1495,50 @@ getDateTimeFormat(dateTime: string) {
       const payload = {
         wkt_polygon: this.polygon_wkt
       }
-      const queryParams = {
+      let queryParams = {
+        ...this.filterParams,
         end_date:this.getDateValue(this.endDate),
         start_date:this.getDateValue(this.startDate),
-        max_cloud_cover: this.max_cloud,
+        max_cloud_cover: this.max_cloud === 60 ? 1000 : this.max_cloud,
         min_cloud_cover:minCloud,
-        max_off_nadir_angle: this.max_angle === 51 ? 1000: this.max_angle,
+        max_off_nadir_angle: this.max_angle === 55 ? 1000: this.max_angle,
         min_off_nadir_angle:this.min_angle,
         vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
         vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
         max_gsd:this.max_gsd === 4 ? 1000 : this.max_gsd,
         min_gsd:this.min_gsd,
+        focused_records_ids: this.idArray,
+        zoomed_wkt: this._zoomed_wkt
+      }
+      if (this._zoomed_wkt !== '') {
+        queryParams = {...queryParams,  zoomed_wkt: this._zoomed_wkt}
+       
+        
+      } else {
+        queryParams = {...queryParams,  zoomed_wkt: ''}
+       
       }
       const params = {
         ...queryParams,
         page_number:1,
-        page_size:20,
+        page_size: 100,
         source:'library',
        
       }
+      this.filterParams = {...this.filterParams, ...params}
+
       console.log('Selected Date and Time:', params);
       this.parentFilter.emit(queryParams)
-      this.onFilterset.emit({params, payload});
+      this.onFilterset.emit({params:  this.filterParams, payload});
      setTimeout(() => {
       this.loader = true
       this.ngxLoader.start(); // Start the loader
       this.getSatelliteCatalog(payload,params)
+      this.closeFilterMenu()
      },300)
   }
 
+  //Get Date Value function
   getDateValue(date:any){
     if (!date) {
       return null; // Handle null or undefined input
@@ -1483,16 +1575,93 @@ if (endDateControlValue) {
     };
   }
 
+  //Reset form function
+
   resetForm(){
     this.formGroup.reset();
   }
 
+  //Hide map menu functionality
   hideMenu(){
     this.sharedService.setRightMenuHide(false)
   }
 
+  //Double Day value function
   getDouble(data){
     return parseFloat(data) + parseFloat(data);
     
+  }
+  //set column selection menu class
+  setColumnMenuClass(){
+    const containerElement = this.overlayContainer.getContainerElement();
+    containerElement.classList.add('column-menu');
+  }
+
+  //Input column change value function
+  onSearchChange(query: string): void {
+    this.searchSubject$.next(query);
+  }
+  
+  //Function to get searched column
+  private filterColumns(query: string): void {
+    this.filteredColumns = this.columns.filter(col => 
+      col.displayName.toLowerCase().includes(query.toLowerCase())
+    );
+  }
+
+  //Reset columns to default values
+  resetColumns(){
+    this.columns.forEach(col => col.visible = true);
+    // Clear search query
+    this.searchQuery = '';
+    // Reset filtered columns to show all
+    this.filterColumns('');
+    // If you need to reset any other filtering states
+    this.filteredColumns = [...this.columns];
+  }
+
+  //Getting in view list data funtionality
+  getInviewList(count: number): any[] {
+    // Return first "count" items from dataSource.data
+    return this.dataSource.data.slice(0, count);
+  }
+
+  //Get browse tab data 
+  getFilteredData() {
+    // Make a shallow copy of the original array
+    let filteredData = [...this.dataSource.data];
+
+    // Remove the first zoomed_captures_count elements
+    filteredData = filteredData.slice(this.zoomed_captures_count);
+
+    // Create a new array excluding elements that are present in overlapListData
+    let resultData = [];
+    let overlapSet = new Set(this.overlapListData); // Use Set for efficient lookups
+
+    for (let i = 0; i < filteredData.length; i++) {
+        if (!overlapSet.has(filteredData[i])) {
+            resultData.push(filteredData[i]); // Keep elements that are NOT in overlapListData
+        }
+    }
+
+    return resultData;
+}
+
+//Get overlap data 
+getOverlapData(){
+  const filteredData = this.dataSource.data.filter((item: any) =>
+    this.overlapListData.some((overlapItem: any) => overlapItem.id === item.id)
+  );
+
+  return filteredData
+}
+
+
+  closeFilterMenu() {
+    console.log('closseeeee', this.menuFilterTrigger);
+    
+    if (this.menuFilterTrigger) {
+      this.menuFilterTrigger.closeMenu();
+    }
   }
 }

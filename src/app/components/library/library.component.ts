@@ -185,7 +185,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   private _endDate: any;
   matchedObject:any;
   overlapListData:any=[];
-
+  idArray:string[]=[""]
   defaultFilter() {
     let minCloud
     if(this.min_cloud <= -1) {
@@ -208,6 +208,8 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
       vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
       max_gsd:this.max_gsd === 4 ? 1000 : this.max_gsd,
       min_gsd:this.min_gsd,
+      focused_records_ids:this.idArray,
+      
     }
   }
   @Input()
@@ -305,6 +307,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   calendarApiData:any;
   OpenEventCalendar:boolean=false;
   tableRowHovered:boolean=false;
+  focused_captures_count:any;
   @Input()
 set zoomed_wkt(value: string) {
   if (value !== this._zoomed_wkt) {
@@ -336,6 +339,7 @@ set zoomed_wkt(value: string) {
         vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
         max_gsd:this.max_gsd === 4 ? 1000 : this.max_gsd,
         min_gsd:this.min_gsd,
+        focused_records_ids: this.idArray
       };
       const payload = {
         wkt_polygon: this.polygon_wkt
@@ -568,6 +572,41 @@ set zoomed_wkt(value: string) {
     })
     this.sharedService.overlayShapeData$.subscribe((overlayShapeData) => {
       if(overlayShapeData.length>1){
+        console.log(overlayShapeData,'overlayShapeDataoverlayShapeDataoverlayShapeDataoverlayShapeData');
+       this.idArray = overlayShapeData.map((record) => record.id.toString());
+
+      console.log(this.idArray,'idArrayidArrayidArrayidArrayidArrayidArray');
+        let minCloud
+        if(this.min_cloud <= -1) {
+          minCloud = -1
+        } else {
+          minCloud = this.min_cloud
+        } 
+        let queryParams: any = {
+          page_number: '1',
+          page_size: this.page_size,
+          start_date: this.startDate,
+          end_date: this.endDate,
+          source: 'library',
+          max_cloud_cover: this.max_cloud,
+          min_cloud_cover:minCloud,
+          max_off_nadir_angle: this.max_angle === 51 ? 1000: this.max_angle,
+          min_off_nadir_angle:this.min_angle,
+          vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
+          vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
+          max_gsd:this.max_gsd === 4 ? 1000 : this.max_gsd,
+          min_gsd:this.min_gsd,
+          zoomed_wkt: this._zoomed_wkt? this._zoomed_wkt:''
+        };
+        
+          queryParams = {...queryParams,  focused_records_ids: this.idArray}
+          const payload = {
+            wkt_polygon: this.polygon_wkt
+          };
+        this.loader = true;
+        this.ngxLoader.start(); // Start the loader
+        this.page_number = '1';
+        this.getSatelliteCatalog(payload, queryParams);
         this.overlapListData = overlayShapeData
         const overlayIds = new Set(overlayShapeData.map(item => item.id));
   
@@ -585,7 +624,7 @@ set zoomed_wkt(value: string) {
     ? overlayShapeData.find(item => item.id === this.lastMatchId)
     : null;
       }
-      console.log(overlayShapeData,'overlayShapeDataoverlayShapeDataoverlayShapeDataoverlayShapeData');
+      
       
     })
    
@@ -627,6 +666,8 @@ set zoomed_wkt(value: string) {
     
     this.satelliteService.getDataFromPolygon(payload,queryParams).subscribe({
       next: (resp) => {
+        console.log('getSatelliteCataloggetSatelliteCataloggetSatelliteCatalog',resp);
+        
         // console.log(resp,'queryParamsqueryParamsqueryParamsqueryParams');
         this.dataSource.data = resp.data.map((item, idx) => ({
           ...item,
@@ -634,7 +675,8 @@ set zoomed_wkt(value: string) {
         }));
         this.originalData = [...this.dataSource.data];
         this.total_count = resp.total_records
-        this.zoomed_captures_count = resp.zoomed_captures_count
+        this.zoomed_captures_count = resp.zoomed_captures_count;
+        this.focused_captures_count = resp?.focused_captures_count
         this.loader = false
         this.ngxLoader.stop();
         setTimeout(() => {
@@ -660,6 +702,8 @@ set zoomed_wkt(value: string) {
       start_date:this.startDate,
       end_date: this.endDate,
       source: 'library',
+      zoomed_wkt: this._zoomed_wkt? this._zoomed_wkt:''
+
       
      
       
@@ -1444,7 +1488,7 @@ getDateTimeFormat(dateTime: string) {
       const payload = {
         wkt_polygon: this.polygon_wkt
       }
-      const queryParams = {
+      let queryParams = {
         end_date:this.getDateValue(this.endDate),
         start_date:this.getDateValue(this.startDate),
         max_cloud_cover: this.max_cloud,
@@ -1455,6 +1499,15 @@ getDateTimeFormat(dateTime: string) {
         vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
         max_gsd:this.max_gsd === 4 ? 1000 : this.max_gsd,
         min_gsd:this.min_gsd,
+        focused_records_ids: this.idArray,
+        zoomed_wkt: this._zoomed_wkt
+      }
+      if (this._zoomed_wkt !== '') {
+        queryParams = {...queryParams,  zoomed_wkt: this._zoomed_wkt}
+       
+        
+      } else {
+        queryParams = {...queryParams,  zoomed_wkt: ''}
       }
       const params = {
         ...queryParams,

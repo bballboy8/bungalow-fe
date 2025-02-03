@@ -188,8 +188,9 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   @Output() onFilterset: EventEmitter<any> = new EventEmitter();
   private _startDate: any;
   private _endDate: any;
-  matchedObject:any
-
+  matchedObject:any;
+  overlapListData:any=[];
+  idArray:string[]=[""]
   filterParams:any;
 
   defaultFilter() {
@@ -200,6 +201,8 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
       end_date: this.endDate,
       source: 'library',
       zoomed_wkt:this._zoomed_wkt,
+      focused_records_ids:this.idArray,
+      
     }
   }
   @Input()
@@ -297,6 +300,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   calendarApiData:any;
   OpenEventCalendar:boolean=false;
   tableRowHovered:boolean=false;
+  focused_captures_count:any;
   @Input()
 set zoomed_wkt(value: string) {
   if (value !== this._zoomed_wkt) {
@@ -322,6 +326,7 @@ set zoomed_wkt(value: string) {
         end_date: this.endDate,
         source: 'library',
        
+        focused_records_ids: this.idArray
       };
       const payload = {
         wkt_polygon: this.polygon_wkt
@@ -441,6 +446,7 @@ set zoomed_wkt(value: string) {
     
   };
   @ViewChildren('sliderElement') sliderElements!: QueryList<ElementRef>;
+  lastMatchId:any = null
   constructor(
     private dialog: MatDialog,
     private sharedService: SharedService,
@@ -560,6 +566,58 @@ set zoomed_wkt(value: string) {
       
       this.tableRowHovered = rowHover
     })
+    this.sharedService.overlayShapeData$.subscribe((overlayShapeData) => {
+      if(overlayShapeData.length>1){
+        console.log(overlayShapeData,'overlayShapeDataoverlayShapeDataoverlayShapeDataoverlayShapeData');
+       this.idArray = overlayShapeData.map((record) => record.id.toString());
+
+      console.log(this.idArray,'idArrayidArrayidArrayidArrayidArrayidArray');
+        let minCloud
+        if(this.min_cloud <= -1) {
+          minCloud = -1
+        } else {
+          minCloud = this.min_cloud
+        } 
+        let queryParams: any = {
+          ...this.filterParams,
+          page_number: '1',
+          page_size: this.page_size,
+          start_date: this.startDate,
+          end_date: this.endDate,
+          source: 'library'
+        };
+        
+          queryParams = {...queryParams,  focused_records_ids: this.idArray}
+          this.filterParams = {...queryParams}
+          const payload = {
+            wkt_polygon: this.polygon_wkt
+          };
+        this.loader = true;
+        this.ngxLoader.start(); // Start the loader
+        this.page_number = '1';
+        this.getSatelliteCatalog(payload, queryParams);
+        this.overlapListData = overlayShapeData
+        const overlayIds = new Set(overlayShapeData.map(item => item.id));
+  
+    // 2. Find the last matching ID in dataSource.data
+    
+    for (let i = this.dataSource.data.length - 1; i >= 0; i--) {
+      if (overlayIds.has(this.dataSource.data[i].id)) {
+        this.lastMatchId = this.dataSource.data[i].id;
+        break;
+      }
+  }
+  console.log(this.lastMatchId,'lastMatchIdlastMatchIdlastMatchId');
+  // 3. Return the corresponding item from overlayShapeData
+   this.lastMatchId 
+    ? overlayShapeData.find(item => item.id === this.lastMatchId)
+    : null;
+      }
+      
+      
+    })
+   
+    
     // Add mouse events
   }
 
@@ -597,6 +655,8 @@ set zoomed_wkt(value: string) {
     
     this.satelliteService.getDataFromPolygon(payload,queryParams).subscribe({
       next: (resp) => {
+        console.log('getSatelliteCataloggetSatelliteCataloggetSatelliteCatalog',resp);
+        
         // console.log(resp,'queryParamsqueryParamsqueryParamsqueryParams');
         this.dataSource.data = resp.data.map((item, idx) => ({
           ...item,
@@ -604,7 +664,8 @@ set zoomed_wkt(value: string) {
         }));
         this.originalData = [...this.dataSource.data];
         this.total_count = resp.total_records
-        this.zoomed_captures_count = resp.zoomed_captures_count
+        this.zoomed_captures_count = resp.zoomed_captures_count;
+        this.focused_captures_count = resp?.focused_captures_count
         this.loader = false
         this.ngxLoader.stop();
         setTimeout(() => {
@@ -630,6 +691,8 @@ set zoomed_wkt(value: string) {
       start_date:this.startDate,
       end_date: this.endDate,
       source: 'library',
+      zoomed_wkt: this._zoomed_wkt? this._zoomed_wkt:''
+
       
      
       
@@ -1419,7 +1482,7 @@ getDateTimeFormat(dateTime: string) {
       const payload = {
         wkt_polygon: this.polygon_wkt
       }
-      const queryParams = {
+      let queryParams = {
         ...this.filterParams,
         end_date:this.getDateValue(this.endDate),
         start_date:this.getDateValue(this.startDate),
@@ -1431,6 +1494,15 @@ getDateTimeFormat(dateTime: string) {
         vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
         max_gsd:this.max_gsd === 4 ? 1000 : this.max_gsd,
         min_gsd:this.min_gsd,
+        focused_records_ids: this.idArray,
+        zoomed_wkt: this._zoomed_wkt
+      }
+      if (this._zoomed_wkt !== '') {
+        queryParams = {...queryParams,  zoomed_wkt: this._zoomed_wkt}
+       
+        
+      } else {
+        queryParams = {...queryParams,  zoomed_wkt: ''}
        
       }
       const params = {
@@ -1453,6 +1525,7 @@ getDateTimeFormat(dateTime: string) {
      },300)
   }
 
+  //Get Date Value function
   getDateValue(date:any){
     if (!date) {
       return null; // Handle null or undefined input
@@ -1489,18 +1562,59 @@ if (endDateControlValue) {
     };
   }
 
+  //Reset form function
+
   resetForm(){
     this.formGroup.reset();
   }
 
+  //Hide map menu functionality
   hideMenu(){
     this.sharedService.setRightMenuHide(false)
   }
 
+  //Double Day value function
   getDouble(data){
     return parseFloat(data) + parseFloat(data);
     
   }
+
+  //Getting in view list data funtionality
+  getInviewList(count: number): any[] {
+    // Return first "count" items from dataSource.data
+    return this.dataSource.data.slice(0, count);
+  }
+
+  //Get browse tab data 
+  getFilteredData() {
+    // Make a shallow copy of the original array
+    let filteredData = [...this.dataSource.data];
+
+    // Remove the first zoomed_captures_count elements
+    filteredData = filteredData.slice(this.zoomed_captures_count);
+
+    // Create a new array excluding elements that are present in overlapListData
+    let resultData = [];
+    let overlapSet = new Set(this.overlapListData); // Use Set for efficient lookups
+
+    for (let i = 0; i < filteredData.length; i++) {
+        if (!overlapSet.has(filteredData[i])) {
+            resultData.push(filteredData[i]); // Keep elements that are NOT in overlapListData
+        }
+    }
+
+    return resultData;
+}
+
+//Get overlap data 
+getOverlapData(){
+  const filteredData = this.dataSource.data.filter((item: any) =>
+    this.overlapListData.some((overlapItem: any) => overlapItem.id === item.id)
+  );
+
+  return filteredData
+}
+
 
   closeFilterMenu() {
     console.log('closseeeee', this.menuFilterTrigger);

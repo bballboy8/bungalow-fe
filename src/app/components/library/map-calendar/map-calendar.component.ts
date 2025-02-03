@@ -212,13 +212,15 @@ export class MapCalendarComponent implements OnInit {
 calculateTooltipPosition(event: MouseEvent, day: any): void {
   const dayElement = event.currentTarget as HTMLElement;
   const dayRect = dayElement.getBoundingClientRect();
-  const tooltipWidth = 185; // Match your tooltip's min-width
-  const tooltipHeight = 100; // Approximate tooltip height
+  const tooltipWidth = 130; // Match your tooltip's min-width
+  const tooltipHeight = 90; // Approximate tooltip height
 
   // Horizontal positioning
   let left: number, right: number;
   if (dayRect.right + tooltipWidth <= window.innerWidth) {
-    left = dayRect.right;
+    left = dayRect.right-20;
+    console.log(left,'leftleftleftleft');
+    
     right = undefined;
   } else if (dayRect.left - tooltipWidth >= 0) {
     left = dayRect.left - tooltipWidth;

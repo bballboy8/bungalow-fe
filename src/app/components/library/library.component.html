@@ -257,8 +257,8 @@
                           <mat-checkbox [(ngModel)]="col.visible" 
                           color="primary" 
                           (click)="$event.stopPropagation()" 
-                          [disabled]="col.id === 'vendor_name'"
-                          [checked]="col.id === 'vendor_name' ? true : col.visible">
+                          [disabled]="col.id === 'acquisition_datetime'"
+                          [checked]="col.id === 'acquisition_datetime' ? true : col.visible">
                             <span class="text-secondaryText">{{col.displayName}}</span>
                           </mat-checkbox>
                         </div>

@@ -760,8 +760,8 @@ set zoomed_wkt(value: string) {
 
   openImagePreviewDialog(index:any) {
     const dialogRef = this.dialog.open(ImagePreviewComponent, {
-      width: "880px",
-      maxHeight:'700px',
+      width: "1680px",
+      maxHeight:'1200px',
       data:  {images:this.dataSource, currentIndex:index} ,
       panelClass: "custom-preview",
     });

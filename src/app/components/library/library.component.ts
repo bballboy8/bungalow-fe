@@ -169,7 +169,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   get displayedColumns(): string[] {
     return [
       ...this.columns.filter(c => c.visible).map(c => c.id),
-      'expand' // Keep expand column always visible
+      // 'expand' // Keep expand column always visible
     ];
   }
   total_count:any
@@ -203,7 +203,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   defaultFilter() {
     return {
       page_number: '1',
-      page_size: '20',
+      page_size: '100',
       start_date:this.startDate,
       end_date: this.endDate,
       source: 'library',
@@ -296,7 +296,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   originalData: any[] = [];
   selectedZone:string = 'UTC'
   @ViewChild('scrollableDiv') scrollableDiv!: ElementRef<HTMLDivElement>;
-  page_size = '20';
+  page_size = '100';
   perPageSize= 20;
   page_number = '1';
   loader:boolean = false;
@@ -702,7 +702,7 @@ set zoomed_wkt(value: string) {
     // Reset the dataSource to the original unsorted data
     let queryParams ={
       page_number: '1',
-      page_size: '20',
+      page_size: '100',
       start_date:this.startDate,
       end_date: this.endDate,
       source: 'library',
@@ -1521,7 +1521,7 @@ getDateTimeFormat(dateTime: string) {
       const params = {
         ...queryParams,
         page_number:1,
-        page_size:20,
+        page_size: 100,
         source:'library',
        
       }

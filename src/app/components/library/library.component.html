@@ -1,6 +1,6 @@
 <div class="flex h-full flex-col gap-3 z-[1000000000]" (click)="hideMenu()">
     <div class="flex">
-        <div class="flex flex-col gap-3 !w-[820px]">
+        <div class="flex flex-col gap-3 !w-[840px]">
     <div id="header" class="flex items-center justify-between h-[48px] bg-secondaryBg p-3">
         <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Library</span>
         <span class="w-[16px] h-[14px] cursor-pointer" (click)="closeLibraryDrawer()">
@@ -378,7 +378,7 @@
         </div>
         <div *ngIf="loader" class="z-[1000000] absolute" id="loader"> <ngx-ui-loader></ngx-ui-loader></div>
         @if (viewType=='browse') {
-        <div class="w-[820px] overflow-auto browser-content" #scrollableDiv>
+        <div class="w-[840px] overflow-auto browser-content" #scrollableDiv>
             <div class="flex flex-start all_wrap flex-wrap ml-[20px]">
                @if(dataSource?.data?.length){
                 
@@ -480,7 +480,7 @@
             </div>
         </div>
         }@else {
-        <div class="w-[820px] overflow-auto content " #scrollableDiv>
+        <div class="w-[840px] overflow-auto content " #scrollableDiv>
             @if (dataSource) {
                 <div class="w-full flex justify-center items-center" *ngIf="!dataSource.data.length">
                     <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Data not found</span>
@@ -542,23 +542,23 @@
                     </th>
                     <td mat-cell *matCellDef="let row" class="min-w-[165px] !pl-[10px] text-secondaryText">
                         <div class="flex">
-                            <span class="min-w-[100px] max-w-[260px] truncate">{{ row?.vendor_id }}</span>
+                            <span class="w-[100px] max-w-[260px] truncate">{{ row?.vendor_id }}</span>
                             <span (click)="$event.stopPropagation();markerData(row)"><img src="assets/svg-icons/marker-icon.svg" alt=""></span>
                             <span class="w-[16px] h-[16px] ml-[5px]" (click)="$event.stopPropagation();copyData(row)"><img src="assets/svg-icons/copy-icon.svg" alt=""></span>
                         </div>
                     </td>
                 </ng-container>
 
-                <ng-container matColumnDef="expand">
+                <!-- <ng-container matColumnDef="expand">
                     <th mat-header-cell *matHeaderCellDef aria-label="row actions">&nbsp;</th>
                     <td mat-cell *matCellDef="let element">
                         <button mat-icon-button aria-label="expand row"
                             (click)="(expandedElement = expandedElement === element ? null : element); $event.stopPropagation()">
-                            <!-- <mat-icon *ngIf="expandedElement !== element">keyboard_arrow_down</mat-icon>
-                            <mat-icon *ngIf="expandedElement === element">keyboard_arrow_up</mat-icon> -->
+                            <mat-icon *ngIf="expandedElement !== element">keyboard_arrow_down</mat-icon>
+                            <mat-icon *ngIf="expandedElement === element">keyboard_arrow_up</mat-icon>
                         </button>
                     </td>
-                </ng-container>
+                </ng-container> -->
 
                 <ng-container matColumnDef="expandedDetail">
                     <td  mat-cell *matCellDef="let element" [attr.colspan]="displayedColumns.length">

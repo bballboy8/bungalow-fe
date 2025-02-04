@@ -330,8 +330,9 @@
   }
   .cdk-overlay-pane {
     width: 100%;
-    left: 0px !important;
+    left: -70px !important;
     top: 0px !important;
+    height: max-content !important;
   }
   .mat-mdc-menu-content{
     display: flex !important;

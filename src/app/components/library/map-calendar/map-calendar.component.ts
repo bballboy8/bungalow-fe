@@ -98,7 +98,7 @@ export class MapCalendarComponent implements OnInit {
       }
   
       this.calendarData.push({
-        name: current.format("MMMM"),
+        name: current.format("MMMM YYYY"), // Includes the year
         weeks: this.generateWeeksForMonth(monthDays),
       });
   

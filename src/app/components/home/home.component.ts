@@ -1902,10 +1902,18 @@ handleMakerData(data: any) {
     const bounds = L.latLngBounds(coordinates);
 
     // Highlight the coordinates with a green border (polygon)
-    L.polygon(coordinates, {
+    const polygon = L.polygon(coordinates, {
       color: 'green', // Set border color to green
-      weight: 3, // Border thickness
-    }).addTo(this.map);
+      weight: 3,
+    }) as L.Polygon & { vendorData: any };
+    
+    // Attach custom data to the polygon
+    polygon.vendorData = data; // Ensuring TypeScript recognizes vendorData
+    
+    // Add event listeners for hover effects
+    polygon.on('mouseover', () => this.onPolygonHover(data.vendor_id));
+    polygon.on('mouseout', () => this.onPolygonOut(null));
+    
 
     // Adjust the map view to fit the bounds of the shape
     this.map.fitBounds(bounds, {

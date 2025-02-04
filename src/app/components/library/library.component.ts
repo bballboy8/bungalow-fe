@@ -399,8 +399,15 @@ set zoomed_wkt(value: string) {
   }
 
   vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra'];
-  max_cloud:number = 60
-  min_cloud: number = -10;
+  // Default values for manual filters
+  defaultMinCloud = -10;
+  defaultMaxCloud = 60;
+  defaultMinAngle = 0;
+  defaultMaxAngle = 55;
+  defaultMinGsd = 0;
+  defaultMaxGsd = 4;
+  max_cloud:number = this.defaultMaxCloud
+  min_cloud: number = this.defaultMinCloud;
   options: Options = {
     step: 10,
     showTicks: true,
@@ -419,8 +426,8 @@ set zoomed_wkt(value: string) {
       return `${value}%`; // Default for other values
     },
   };
-  max_angle:number = 55;
-  min_angle: number = 0;
+  max_angle:number = this.defaultMaxAngle;
+  min_angle: number = this.defaultMinAngle;
   angleOptions: Options = {
     step: 5,
     showTicks: true,
@@ -435,8 +442,8 @@ set zoomed_wkt(value: string) {
       return `${value}°`; // Default for other values
     },
   };
-  min_gsd:number =0;
-  max_gsd:number =4;
+  min_gsd:number =this.defaultMinGsd;
+  max_gsd:number =this.defaultMaxGsd;
   gsd_options: Options = {
     step: 0.1,
     showTicks: true,
@@ -489,12 +496,6 @@ set zoomed_wkt(value: string) {
           }
         });
         this.formGroup = this.fb.group({
-          max_cloud: [100],
-          min_cloud:[0],
-          max_angle:[],
-          min_angle:[],
-          min_gsd:[],
-          max_gsd:[],
           vendor:[],
           vendorId:[],
           
@@ -716,7 +717,7 @@ set zoomed_wkt(value: string) {
     const payload = {
       wkt_polygon: this.polygon_wkt
     }
-
+    this.filterCount = 0
     this.zoomed_wkt = this.polygon_wkt
     this.loader = true
       this.ngxLoader.start(); // Start the loader
@@ -1456,12 +1457,17 @@ getDateTimeFormat(dateTime: string) {
   sliderShow:boolean = false;
   //Overlay container customization class add functionality
   setClass(){
+    const classesToRemove = ['column-menu', 'filter-overlay-container'];
     const containerElement = this.overlayContainer.getContainerElement();
+    containerElement.classList.remove(...classesToRemove);
     containerElement.classList.add('library-overlay-container');
    
   }
   setFilterClass(){
     const containerElement = this.overlayContainer.getContainerElement();
+    // Remove existing class before adding a new one
+    const classesToRemove = ['column-menu', 'library-overlay-container'];
+    containerElement.classList.remove(...classesToRemove);
     containerElement.classList.add('filter-overlay-container');
     containerElement.addEventListener('click', (event:  Event)=> {
       event.stopPropagation()
@@ -1483,6 +1489,7 @@ getDateTimeFormat(dateTime: string) {
 
   //Filter Form submit functionality
   onSubmit() {
+    this.updateFilterCount(); 
     let minCloud
     if(this.min_cloud <= -1) {
       minCloud = -1
@@ -1593,7 +1600,9 @@ if (endDateControlValue) {
   }
   //set column selection menu class
   setColumnMenuClass(){
+    const classesToRemove = ['library-overlay-container', 'filter-overlay-container'];
     const containerElement = this.overlayContainer.getContainerElement();
+    containerElement.classList.remove(...classesToRemove);
     containerElement.classList.add('column-menu');
   }
 
@@ -1664,4 +1673,22 @@ getOverlapData(){
       this.menuFilterTrigger.closeMenu();
     }
   }
+
+  filterCount :any = 0;
+  //Filter count function
+  updateFilterCount(): void {
+    let count = 0;
+
+    // Count values inside the reactive form
+    if(this.formGroup.get('vendor').value === null) count ++;
+    if(this.formGroup.get('vendorId').value === null) count ++;
+
+    // Count manually tracked filters **only if they have changed from defaults**
+    if (this.max_cloud !== this.defaultMaxCloud || this.min_cloud !== this.defaultMinCloud) count++;
+    if (this.min_angle !== this.defaultMinAngle || this.max_angle !== this.defaultMaxAngle) count++;
+    if (this.min_gsd !== this.defaultMinGsd || this.max_gsd !== this.defaultMaxGsd) count++;
+    this.filterCount = count;
+    
+  }
+
 }

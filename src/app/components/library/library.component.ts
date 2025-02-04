@@ -341,7 +341,7 @@ set zoomed_wkt(value: string) {
       if (this._zoomed_wkt !== '') {
         queryParams = {...queryParams,  zoomed_wkt: this._zoomed_wkt}
        
-        
+        console.log(queryParams,'focused_records_idsfocused_records_idsfocused_records_idsfocused_records_ids');
       } else {
         queryParams = {...queryParams,  zoomed_wkt: ''}
       }
@@ -349,6 +349,7 @@ set zoomed_wkt(value: string) {
       this.ngxLoader.start(); // Start the loader
       this.page_number = '1';
       this.filterParams = {...queryParams}
+      
       this.getSatelliteCatalog(payload, queryParams);
     }, 800);
      // Debounce time: 600ms
@@ -667,7 +668,7 @@ set zoomed_wkt(value: string) {
   }
 
   getSatelliteCatalog(payload:any,queryParams:any){
-    console.log('getSatelliteCatalog');
+    console.log('getSatelliteCatalog',queryParams);
     
     this.satelliteService.getDataFromPolygon(payload,queryParams).subscribe({
       next: (resp) => {
@@ -713,6 +714,7 @@ set zoomed_wkt(value: string) {
      
       
     }
+    this.filterParams = queryParams
     this.formGroup.reset();
     const payload = {
       wkt_polygon: this.polygon_wkt

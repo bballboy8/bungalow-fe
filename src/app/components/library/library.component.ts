@@ -1621,9 +1621,9 @@ if (endDateControlValue) {
   }
 
   //Getting in view list data funtionality
-  getInviewList(count: number): any[] {
+  getInviewList(start: number, count: number): any[] {
     // Return first "count" items from dataSource.data
-    return this.dataSource.data.slice(0, count);
+    return this.dataSource.data.slice(start ?(start+1) :  0, count);
   }
 
   //Get browse tab data 

@@ -717,7 +717,19 @@ set zoomed_wkt(value: string) {
     const payload = {
       wkt_polygon: this.polygon_wkt
     }
-    this.filterCount = 0
+    this.filterCount = 0;
+    this.defaultMinCloud = -10;
+    this.defaultMaxCloud = 60;
+    this.defaultMinAngle = 0;
+    this.defaultMaxAngle = 55;
+    this.defaultMinGsd = 0;
+    this.defaultMaxGsd = 4;
+    this.min_cloud = -10;
+    this.max_cloud = 60;
+    this.min_gsd = 0;
+    this.max_gsd = 4;
+    this.min_angle = 0;
+    this.max_angle = 55
     this.zoomed_wkt = this.polygon_wkt
     this.loader = true
       this.ngxLoader.start(); // Start the loader
@@ -1680,9 +1692,10 @@ getOverlapData(){
     let count = 0;
 
     // Count values inside the reactive form
-    if(this.formGroup.get('vendor').value === null) count ++;
-    if(this.formGroup.get('vendorId').value === null) count ++;
-
+    if(this.formGroup.get('vendor').value !== null) count ++;
+    if(this.formGroup.get('vendorId').value !== null) count ++;
+    console.log(count,'aaaaaaaaaaaaaaa',this.formGroup.get('vendor').value);
+    
     // Count manually tracked filters **only if they have changed from defaults**
     if (this.max_cloud !== this.defaultMaxCloud || this.min_cloud !== this.defaultMinCloud) count++;
     if (this.min_angle !== this.defaultMinAngle || this.max_angle !== this.defaultMaxAngle) count++;

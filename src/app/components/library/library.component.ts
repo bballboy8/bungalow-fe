@@ -238,8 +238,6 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
             next: (resp) => {
             
               this.calendarApiData = resp.data;
-              this.loader = true
-              this.ngxLoader.start(); // Start the loader
               this.getSatelliteCatalog(payload,queryParams)
             },
             error: (err) => {
@@ -345,8 +343,7 @@ set zoomed_wkt(value: string) {
       } else {
         queryParams = {...queryParams,  zoomed_wkt: ''}
       }
-      this.loader = true;
-      this.ngxLoader.start(); // Start the loader
+  
       this.page_number = '1';
       this.filterParams = {...queryParams}
       this.getSatelliteCatalog(payload, queryParams);
@@ -545,7 +542,7 @@ set zoomed_wkt(value: string) {
       }
      setTimeout(() => {
       this.loader = true
-      this.ngxLoader.start(); // Start the loader
+      this.ngxLoader.start('library'); // Start the loader
       this.getSatelliteCatalog(payload,this.filterParams)
      },300)
       
@@ -608,7 +605,7 @@ set zoomed_wkt(value: string) {
             wkt_polygon: this.polygon_wkt
           };
         this.loader = true;
-        this.ngxLoader.start(); // Start the loader
+        this.ngxLoader.start('library'); // Start the loader
         this.page_number = '1';
         this.getSatelliteCatalog(payload, queryParams);
         this.overlapListData = overlayShapeData
@@ -660,12 +657,12 @@ set zoomed_wkt(value: string) {
         }
  
           }   
-      this.loader = true
-      this.ngxLoader.start(); // Start the loader
       this.getSatelliteCatalog(payload,queryParams)
   }
 
   getSatelliteCatalog(payload:any,queryParams:any){
+    this.loader = true;
+    this.ngxLoader.start('library'); // Start the loader
     console.log('getSatelliteCatalog');
     
     this.satelliteService.getDataFromPolygon(payload,queryParams).subscribe({
@@ -682,7 +679,7 @@ set zoomed_wkt(value: string) {
         this.zoomed_captures_count = resp.zoomed_captures_count;
         this.focused_captures_count = resp?.focused_captures_count
         this.loader = false
-        this.ngxLoader.stop();
+        this.ngxLoader.stop('library');
         setTimeout(() => {
           this.setDynamicHeight();
           window.addEventListener('resize', this.setDynamicHeight.bind(this))
@@ -692,7 +689,7 @@ set zoomed_wkt(value: string) {
       },
       error: (err) => {
         this.loader = false
-        this.ngxLoader.stop();
+        this.ngxLoader.stop('library');
         console.log("err getPolyGonData: ", err);
       },
     });
@@ -718,8 +715,6 @@ set zoomed_wkt(value: string) {
     }
 
     this.zoomed_wkt = this.polygon_wkt
-    this.loader = true
-      this.ngxLoader.start(); // Start the loader
     this.getSatelliteCatalog(payload,{...queryParams, zoomed_wkt: this._zoomed_wkt})
     this.onFilterset.emit({params: {...queryParams, zoomed_wkt: this._zoomed_wkt}, payload});
   }
@@ -1328,7 +1323,7 @@ private handleWheelEvent = (event: WheelEvent): void => {
         wkt_polygon: this.polygon_wkt
       }
      this.loader = true
-      this.ngxLoader.start(); // Start the loader
+      this.ngxLoader.start('library'); // Start the loader
 
   this.satelliteService.getDataFromPolygon(payload, queryParams).subscribe({
     next: (resp) => {
@@ -1345,12 +1340,12 @@ private handleWheelEvent = (event: WheelEvent): void => {
         window.addEventListener('resize', this.setDynamicHeight.bind(this));
       }, 300);
       this.loader = false
-      this.ngxLoader.stop(); // Stop the loader when the data is successfully fetched
+      this.ngxLoader.stop('library'); // Stop the loader when the data is successfully fetched
     },
     error: (err) => {
       console.log("err getPolyGonData: ", err);
       this.loader = false
-      this.ngxLoader.stop(); // Stop the loader even if there is an error
+      this.ngxLoader.stop('library'); // Stop the loader even if there is an error
     }
   });
     }
@@ -1531,8 +1526,6 @@ getDateTimeFormat(dateTime: string) {
       this.parentFilter.emit(queryParams)
       this.onFilterset.emit({params:  this.filterParams, payload});
      setTimeout(() => {
-      this.loader = true
-      this.ngxLoader.start(); // Start the loader
       this.getSatelliteCatalog(payload,params)
       this.closeFilterMenu()
      },300)

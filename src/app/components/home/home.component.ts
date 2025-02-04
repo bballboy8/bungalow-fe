@@ -31,7 +31,7 @@ import { MapControllersPopupComponent } from '../../dailogs/map-controllers-popu
 import { MatDialog } from '@angular/material/dialog';
 import { HttpClient } from '@angular/common/http';
 import dayjs from 'dayjs';
-import { NgxUiLoaderService } from 'ngx-ui-loader';
+import { NgxUiLoaderModule, NgxUiLoaderService } from 'ngx-ui-loader';
 import * as martinez from 'martinez-polygon-clipping';
 (window as any).type = undefined;
 
@@ -54,7 +54,8 @@ declare module 'leaflet' {
     HeaderComponent,
     MatSidenavModule,
     SidebarDrawerComponent,
-    MapCalendarComponent
+    MapCalendarComponent,
+    NgxUiLoaderModule
   ],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
@@ -62,6 +63,7 @@ declare module 'leaflet' {
 export class HomeComponent implements OnInit, AfterViewInit,OnDestroy {
   @ViewChild('mapContainer', { static: true }) mapContainer!: ElementRef;
   @ViewChild('drawer') drawer?: MatDrawer;
+  loader:boolean = false;
   map!: L.Map;
   zoomLevel: number = 4;
   longitude: number = -90;
@@ -79,10 +81,12 @@ export class HomeComponent implements OnInit, AfterViewInit,OnDestroy {
   private darkLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
     maxZoom: 20, // Maximum zoom level
     subdomains: 'abc',
+    keepBuffer: 4
   });
   private lightLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 20, // Maximum zoom level
     subdomains: 'abc',
+    keepBuffer: 4
   });
   googleStreets: L.TileLayer = L.tileLayer(
     'http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
@@ -90,14 +94,17 @@ export class HomeComponent implements OnInit, AfterViewInit,OnDestroy {
       maxZoom: 20,
       attribution: '&copy; <a href="https://maps.google.com/">Google Maps</a>',
       subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
-    }
+      keepBuffer: 4
+    },
+    
   )
   googlestreetDarkLayer: L.TileLayer = L.tileLayer(
     'http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', // 's' for satellite layer
     {
       maxZoom: 20,
       attribution: '&copy; <a href="https://maps.google.com/">Google Maps</a>',
-      subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+      subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+      keepBuffer: 4
     }
 
 );
@@ -106,7 +113,8 @@ hybridLayer:L.TileLayer = L.tileLayer(
   {
     maxZoom: 20,
     attribution: '&copy; <a href="https://maps.google.com/">Google Maps</a>',
-    subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+    subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+    keepBuffer: 4
   }
 );
 
@@ -896,11 +904,13 @@ private fallbackCopyToClipboard(text: string): void {
     this.satelliteService.getDataFromPolygon(payload,queryParams).subscribe({
       next: (resp) => {
         console.log(resp,'satelliteServicesatelliteServicesatelliteServicesatelliteService');
-        
+        this.ngxLoader.startLoader('standalone');
+        this.loader = true
         this.extraShapesLayer?.clearLayers();
         if (Array.isArray(resp?.data)) {
-          resp.data.forEach((item:any) => {
-            this.addPolygonWithMetadata(item);
+          resp.data.forEach((item:any, index) => {
+            this.addPolygonWithMetadata(item, index, resp.data);
+      
           });
           if(!this.isDrawerOpen){
             this.isDrawerOpen = true
@@ -961,7 +971,7 @@ private fallbackCopyToClipboard(text: string): void {
     });
   }
   // Function to add the polygon and its metadata
-  private addPolygonWithMetadata(data: any): void {
+  private addPolygonWithMetadata(data: any, index, allData): void {
     const polygonCoordinates = data.coordinates_record.coordinates[0]; // Access the first array of coordinates
   
     // Convert [lng, lat] to [lat, lng] (Leaflet requires [lat, lng] format)
@@ -1087,6 +1097,16 @@ polygon.on('click', (event: L.LeafletMouseEvent) => {
         this.drawHandler._toolbars.draw.disable(); // Disables drawing
     }
   
+
+  if (allData?.length  === index +1) {
+    console.log("ckbewewjkbekjebejkhwbewjhkebwew");
+    
+    this.loader = false
+
+    this.ngxLoader.stopLoader('standalone')
+
+
+  }
     console.log('Drawing tools disabled');
 }
 

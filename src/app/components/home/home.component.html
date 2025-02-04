@@ -1,4 +1,6 @@
 <mat-drawer-container id="menu-drawer" class="example-container" autosize>
+  <div *ngIf="loader" class="z-[1000000]" id="loader"> <ngx-ui-loader></ngx-ui-loader></div>
+
   <div 
     class="h-screen min-h-[700px] cursor-default relative"
     [ngClass]="isGoogleLayerActive === 'OpenStreetMapDark' ||  isGoogleLayerActive === 'GoogleStreetMapDark' ? '!bg-[#234436]' : ' z-30'"

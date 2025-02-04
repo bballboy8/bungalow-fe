@@ -26,9 +26,9 @@ export const LoadingInterceptor = (
   const paramString = JSON.stringify(plainParams);
   let params= JSON.stringify(req.params);
   
-  if(!paramString?.includes('library') && !req.url.includes('/get-sites')){
+  if(!paramString?.includes('library') && !paramString?.includes('home') && !req.url.includes('/get-sites')){
     mainLoader.setValue(true)
-    ngxLoader.start();
+    ngxLoader.start('masterLoader');
    
   } else {
     mainLoader.setValue(false)
@@ -36,7 +36,7 @@ export const LoadingInterceptor = (
 
   return next(req).pipe(
     finalize(() => {
-      ngxLoader.stop();
+      ngxLoader.stop('masterLoader');
       mainLoader.setValue(false)
     })
   );

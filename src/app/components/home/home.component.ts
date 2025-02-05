@@ -35,6 +35,11 @@ import { NgxUiLoaderService } from 'ngx-ui-loader';
 import * as martinez from 'martinez-polygon-clipping';
 (window as any).type = undefined;
 
+declare module 'leaflet' {
+  interface Polygon {
+      vendorData: any; // Use specific type instead of 'any' if available
+  }
+}
 
 @Component({
   selector: 'app-home',
@@ -131,6 +136,9 @@ hybridLayer:L.TileLayer = L.tileLayer(
   popUpData:any;
   shapeHoverData:any;
   contextMenu:any
+  mapDirection = 1;
+  mapFormula = 0;
+
   constructor(@Inject(PLATFORM_ID) private platformId: Object,
    private satelliteService:SatelliteService,private dialog: MatDialog,
    private http: HttpClient,
@@ -307,7 +315,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
     console.log('Polygon Bounds:', polygonBounds);
   
     // Pass the GeoJSON and bounds to your custom function
-    this.getPolygonFromCoordinates({ geometry: geoJSON.geometry }, polygonBounds);
+    this.getPolygonFromCoordinates({ geometry: geoJSON.geometry }, polygonBounds,true);
   
     // Add zoom change listener
     // this.map.on('zoomend', () => {
@@ -332,11 +340,14 @@ hybridLayer:L.TileLayer = L.tileLayer(
     // Add right-click event listener
     this.map.on('contextmenu', (event: L.LeafletMouseEvent) => {
       const { lat, lng } = event.latlng;
-      const coords = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-    
+
+      const {normalizedLatitude, normalizedLongitude} =  this.getlatlngNormalized(lat, lng)
+      const coords = `${normalizedLatitude.toFixed(6)}, ${normalizedLongitude.toFixed(6)}`;
+          
       // Create a context menu if it doesn't exist
        this.contextMenu = document.getElementById('context-menu');
       if (!this.contextMenu) {
+        
         this.contextMenu = document.createElement('div');
         this.contextMenu.id = 'context-menu';
         this.contextMenu.style.position = 'absolute';
@@ -374,6 +385,9 @@ hybridLayer:L.TileLayer = L.tileLayer(
     
           // Hide the context menu
           this.contextMenu.style.display = 'none';
+          this.contextMenu.removeChild(menuOption);
+          document.body.removeChild(this.contextMenu);
+          this.contextMenu = null;
         });
     
         this.contextMenu.appendChild(menuOption);
@@ -798,12 +812,14 @@ private fallbackCopyToClipboard(text: string): void {
 }
 
   //Getting the polygon from cordinates functionality
-  getPolygonFromCoordinates(payload:{geometry:{type:string,coordinates:any[]}},bound:any) {
-    console.log('aaaaaaaaaaaaaaa');
-    
-    this.satelliteService.getPolyGonData(payload).subscribe({
+  getPolygonFromCoordinates(payload:{geometry:{type:string,coordinates:any[]}},bound:any,  isLoadFirstTime = false) {
+    const  updatedPayload = this.normalizePayloadCoordinates(payload);
+    this.satelliteService.getPolyGonData(updatedPayload).subscribe({
       next: (resp) => {
-        this.polygon_wkt = resp?.data?.wkt_polygon
+        this.polygon_wkt = resp?.data?.wkt_polygon;
+        if (isLoadFirstTime) {
+          this.zoomed_wkt_polygon = this.polygon_wkt;
+        }
         console.log("resp:resp:resp:resp:resp: ", resp?.data);
         if(resp?.data?.area>=100000000){
           this.openSnackbar("Select a smaller polygon");
@@ -834,11 +850,53 @@ private fallbackCopyToClipboard(text: string): void {
     });
   }
 
+  normalizePayloadCoordinates(payload: any): any {
+    if (payload.geometry && Array.isArray(payload.geometry.coordinates)) {
+      payload.geometry.coordinates = payload.geometry.coordinates.map(coordinateSet =>
+        coordinateSet.map(([longitude, latitude]: [number, number]) => {
 
+         const {normalizedLatitude, normalizedLongitude} =  this.getlatlngNormalized(latitude, longitude)
+          let direction =  1;
+        if (longitude >=0) {
+          direction = 1;       
+        } else {      
+          direction= -1;  
+        }
+        
+       this.mapFormula = (360*(Math.floor((Math.floor((longitude + 180)  / 360)+1) -1)))
+      return [normalizedLongitude, normalizedLatitude];
+        })
+      );
+    }
+    return payload; // Return the updated payload
+  }
+
+  normalizePayloadZoomCoordinates(coordinates: any): any {
+    if (coordinates && Array.isArray(coordinates)) {
+       coordinates = coordinates.map(coordinateSet =>
+        coordinateSet.map(([longitude, latitude]: [number, number]) => {
+
+         const {normalizedLatitude, normalizedLongitude} =  this.getlatlngNormalized(latitude, longitude)
+        //   let direction =  1;
+        // if (normalizedLongitude >=0) {
+        //   direction = 1;       
+        // } else {      
+        //   direction= -1;  
+        // }
+        
+      //  this.mapFormula = (360*(Math.floor((Math.floor((longitude + 180)  / 360)+1) -1)) * direction)
+      return [normalizedLongitude, normalizedLatitude];
+        })
+      );
+    }
+    return coordinates; // Return the updated payload
+  }
   //Polygon data getting by using polygon fucntionality
   getDataUsingPolygon(payload: any,queryParams: any) {
     this.satelliteService.getDataFromPolygon(payload,queryParams).subscribe({
       next: (resp) => {
+        console.log(resp,'satelliteServicesatelliteServicesatelliteServicesatelliteService');
+        
         this.extraShapesLayer?.clearLayers();
         if (Array.isArray(resp?.data)) {
           resp.data.forEach((item:any) => {
@@ -909,7 +967,7 @@ private fallbackCopyToClipboard(text: string): void {
     // Convert [lng, lat] to [lat, lng] (Leaflet requires [lat, lng] format)
     const latLngs = polygonCoordinates.map((coord: [number, number]) => [
         coord[1],
-        coord[0],
+        coord[0] + this.mapFormula,
     ]);
   
     let color = 'rgba(239, 242, 77, 0.8)'; // Default color with 50% opacity
@@ -930,50 +988,96 @@ if (data.vendor_name === 'planet') {
     
   
     // Add the polygon to the map
-    const polygon = L.polygon(latLngs, {
-        color: color, // Border color
-        fillColor: color, // Fill color
-        fillOpacity: 0.1, // Fill opacity
-        weight:1
-    }).addTo(this.map);
-    console.log(polygon, 'Polygon added');
-  
-    // Attach hover events to the polygon
-    polygon.on('mouseover', (e) => this.onPolygonHover(data.vendor_id));
-    polygon.on('mouseout', (e) => this.onPolygonOut(null));
+   // When creating the polygon
+const polygon = L.polygon(latLngs, {
+  color: color,
+  fillColor: color,
+  fillOpacity: 0.1,
+  weight: 1
+}) as L.Polygon & { vendorData: any };
 
-    console.log(polygon, 'Polygon added');
-    // Attach the click event to open the component dialog
-    polygon.on('click', (event: L.LeafletMouseEvent) => {
-        const clickedPosition = event.latlng; // Get the clicked position
-        if (this.currentAction === 'location') {
-          console.log('Handle action is location, dialog will not open.');
-          return; // Prevent dialog from opening
+polygon.vendorData = data; // Now TypeScript knows about this property
+
+// In your click handler
+ // Attach hover events to the polygon
+ polygon.on('mouseover', (e) => this.onPolygonHover(data.vendor_id));
+ polygon.on('mouseout', (e) => this.onPolygonOut(null));
+
+ console.log(polygon, 'Polygon added');
+polygon.on('click', (event: L.LeafletMouseEvent) => {
+  if (this.currentAction === 'location') return;
+
+  const clickedPoint = event.latlng;
+  const clickedVendorData = [];
+
+  this.extraShapesLayer.eachLayer((layer: L.Layer) => {
+      if (layer instanceof L.Polygon) {
+          const polygonLayer = layer as L.Polygon & { vendorData: any };
+          if (polygonLayer.getBounds().contains(clickedPoint)) {
+              clickedVendorData.push(polygonLayer.vendorData);
+          }
       }
-        // Convert clicked position to pixel position relative to the map
-        const containerPoint = this.map.latLngToContainerPoint(clickedPosition);
-        let queryParams = {
-            page_number: '1',
-            page_size: '100',
-            start_date: '',
-            end_date: '',
-            vendor_id: data.vendor_id
-        };
-        this.satelliteService.getDataFromPolygon('', queryParams).subscribe({
-            next: (resp) => {
-                console.log(resp, 'Data received');
-                const vendorData = resp.data[0];
-                this.onPolygonOut(null)
-                this.openDialogAtPosition(polygon, vendorData);
-                this.popUpData = vendorData
+  });
+  if(clickedVendorData.length>1)this.sharedService.setOverlayShapeData(clickedVendorData);
+  
+  const vendorIds = clickedVendorData.map(v => v.vendor_id);
+     console.log(clickedVendorData,'vendorIdsvendorIdsvendorIdsvendorIds');
+      const clickedPolygon = polygon; // The polygon that was clicked
+      const clickedLatLngs = clickedPolygon.getLatLngs()[0] as L.LatLng[]; // Get the coordinates of the clicked polygon
+  
+      // Calculate the bounding box of the clicked polygon
+      const clickedBoundingBox = this.getBoundingBox(clickedLatLngs);
+  
+      console.log('Clicked Polygon Bounding Box:', clickedBoundingBox);
+  
+      const intersectingPolygons: any[] = []; // To store all polygons within range
+  
+      // Iterate through all polygons in the `extraShapesLayer`
+      this.extraShapesLayer.eachLayer((layer) => {
+          if (layer instanceof L.Polygon) {
+              const layerLatLngs = layer.getLatLngs()[0] as L.LatLng[]; // Get the coordinates of this polygon
+              const layerBoundingBox = this.getBoundingBox(layerLatLngs); // Get its bounding box
+  
+              console.log('Checking Bounding Box:', layerBoundingBox);
+  
+              // Check if the bounding boxes intersect
+              if (this.isBoundingBoxIntersecting(clickedBoundingBox, layerBoundingBox)) {
+                  console.log('Bounding Box Intersected with:', layerBoundingBox);
+                  const polygonData = (layer as any).options.data; // Assuming metadata is stored in options.data
+                  if (polygonData) {
+                      intersectingPolygons.push(polygonData); // Add matching polygon's data
+                  }
+              }
+          }
+      });
+  
+      console.log('Intersecting Polygons Data:', intersectingPolygons);
+  
+      // Fetch data for all intersecting polygons
+      let queryParams = {
+        page_number: '1',
+        page_size: '100',
+        start_date: '',
+        end_date: '',
+        vendor_id: data.vendor_id
+    };
+    this.satelliteService.getDataFromPolygon('', queryParams).subscribe({
+        next: (resp) => {
+            console.log(resp, 'Data received');
+            const vendorData = resp.data[0];
+            this.onPolygonOut(null)
+            this.openDialogAtPosition(polygon, vendorData);
+            this.popUpData = vendorData
 
-            },
-            error: (err) => {
-                console.error("Error fetching polygon data: ", err);
-            },
-        });
-        
+        },
+        error: (err) => {
+            console.error("Error fetching polygon data: ", err);
+        },
     });
+    
+});
+  
+  
   
     // Add the polygon to the extra shapes layer
     this.extraShapesLayer?.addLayer(polygon);
@@ -986,6 +1090,70 @@ if (data.vendor_name === 'planet') {
     console.log('Drawing tools disabled');
 }
 
+private flattenLatLngs(latlngs: any): L.LatLng[] {
+  console.log(latlngs,'latlngslatlngslatlngslatlngslatlngslatlngs');
+  
+  const flattened: L.LatLng[] = [];
+  latlngs.forEach((latlng: any) => {
+      if (Array.isArray(latlng)) {
+          flattened.push(...this.flattenLatLngs(latlng));
+      } else {
+          flattened.push(latlng);
+      }
+  });
+  console.log(flattened,'flattenedflattenedflattenedflattenedflattenedflattened');
+  
+  return flattened;
+}
+private isPointInPolygon(point: L.LatLng, latlngs: L.LatLng[]): boolean {
+  console.log(point, 'Clicked Point');
+  console.log(latlngs, 'Polygon LatLngs');
+
+  const x = point.lng, y = point.lat; // Longitude is X, Latitude is Y
+  let inside = false;
+
+  for (let i = 0, j = latlngs.length - 1; i < latlngs.length; j = i++) {
+      const xi = latlngs[i].lng, yi = latlngs[i].lat; // Longitude as X, Latitude as Y
+      const xj = latlngs[j].lng, yj = latlngs[j].lat;
+
+      console.log(`Edge (${xi}, ${yi}) to (${xj}, ${yj}) - Point (${x}, ${y})`);
+
+      const intersect = ((yi > y) !== (yj > y)) ||
+                        (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+      if (intersect) {
+          console.log("Ray intersects edge");
+          inside = true;
+      }
+  }
+  console.log(inside,'insideinsideinsideinsideinside');
+  
+  return inside;
+}
+
+isBoundingBoxIntersecting(
+  box1: { minLat: number; maxLat: number; minLng: number; maxLng: number },
+  box2: { minLat: number; maxLat: number; minLng: number; maxLng: number }
+): boolean {
+  return (
+      box1.minLat <= box2.maxLat || // Latitude overlap (box1's minLat is below or equal to box2's maxLat)
+      box1.maxLat >= box2.minLat || // Latitude overlap (box1's maxLat is above or equal to box2's minLat)
+      box1.minLng <= box2.maxLng || // Longitude overlap (box1's minLng is left or equal to box2's maxLng)
+      box1.maxLng >= box2.minLng    // Longitude overlap (box1's maxLng is right or equal to box2's minLng)
+  );
+}
+
+private getBoundingBox(latlngs: L.LatLng[]): { minLat: number; maxLat: number; minLng: number; maxLng: number } {
+  let minLat = Infinity, maxLat = -Infinity, minLng = Infinity, maxLng = -Infinity;
+
+  latlngs.forEach((latlng) => {
+      minLat = Math.min(minLat, latlng.lat);
+      maxLat = Math.max(maxLat, latlng.lat);
+      minLng = Math.min(minLng, latlng.lng);
+      maxLng = Math.max(maxLng, latlng.lng);
+  });
+
+  return { minLat, maxLat, minLng, maxLng };
+}
 
 onFilterset(data) {
   data.params = {...data.params, source: 'home',  page_number: '1', page_size: '100'}
@@ -993,6 +1161,7 @@ onFilterset(data) {
   this.cdr.detectChanges();
 
 }
+
 
 //Extra shapes  clearing functionality
   private clearExtraShapes(): void {
@@ -1108,11 +1277,14 @@ handleAction(action: string): void {
           left: `${markerPoint.x + mapContainer.offsetLeft + 20}px`,
         };
 
+      const {normalizedLatitude, normalizedLongitude} =  this.getlatlngNormalized(clickLat, clickLng)
+
       const  payload= {
-        latitude:clickLat,
-        longitude:clickLng,
+        latitude:normalizedLatitude,
+        longitude:normalizedLongitude,
         distance:1
       }
+    
       this.satelliteService.getPinSelectionAnalytics(payload).subscribe({
         next: (resp) => {
           console.log(resp,'resprespresprespresprespresp');
@@ -1198,6 +1370,17 @@ handleAction(action: string): void {
       return 'Error fetching address';
     }
   }
+
+
+  private getlatlngNormalized(lat: number, lng: number) {
+    // Normalize longitude to [-180, 180]
+    const normalizedLongitude = ((lng + 180) % 360 + 360) % 360 - 180;
+  
+    // Clamp latitude to [-90, 90]
+    const normalizedLatitude = Math.max(-90, Math.min(90, lat));
+  
+    return { normalizedLatitude, normalizedLongitude };
+  }
   
 
   // Enable drawing mode for polygons or lines
@@ -1270,7 +1453,8 @@ handleAction(action: string): void {
           };
         }
         // API call to get polygon data
-        this.satelliteService.getPolyGonData(payload).subscribe({
+        
+        this.satelliteService.getPolyGonData(this.normalizePayloadCoordinates(payload)).subscribe({
           next: (resp) => {
             console.log(resp, 'Polygon Data Response');
             this.polygon_wkt = resp?.data?.wkt_polygon
@@ -1300,7 +1484,9 @@ handleAction(action: string): void {
   
                       // Mock data for dialog content (replace with actual data if needed)
                       const markerData = res?.data?.analytics;
-                      this.getAddress(center.lat, center.lng).then((address) => {
+                      const {normalizedLatitude, normalizedLongitude} =  this.getlatlngNormalized(center.lat, center.lng)
+
+                      this.getAddress(normalizedLatitude, normalizedLongitude).then((address) => {
                         const dialogRef = this.dialog.open(MapControllersPopupComponent, {
                           width: '355px',
                           data: { type: 'polygon', markerData: markerData, shapeData: shapeData },
@@ -1491,6 +1677,7 @@ onDateRangeChanged(event: { startDate: string, endDate: string }) {
       start_date:this.startDate,
       end_date: this.endDate
     }
+    this.closeDrawer()
   this.getDataUsingPolygon(this.data,queryParams);
   }
   this.cdr.detectChanges();
@@ -1654,7 +1841,7 @@ receiveData(dataArray: any[]) {
       if (data?.coordinates_record?.coordinates) {
         // Extract the coordinates and map them to Leaflet's LatLng format
         const coordinates = data.coordinates_record.coordinates[0].map((coord: number[]) =>
-          new L.LatLng(coord[1], coord[0]) // Convert [lon, lat] to [lat, lon]
+          new L.LatLng(coord[1], coord[0]+ this.mapFormula) // Convert [lon, lat] to [lat, lon]
         );
 
         // Create bounds for the current image
@@ -1708,17 +1895,25 @@ handleMakerData(data: any) {
   if (data?.coordinates_record?.coordinates) {
     // Extract the coordinates and map them to Leaflet's LatLng format
     const coordinates = data.coordinates_record.coordinates[0].map((coord: number[]) =>
-      new L.LatLng(coord[1], coord[0]) // Convert [lon, lat] to [lat, lon]
+      new L.LatLng(coord[1], coord[0]+ this.mapFormula) // Convert [lon, lat] to [lat, lon]
     );
 
     // Create bounds for the current shape
     const bounds = L.latLngBounds(coordinates);
 
     // Highlight the coordinates with a green border (polygon)
-    L.polygon(coordinates, {
+    const polygon = L.polygon(coordinates, {
       color: 'green', // Set border color to green
-      weight: 3, // Border thickness
-    }).addTo(this.map);
+      weight: 3,
+    }) as L.Polygon & { vendorData: any };
+    
+    // Attach custom data to the polygon
+    polygon.vendorData = data; // Ensuring TypeScript recognizes vendorData
+    
+    // Add event listeners for hover effects
+    polygon.on('mouseover', () => this.onPolygonHover(data.vendor_id));
+    polygon.on('mouseout', () => this.onPolygonOut(null));
+    
 
     // Adjust the map view to fit the bounds of the shape
     this.map.fitBounds(bounds, {
@@ -1779,7 +1974,7 @@ highLightShape(data: any): void {
 
   // Extract the coordinates and map them to Leaflet's LatLng format
   const coordinates = data.coordinates_record.coordinates[0].map((coord: number[]) =>
-    new L.LatLng(coord[1], coord[0]) // Convert [lon, lat] to [lat, lon]
+    new L.LatLng(coord[1], coord[0]+this.mapFormula) // Convert [lon, lat] to [lat, lon]
   );
 
   // Determine the color based on the vendor name
@@ -1873,7 +2068,7 @@ layercalculateVisibleWKT(): void {
       } else {
         console.log('Decoded WKT:qqqqqqqqqqqq');
         
-        this.zoomed_wkt_polygon = ''
+        this.zoomed_wkt_polygon = this.polygon_wkt;
       }
     } else {
       console.log('No intersection detected.');
@@ -1904,7 +2099,7 @@ boundsToPolygon(bounds: L.LatLngBounds): any {
   };
 }
 polygonToWKT(polygon: any): string {
-  const wktCoordinates = polygon[0]
+  const wktCoordinates = this.normalizePayloadZoomCoordinates(polygon[0])
     .map((ring: any) =>
       ring.map((coord: any) => `${coord[0]} ${coord[1]}`).join(', ')
     )

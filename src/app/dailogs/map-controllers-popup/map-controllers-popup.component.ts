@@ -16,7 +16,7 @@ import { GroupsListComponent } from '../../common/groups-list/groups-list.compon
 import { catchError, debounceTime, of, Subject, switchMap } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import moment from 'moment';
-import { DateFormatPipe, DateTimeFormatPipe } from '../../pipes/date-format.pipe';
+import { DateFormatPipe, DateTimeFormatPipe, UtcDateTimePipe } from '../../pipes/date-format.pipe';
 import { OverlayContainer } from '@angular/cdk/overlay';
 import { ImagePreviewComponent } from '../image-preview/image-preview.component';
 import momentZone from 'moment-timezone';
@@ -43,7 +43,8 @@ export class Group {
     MatIconModule,
     GroupsListComponent,
     DateFormatPipe,
-    DateTimeFormatPipe
+    DateTimeFormatPipe,
+    UtcDateTimePipe
   ],
   templateUrl: './map-controllers-popup.component.html',
   styleUrls: ['./map-controllers-popup.component.scss']

@@ -11,14 +11,27 @@ import { CommonDailogsComponent } from '../../dailogs/common-dailogs/common-dail
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SharedService } from '../shared/shared.service';
-import { NgApexchartsModule } from 'ng-apexcharts';
+import { ChartComponent, NgApexchartsModule } from 'ng-apexcharts';
 import ApexCharts from 'apexcharts';
+import {
+  ApexAxisChartSeries,
+  ApexTitleSubtitle,
+  ApexDataLabels,
+  ApexChart,
+  ApexPlotOptions
+} from "ng-apexcharts";
 
-// export class Group {
-//   name?: string;
-//   icon?: string; // icon name for Angular Material icons
-//   children?: Group[]; // nested groups
-// }
+export type ChartOptions = {
+  series: ApexAxisChartSeries;
+  chart: ApexChart;
+  plotOptions: ApexPlotOptions;
+  dataLabels: ApexDataLabels;
+  title: ApexTitleSubtitle;
+  xaxis: ApexXAxis; // ✅ Add xaxis type
+  yaxis: ApexYAxis; // ✅ Add yaxis type
+  grid: ApexGrid; // ✅ Add grid type
+  legend: ApexLegend;
+};  
 
 @Component({
   selector: 'app-groups',
@@ -37,11 +50,12 @@ export class GroupsComponent implements OnInit,AfterViewInit {
   parentGroupID:any = null
   private _snackBar = inject(MatSnackBar);
   activeSite:any;
-  siteDetail:any = {
-    acquisition_count: 219,frequency: 2.5,gap: 6.792676837905093,heatmap: [{date: "2025-01-01", count: 2}],
-    id: 3,most_recent: "2024-12-05T03:32:13.282960Z",most_recent_clear: "2024-08-30T09:01:44Z",
-    name: "W", notification: false, site_type: "Polygon"};
-    options: any;
+  siteDetail:any= null
+  options: any;
+  sitesData:any;
+  @ViewChild("chart") chart: ChartComponent;
+  public chartOptions: Partial<ChartOptions>;
+    
   constructor(
     private satelliteService:SatelliteService,
     private overlayContainer: OverlayContainer,
@@ -205,14 +219,38 @@ export class GroupsComponent implements OnInit,AfterViewInit {
       dialogRef.afterClosed().subscribe((result) => {
         console.log('Dialog closed', result);
         if(result){
-          this.getGroups();
+          if(data?.group){
+            this.getGroups();
+            this._snackBar.open('Group updated successfully.', 'Ok', {
+              duration: 2000  // Snackbar will disappear after 300 milliseconds
+            });
+          } else {
+            if (data?.type == 'rename') {
+              
+              const updatedSitesData = this.nestedGroupsData.sites.map((item: any) =>
+                item.id === result?.resp?.id ? { ...data?.site, name: result?.resp?.name } : item
+              );
+              this.nestedGroupsData.sites = updatedSitesData
+            } else if (data?.type == 'delete') {
+              
+              const index = this.nestedGroupsData.sites.findIndex((item) => item.id === data?.site?.id);
+        
+              // Remove the object if found
+              if (index !== -1) {
+                this.nestedGroupsData.sites.splice(index, 1); // Removes 1 element at the found index
+              }
+              this._snackBar.open('Site updated successfully.', 'Ok', {
+                duration: 2000  // Snackbar will disappear after 300 milliseconds
+              });
+            }
+          }
+          
+          
         }
         // this.getUpdateGroup(result)
        
 
-        this._snackBar.open('Group updated successfully.', 'Ok', {
-          duration: 2000  // Snackbar will disappear after 300 milliseconds
-        });
+       
       });
   }
 
@@ -249,130 +287,239 @@ export class GroupsComponent implements OnInit,AfterViewInit {
 
   //Get site details
   getSitesDetail(site){
+    console.log(site,'sitesitesitesitesitesitesitesitesite');
+    
     if(this.activeSite !== site.id){
+      let queryParams = {
+       
+        site_id: site.id,
+      }
+      this.getSitesData(queryParams)
       this.activeSite = site.id;
-      const colorRanges = this.generateUniqueColorRanges('');
-      this.options = {
-        chart: {
-          height: 105,
-          width: '255px',
-          type: 'heatmap',
-          toolbar: {
-            show: false,
-          },
-        },
-        plotOptions: {
-          heatmap: {
-            shadeIntensity: 0.5,
-            radius: 0,
-            useFillColorAsStroke: true,
-            columnWidth: '21px',
-            rowHeight: '21px',
-            colorScale: {
-              ranges: colorRanges.map(range => ({
-                from: range.from,
-                to: range.to,
-                name: '',
-                color: range.color,
-              }))
-            }
-          },
-        },
-        dataLabels: {
-          enabled: false,
-        },
-        stroke: {
-          show: true,               // Enable borders
-          width: 1,                 // Set the width of the border
-          colors: '#FFFFFF'         // Set the border color, you can change this to any color
-        },
-        legend: {
-          show: false,
-        },
-        xaxis: {
-          labels: {
-            show: false, // Hides the x-axis labels
-          },
-          axisBorder: {
-            show: false, // Hides the x-axis line
-          },
-          axisTicks: {
-            show: false, // Hides the x-axis ticks
-          },
-        },
-        yaxis: {
-          labels: {
-            show: false
-          }
-        }
-      };
-      setTimeout(() => {
-        this.initializeCharts();
-      }, 300)
+     
     } else {
       this.activeSite = null
     }
   }
   //Intialize chart
-  initializeCharts() {
+  //  initializeCharts() {
+     
+  //       const chartElement = document.querySelector(`#chart`);
+  //       if (chartElement && !chartElement.hasChildNodes()) {
+  //         const heatmapData = this.siteDetail.heatmap.map((item: { date: string; count: number }) => ({
+  //           x: item.date,
+  //           y: item.count,
+  //         }));
+  
+  //         const chartOptions = {
+  //           ...this.options,
+  //           series: [
+  //             {
+  //               name: `Site`,
+  //               data: heatmapData,
+  //             },
+  //           ],
+  //         };
+  
+  //         const chart = new ApexCharts(chartElement, chartOptions);
+  //         chart.render()
+  //           .then(() => console.log(''))
+  //           .catch((err: any) => console.error(`Error rendering chart`, err));
+  //       }
       
-        const chartElement = document.querySelector(`#chart`);
-        if (chartElement && !chartElement.hasChildNodes()) {
-          const heatmapData = this.siteDetail.heatmap.map((item: { date: string; count: number }) => ({
-            x: item.date,
-            y: item.count,
-          }));
+  //   }
+
+    // generateUniqueColorRanges(data: any): any[] {
+    //   const ranges = [];
   
-          const chartOptions = {
-            ...this.options,
-            series: [
-              {
-                name: `Site`,
-                data: heatmapData,
-              },
-            ],
-          };
+    //   data.forEach((value, index) => {
+    //     value.heatmap.forEach((item) => {
+    //       ranges.push({
+    //         from: item.count,
+    //         to: item.count,
+    //         color: this.generateColor()
+    //       });
+    //     });
+    //   });
   
-          const chart = new ApexCharts(chartElement, chartOptions);
-          chart.render()
-            .then(() => console.log(''))
-            .catch((err: any) => console.error(`Error rendering chart :`, err));
+    //   return ranges;
+    // }
+    // Dynamically generate colors using HS
+
+    getSitesData(queryParams: any) {
+      this.satelliteService.getSites(queryParams).subscribe({
+        next: (resp) => {
+          console.log(resp, 'successsuccesssuccesssuccesssuccess');
+          this.sitesData = resp.data;
+          this.siteDetail = resp.data[0];
+    
+          // Generate unique color ranges based on heatmap values
+         
+    
+          setTimeout(() => {
+            this.initializeCharts();
+          }, 300);
+        },
+        error: (err: any) => {
+          console.error('API call failed', err);
         }
-      
+      });
     }
-
-    generateUniqueColorRanges(data: any): any[] {
-      const ranges = [];
-  
-      
-        this.siteDetail.heatmap.forEach((item) => {
-          ranges.push({
-            from: item.count,
-            to: item.count,
-            color: this.generateColor()
-          });
-        });
-  
-      return ranges;
+    
+     // Initialize the ApexCharts heatmap after receiving site data.
+    initializeCharts() {
+      if (!this.siteDetail || !this.siteDetail.heatmap) {
+        return;
+      }
+    
+      let maxValue = Math.max(...this.siteDetail.heatmap.map(entry => entry.count));
+      if (maxValue < 100) {
+        maxValue = 100; // Default max value to 100 if less than 100
+      }
+      const rangeStep = Math.ceil(maxValue / 6);
+    
+      const groupedData = this.groupHeatmapDataIntoRows(this.siteDetail.heatmap, 3);;
+    
+      this.chartOptions = {
+        series: groupedData.map((group, index) => ({
+          name: `Week ${index + 1}`,
+          data: group.map((entry) => ({
+            x: entry.x ?? "Empty", // Use "Empty" for padding values
+            y: entry.y ?? null // Use `null` for padding counts
+          }))
+        })),
+        chart: {
+          height: 110,
+          width: 320,
+          type: "heatmap",
+          toolbar: {
+            show: false // Hides the toolbar
+          }
+        },
+        plotOptions: {
+          heatmap: {
+            shadeIntensity: 0.5,
+            colorScale: {
+              ranges: [
+                { from: 0, to: rangeStep, name: "Very Low", color: "#272F34" },
+                { from: rangeStep + 1, to: rangeStep * 2, name: "Low", color: "#2A2130" },
+                { from: rangeStep * 2 + 1, to: rangeStep * 3, name: "Medium", color: "#122B64" },
+                { from: rangeStep * 3 + 1, to: rangeStep * 4, name: "High", color: "#386118" },
+                { from: rangeStep * 4 + 1, to: rangeStep * 5, name: "Very High", color: "#FFC300" },
+                { from: rangeStep * 5 + 1, to: maxValue, name: "Extreme", color: "#C70039" }
+              ]
+            }
+          }
+        },
+        dataLabels: {
+          enabled: false // Hides data labels inside heatmap cells
+        },
+        title: {
+          text: "", // Hides the title
+          align: "left",
+          style: {
+            fontSize: "0px" // Ensures title is visually hidden
+          }
+        },
+        xaxis: {
+          labels: {
+            show: false // Hides X-axis labels completely
+          },
+          axisTicks: {
+            show: false // Hides X-axis ticks
+          },
+          axisBorder: {
+            show: false // Hides X-axis border
+          }
+        },
+        yaxis: {
+          labels: {
+            show: false // Hides Y-axis labels completely
+          },
+          axisTicks: {
+            show: false // Hides Y-axis ticks
+          },
+          axisBorder: {
+            show: false // Hides Y-axis border
+          }
+        },
+        grid: {
+          show: true, // Controls gridlines visibility
+          xaxis: {
+            lines: {
+              show: false // Hides vertical gridlines
+            }
+          },
+          yaxis: {
+            lines: {
+              show: false // Hides horizontal gridlines
+            }
+          }
+          
+        },
+        legend: {
+          show: false // ✅ Hides the legend
+        }
+      };
     }
-
-    usedColors = new Set<string>();
-    // Dynamically generate colors using HSL
-    generateColor(): string {
-      let color: string;
+    
+    groupHeatmapDataIntoRows(heatmapData: any[], rows = 3) {
+      const groupedData = [];
+      const itemsPerRow = Math.ceil(heatmapData.length / rows); // Calculate items per row
+    
+      // Group the data into rows
+      for (let i = 0; i < rows; i++) {
+        const start = i * itemsPerRow;
+        const end = start + itemsPerRow;
+        groupedData.push(heatmapData.slice(start, end));
+      }
+    
+      // Pad rows with empty values (null) to align smaller rows at the bottom
+      const maxLength = Math.max(...groupedData.map(group => group.length));
+      groupedData.forEach(group => {
+        while (group.length < maxLength) {
+          group.unshift({ x: null, y: null }); // Add padding at the start of the row
+        }
+      });
+    
+      return groupedData;
+    }
+    
+    
+    
+    renameSite(type:any,group:any){
+      const data = {type:type, site:group}
+      this.openDialog(data)
+    }
   
-      // Keep generating random colors until a new one is found
-      do {
-        const hue = Math.floor(Math.random() * 360); // Random hue between 0 and 360
-        const saturation = 70; // Vibrant colors (can be adjusted)
-        const lightness = 50; // Balanced brightness (can be adjusted)
+    deleteSite(type:any,group:any){
+      const data = {type:type, site:group}
+      this.openDialog(data)
+    }
+    updateSite(type: any, site: any) {
+      let payload: any
+        payload = {
+          site_id: site.id,
+          name: site.name,
+          notification: type,
+          is_deleted: false,
+        }
   
-        color = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
-      } while (this.usedColors.has(color)); // Keep generating until a unique color is found
+        const updatedSitesData = this.nestedGroupsData?.sites.map((item: any) =>
+          item.id === site.id ? { ...site, notification: type } : item
+        );
+        this.nestedGroupsData.sites = updatedSitesData
+      
+      this.satelliteService.updateSite(payload).subscribe({
+        next: (resp) => {
+          if (resp) {
+            this._snackBar.open('Site updated successfully.', 'Ok', {
+              duration: 2000  // Snackbar will disappear after 300 milliseconds
+            });
+          }
   
-      // Store the new color to avoid using it again
-      this.usedColors.add(color);
   
-      return color;
+        }
+      })
     }
 }

@@ -73,7 +73,7 @@
             <div class="flex flex-col gap-[10px]">
                 <div (click)="getSitesDetail(site)" class="py-[10px] items-center cursor-pointer flex border-y border-y-solid border-y-custom-border font-Barlow font-medium leading-[18px] text-secondaryText text-xs">
                     <div class="min-w-[355px] items-center flex gap-[15px] pl-[5px]">
-                        <img class="h-[25px] w-[25px] object-cover" height="30" width="30" [src]="site.site_type == 'Rectangle'? 'assets/svg-icons/rectangle-icon.svg':'assets/svg-icons/polygon-icon.svg'" alt="" />
+                        <img [ngClass]="{'point-site': site?.site_type == 'Point'}" class="h-[25px] w-[25px] object-cover" height="30" width="30" [src]="getSiteType(site?.site_type)" alt="" />
                         <span >{{site.name}}</span>
                     </div>
                     <span class="min-w-[102.324px]"></span>

@@ -522,4 +522,16 @@ export class GroupsComponent implements OnInit,AfterViewInit {
         }
       })
     }
+
+    getSiteType(type: string): string {
+      if (type === 'Rectangle') {
+        return 'assets/svg-icons/rectangle-icon.svg'
+      } else   if (type === 'Polygon') {
+        return 'assets/svg-icons/polygon-icon.svg'
+      }  if (type === 'Point') {
+        return 'assets/svg-icons/pin-location-icon.svg'
+      }
+
+      return '';
+    }
 }

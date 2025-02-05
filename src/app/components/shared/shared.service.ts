@@ -38,10 +38,10 @@ export class SharedService {
     this.rightMenuHide.next(data);
   }
 
-  setNestedPadding(data: any): void{
+ setNestedPadding(data: any): void {
     this.nestedPadding.next(data);
-  }
-  setOverlayShapeData(data: any): void{
+}
+setOverlayShapeData(data: any): void{
     this.overlayShapeData.next(data);
   }
 }

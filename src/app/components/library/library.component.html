@@ -277,9 +277,10 @@
                             time</button>
                     </div>
                     <div class="relative flex justify-center items-center">
-                        <button class="py-[9px] px-[20px] my-0 ml-[8px] rounded-[19px] bg-primaryBg" (click)="setFilterClass()" [matMenuTriggerFor]="filter" 
+                        <button class=" flex gap-[5px] font-Barlow text-base font-medium justify-center items-center w-[70px] h-[50px] my-0 ml-[8px] rounded-[19px]" [ngClass]="filterCount >0 ? 'bg-yellow ':'bg-primaryBg'" (click)="setFilterClass()" [matMenuTriggerFor]="filter" 
                                 #menuFilterTrigger="matMenuTrigger">
-                            <img src="assets/svg-icons/filter-icon.svg" alt="">
+                            <img [src]="filterCount>0 ? 'assets/svg-icons/filter-icon-active.svg':'assets/svg-icons/filter-icon.svg'" alt="">
+                            {{filterCount >0 ? filterCount :''}}
                         </button>
                         <mat-menu   #filter="matMenu" (click)="$event.stopPropagation()" id="filter" class="bg-primaryBg" (closed)="onMenuClose()">
                            <div class="p-[15px]" (click)="$event.stopPropagation()">
@@ -363,7 +364,7 @@
                               
                         </mat-menu>
                     </div>
-                    <button (click)="calendarEventsOpen()" class="py-[9px] px-[20px] my-0 mx-[8px] rounded-[19px] "
+                    <button (click)="calendarEventsOpen()" class="py-[9px] px-[20px] my-0 mx-[8px] rounded-[19px]"
                         [ngClass]="isEventsOpened ?'text-[#453303] bg-yellow':'bg-primaryBg'">
                         @if (isEventsOpened) {
                         <img src="assets/svg-icons/calendar-icon-black.svg" alt="">

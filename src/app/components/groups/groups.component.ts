@@ -380,14 +380,16 @@ export class GroupsComponent implements OnInit,AfterViewInit {
       }
       const rangeStep = Math.ceil(maxValue / 6);
     
-      const groupedData = this.groupHeatmapDataIntoRows(this.siteDetail.heatmap, 3);;
+      const groupedData = this.groupHeatmapDataIntoRows(this.siteDetail.heatmap, 3);
+      console.log("groupedDatagroupedDatagroupedData", groupedData);
+      
     
       this.chartOptions = {
         series: groupedData.map((group, index) => ({
-          name: `Week ${index + 1}`,
+          name: 'Site',
           data: group.map((entry) => ({
-            x: entry.x ?? "Empty", // Use "Empty" for padding values
-            y: entry.y ?? null // Use `null` for padding counts
+            x: entry.date ?? "no data", // Use "Empty" for padding values
+            y: entry.count ?? 0 // Use `null` for padding counts
           }))
         })),
         chart: {

@@ -115,13 +115,25 @@
     <div id="not_found" class="mx-[15px] bg-secondaryBg rounded-[5px] font-Barlow">
         <div class="mx-[15px] gap-[5px] flex font-Barlow">
             <div
-                class="w-[182px] flex flex-col p-[10px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">
+                class="w-[182px] group flex flex-col p-[10px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">
                 <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">
                     Oldest
                 </span>
                 <span class="text-sm font-semibold leading-[18px] text-secondaryText">
                     {{analyticsData?.oldest_date | dateFormat}}
                 </span>
+
+                <div class="hidden absolute shadow-custom left-[20px] z-10 rounded-[10px] top-[245px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                    <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                        <span>Date time:</span>
+                        <span>{{analyticsData?.oldest_info?.acquisition_datetime | utcDateTimePipe}} UTC</span>
+                    </div>
+                    <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                        <span>Vendor:</span>
+                        <span>{{analyticsData?.oldest_info?.vendor_name }}</span>
+                    </div>
+                    
+                </div>
             </div>
             <!-- <div
                 class="w-[182px] flex flex-col p-[10px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">

@@ -82,7 +82,7 @@ object-fit: cover !important;
 .library{
 width: 100%;
 // height: 682.575px !important;
-height: 100% !important;
+height: 94% !important;
 
 }
 
@@ -103,6 +103,9 @@ border-right: 1px solid var(--custom-border); /* Optional border for clarity */
 @media (min-width: 1537px) {
   .draggable-resizable-container {
     top: 3.5%;
+  }
+  .library{
+    height: 100% !important;
   }
 }
 

@@ -729,6 +729,7 @@ private fallbackCopyToClipboard(text: string): void {
       mapContainer.style.marginLeft = `0px`;
       this.sharedService.setIsOpenedEventCalendar(false);
       this.onResize()
+      this.closeSideBar()
   }
 
   //map shape drawing function

@@ -33,6 +33,7 @@ import { HttpClient } from '@angular/common/http';
 import dayjs from 'dayjs';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 import * as martinez from 'martinez-polygon-clipping';
+import interact from 'interactjs';
 (window as any).type = undefined;
 
 
@@ -57,6 +58,8 @@ import * as martinez from 'martinez-polygon-clipping';
 export class HomeComponent implements OnInit, AfterViewInit,OnDestroy {
   @ViewChild('mapContainer', { static: true }) mapContainer!: ElementRef;
   @ViewChild('drawer') drawer?: MatDrawer;
+  @ViewChild('draggableContainer') draggableContainer!: ElementRef;
+  sidebarWidth: number = 0;
   map!: L.Map;
   zoomLevel: number = 4;
   longitude: number = -90;
@@ -122,7 +125,8 @@ hybridLayer:L.TileLayer = L.tileLayer(
   imageOverlay: L.ImageOverlay | undefined;
   imageOverlays: Map<string, L.ImageOverlay> = new Map();
   polygon:any;
-  leftMargin:any
+  leftMargin:any;
+  leftMargin2:any;
   private highlightedPolygon: L.Polygon | null = null;
   calendarApiData:any;
   zoomed_wkt_polygon:any = '';
@@ -198,8 +202,106 @@ hybridLayer:L.TileLayer = L.tileLayer(
      });
     this.setDynamicHeight();
     window.addEventListener('resize', this.setDynamicHeight.bind(this))
+    this.updateSidebarWidth();
+
+    let sidebar = document.getElementById('draggableContainer');
+    // this.leftMargin2
+    const sidebarElement = this.draggableContainer.nativeElement;
+     console.log(sidebarElement,'sidebarElement');
+     
+    interact(sidebarElement)
+      // .draggable({
+      //   listeners: {
+      //     move(event) {
+      //       const target = event.target as HTMLElement;
+      //       const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
+      //       const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+  
+      //       target.style.transform = `translate(${x}px, ${y}px)`;
+      //       target.setAttribute('data-x', x.toString());
+      //       target.setAttribute('data-y', y.toString());
+      //     },
+      //   },
+      // })
+      .resizable({
+        edges: { left: true, right: true, bottom: true, top: false },
+        listeners: {
+          move:(event)=> {
+            // const target = event.target as HTMLElement;
+            // target.style.width = `${event.rect.width}px`;
+            const target = event.target as HTMLElement;
+          
+            // Store updated width in the global variable
+            this.sidebarWidth = event.rect.width;
+            target.style.width = `${this.sidebarWidth}px`;
+            console.log(this.sidebarWidth,'this.sidebarWidth');
+            
+            // this.leftMargin2
+            // console.log( `${event.rect.width}px`,' `${event.rect.width}px`');
+            
+            // console.log(this.leftMargin2,'this.leftMargin2');
+            
+            // target.style.height = `${event.rect.height}px`;
+            target.style.height = `682.575px`;
+            // this.applyMargin()
+          },
+        },
+      });
+     this.sidebarWidth = sidebarElement.offsetWidth;
+  console.log('Initial sidebar width:', this.sidebarWidth);
+      
   }
 
+  applyMargin() {
+    const contentElement = document.getElementById('mapContainer');
+    if (contentElement) {
+      contentElement.style.marginLeft = `${this.sidebarWidth}px`;
+      console.log('Margin applied:', this.sidebarWidth);
+    }
+  }
+  
+
+  updateSidebarWidth(): void {
+    console.log('hiiiiiii');
+    console.log(this.sidebarWidth,'this.sidebarWidth');
+    
+    // this.sidebarWidth=820;
+    // this.applyMargin()
+    
+    const container = this.draggableContainer?.nativeElement as HTMLElement;
+    const sidebar = document.getElementById('draggableContainer');
+    const dragBtn = document.getElementById('dragBtn');
+
+    console.log(container,'container');
+    console.log(sidebar,'sidebar');
+    console.log(this.isDrawerOpen,'this.isDrawerOpen========');
+    
+    if (this.isDrawerOpen) {
+      if(sidebar.style.width!='0px'){
+        console.log(sidebar.style.width,'sidebar.style.width========================');
+        this.sidebarWidth=this.sidebarWidth+1
+        console.log(this.sidebarWidth,'this.sidebarWidth');
+        setTimeout(() => {
+          this.sidebarWidth=this.sidebarWidth
+          
+        }, 1000);
+      }else{
+        setTimeout(() => {
+          this.sidebarWidth=820
+        }, 1000);
+      dragBtn.style.display='block'
+        sidebar.style.width = '820px'; // Default sidebar width
+        sidebar.style.height = '682.575px';
+        console.log(this.sidebarWidth,'this.sidebarWidth');
+        
+        // this.applyMargin()
+        // Default sidebar width
+      }
+    } else {
+      sidebar.style.width = '0px'; // Hide the sidebar
+      dragBtn.style.display='none'
+    }
+  }
   //openstreetmap search and location markers function
   onSearchLocation(result: google.maps.places.PlaceResult) {
     // Remove existing markers from the map
@@ -581,11 +683,13 @@ private fallbackCopyToClipboard(text: string): void {
       
       console.log(this.drawer,'drawerdrawerdrawerdrawerdrawerdrawer');
       this.drawer.toggle();
+      console.log(this.isDrawerOpen,'this.isDrawerOpen22222');
+      
       this.handleDropdownToggle(this.isDrawerOpen)
       this.drawer._animationState = 'open';
         const mapContainer = this.mapContainer.nativeElement;
         // mapContainer.style.marginLeft = this.leftMargin >820 ? '820px': `${this.leftMargin}px`;
-        mapContainer.style.marginLeft = '420px'
+        mapContainer.style.marginLeft = '0px'
       
     } else {
       this.drawer._animationState = 'void';
@@ -823,6 +927,8 @@ private fallbackCopyToClipboard(text: string): void {
           });
           if(!this.isDrawerOpen){
             this.isDrawerOpen = true
+            this.updateSidebarWidth();
+
              this.type = 'library'
             this.toggleDrawer()
            
@@ -861,7 +967,7 @@ private fallbackCopyToClipboard(text: string): void {
              this.leftMargin = marginLeft >820 ? 820: marginLeft;
              console.log("leftMarginleftMarginleftMargin", this.leftMargin, marginLeft);
              
-             containerElement.style.marginLeft = `420px`;
+             containerElement.style.marginLeft = `0px`;
              }
                // Get element width
                
@@ -979,6 +1085,7 @@ onFilterset(data) {
   //handle toggle events
   handleToggleEvent(data: string): void {
     console.log('Received data from child:', data);
+    console.log('Received data from child:', typeof(data));
   
     // if (this.type === data && this.isDrawerOpen) {
     //   // If the clicked type is the same as the current one and the drawer is already open, do nothing
@@ -986,21 +1093,40 @@ onFilterset(data) {
     // }
     // Update the type to switch the drawer's content
     console.log(this.type,'switch');
+    if(data!=''){
+      if(this.type !== data){
+        this.type = data;
+        console.log(this.type,'typetypetypetypetype');
+        
+        this.isDrawerOpen = true;
+        
+          this.toggleDrawer()
+          this.updateSidebarWidth();
     
-  if(this.type !== data){
-    this.type = data;
-    console.log(this.type,'typetypetypetypetype');
-    
-    this.isDrawerOpen = true;
-    
-      this.toggleDrawer()
-
-  }else{
+      }else{
+        this.type = data;
+        console.log(this.type,'typetypetypetypetype22222');
+        
+        this.isDrawerOpen = true;
+        
+          this.toggleDrawer()
+          this.updateSidebarWidth();
+      }
+    }else{
     this.type = ''
     this.toggleDrawer();
     this.isDrawerOpen = false;
+    this.updateSidebarWidth();
+
   }
     // Ensure the drawer stays open
+  }
+
+  closeSideBar(){
+    this.type = ''
+    this.toggleDrawer();
+    this.isDrawerOpen = false;
+    this.updateSidebarWidth();
   }
 
    //Handles various button actions.

@@ -1,3 +1,6 @@
+.w-100{
+  width: 100% !important;
+}
 #library::ng-deep {
   .mdc-text-field--outlined:not(.mdc-text-field--disabled)
     .mdc-notched-outline
@@ -81,7 +84,7 @@
 }
 ::ng-deep #library-table {
   thead {
-    position: fixed;
+    // position: fixed;
     // width: 100%;
     top: 503px;
   }
@@ -109,7 +112,11 @@
   border-radius: 5px 5px 0 0; /* Rounded corners at the top */
   transition: height 0.3s ease-in-out; /* Smooth animation for height changes */
 }
-
+#custom_table{
+  height: 100%;
+  overflow-x: scroll;
+  overflow-y: unset;
+}
 #custom_table ::ng-deep .mat-mdc-table {
   min-width: 100%;
   border: 0;
@@ -342,5 +349,8 @@
 
   .custom-slider .ngx-slider .ngx-slider-tick.ngx-slider-selected {
     background: #FCCA40;
+  }
+  .custom-h{
+    height: 85vh;
   }
 }

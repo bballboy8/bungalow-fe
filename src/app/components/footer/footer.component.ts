@@ -231,7 +231,7 @@ export class FooterComponent implements OnInit {
   }
 
   copyToClipboard(): void {
-    const textToCopy = `${this.latitude},${this.longitude}`;
+    const textToCopy = `${this.latitude}, ${this.longitude}`;
 
     // Create a temporary input element to copy text
     const inputElement = document.createElement("input");

@@ -84,9 +84,10 @@
 }
 ::ng-deep #library-table {
   thead {
+    background-color: rgb(32 39 45 / var(--tw-bg-opacity, 1)) !important;
     // position: fixed;
     // width: 100%;
-    top: 503px;
+    // top: 503px;
   }
   th {
     .mdc-checkbox {
@@ -112,11 +113,7 @@
   border-radius: 5px 5px 0 0; /* Rounded corners at the top */
   transition: height 0.3s ease-in-out; /* Smooth animation for height changes */
 }
-#custom_table{
-  height: 100%;
-  overflow-x: scroll;
-  overflow-y: unset;
-}
+
 #custom_table ::ng-deep .mat-mdc-table {
   min-width: 100%;
   border: 0;
@@ -282,25 +279,68 @@
   }
 }
 
+.allow_sar {
+  ::ng-deep  .mat-internal-form-field {
+    margin-left: -8px;
+
+
+  }
+  ::ng-deep .mat-internal-form-field>label {
+    padding-left: 0 !important;
+  }
+}
+
+
 ::ng-deep .filter-overlay-container{
   .mat-mdc-menu-panel {
     background-color: #20272d !important;
-    width: 350px !important;
-    max-width: 350px !important;
+    width: 410px !important;
+    max-width: 470px !important;
     box-shadow: 5px 5px 5px 0px #0000001a !important;
   }
   .cdk-overlay-connected-position-bounding-box {
     top: 120px !important;
     left: 155px !important;
-    width: 350px !important;
-    height: 480px !important;
+    width: 480px !important;
+    height: 600px !important;
   }
   .cdk-overlay-pane {
     width: 100%;
     left: 0px !important;
     top: 0px !important;
+    display: flex;
+    justify-content: center;
+  }
+  .mat-mdc-menu-content{
+    display: flex !important;
+    justify-content: center !important;
   }
   
+}
+
+::ng-deep .column-menu{
+  .mat-mdc-menu-panel {
+    background-color: #191E22 !important;
+    width: 240px !important;
+    max-width: 240px !important;
+    box-shadow: 5px 5px 5px 0px #0000001a !important;
+  }
+  .cdk-overlay-connected-position-bounding-box {
+    top: 120px !important;
+    left: 155px !important;
+    width: 240px !important;
+    height: 600px !important;
+  }
+  .cdk-overlay-pane {
+    width: 100%;
+    left: -70px !important;
+    top: 0px !important;
+    height: max-content !important;
+  }
+  .mat-mdc-menu-content{
+    display: flex !important;
+    justify-content: center !important;
+  }
 }
 
 ::ng-deep {

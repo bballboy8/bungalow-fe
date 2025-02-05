@@ -16,10 +16,11 @@ import { GroupsListComponent } from '../../common/groups-list/groups-list.compon
 import { catchError, debounceTime, of, Subject, switchMap } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import moment from 'moment';
-import { DateFormatPipe, DateTimeFormatPipe } from '../../pipes/date-format.pipe';
+import { DateFormatPipe, DateTimeFormatPipe, UtcDateTimePipe } from '../../pipes/date-format.pipe';
 import { OverlayContainer } from '@angular/cdk/overlay';
 import { ImagePreviewComponent } from '../image-preview/image-preview.component';
-
+import momentZone from 'moment-timezone';
+import tzLookup from 'tz-lookup';
 export class Group {
   name?: string;
   icon?: string; // icon name for Angular Material icons
@@ -42,7 +43,8 @@ export class Group {
     MatIconModule,
     GroupsListComponent,
     DateFormatPipe,
-    DateTimeFormatPipe
+    DateTimeFormatPipe,
+    UtcDateTimePipe
   ],
   templateUrl: './map-controllers-popup.component.html',
   styleUrls: ['./map-controllers-popup.component.scss']
@@ -312,9 +314,17 @@ export class MapControllersPopupComponent implements OnInit {
     
   }
 
-  getDateTimeFormat(dateTime: string) {
+  getDateTimeFormat(dateTime: string, centroid?: [number, number]) {
     if (dateTime) {
-      return moment(dateTime, 'YYYY-MM-DD    HH:mm:ss')?.format('YYYY-MM-DD     HH:mm:ss');
+        if (centroid.length) {
+          const [latitude, longitude] = centroid;
+          const timeZone = tzLookup(latitude, longitude);
+      
+          // Format the date based on the calculated time zone
+          return momentZone(dateTime).tz(timeZone)?.format('YYYY-MM-DD     HH:mm:ss');
+        } else {
+          return moment(dateTime, 'YYYY-MM-DD    HH:mm:ss')?.format('YYYY-MM-DD     HH:mm:ss');
+        }
 
     }
     return '';
@@ -375,18 +385,31 @@ export class MapControllersPopupComponent implements OnInit {
     return `${formattedNumber}m`;
 }
 
-getDayOfWeek(date: Date): string {
+getDayOfWeek(date: Date, centroid?: [number, number]): string {
   
-    // Get day of the week in local time
-    return dayjs(date).utc().format('dddd');
-  
+  if (centroid && centroid.length === 2) {
+    // Get the time zone based on latitude and longitude
+    const [latitude, longitude] = centroid;
+    const timeZone = tzLookup(latitude, longitude);
+
+    // Format the date based on the calculated time zone
+    return momentZone(date).tz(timeZone).format('dddd');
+  } else {
+    // Fallback to local time
+    return moment(date).local().format('dddd');
+  }
+    // Get day of the week in local time  
 }
 
 //Getting time in Day sessions
-getTimePeriod(datetime: string): string {
+getTimePeriod(datetime: string, centroid?: [number, number]): string {
   const date = new Date(datetime); // Parse the ISO string to a Date object
-    const hours = date.getHours(); // Get the hour (0-23)
-  
+    let hours = date.getHours(); // Get the hour (0-23)
+    if (centroid && centroid.length === 2) { 
+      const [latitude, longitude] = centroid;
+      const timeZone = tzLookup(latitude, longitude);
+      hours =centroid.length ? momentZone(datetime).tz(timeZone).hour() : new Date(datetime).getHours();  // Parse the ISO string to a Date object        
+    } 
     if (hours >= 5 && hours < 11) {
       return "Morning";
     } else if (hours >= 11 && hours < 16) {
@@ -437,7 +460,7 @@ getVendors(vendorCount) {
 }
 
 //Get time in local and utc time zone functionality
-getTime(datetime:any,type:any){
+getTime(datetime:any,type:any, centroid?: [number, number]){
   if (type === 'utc') {
     // Get UTC time
     const utcDate = dayjs(datetime).utc();
@@ -446,9 +469,11 @@ getTime(datetime:any,type:any){
     return `${utcTime}`;
   } else {
     // Get local time
-    const localDate = new Date(datetime);
-    const localHours = localDate.getHours().toString().padStart(2, '0');
-    const localMinutes = localDate.getMinutes().toString().padStart(2, '0');
+    const [latitude, longitude] = centroid;
+    const timeZone = tzLookup(latitude, longitude);
+    const localDate = momentZone(datetime).tz(timeZone);
+    const localHours = localDate.hours().toString().padStart(2, '0');
+    const localMinutes = localDate.minutes().toString().padStart(2, '0');
     const localTime = `${localHours}:${localMinutes}`; // Format as 'HH:mm'
   
     return `${localTime}`;

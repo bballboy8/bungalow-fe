@@ -134,7 +134,9 @@ export class GroupsComponent implements OnInit,AfterViewInit {
   }
   selectedGroupEvent(event: any) {
     console.log(event, 'selectedeventeventeventevent');
-    this.activeGroup = event
+    if (event) {
+      this.activeGroup = event
+    }
   }
 
   closeLibraryDrawer() {

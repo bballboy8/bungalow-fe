@@ -81,7 +81,8 @@ object-fit: cover !important;
 }
 .library{
 width: 100%;
-height: 682.575px !important;
+// height: 682.575px !important;
+height: 100% !important;
 
 }
 
@@ -91,12 +92,18 @@ position: absolute;
 top: 6%;
 left: 0;
 width: 820px; /* Default width */
-height: 100%;
+height: 100% !important;
 z-index: 99999;
 // background: var(--primaryBg);
 // overflow: hidden;
 resize: both; /* Allow resizing */
 border-right: 1px solid var(--custom-border); /* Optional border for clarity */
+}
+
+@media (min-width: 1537px) {
+  .draggable-resizable-container {
+    top: 3.5%;
+  }
 }
 
 /* Map container styling */

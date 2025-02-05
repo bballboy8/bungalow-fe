@@ -227,17 +227,19 @@ hybridLayer:L.TileLayer = L.tileLayer(
           const target = event.target as HTMLElement;
         
           // Store updated width in the global variable
-          this.sidebarWidth = event.rect.width;
-          target.style.width = `${this.sidebarWidth}px`;
-          console.log(this.sidebarWidth,'this.sidebarWidth');
-          
-          // this.leftMargin2
-          // console.log( `${event.rect.width}px`,' `${event.rect.width}px`');
-          
-          // console.log(this.leftMargin2,'this.leftMargin2');
-          
-          // target.style.height = `${event.rect.height}px`;
-          target.style.height = `682.575px`;
+          if(event.rect.width > 454 && event.rect.width < 1086){
+            this.sidebarWidth = event.rect.width;
+            target.style.width = `${this.sidebarWidth}px`;
+            console.log(this.sidebarWidth,'this.sidebarWidth');
+            
+            // this.leftMargin2
+            // console.log( `${event.rect.width}px`,' `${event.rect.width}px`');
+            
+            // console.log(this.leftMargin2,'this.leftMargin2');
+            
+            // target.style.height = `${event.rect.height}px`;
+            target.style.height = `682.575px`;
+          }
           // this.applyMargin()
         },
       },

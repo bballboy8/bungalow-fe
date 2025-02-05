@@ -407,21 +407,22 @@ export class GroupsListComponent {
     if (!this.siteDetail || !this.siteDetail.heatmap) {
       return;
     }
-  
     let maxValue = Math.max(...this.siteDetail.heatmap.map(entry => entry.count));
     if (maxValue < 100) {
       maxValue = 100; // Default max value to 100 if less than 100
     }
     const rangeStep = Math.ceil(maxValue / 6);
   
+   
+  
     const groupedData = this.groupHeatmapDataIntoRows(this.siteDetail.heatmap, 3);
   
     this.chartOptions = {
       series: groupedData.map((group, index) => ({
-        name: `Site ${index + 1}`,
+        name: `Site`,
         data: group.map((entry) => ({
-          x: entry.date,
-          y: entry.count
+          x: entry.date || " ", // Ensure x is a valid string
+          y: entry.count !== null ? entry.count : null // Ensure y is valid
         }))
       })),
       chart: {
@@ -458,50 +459,29 @@ export class GroupsListComponent {
         }
       },
       xaxis: {
-        labels: {
-          show: false // Hides X-axis labels completely
-        },
-        axisTicks: {
-          show: false // Hides X-axis ticks
-        },
-        axisBorder: {
-          show: false // Hides X-axis border
-        }
+        labels: { show: false },
+        axisTicks: { show: false },
+        axisBorder: { show: false }
       },
       yaxis: {
-        labels: {
-          show: false // Hides Y-axis labels completely
-        },
-        axisTicks: {
-          show: false // Hides Y-axis ticks
-        },
-        axisBorder: {
-          show: false // Hides Y-axis border
-        }
+        labels: { show: false },
+        axisTicks: { show: false },
+        axisBorder: { show: false }
       },
       grid: {
-        show: true, // Controls gridlines visibility
-        xaxis: {
-          lines: {
-            show: false // Hides vertical gridlines
-          }
-        },
-        yaxis: {
-          lines: {
-            show: false // Hides horizontal gridlines
-          }
-        }
-        
+        show: true,
+        xaxis: { lines: { show: false } },
+        yaxis: { lines: { show: false } }
       },
-      legend: {
-        show: false // ✅ Hides the legend
-      }
+      legend: { show: false }
     };
+  
+    console.log("Processed Chart Series:", this.chartOptions.series);
   }
   
   groupHeatmapDataIntoRows(heatmapData: any[], rows = 3) {
     const groupedData = [];
-    const itemsPerRow = Math.ceil(heatmapData.length / rows); // Calculate items per row
+    const itemsPerRow = Math.ceil(heatmapData.length / rows);
   
     // Group the data into rows
     for (let i = 0; i < rows; i++) {
@@ -510,16 +490,17 @@ export class GroupsListComponent {
       groupedData.push(heatmapData.slice(start, end));
     }
   
-    // Pad rows with empty values (null) to align smaller rows at the bottom
+    // Pad rows with empty values (use valid placeholders)
     const maxLength = Math.max(...groupedData.map(group => group.length));
     groupedData.forEach(group => {
       while (group.length < maxLength) {
-        group.unshift({ x: null, y: null }); // Add padding at the start of the row
+        group.unshift({ date: " ", count: null }); // Use an empty string for x and null for y
       }
     });
   
     return groupedData;
   }
+  
   
 
   renameSite(type:any,group:any){

@@ -384,7 +384,7 @@ export class GroupsComponent implements OnInit,AfterViewInit {
     
       this.chartOptions = {
         series: groupedData.map((group, index) => ({
-          name: `Week ${index + 1}`,
+          name: `Site ${index + 1}`,
           data: group.map((entry) => ({
             x: entry.x ?? "Empty", // Use "Empty" for padding values
             y: entry.y ?? null // Use `null` for padding counts

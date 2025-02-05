@@ -51,7 +51,7 @@
                     <div class="flex flex-col gap-[10px]">
                         <div (click)="getSitesDetail(site)" class="py-[10px] items-center cursor-pointer flex border-y border-y-solid border-y-custom-border px-[15px] font-Barlow font-medium leading-[18px] text-secondaryText text-xs">
                             <div class="min-w-[340px] flex items-center gap-[15px]" [ngStyle]="{ 'padding-left': getPadding(padding) + 'px' }">
-                                <img class="h-[25px] w-[25px] object-cover" height="30" width="30" [src]="site.site_type == 'Rectangle'? 'assets/svg-icons/rectangle-icon.svg':'assets/svg-icons/polygon-icon.svg'" alt="" />
+                                <img [ngClass]="{'point-site': site?.site_type == 'Point'}" class="h-[25px] w-[25px] object-cover" height="30" width="30" [src]="getSiteType(site?.site_type)" alt="" />
                                 <span >{{site.name}}</span>
                             </div>
                             <span class="min-w-[102.324px]"></span>
@@ -90,7 +90,7 @@
                     <div
                 class="flex py-[15px] px-[5px] items-center gap-[15px] self-stretch bg-primaryBg border-b border-b-solid border-custom-border">
                 <div class="flex flex-col items-start gap-[15px] flex-0">
-                    <div class="flex py-[5px] px-[5px] items-center gap-[15px] self-stretch">
+                    <!-- <div class="flex py-[5px] px-[5px] items-center gap-[15px] self-stretch">
                         <span class="w-[16px] flex">
                             <img class="object-cover w-[40px] h-[30px]" height="30" width="30"
                                 [src]="siteDetail?.site_type =='Polygon'? 'assets/svg-icons/polygon-icon.svg':'assets/svg-icons/rectangle-icon.svg'" />
@@ -99,14 +99,14 @@
                         <span class="w-[16px] h-[16px] flex">
                             <img src="assets/svg-icons/plus-icon.svg" />
                         </span>
-                        <!-- <span class="w-[16px] h-[16px] flex">
+                        <span class="w-[16px] h-[16px] flex">
                             <img src="assets/svg-icons/nav-menu-icon.svg" />
-                        </span> -->
+                        </span>
                         <div class="w-[16px] h-[16px] flex ">
                             <span class="w-[16px] h-[16px] flex cursor-pointer" >
                                 <img src="assets/svg-icons/nav-menu-icon.svg" />
                             </span>
-                            <!-- <mat-menu class="bg-secondaryBg" #menu="matMenu" id="site">
+                            <mat-menu class="bg-secondaryBg" #menu="matMenu" id="site">
                                 <div class="inline-flex p-[15px] font-Barlow flex-col items-start gap-[15px]">
                                     <span class="text-secondary-heiglight text-xs font-bold leading-[18px]">Notifications</span>
                                     <div class="rounded-[25px] bg-primaryBg flex items-center justify-between">
@@ -153,9 +153,9 @@
                                     </mat-menu>
                                     </div>
                                 </div>
-                            </mat-menu> -->
+                            </mat-menu>
                         </div>
-                    </div>
+                    </div> -->
                     <div class="flex min-w-[775px] items-center gap-[15px] self-stretch">
                         <div
                             class="flex flex-col justify-center items-start px-[8px] py-[15px] self-stretch gap-[5px] rounded-[5px] border border-solid border-custom-border bg-primaryBg">

@@ -418,7 +418,7 @@ export class GroupsListComponent {
   
     this.chartOptions = {
       series: groupedData.map((group, index) => ({
-        name: `Week ${index + 1}`,
+        name: `Site ${index + 1}`,
         data: group.map((entry) => ({
           x: entry.date,
           y: entry.count
@@ -557,5 +557,17 @@ export class GroupsListComponent {
 
       }
     })
+  }
+
+  getSiteType(type: string): string {
+    if (type === 'Rectangle') {
+      return 'assets/svg-icons/rectangle-icon.svg'
+    } else   if (type === 'Polygon') {
+      return 'assets/svg-icons/polygon-icon.svg'
+    }  if (type === 'Point') {
+      return 'assets/svg-icons/pin-location-icon.svg'
+    }
+
+    return '';
   }
 }

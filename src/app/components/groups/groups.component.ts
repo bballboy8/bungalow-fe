@@ -429,6 +429,15 @@ this.colorRanges = colorRanges;
             shadeIntensity: 0.5,
             enableShades: false,
             colorScale: {
+              // ranges: [
+              //   { from: 0, to: 0, name: "Zero", color: "#272F34" }, // Neutral gray for zero
+              //   { from: 1, to: rangeStep, name: "Very Low", color: "#2ECC71" }, // Light Green
+              //   { from: rangeStep + 1, to: rangeStep * 2, name: "Low", color: "#218838" }, // Darker Green
+              //   { from: rangeStep * 2 + 1, to: rangeStep * 3, name: "Medium", color: "#B22222" }, // Dark Red
+              //   { from: rangeStep * 3 + 1, to: rangeStep * 4, name: "High", color: "#D32F2F" }, // Stronger Red
+              //   { from: rangeStep * 4 + 1, to: rangeStep * 5, name: "Very High", color: "#C70039" }, // Deep Red
+              //   { from: rangeStep * 5 + 1, to: maxValue, name: "Extreme", color: "#8B0000" } // Darkest Red
+              // ]
               ranges: colorRanges,
               min: minValue,
               max: maxValue

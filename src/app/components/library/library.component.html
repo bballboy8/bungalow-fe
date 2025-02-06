@@ -145,22 +145,46 @@
                 </span>
             </div> -->
             <div
-                class="w-[182px] flex flex-col p-[10px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">
+                class="w-[182px] group flex flex-col p-[10px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">
                 <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">
                     Total
                 </span>
                 <span class="text-sm font-semibold leading-[18px] text-secondaryText">
                     {{formatNumber(analyticsData?.total_count)}}
                 </span>
+
+                <div class="hidden absolute shadow-custom rounded-[10px] z-10 top-[245px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                    <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                        <span>Old Date:</span>
+                        <span>{{analyticsData?.oldest_info?.acquisition_datetime | date: 'yyyy-MM-dd'}}</span>
+                    </div>
+                    <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                        <span>Newest Date:</span>
+                        <span>{{analyticsData?.newest_info?.acquisition_datetime | date: 'yyyy-MM-dd'}}</span>
+                    </div>
+                    
+                </div>
             </div>
             <div
-                class="w-[182px] flex flex-col p-[10px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">
+                class="w-[182px] group flex flex-col p-[10px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">
                 <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">
                     Avg
                 </span>
                 <span class="text-sm font-semibold leading-[18px] text-secondaryText">
                     {{analyticsData?.average_per_day.toFixed(2)}}
                 </span>
+
+                <div class="hidden absolute shadow-custom rounded-[10px] z-10 top-[245px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                    <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                        <span>Old Date:</span>
+                        <span>{{analyticsData?.oldest_info?.acquisition_datetime | date: 'yyyy-MM-dd'}}</span>
+                    </div>
+                    <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                        <span>Newest Date:</span>
+                        <span>{{analyticsData?.newest_info?.acquisition_datetime | date: 'yyyy-MM-dd'}}</span>
+                    </div>
+                    
+                </div>
             </div>
             <div
                 class="w-[182px] group flex flex-col p-[10px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">

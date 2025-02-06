@@ -69,7 +69,7 @@
           class="absolute right-0 min-h-[120px] min-w-[40px] w-auto rounded-[5px] bg-secondaryBg z-40 mr-[12px] top-[50px]"
         >
           <div
-            class="border-b border-b-solid border-custom-border p-[10px] h-[40px] min-w-[40px] w-auto flex justify-center items-center cursor-pointer"
+            class="border-b relative border-b-solid border-custom-border p-[10px] h-[40px] min-w-[40px] w-auto flex justify-center items-center cursor-pointer"
             [ngClass]="
               currentAction === 'location' ? 'bg-yellow rounded-t-[5px]' : ''
             "
@@ -139,5 +139,15 @@
 
   </div> -->
     </div>
+    <div *ngIf="vendorData" @slideInOut
+              class="absolute !top-[40px] !right-[10px] h-auto flex-col !z-50 w-64 flex items-center justify-center text-lg rounded-lg shadow-lg">
+              <div class="flex items-center justify-start w-[270px] h-[48px] bg-secondaryBg p-3">
+                <span class="w-[16px] h-[14px] cursor-pointer" (click)="closeMarkerPopup()">
+                    <img class="rotate-180" src="assets/svg-icons/drawer-toggle-icon.svg" />
+                </span>
+            </div>
+              <app-map-controllers-popup [type]="'vendor'" [vendorData]="vendorData" ></app-map-controllers-popup>
+            </div>
+            <!-- <div *ngIf="loader" class="z-[100000000000] absolute top-[50%] left-[50%]" id="loader"> <ngx-ui-loader></ngx-ui-loader>ddssss</div> -->
   </div>
 </mat-drawer-container>

@@ -86,6 +86,13 @@ export class GroupsListComponent {
 
   }
 
+  setMainClass(){
+    const classesToRemove = ['group-overlay-container'];
+    const containerElement = this.overlayContainer.getContainerElement();
+    containerElement.classList.remove(...classesToRemove);
+    containerElement.classList.add('site-menu');
+  }
+
   addGroup(type: string, group: any) {
     let data
     if (type == 'addGroup') {
@@ -437,7 +444,8 @@ export class GroupsListComponent {
           shadeIntensity: 0.5,
           colorScale: {
             ranges: [
-              { from: 0, to: rangeStep, name: "Very Low", color: "#272F34" },
+              { from: 0, to: 0, name: "Zero", color: "#ABB7C0" }, // Ensures 0 always gets this color
+              { from: 1, to: rangeStep, name: "Very Low", color: "#272F34" },
               { from: rangeStep + 1, to: rangeStep * 2, name: "Low", color: "#2A2130" },
               { from: rangeStep * 2 + 1, to: rangeStep * 3, name: "Medium", color: "#122B64" },
               { from: rangeStep * 3 + 1, to: rangeStep * 4, name: "High", color: "#386118" },

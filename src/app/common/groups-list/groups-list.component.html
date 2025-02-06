@@ -60,7 +60,7 @@
                             <div class="flex gap-[15px] min-w-[85px] justify-between items-center">
                                 <!-- <span class="text-secondary-heiglight">{{site.total_objects}}</span> -->
                                 <span class="text-secondary-heiglight">{{site?.count}}</span>
-                                <span class="w-[16px] h-[16px] flex cursor-pointer" (click)="$event.stopPropagation();setClass()" [matMenuTriggerFor]="siteMenu">
+                                <span class="w-[16px] h-[16px] flex cursor-pointer" (click)="$event.stopPropagation();setMainClass()" [matMenuTriggerFor]="siteMenu">
                                     <img src="assets/svg-icons/nav-menu-icon.svg" />
                                 </span>
                                 <mat-menu class="bg-secondaryBg" panelClass="custom-panel-class"  #siteMenu="matMenu" id="site" overlayPanelClass="custom-backdrop-class">

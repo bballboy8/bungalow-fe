@@ -555,23 +555,25 @@
                     </th>
                     <td mat-cell *matCellDef="let row" class="min-w-[165px] !pl-[10px] text-secondaryText">
                         <div class="flex">
-                            <span class="w-[100px] max-w-[260px] truncate">{{ row?.vendor_id }}</span>
-                            <span (click)="$event.stopPropagation();markerData(row)"><img src="assets/svg-icons/marker-icon.svg" alt=""></span>
-                            <span class="w-[16px] h-[16px] ml-[5px]" (click)="$event.stopPropagation();copyData(row)"><img src="assets/svg-icons/copy-icon.svg" alt=""></span>
+                            <span class="">{{ row?.vendor_id }}</span>
                         </div>
                     </td>
                 </ng-container>
 
-                <!-- <ng-container matColumnDef="expand">
-                    <th mat-header-cell *matHeaderCellDef aria-label="row actions">&nbsp;</th>
-                    <td mat-cell *matCellDef="let element">
-                        <button mat-icon-button aria-label="expand row"
+                <ng-container matColumnDef="expand">
+                    <th mat-header-cell *matHeaderCellDef aria-label="row actions" class="w-[120px]">&nbsp;</th>
+                    <td mat-cell mat-cell *matCellDef="let row"  class="w-[120px]">
+                        <div class="flex">
+                        <div  class="w-[30px] h-[16px] ml-[5px]"  (click)="$event.stopPropagation();markerData(row)"><img src="assets/svg-icons/marker-icon.svg" alt=""></div>
+                            <div class="w-[30px] h-[16px] ml-[5px] mr-[6px]" (click)="$event.stopPropagation();copyData(row)"><img src="assets/svg-icons/copy-icon.svg" alt=""></div>
+                            </div>
+                        <!-- <button mat-icon-button aria-label="expand row"
                             (click)="(expandedElement = expandedElement === element ? null : element); $event.stopPropagation()">
                             <mat-icon *ngIf="expandedElement !== element">keyboard_arrow_down</mat-icon>
                             <mat-icon *ngIf="expandedElement === element">keyboard_arrow_up</mat-icon>
-                        </button>
+                        </button> -->
                     </td>
-                </ng-container> -->
+                </ng-container>
 
                 <ng-container matColumnDef="expandedDetail">
                     <td  mat-cell *matCellDef="let element" [attr.colspan]="displayedColumns.length">

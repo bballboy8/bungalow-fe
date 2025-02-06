@@ -183,7 +183,14 @@ export class GroupsComponent implements OnInit,AfterViewInit {
 
   setClass(){
     const containerElement = this.overlayContainer.getContainerElement();
-    containerElement.classList.add('custom-cdk-overlay-container');  
+    containerElement.classList.add('custom-menu-container');  
+  }
+
+  setMainClass(){
+    const classesToRemove = ['custom-menu-container'];
+    const containerElement = this.overlayContainer.getContainerElement();
+    containerElement.classList.remove(...classesToRemove);
+    containerElement.classList.add('site-menu');
   }
 
   //Add group functionality
@@ -358,9 +365,9 @@ export class GroupsComponent implements OnInit,AfterViewInit {
           // Generate unique color ranges based on heatmap values
          
     
-          setTimeout(() => {
+         
             this.initializeCharts();
-          }, 300);
+        
         },
         error: (err: any) => {
           console.error('API call failed', err);
@@ -405,13 +412,15 @@ export class GroupsComponent implements OnInit,AfterViewInit {
             shadeIntensity: 0.5,
             colorScale: {
               ranges: [
-                { from: 0, to: rangeStep, name: "Very Low", color: "#272F34" },
+                { from: 0, to: 0, name: "Zero", color: "#ABB7C0" }, // Ensures 0 always gets this color
+                { from: 1, to: rangeStep, name: "Very Low", color: "#272F34" },
                 { from: rangeStep + 1, to: rangeStep * 2, name: "Low", color: "#2A2130" },
                 { from: rangeStep * 2 + 1, to: rangeStep * 3, name: "Medium", color: "#122B64" },
                 { from: rangeStep * 3 + 1, to: rangeStep * 4, name: "High", color: "#386118" },
                 { from: rangeStep * 4 + 1, to: rangeStep * 5, name: "Very High", color: "#FFC300" },
                 { from: rangeStep * 5 + 1, to: maxValue, name: "Extreme", color: "#C70039" }
               ]
+              
             }
           }
         },
@@ -468,8 +477,13 @@ export class GroupsComponent implements OnInit,AfterViewInit {
     }
     
     groupHeatmapDataIntoRows(heatmapData: any[], rows = 3) {
+      // Remove the last value to ensure the length is exactly 30
+      if (heatmapData.length > 30) {
+        heatmapData.splice(-1, 1);
+      }
+    
       const groupedData = [];
-      const itemsPerRow = Math.ceil(heatmapData.length / rows); // Calculate items per row
+      const itemsPerRow = 10; // Each row must have 10 items
     
       // Group the data into rows
       for (let i = 0; i < rows; i++) {
@@ -478,16 +492,9 @@ export class GroupsComponent implements OnInit,AfterViewInit {
         groupedData.push(heatmapData.slice(start, end));
       }
     
-      // Pad rows with empty values (null) to align smaller rows at the bottom
-      const maxLength = Math.max(...groupedData.map(group => group.length));
-      groupedData.forEach(group => {
-        while (group.length < maxLength) {
-          group.unshift({ x: null, y: null }); // Add padding at the start of the row
-        }
-      });
-    
       return groupedData;
     }
+    
     
     
     

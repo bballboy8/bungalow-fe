@@ -281,11 +281,11 @@
                 <div class="flex">
                     <div class="rounded-[25px] bg-primaryBg flex items-center justify-between">
                         <button (click)="selectedTimeZone('UTC')"
-                            class="text-xs leading-[18px] py-[9px] font-semibold my-[6px] mr-[10px] ml-[8px] text-secondary-heiglight rounded-[19px] px-[20px] "
-                            [ngClass]="selectedZone ==='UTC'?' bg-secondaryBg':''">UTC</button>
+                            class="text-xs leading-[18px] py-[9px] font-semibold my-[6px] mr-[10px] ml-[8px]  rounded-[19px] px-[20px] "
+                            [ngClass]="selectedZone ==='UTC'?' bg-yellow text-[#453303]':'text-secondary-heiglight'">UTC</button>
                         <button (click)="selectedTimeZone('local')"
-                            class="text-xs leading-[18px] py-[9px] font-semibold my-[6px] mr-[7px] text-secondary-heiglight rounded-[19px] px-[20px]"
-                            [ngClass]="selectedZone ==='local'?' bg-secondaryBg':''">Local
+                            class="text-xs leading-[18px] py-[9px] font-semibold my-[6px] mr-[7px]  rounded-[19px] px-[20px]"
+                            [ngClass]="selectedZone ==='local'?' bg-yellow text-[#453303]':'text-secondary-heiglight'">Local
                             time</button>
                     </div>
                     <div class="relative flex justify-center items-center">

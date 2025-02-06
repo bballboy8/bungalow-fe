@@ -938,9 +938,9 @@ private fallbackCopyToClipboard(text: string): void {
           } else if (this.type === 'library'){
             console.log('yyyyyyyyyyyyyy');
             
-            this.isDrawerOpen = true
-            this.drawer._animationState = 'open'
-            this.type = 'library'
+          this.isDrawerOpen = true
+          this.drawer._animationState = 'open'
+          this.type = 'library'
            this.toggleDrawer()
            this.cdr.detectChanges();
           }

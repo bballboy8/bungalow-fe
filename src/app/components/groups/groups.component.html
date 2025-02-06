@@ -209,8 +209,8 @@
                        
                         @if (chartOptions?.series?.length) {
                             <div class="flex felx-col ">
-                                <div class="flex gap-[5px] font-Barlow flex-wrap">
-                                    <div class="flex items-center flex-col gap-[5px]">
+                                <!-- <div class="flex gap-[5px] font-Barlow flex-wrap"> -->
+                                    <!-- <div class="flex items-center flex-col gap-[5px]">
                                         <span class="w-[15px] h-[15px] bg-[#272F34] rounded-[5px]"></span>
                                         <span class="text-secondaryText text-[10px]">Very low</span>
                                     </div>
@@ -233,9 +233,17 @@
                                     <div class="flex items-center flex-col gap-[5px]">
                                         <span class="w-[15px] h-[15px] bg-[#C70039] rounded-[5px]"></span>
                                         <span class="text-secondaryText text-xs">Very extreme</span>
-                                    </div>
-                                </div>
-                            <div id="chart" class="absolute !left-[0px] mt-[8px]">
+                                    </div> -->
+                                    <!-- <div *ngFor="let range of colorRanges" class="flex items-center flex-col gap-[5px]">
+                                        <ng-container *ngIf="range.to != -1">
+                                            <span [style.background]="range.color" class="w-[15px] h-[15px] rounded-[5px]"></span>
+                                            <span class="text-secondaryText text-[10px]">{{ range.name }}</span>
+                                        </ng-container>
+                                        
+                                      </div> -->
+                                <!-- </div> -->
+                              
+                            <div id="chart" class="absolute !left-[0px]">
                                 <apx-chart
                                 [series]="chartOptions.series"
                                 [chart]="chartOptions.chart"

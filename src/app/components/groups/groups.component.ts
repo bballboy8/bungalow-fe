@@ -55,7 +55,8 @@ export class GroupsComponent implements OnInit,AfterViewInit {
   sitesData:any;
   @ViewChild("chart") chart: ChartComponent;
   public chartOptions: Partial<ChartOptions>;
-    
+  colorRanges: any[] = [];
+
   constructor(
     private satelliteService:SatelliteService,
     private overlayContainer: OverlayContainer,
@@ -381,11 +382,27 @@ export class GroupsComponent implements OnInit,AfterViewInit {
         return;
       }
     
-      let maxValue = Math.max(...this.siteDetail.heatmap.map(entry => entry.count));
-      if (maxValue < 100) {
-        maxValue = 100; // Default max value to 100 if less than 100
-      }
-      const rangeStep = Math.ceil(maxValue / 6);
+      const heatmapData = this.siteDetail.heatmap.map(entry => entry.count);
+      const maxValue = Math.max(...heatmapData); // No hardcoded 100
+      const minValue = Math.min(...heatmapData);
+      const rangeCount = Math.max(5, Math.floor((maxValue - minValue) / 5));
+      const rangeStep = Math.ceil((maxValue - minValue) / rangeCount); // 5 dynamic ranges
+
+  const colorStatus = ['']
+// ✅ Generate dynamic color ranges
+const colorRanges = Array.from({ length: 5 }, (_, i) => {
+  const from = minValue + i * rangeStep;
+  const to = i === 4 ? maxValue : from + rangeStep - 1; // Ensure the last range covers maxValue
+  return {
+    from,
+    to,
+    color: this.getColor(from, heatmapData), // Dynamic color using getColor
+    name: `${from} - ${to}`
+  };
+});
+
+
+this.colorRanges = colorRanges;
     
       const groupedData = this.groupHeatmapDataIntoRows(this.siteDetail.heatmap, 3);
       console.log("groupedDatagroupedDatagroupedData", groupedData);
@@ -410,16 +427,11 @@ export class GroupsComponent implements OnInit,AfterViewInit {
         plotOptions: {
           heatmap: {
             shadeIntensity: 0.5,
+            enableShades: false,
             colorScale: {
-              ranges: [
-                { from: 0, to: 0, name: "Zero", color: "#ABB7C0" }, // Ensures 0 always gets this color
-                { from: 1, to: rangeStep, name: "Very Low", color: "#272F34" },
-                { from: rangeStep + 1, to: rangeStep * 2, name: "Low", color: "#2A2130" },
-                { from: rangeStep * 2 + 1, to: rangeStep * 3, name: "Medium", color: "#122B64" },
-                { from: rangeStep * 3 + 1, to: rangeStep * 4, name: "High", color: "#386118" },
-                { from: rangeStep * 4 + 1, to: rangeStep * 5, name: "Very High", color: "#FFC300" },
-                { from: rangeStep * 5 + 1, to: maxValue, name: "Extreme", color: "#C70039" }
-              ]
+              ranges: colorRanges,
+              min: minValue,
+              max: maxValue
               
             }
           }
@@ -533,6 +545,30 @@ export class GroupsComponent implements OnInit,AfterViewInit {
         }
       })
     }
+    getColor(value, data) {
+      const min = Math.min(...data);
+      const max = Math.max(...data);
+      const mean = data.reduce((sum, v) => sum + v, 0) / data.length;
+    
+        if (min ==0 && max == 0) return 'gray'
+      // Special case: Only one value
+      if (min === max) return `rgb(255, 0, 0)`; // Default red for single value
+    
+      // Clamp value between min and max
+      const clampedValue = Math.min(Math.max(value, min), max);
+    
+      // Normalize value between 0 and 1
+      const normalized = (clampedValue - min) / (max - min);
+    
+       if (normalized ==0) return 'gray'
+      // Calculate red (increases with value) and green (decreases with value)
+      const red = Math.round(255 * normalized);
+      const green = Math.round(255 * (1 - normalized));
+    
+      return `rgb(${red}, ${green}, 0)`; // Gradient from green to red
+    }
+    
+    
 
     getSiteType(type: string): string {
       if (type === 'Rectangle') {

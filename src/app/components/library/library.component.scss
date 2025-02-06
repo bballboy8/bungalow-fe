@@ -134,7 +134,7 @@
   height: inherit !important;
 }
 .content{
-  height: 500px !important;
+  // height: 500px !important;
 }
 
 .single_browse {
@@ -394,7 +394,7 @@
     background: #FCCA40;
   }
   .custom-h{
-    height: 85vh;
+    height: 86vh;
   }
   @media screen and (min-width: 1706px) {
     .custom-h{
@@ -404,14 +404,16 @@
   }
   @media screen and (min-width: 1920px) {
     .custom-h{
-      height: 88vh;
+      height: 89vh;
     }
     
   }
   @media screen and (min-width: 2304px) {
     .custom-h{
-      height: 90vh;
+      height: 100vh;
     }
-    
+    body .content {
+      height: 0;
+  }
   }
 }

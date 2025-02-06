@@ -65,6 +65,7 @@ export class HomeComponent implements OnInit, AfterViewInit,OnDestroy {
   @ViewChild('drawer') drawer?: MatDrawer;
   @ViewChild('draggableContainer') draggableContainer!: ElementRef;
   sidebarWidth: number = 0;
+  marginleft:number = 0;
   map!: L.Map;
   zoomLevel: number = 4;
   longitude: number = -90;
@@ -164,6 +165,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
     if (isPlatformBrowser(this.platformId)) {
       console.log('Platform');
         this.initMap();
+        
     }
     
     
@@ -214,6 +216,9 @@ hybridLayer:L.TileLayer = L.tileLayer(
     this.updateSidebarWidth();
     let sidebar = document.getElementById('draggableContainer');
     // this.leftMargin2
+    setTimeout(() => {
+      this.marginleft=413
+    }, 3200);
     const sidebarElement = this.draggableContainer.nativeElement;
      console.log(sidebarElement,'sidebarElement');
      interact(sidebarElement)

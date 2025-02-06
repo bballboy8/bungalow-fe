@@ -396,4 +396,22 @@
   .custom-h{
     height: 85vh;
   }
+  @media screen and (min-width: 1706px) {
+    .custom-h{
+      height: 86vh;
+    }
+    
+  }
+  @media screen and (min-width: 1920px) {
+    .custom-h{
+      height: 88vh;
+    }
+    
+  }
+  @media screen and (min-width: 2304px) {
+    .custom-h{
+      height: 90vh;
+    }
+    
+  }
 }

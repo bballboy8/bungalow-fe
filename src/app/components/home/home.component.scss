@@ -89,7 +89,7 @@ height: 94% !important;
 /* Sidebar (mat-drawer) container styling */
 .draggable-resizable-container {
 position: absolute;
-top: 6%;
+top: 41px;
 left: 0;
 width: 820px; /* Default width */
 height: 100% !important;
@@ -102,7 +102,7 @@ border-right: 1px solid var(--custom-border); /* Optional border for clarity */
 
 @media (min-width: 1537px) {
   .draggable-resizable-container {
-    top: 3.5%;
+    top: 42px;
   }
   .library{
     height: 100% !important;
@@ -118,6 +118,17 @@ width: 100%; /* Always use full width */
 height: 100%; /* Always occupy full height */
 z-index: 0; /* Keep it behind other elements */
 }
+
+// #mapContainer {
+//   position: absolute;
+//   top: 0;
+//   left: 0;
+//   width: calc(100% - var(--sidebar-width, 0px)); /* Adjust width dynamically */
+//   height: 100%;
+//   z-index: 0;
+//   transition: margin-left 0.3s ease-in-out; /* Smooth transition */
+// }
+
 
 /* Sidebar visibility handling */
 .mat-drawer-open .draggable-resizable-container {

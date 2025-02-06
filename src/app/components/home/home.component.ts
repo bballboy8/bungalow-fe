@@ -163,8 +163,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
   ngAfterViewInit(): void {
     if (isPlatformBrowser(this.platformId)) {
       console.log('Platform');
-      
-      this.initMap();
+        this.initMap();
     }
     
     
@@ -191,7 +190,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
             this.ngxLoader.stop()
             console.error('Error fetching calendar data', err);
             // Hide loader on error
-           
+             
           },
           
         });
@@ -236,7 +235,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
             // console.log( `${event.rect.width}px`,' `${event.rect.width}px`');
             
             // console.log(this.leftMargin2,'this.leftMargin2');
-            
+            // this.updateMapMargin();
             // target.style.height = `${event.rect.height}px`;
             target.style.height = `682.575px`;
           }

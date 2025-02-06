@@ -579,8 +579,6 @@ set zoomed_wkt(value: string) {
   
     div.addEventListener('wheel', this.handleWheelEvent);
     this.sharedService.rowHover$.subscribe((rowHover) => {
-      console.log(rowHover,'rowHoverrowHoverrowHoverrowHover');
-      
       this.tableRowHovered = rowHover
     })
     this.sharedService.overlayShapeData$.subscribe((overlayShapeData) => {
@@ -1501,6 +1499,36 @@ getDateTimeFormat(dateTime: string) {
     this.sliderShow = false;
   }
 
+  //Open Map Controller Popup
+  openDialog(vendorId:any){
+    //calling API by vendorID
+    let vendorData:any [] = [];
+    let queryParams ={
+      page_number: '1',
+      page_size: '100',
+      start_date:'',
+      end_date: '',
+      vendor_id: vendorId
+    }
+    this.satelliteService.getDataFromPolygon('',queryParams).subscribe({
+      next: (resp) => {
+        console.log(resp,"resp");
+        console.log(resp.data[0],"resp");
+        vendorData = resp.data[0];
+      }});
+
+    const dialogRef = this.dialog.open(MapControllersPopupComponent, {
+      width: `280px`,
+      height: 'auto',
+      data: { type: 'vendor', vendorData: vendorData },
+      // position,
+      panelClass: 'custom-dialog-class',
+    });
+  
+    dialogRef.afterClosed().subscribe((result) => {
+      this.popUpData = null
+    });
+  }
   //Filter Form submit functionality
   onSubmit() {
     this.updateFilterCount(); 

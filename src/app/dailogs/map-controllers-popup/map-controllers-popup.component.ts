@@ -365,8 +365,6 @@ export class MapControllersPopupComponent implements OnInit {
       totalLat += lat;
       totalLon += lon;
     });
-    console.log(totalLat / validCoordinates.length,'totalLat / numPointstotalLat / numPointstotalLat / numPoints',totalLon / validCoordinates.length)
-  
     return {
       lat: totalLat / validCoordinates.length,
       lon: totalLon / validCoordinates.length,

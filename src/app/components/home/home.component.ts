@@ -1037,12 +1037,8 @@ polygon.on('click', (event: L.LeafletMouseEvent) => {
           if (layer instanceof L.Polygon) {
               const layerLatLngs = layer.getLatLngs()[0] as L.LatLng[]; // Get the coordinates of this polygon
               const layerBoundingBox = this.getBoundingBox(layerLatLngs); // Get its bounding box
-  
-              console.log('Checking Bounding Box:', layerBoundingBox);
-  
               // Check if the bounding boxes intersect
               if (this.isBoundingBoxIntersecting(clickedBoundingBox, layerBoundingBox)) {
-                  console.log('Bounding Box Intersected with:', layerBoundingBox);
                   const polygonData = (layer as any).options.data; // Assuming metadata is stored in options.data
                   if (polygonData) {
                       intersectingPolygons.push(polygonData); // Add matching polygon's data
@@ -1050,9 +1046,6 @@ polygon.on('click', (event: L.LeafletMouseEvent) => {
               }
           }
       });
-  
-      console.log('Intersecting Polygons Data:', intersectingPolygons);
-  
       // Fetch data for all intersecting polygons
       let queryParams = {
         page_number: '1',
@@ -1696,8 +1689,6 @@ handleLayersToggle(state:boolean){
 }
 
 closeDropdown() {
-  console.log('aaaaaaaaaa');
-  
   this.isDropdownOpen = false;
   this.showLayers = false
 }

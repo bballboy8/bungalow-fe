@@ -307,6 +307,14 @@
                                     </mat-select>
                                 </mat-form-field>
                                 <mat-form-field appearance="outline" id="filter" >
+                                    <mat-label class="!text-secondaryText">Type</mat-label>
+                                    <mat-select class="!text-secondaryText" multiple formControlName="type" name="type">
+                                    @for (type of typesList; track type) {
+                                        <mat-option [value]="type">{{type}}</mat-option>
+                                    }
+                                    </mat-select>
+                                </mat-form-field>
+                                <mat-form-field appearance="outline" id="filter" >
                                     <mat-label class="!text-secondaryText">Vendor ID</mat-label>
                                     <input class="!text-secondaryText" matInput type="text" formControlName="vendorId">
                                 </mat-form-field>

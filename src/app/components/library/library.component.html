@@ -606,7 +606,8 @@
                 <ng-container matColumnDef="type">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header class="min-w-[80px] !pl-[10px] text-secondaryText font-semibold">
                         Type</th>
-                    <td mat-cell *matCellDef="let row" class="min-w-[80px] !pl-[10px] text-secondaryText">{{ getTimePeriod(row?.acquisition_datetime,row?.centroid) }}</td>
+                    <!-- <td mat-cell *matCellDef="let row" class="min-w-[80px] !pl-[10px] text-secondaryText">{{ getTimePeriod(row?.acquisition_datetime,row?.centroid) }}</td> -->
+                    <td mat-cell *matCellDef="let row" class="min-w-[80px] !pl-[10px] text-secondaryText">{{ row?.type| titlecase }}</td>
                 </ng-container>
 
                 <ng-container matColumnDef="vendor_id">

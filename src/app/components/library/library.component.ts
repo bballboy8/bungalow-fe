@@ -1384,41 +1384,6 @@ private handleWheelEvent = (event: WheelEvent): void => {
   }
 };
 
-//Getting time in Day sessions
-// getTimePeriod(datetime: string, centroid?: [number, number]): string {
-//   if(this.selectedZone == 'UTC'){
-//     const utcDate = dayjs(datetime).utc();
-
-//     // Get the hour in UTC
-//     const hours = utcDate.hour();
-  
-//     // Determine the time period based on the UTC hour
-//     if (hours >= 5 && hours < 11) {
-//       return "Morning";
-//     } else if (hours >= 11 && hours < 16) {
-//       return "Midday";
-//     } else if (hours >= 16 && hours < 21) {
-//       return "Evening";
-//     } else {
-//       return "Overnight";
-//     }
-//   } else {
-//     const [latitude, longitude] = centroid;
-//     const timeZone = tzLookup(latitude, longitude);
-//     const hours =centroid.length ? momentZone(datetime).tz(timeZone).hour() : new Date(datetime).getHours();  // Parse the ISO string to a Date object        
-//     if (hours >= 5 && hours < 11) {
-//       return "Morning";
-//     } else if (hours >= 11 && hours < 16) {
-//       return "Midday";
-//     } else if (hours >= 16 && hours < 21) {
-//       return "Evening";
-//     } else {
-//       return "Overnight";
-//     }
-//   }
-  
-// }
-
 //Formated Date into YYYY-MM-DD
 getDateTimeFormat(dateTime: string) {
     if (dateTime) {

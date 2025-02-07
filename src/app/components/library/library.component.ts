@@ -59,11 +59,7 @@ import { MatSliderModule } from "@angular/material/slider";
 import { Options,NgxSliderModule, LabelType } from '@angular-slider/ngx-slider';
 import momentZone from 'moment-timezone';
 import tzLookup from 'tz-lookup';
-import timezone from "dayjs/plugin/timezone";
-import utc from "dayjs/plugin/utc";
 
-dayjs.extend(utc);
-dayjs.extend(timezone);
 export class Group {
   name?: string;
   icon?: string; // icon name for Angular Material icons

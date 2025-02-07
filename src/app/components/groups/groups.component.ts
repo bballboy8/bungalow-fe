@@ -209,13 +209,13 @@ export class GroupsComponent implements OnInit,AfterViewInit {
    this.openDialog(data)
   }
 
-  renameGroup(type:any,group:any){
-    const data = {type:type, group:group}
+  renameGroup(type:any,group:any,value){
+    const data = {type:type, group:group,value:value}
     this.openDialog(data)
   }
 
-  deleteGroup(type:any,group:any){
-    const data = {type:type, group:group}
+  deleteGroup(type:any,group:any,value){
+    const data = {type:type, group:group,value:value}
     this.openDialog(data)
   }
 
@@ -243,6 +243,9 @@ export class GroupsComponent implements OnInit,AfterViewInit {
                 this.nestedGroupsData = resp
         
               }})
+          } else if(data.value ==='renameGroup' || data.value ==='deleteGroup') {
+            this.getGroups()
+            
           } else {
             if (data?.type == 'rename') {
               

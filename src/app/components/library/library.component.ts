@@ -1530,7 +1530,7 @@ getDateTimeFormat(dateTime: string) {
         min_off_nadir_angle:this.min_angle,
         vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
         vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
-        user_duration_type:this.formGroup.get('type')?.value?this.formGroup.get('type').value:'',
+        user_duration_type:this.formGroup.get('type')?.value?this.formGroup.get('type').value?.join(','):'',
         user_timezone:timeZone,
         max_gsd:this.max_gsd === 4 ? 1000 : this.max_gsd,
         min_gsd:this.min_gsd,

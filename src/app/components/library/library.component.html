@@ -359,7 +359,7 @@
                                 </mat-form-field>
                                 <mat-form-field appearance="outline" id="filter" >
                                     <mat-label class="!text-secondaryText">Type</mat-label>
-                                    <mat-select class="!text-secondaryText" formControlName="type" name="type">
+                                    <mat-select class="!text-secondaryText" multiple formControlName="type" name="type">
                                     @for (type of typesList; track type) {
                                         <mat-option [value]="type">{{type}}</mat-option>
                                     }

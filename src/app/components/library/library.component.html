@@ -11,12 +11,24 @@
     @if (analyticsData) {
     <div id="analyticsData" class="mx-[15px] gap-3 grid-cols-4 flex font-Barlow">
 
-        <div class="w-[190px] flex flex-col gap-3 my-3 p-3 bg-secondaryBg rounded-[5px] font-Barlow">
+        <div class="w-[190px] group flex flex-col gap-3 my-3 p-3 bg-secondaryBg rounded-[5px] font-Barlow">
             <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Selection area</span>
             <span class="text-sm font-medium leading-[18px] text-secondaryText font-Barlow">{{analyticsData?.area}} km2</span>
+            <div class="hidden absolute shadow-custom rounded-[10px] z-10 top-[145px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                    <span>  Total area enclosed within the selected bounding box.</span>
+                </div>
+                
+            </div>
         </div>
-        <div class="w-[190px] flex flex-col gap-3 my-3 p-3 bg-secondaryBg rounded-[5px]">
+        <div class="w-[190px] group flex flex-col gap-3 my-3 p-3 bg-secondaryBg rounded-[5px]">
             <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Name</span>
+            <div class="hidden absolute shadow-custom rounded-[10px] z-10 top-[145px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                    <span>Save this selection and receive alerts whenever new footprints appear.</span>
+                </div>
+                
+            </div>
             <div class="text-sm flex justify-between font-medium leading-[18px] text-secondaryText">
                 <span class="text-sm font-medium leading-[18px] text-secondaryText">{{name}}</span>
                 <button mat-button
@@ -43,12 +55,20 @@
                 </div>
             </mat-menu>
         </div>
-        <div class="w-[190px] flex flex-col gap-3 my-3 p-3 bg-secondaryBg rounded-[5px]">
+        <div class="w-[190px] group flex flex-col gap-3 my-3 p-3 bg-secondaryBg rounded-[5px]">
             <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Groups</span>
+            <div class="hidden absolute shadow-custom rounded-[10px] z-10 top-[145px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                    <span> Related points of interest.</span> 
+                </div>
+                
+            </div>
             @if(selectedGroup == null){
-                <div class="flex relative items-center gap-[15px] self-stretch w-full">
+                <div class=" flex relative items-center gap-[15px] self-stretch w-full">
                   <span class="flex-0 cursor-pointer font-Barlow font-sm font-medium leading-[18px] text-yellow" (click)="getGroups();setClass()"
                   [matMenuTriggerFor]="addGroup ? assign : null">Assign to a group</span> 
+
+           
                   <mat-menu class="bg-primaryBg absolute" #assign="matMenu" id="assign">
                     <div class="p-[15px] flex flex-col gap-[10px]" (click)="$event.stopPropagation()" >
                       <!-- Groups Section -->
@@ -100,14 +120,21 @@
                   </mat-menu>        
               </div>
               } @else {
-                <div class="flex relative items-center gap-[15px] self-stretch w-full">
+                <div class="flex group relative items-center gap-[15px] self-stretch w-full">
                   <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-yellow">{{selectedGroup?.name}}</span>
                 </div>
               }
         </div>
-        <div class="w-[190px] flex flex-col gap-3 p-3 my-3 bg-secondaryBg rounded-[5px]">
+        <div class="w-[190px] group flex flex-col gap-3 p-3 my-3 bg-secondaryBg rounded-[5px]">
             <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Objects</span>
             <span class="text-sm font-medium leading-[18px] text-secondaryText">{{analyticsData?.total_count}}</span>
+
+            <div class="hidden absolute shadow-custom rounded-[10px] z-10 top-[145px] right-[13px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                    <span>Total area enclosed within the selected bounding box.</span>
+                </div>
+                
+            </div>
         </div>
 
     </div>

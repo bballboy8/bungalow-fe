@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, Inject, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { Component, inject, Inject, Input, OnInit, Optional, TemplateRef, ViewChild } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -68,10 +68,14 @@ export class MapControllersPopupComponent implements OnInit {
   @ViewChild(GroupsListComponent) childComponent!: GroupsListComponent;
   @ViewChild(MatMenuTrigger) menuTrigger!: MatMenuTrigger;
   siteData: any;
+  @Input()vendorData:any = null
+  @Input()type:string = '';
   isHovered:boolean = false;
-  constructor(@Inject(MAT_DIALOG_DATA) public data: any,
-    private dialog: MatDialog,
-    private satelliteService: SatelliteService,private overlayContainer: OverlayContainer) {
+  @Input()pointMarkerData:any = null
+  constructor(@Optional() @Inject(MAT_DIALOG_DATA) public data: any,
+  private dialog: MatDialog,
+  private satelliteService: SatelliteService,
+  private overlayContainer: OverlayContainer) {
     // Apply debounceTime to the Subject and switch to the latest observable (API call)
     this.searchInput.pipe(
       debounceTime(1000),  // Wait for 1000ms after the last key press
@@ -97,6 +101,12 @@ export class MapControllersPopupComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    if(!this.data) {
+      this.data = {}
+    }
+    if(this.vendorData){
+      this.data = {type:this.type, vendorData:this.vendorData}
+    }
     console.log(this.data, 'datataatatatatatattat');
     this.renderGroup = this.myTemplate;
     this.activeTimeDate = this.data?.markerData?.percentages[this.selectedTimeFrame]

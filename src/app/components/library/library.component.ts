@@ -174,7 +174,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   get displayedColumns(): string[] {
     return [
       ...this.columns.filter(c => c.visible).map(c => c.id),
-      // 'expand' // Keep expand column always visible
+      'expand' // Keep expand column always visible
     ];
   }
   total_count:any

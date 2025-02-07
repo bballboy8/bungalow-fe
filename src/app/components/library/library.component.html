@@ -11,12 +11,24 @@
     @if (analyticsData) {
     <div id="analyticsData" class="mx-[15px] gap-3 grid-cols-4 flex font-Barlow">
 
-        <div class="w-[190px] flex flex-col gap-3 my-3 p-3 bg-secondaryBg rounded-[5px] font-Barlow">
+        <div class="w-[190px] group flex flex-col gap-3 my-3 p-3 bg-secondaryBg rounded-[5px] font-Barlow">
             <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Selection area</span>
             <span class="text-sm font-medium leading-[18px] text-secondaryText font-Barlow">{{analyticsData?.area}} km2</span>
+            <div class="hidden absolute shadow-custom rounded-[10px] z-10 top-[145px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                    <span>  Total area enclosed within the selected bounding box.</span>
+                </div>
+                
+            </div>
         </div>
-        <div class="w-[190px] flex flex-col gap-3 my-3 p-3 bg-secondaryBg rounded-[5px]">
+        <div class="w-[190px] group flex flex-col gap-3 my-3 p-3 bg-secondaryBg rounded-[5px]">
             <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Name</span>
+            <div class="hidden absolute shadow-custom rounded-[10px] z-10 top-[145px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                    <span>Save this selection and receive alerts whenever new footprints appear.</span>
+                </div>
+                
+            </div>
             <div class="text-sm flex justify-between font-medium leading-[18px] text-secondaryText">
                 <span class="text-sm font-medium leading-[18px] text-secondaryText">{{name}}</span>
                 <button mat-button
@@ -43,12 +55,20 @@
                 </div>
             </mat-menu>
         </div>
-        <div class="w-[190px] flex flex-col gap-3 my-3 p-3 bg-secondaryBg rounded-[5px]">
+        <div class="w-[190px] group flex flex-col gap-3 my-3 p-3 bg-secondaryBg rounded-[5px]">
             <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Groups</span>
+            <div class="hidden absolute shadow-custom rounded-[10px] z-10 top-[145px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                    <span> Related points of interest.</span> 
+                </div>
+                
+            </div>
             @if(selectedGroup == null){
-                <div class="flex relative items-center gap-[15px] self-stretch w-full">
+                <div class=" flex relative items-center gap-[15px] self-stretch w-full">
                   <span class="flex-0 cursor-pointer font-Barlow font-sm font-medium leading-[18px] text-yellow" (click)="getGroups();setClass()"
                   [matMenuTriggerFor]="addGroup ? assign : null">Assign to a group</span> 
+
+           
                   <mat-menu class="bg-primaryBg absolute" #assign="matMenu" id="assign">
                     <div class="p-[15px] flex flex-col gap-[10px]" (click)="$event.stopPropagation()" >
                       <!-- Groups Section -->
@@ -100,14 +120,21 @@
                   </mat-menu>        
               </div>
               } @else {
-                <div class="flex relative items-center gap-[15px] self-stretch w-full">
+                <div class="flex group relative items-center gap-[15px] self-stretch w-full">
                   <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-yellow">{{selectedGroup?.name}}</span>
                 </div>
               }
         </div>
-        <div class="w-[190px] flex flex-col gap-3 p-3 my-3 bg-secondaryBg rounded-[5px]">
+        <div class="w-[190px] group flex flex-col gap-3 p-3 my-3 bg-secondaryBg rounded-[5px]">
             <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Objects</span>
             <span class="text-sm font-medium leading-[18px] text-secondaryText">{{analyticsData?.total_count}}</span>
+
+            <div class="hidden absolute shadow-custom rounded-[10px] z-10 top-[145px] right-[13px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                    <span>Total area enclosed within the selected bounding box.</span>
+                </div>
+                
+            </div>
         </div>
 
     </div>
@@ -145,22 +172,46 @@
                 </span>
             </div> -->
             <div
-                class="w-[182px] flex flex-col p-[10px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">
+                class="w-[182px] group flex flex-col p-[10px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">
                 <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">
                     Total
                 </span>
                 <span class="text-sm font-semibold leading-[18px] text-secondaryText">
                     {{formatNumber(analyticsData?.total_count)}}
                 </span>
+
+                <div class="hidden absolute shadow-custom rounded-[10px] z-10 top-[245px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                    <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                        <span>Old Date:</span>
+                        <span>{{analyticsData?.oldest_info?.acquisition_datetime | date: 'yyyy-MM-dd'}}</span>
+                    </div>
+                    <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                        <span>Newest Date:</span>
+                        <span>{{analyticsData?.newest_info?.acquisition_datetime | date: 'yyyy-MM-dd'}}</span>
+                    </div>
+                    
+                </div>
             </div>
             <div
-                class="w-[182px] flex flex-col p-[10px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">
+                class="w-[182px] group flex flex-col p-[10px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">
                 <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">
                     Avg
                 </span>
                 <span class="text-sm font-semibold leading-[18px] text-secondaryText">
                     {{analyticsData?.average_per_day.toFixed(2)}}
                 </span>
+
+                <div class="hidden absolute shadow-custom rounded-[10px] z-10 top-[245px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                    <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                        <span>Old Date:</span>
+                        <span>{{analyticsData?.oldest_info?.acquisition_datetime | date: 'yyyy-MM-dd'}}</span>
+                    </div>
+                    <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                        <span>Newest Date:</span>
+                        <span>{{analyticsData?.newest_info?.acquisition_datetime | date: 'yyyy-MM-dd'}}</span>
+                    </div>
+                    
+                </div>
             </div>
             <div
                 class="w-[182px] group flex flex-col p-[10px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">
@@ -281,11 +332,11 @@
                 <div class="flex">
                     <div class="rounded-[25px] bg-primaryBg flex items-center justify-between">
                         <button (click)="selectedTimeZone('UTC')"
-                            class="text-xs leading-[18px] py-[9px] font-semibold my-[6px] mr-[10px] ml-[8px] text-secondary-heiglight rounded-[19px] px-[20px] "
-                            [ngClass]="selectedZone ==='UTC'?' bg-secondaryBg':''">UTC</button>
+                            class="text-xs leading-[18px] py-[9px] font-semibold my-[6px] mr-[10px] ml-[8px]  rounded-[19px] px-[20px] "
+                            [ngClass]="selectedZone ==='UTC'?' bg-yellow text-[#453303]':'text-secondary-heiglight'">UTC</button>
                         <button (click)="selectedTimeZone('local')"
-                            class="text-xs leading-[18px] py-[9px] font-semibold my-[6px] mr-[7px] text-secondary-heiglight rounded-[19px] px-[20px]"
-                            [ngClass]="selectedZone ==='local'?' bg-secondaryBg':''">Local
+                            class="text-xs leading-[18px] py-[9px] font-semibold my-[6px] mr-[7px]  rounded-[19px] px-[20px]"
+                            [ngClass]="selectedZone ==='local'?' bg-yellow text-[#453303]':'text-secondary-heiglight'">Local
                             time</button>
                     </div>
                     <div class="relative flex justify-center items-center">
@@ -563,23 +614,25 @@
                     </th>
                     <td mat-cell *matCellDef="let row" class="min-w-[165px] !pl-[10px] text-secondaryText">
                         <div class="flex">
-                            <span class="w-[100px] max-w-[260px] truncate">{{ row?.vendor_id }}</span>
-                            <span (click)="$event.stopPropagation();markerData(row)"><img src="assets/svg-icons/marker-icon.svg" alt=""></span>
-                            <span class="w-[16px] h-[16px] ml-[5px]" (click)="$event.stopPropagation();copyData(row)"><img src="assets/svg-icons/copy-icon.svg" alt=""></span>
+                            <span class="">{{ row?.vendor_id }}</span>
                         </div>
                     </td>
                 </ng-container>
 
-                <!-- <ng-container matColumnDef="expand">
-                    <th mat-header-cell *matHeaderCellDef aria-label="row actions">&nbsp;</th>
-                    <td mat-cell *matCellDef="let element">
-                        <button mat-icon-button aria-label="expand row"
+                <ng-container matColumnDef="expand">
+                    <th mat-header-cell *matHeaderCellDef aria-label="row actions" class="w-[120px]">&nbsp;</th>
+                    <td mat-cell mat-cell *matCellDef="let row"  class="w-[120px]">
+                        <div class="flex">
+                        <div  class="w-[30px] h-[16px] ml-[5px]"  (click)="$event.stopPropagation();markerData(row)"><img src="assets/svg-icons/marker-icon.svg" alt=""></div>
+                            <div class="w-[30px] h-[16px] ml-[5px] mr-[6px]" (click)="$event.stopPropagation();copyData(row)"><img src="assets/svg-icons/copy-icon.svg" alt=""></div>
+                            </div>
+                        <!-- <button mat-icon-button aria-label="expand row"
                             (click)="(expandedElement = expandedElement === element ? null : element); $event.stopPropagation()">
                             <mat-icon *ngIf="expandedElement !== element">keyboard_arrow_down</mat-icon>
                             <mat-icon *ngIf="expandedElement === element">keyboard_arrow_up</mat-icon>
-                        </button>
+                        </button> -->
                     </td>
-                </ng-container> -->
+                </ng-container>
 
                 <ng-container matColumnDef="expandedDetail">
                     <td  mat-cell *matCellDef="let element" [attr.colspan]="displayedColumns.length">

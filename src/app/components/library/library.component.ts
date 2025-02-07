@@ -59,6 +59,7 @@ import { MatSliderModule } from "@angular/material/slider";
 import { Options,NgxSliderModule, LabelType } from '@angular-slider/ngx-slider';
 import momentZone from 'moment-timezone';
 import tzLookup from 'tz-lookup';
+
 export class Group {
   name?: string;
   icon?: string; // icon name for Angular Material icons
@@ -234,7 +235,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
           // Start the loader
          
         
-          this.satelliteService.getPolygonCalenderDays(payload).subscribe({
+          this.satelliteService.getPolygonCalenderDays(payload,queryParams).subscribe({
             next: (resp) => {
             
               this.calendarApiData = resp.data;
@@ -400,6 +401,7 @@ set zoomed_wkt(value: string) {
   }
 
   vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra'];
+  typesList:any[]=['morning','midday','evening','overnight'];
   // Default values for manual filters
   defaultMinCloud = -10;
   defaultMaxCloud = 60;
@@ -498,6 +500,7 @@ set zoomed_wkt(value: string) {
         });
         this.formGroup = this.fb.group({
           vendor:[],
+          type: [],
           vendorId:[],
           
         });
@@ -717,6 +720,12 @@ set zoomed_wkt(value: string) {
     const payload = {
       wkt_polygon: this.polygon_wkt
     }
+
+    const calendarPayload ={
+        polygon_wkt: this.polygon_wkt,
+        start_date: this.startDate,
+        end_date: this.endDate
+    }
     this.filterCount = 0;
     this.defaultMinCloud = -10;
     this.defaultMaxCloud = 60;
@@ -735,6 +744,7 @@ set zoomed_wkt(value: string) {
       this.ngxLoader.start(); // Start the loader
     this.getSatelliteCatalog(payload,{...queryParams, zoomed_wkt: this._zoomed_wkt})
     this.onFilterset.emit({params: {...queryParams, zoomed_wkt: this._zoomed_wkt}, payload});
+    this.getCalendarData(calendarPayload,queryParams)
   }
 
   /** Whether the number of selected elements matches the total number of rows. */
@@ -801,9 +811,10 @@ set zoomed_wkt(value: string) {
           }
           
           // Start the loader
-         
+         console.log(this.filterParams,'filterParamsfilterParamsfilterParamsfilterParams');
+         let queryParams = this.filterParams
         
-          this.satelliteService.getPolygonCalenderDays(payload).subscribe({
+          this.satelliteService.getPolygonCalenderDays(payload,queryParams).subscribe({
             next: (resp) => {
               this.ngxLoader.stop()
               this.calendarApiData = resp.data;
@@ -821,6 +832,23 @@ set zoomed_wkt(value: string) {
       }
     },300)
 
+  }
+
+  getCalendarData(payload:any,queryParams:any){
+    this.satelliteService.getPolygonCalenderDays(payload,queryParams).subscribe({
+      next: (resp) => {
+        this.ngxLoader.stop()
+        this.calendarApiData = resp.data;
+       
+      },
+      error: (err) => {
+        this.ngxLoader.stop()
+        console.error('Error fetching calendar data', err);
+        // Hide loader on error
+       
+      },
+      
+    });
   }
 
   //calculate newest and oldest in days week months or year
@@ -1334,6 +1362,7 @@ private handleWheelEvent = (event: WheelEvent): void => {
         min_off_nadir_angle:this.min_angle,
         vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
         vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
+        type:this.formGroup.get('type')?.value?this.formGroup.get('type').value?.join(','):'',
         max_gsd:this.max_gsd === 4 ? 1000 : this.max_gsd,
         min_gsd:this.min_gsd,
       }
@@ -1377,42 +1406,6 @@ private handleWheelEvent = (event: WheelEvent): void => {
     }
   }
 };
-
-//Getting time in Day sessions
-getTimePeriod(datetime: string, centroid?: [number, number]): string {
-  if(this.selectedZone == 'UTC'){
-    const utcDate = dayjs(datetime).utc();
-
-    // Get the hour in UTC
-    const hours = utcDate.hour();
-  
-    // Determine the time period based on the UTC hour
-    if (hours >= 5 && hours < 11) {
-      return "Morning";
-    } else if (hours >= 11 && hours < 16) {
-      return "Midday";
-    } else if (hours >= 16 && hours < 21) {
-      return "Evening";
-    } else {
-      return "Overnight";
-    }
-  } else {
-    const [latitude, longitude] = centroid;
-    const timeZone = tzLookup(latitude, longitude);
-    const hours =centroid.length ? momentZone(datetime).tz(timeZone).hour() : new Date(datetime).getHours();  // Parse the ISO string to a Date object        
-    if (hours >= 5 && hours < 11) {
-      return "Morning";
-    } else if (hours >= 11 && hours < 16) {
-      return "Midday";
-    } else if (hours >= 16 && hours < 21) {
-      return "Evening";
-    } else {
-      return "Overnight";
-    }
-  }
-  // Convert the datetime to UTC using dayjs
-  
-}
 
 //Formated Date into YYYY-MM-DD
 getDateTimeFormat(dateTime: string) {
@@ -1539,8 +1532,8 @@ getDateTimeFormat(dateTime: string) {
       minCloud = this.min_cloud
     } 
       const datetime = this.formGroup.value.end_date;
-     
-     
+      const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone; 
+
       const payload = {
         wkt_polygon: this.polygon_wkt
       }
@@ -1554,6 +1547,8 @@ getDateTimeFormat(dateTime: string) {
         min_off_nadir_angle:this.min_angle,
         vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
         vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
+        user_duration_type:this.formGroup.get('type')?.value?this.formGroup.get('type').value?.join(','):'',
+        user_timezone:timeZone,
         max_gsd:this.max_gsd === 4 ? 1000 : this.max_gsd,
         min_gsd:this.min_gsd,
         focused_records_ids: this.idArray,
@@ -1574,6 +1569,12 @@ getDateTimeFormat(dateTime: string) {
         source:'library',
        
       }
+
+      const calendarPayload ={
+        polygon_wkt: this.polygon_wkt,
+        start_date: this.startDate,
+        end_date: this.endDate
+    }
       this.filterParams = {...this.filterParams, ...params}
 
       console.log('Selected Date and Time:', params);
@@ -1585,6 +1586,7 @@ getDateTimeFormat(dateTime: string) {
       this.getSatelliteCatalog(payload,params)
       this.closeFilterMenu()
      },300)
+     this.getCalendarData(calendarPayload,this.filterParams)
   }
 
   //Get Date Value function
@@ -1723,6 +1725,7 @@ getOverlapData(){
 
     // Count values inside the reactive form
     if(this.formGroup.get('vendor').value !== null) count ++;
+    if(this.formGroup.get('type').value !== null) count ++;
     if(this.formGroup.get('vendorId').value !== null) count ++;
     console.log(count,'aaaaaaaaaaaaaaa',this.formGroup.get('vendor').value);
     

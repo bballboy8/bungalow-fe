@@ -358,6 +358,14 @@
                                     </mat-select>
                                 </mat-form-field>
                                 <mat-form-field appearance="outline" id="filter" >
+                                    <mat-label class="!text-secondaryText">Type</mat-label>
+                                    <mat-select class="!text-secondaryText" multiple formControlName="type" name="type">
+                                    @for (type of typesList; track type) {
+                                        <mat-option [value]="type">{{type}}</mat-option>
+                                    }
+                                    </mat-select>
+                                </mat-form-field>
+                                <mat-form-field appearance="outline" id="filter" >
                                     <mat-label class="!text-secondaryText">Vendor ID</mat-label>
                                     <input class="!text-secondaryText" matInput type="text" formControlName="vendorId">
                                 </mat-form-field>
@@ -598,7 +606,7 @@
                 <ng-container matColumnDef="type">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header class="min-w-[80px] !pl-[10px] text-secondaryText font-semibold">
                         Type</th>
-                    <td mat-cell *matCellDef="let row" class="min-w-[80px] !pl-[10px] text-secondaryText">{{ getTimePeriod(row?.acquisition_datetime,row?.centroid) }}</td>
+                    <td mat-cell *matCellDef="let row" class="min-w-[80px] !pl-[10px] text-secondaryText">{{ row?.type| titlecase }}</td>
                 </ng-container>
 
                 <ng-container matColumnDef="vendor_id">

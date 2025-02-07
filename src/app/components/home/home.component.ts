@@ -173,6 +173,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
     this.data = null;
   }
 
+
   ngOnInit(): void {
     this.setDynamicHeight();
     window.addEventListener('resize', this.setDynamicHeight.bind(this))
@@ -197,9 +198,9 @@ hybridLayer:L.TileLayer = L.tileLayer(
         }
         
         // Start the loader
-       
+       let queryParams = {}
       
-        this.satelliteService.getPolygonCalenderDays(payload).subscribe({
+        this.satelliteService.getPolygonCalenderDays(payload,queryParams).subscribe({
           next: (resp) => {
             this.ngxLoader.stop()
             this.calendarApiData = resp.data;

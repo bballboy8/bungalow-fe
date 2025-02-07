@@ -34,6 +34,7 @@ import dayjs from 'dayjs';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 import * as martinez from 'martinez-polygon-clipping';
 import interact from 'interactjs';
+import { animate, state, style, transition, trigger } from '@angular/animations';
 (window as any).type = undefined;
 
 declare module 'leaflet' {
@@ -55,10 +56,29 @@ declare module 'leaflet' {
     HeaderComponent,
     MatSidenavModule,
     SidebarDrawerComponent,
-    MapCalendarComponent
+    MapCalendarComponent,
+    MapControllersPopupComponent,
   ],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
+  animations: [
+    trigger("slideInOut", [
+      state(
+        "void",
+        style({
+          transform: "translateX(100%)",
+          opacity: 0,
+        })
+      ),
+      transition(":enter", [
+        style({ transform: "translateX(100%)", opacity: 0 }), // Start from right
+        animate("0.6s ease-in-out", style({ transform: "translateX(0)", opacity: 1 })), // Slide to center
+      ]),
+      transition(":leave", [
+        animate("0.6s ease-in-out", style({ transform: "translateX(100%)", opacity: 0 })) // Slide out to left
+      ])
+    ])
+  ]
 })
 export class HomeComponent implements OnInit, AfterViewInit,OnDestroy {
   @ViewChild('mapContainer', { static: true }) mapContainer!: ElementRef;
@@ -143,7 +163,9 @@ hybridLayer:L.TileLayer = L.tileLayer(
   contextMenu:any
   mapDirection = 1;
   mapFormula = 0;
-
+  vendorData:any;
+  pointData:any;
+  loader: boolean = false;
   constructor(@Inject(PLATFORM_ID) private platformId: Object,
    private satelliteService:SatelliteService,private dialog: MatDialog,
    private http: HttpClient,
@@ -1012,9 +1034,9 @@ private fallbackCopyToClipboard(text: string): void {
           } else if (this.type === 'library'){
             console.log('yyyyyyyyyyyyyy');
             
-            this.isDrawerOpen = true
-            this.drawer._animationState = 'open'
-            this.type = 'library'
+          this.isDrawerOpen = true
+          this.drawer._animationState = 'open'
+          this.type = 'library'
            this.toggleDrawer()
            this.cdr.detectChanges();
           }
@@ -1161,8 +1183,9 @@ polygon.on('click', (event: L.LeafletMouseEvent) => {
         next: (resp) => {
             console.log(resp, 'Data received');
             const vendorData = resp.data[0];
+            this.vendorData = resp.data[0];
             this.onPolygonOut(null)
-            this.openDialogAtPosition(polygon, vendorData);
+            // this.openDialogAtPosition(polygon, vendorData);
             this.popUpData = vendorData
 
         },
@@ -2341,6 +2364,10 @@ wktToBounds(wkt: string): L.LatLngBounds {
 
   onPolygonOut(data) {
    this.sharedService.setRowHover(data)
+  }
+
+  closeMarkerPopup(){
+    this.vendorData = null
   }
 
 }

@@ -28,16 +28,18 @@ export const LoadingInterceptor = (
   
   if(!paramString?.includes('library') && !req.url.includes('/get-sites')){
     mainLoader.setValue(true)
-    ngxLoader.start();
+    ngxLoader.startLoader('customLoader');
    
   } else {
-    mainLoader.setValue(false)
+    // mainLoader.setValue(false)
   }
 
   return next(req).pipe(
     finalize(() => {
-      ngxLoader.stop();
+      if(!paramString?.includes('library') && !req.url.includes('/get-sites')){
+      ngxLoader.stopLoader('customLoader');
       mainLoader.setValue(false)
+      }
     })
   );
 };

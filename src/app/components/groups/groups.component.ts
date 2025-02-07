@@ -234,6 +234,15 @@ export class GroupsComponent implements OnInit,AfterViewInit {
             this._snackBar.open('Group updated successfully.', 'Ok', {
               duration: 2000  // Snackbar will disappear after 300 milliseconds
             });
+          } else if(data.type === 'addSubgroup') {
+            const payload = {group_id:data?.group.id}
+            this.satelliteService.getNestedGroup(payload).subscribe({
+              next: (resp) => {
+                console.log(resp,'getNestedGroupgetNestedGroupgetNestedGroupgetNestedGroup');
+        
+                this.nestedGroupsData = resp
+        
+              }})
           } else {
             if (data?.type == 'rename') {
               

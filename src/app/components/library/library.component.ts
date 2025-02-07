@@ -59,6 +59,7 @@ import { MatSliderModule } from "@angular/material/slider";
 import { Options,NgxSliderModule, LabelType } from '@angular-slider/ngx-slider';
 import momentZone from 'moment-timezone';
 import tzLookup from 'tz-lookup';
+
 export class Group {
   name?: string;
   icon?: string; // icon name for Angular Material icons
@@ -400,6 +401,7 @@ set zoomed_wkt(value: string) {
   }
 
   vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra'];
+  typesList:any[]=['morning','midday','evening','overnight'];
   // Default values for manual filters
   defaultMinCloud = -10;
   defaultMaxCloud = 60;
@@ -498,6 +500,7 @@ set zoomed_wkt(value: string) {
         });
         this.formGroup = this.fb.group({
           vendor:[],
+          type: [],
           vendorId:[],
           
         });
@@ -1336,6 +1339,7 @@ private handleWheelEvent = (event: WheelEvent): void => {
         min_off_nadir_angle:this.min_angle,
         vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
         vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
+        type:this.formGroup.get('type')?.value?this.formGroup.get('type').value?.join(','):'',
         max_gsd:this.max_gsd === 4 ? 1000 : this.max_gsd,
         min_gsd:this.min_gsd,
       }
@@ -1500,7 +1504,7 @@ getDateTimeFormat(dateTime: string) {
   onMenuClose(){
     this.sliderShow = false;
   }
-
+  
   //Filter Form submit functionality
   onSubmit() {
     this.updateFilterCount(); 
@@ -1511,8 +1515,8 @@ getDateTimeFormat(dateTime: string) {
       minCloud = this.min_cloud
     } 
       const datetime = this.formGroup.value.end_date;
-     
-     
+      const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone; 
+
       const payload = {
         wkt_polygon: this.polygon_wkt
       }
@@ -1526,6 +1530,8 @@ getDateTimeFormat(dateTime: string) {
         min_off_nadir_angle:this.min_angle,
         vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
         vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
+        user_duration_type:this.formGroup.get('type')?.value?this.formGroup.get('type').value?.join(','):'',
+        user_timezone:timeZone,
         max_gsd:this.max_gsd === 4 ? 1000 : this.max_gsd,
         min_gsd:this.min_gsd,
         focused_records_ids: this.idArray,
@@ -1695,6 +1701,7 @@ getOverlapData(){
 
     // Count values inside the reactive form
     if(this.formGroup.get('vendor').value !== null) count ++;
+    if(this.formGroup.get('type').value !== null) count ++;
     if(this.formGroup.get('vendorId').value !== null) count ++;
     console.log(count,'aaaaaaaaaaaaaaa',this.formGroup.get('vendor').value);
     

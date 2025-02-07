@@ -405,7 +405,7 @@ set zoomed_wkt(value: string) {
   }
 
   vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra'];
-  typesList:any[]=['Overnight','Morning','Midday','Evening'];
+  typesList:any[]=['morning','midday','evening','overnight'];
   // Default values for manual filters
   defaultMinCloud = -10;
   defaultMaxCloud = 60;
@@ -1508,51 +1508,6 @@ getDateTimeFormat(dateTime: string) {
   onMenuClose(){
     this.sliderShow = false;
   }
-
-  // Function to get the converted time range of the selected type
-  getConvertedTimeRange(datetime: string, selectedType: string, centroid?: [number, number]): { start: string, end: string } {
-    let startLocal, endLocal;
-    
-    const [latitude, longitude] = centroid || [0, 0];  // Default to [0, 0] if centroid not provided
-    const timeZone = tzLookup(latitude, longitude);  // Get the time zone from the centroid location
-    
-    // Convert the datetime to local time based on the provided time zone (if any)
-    const localDatetime = dayjs(datetime).tz(timeZone);  
-  
-    switch (selectedType) {
-      case 'Morning':
-        startLocal = localDatetime.startOf('day').add(5, 'hours');  // 5 AM local time
-        endLocal = localDatetime.startOf('day').add(11, 'hours');   // 11 AM local time
-        break;
-      case 'Midday':
-        startLocal = localDatetime.startOf('day').add(11, 'hours'); // 11 AM local time
-        endLocal = localDatetime.startOf('day').add(16, 'hours');   // 4 PM local time
-        break;
-      case 'Evening':
-        startLocal = localDatetime.startOf('day').add(16, 'hours'); // 4 PM local time
-        endLocal = localDatetime.startOf('day').add(21, 'hours');   // 9 PM local time
-        break;
-      case 'Overnight':
-        startLocal = localDatetime.startOf('day').add(21, 'hours'); // 9 PM local time
-        endLocal = localDatetime.add(1, 'day').startOf('day').add(5, 'hours');  // 5 AM next day
-        break;
-      default:
-        throw new Error("Invalid time type");
-    }
-  
-    // Convert local time to UTC if selectedZone is 'local'
-    let startUTC, endUTC;
-  
-    if (this.selectedZone === 'local') {
-      startUTC = startLocal.utc().toISOString();  // Convert local time to UTC
-      endUTC = endLocal.utc().toISOString();  // Convert local time to UTC
-    } else {
-      startUTC = startLocal.toISOString();  // If zone is UTC, no conversion needed
-      endUTC = endLocal.toISOString();  // If zone is UTC, no conversion needed
-    }
-  
-    return { start: startUTC, end: endUTC };
-  }
   
   //Filter Form submit functionality
   onSubmit() {
@@ -1564,20 +1519,8 @@ getDateTimeFormat(dateTime: string) {
       minCloud = this.min_cloud
     } 
       const datetime = this.formGroup.value.end_date;
-      //new added code
-    const selectedType = this.formGroup.get('type')?.value;  // Get selected type (e.g., Morning, Midday)
-    const centroid = this.formGroup.get('centroid')?.value || [0, 0];  // Get centroid (latitude, longitude)
+      const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone; 
 
-    // Get the start and end time in UTC based on the selected type and centroid location
-    let startDateUTC = '';
-    let endDateUTC = '';
-
-    if (selectedType && selectedType.length > 0) {
-      const { start, end } = this.getConvertedTimeRange(datetime, selectedType[0], centroid);
-      startDateUTC = start;
-      endDateUTC = end;
-    }
-     
       const payload = {
         wkt_polygon: this.polygon_wkt
       }
@@ -1591,7 +1534,8 @@ getDateTimeFormat(dateTime: string) {
         min_off_nadir_angle:this.min_angle,
         vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
         vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
-        type:this.formGroup.get('type')?.value?this.formGroup.get('type').value?.join(','):'',
+        user_duration_type:this.formGroup.get('type')?.value?this.formGroup.get('type').value:'',
+        user_timezone:timeZone,
         max_gsd:this.max_gsd === 4 ? 1000 : this.max_gsd,
         min_gsd:this.min_gsd,
         focused_records_ids: this.idArray,

@@ -229,7 +229,7 @@ export class GroupsComponent implements OnInit,AfterViewInit {
       dialogRef.afterClosed().subscribe((result) => {
         console.log('Dialog closed', result);
         if(result){
-          if(data?.group){
+          if(data?.type=='addGroup'){
             this.getGroups();
             this._snackBar.open('Group updated successfully.', 'Ok', {
               duration: 2000  // Snackbar will disappear after 300 milliseconds

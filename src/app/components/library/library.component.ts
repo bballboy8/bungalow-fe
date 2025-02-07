@@ -234,7 +234,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
           // Start the loader
          
         
-          this.satelliteService.getPolygonCalenderDays(payload).subscribe({
+          this.satelliteService.getPolygonCalenderDays(payload,queryParams).subscribe({
             next: (resp) => {
             
               this.calendarApiData = resp.data;
@@ -719,6 +719,12 @@ set zoomed_wkt(value: string) {
     const payload = {
       wkt_polygon: this.polygon_wkt
     }
+
+    const calendarPayload ={
+        polygon_wkt: this.polygon_wkt,
+        start_date: this.startDate,
+        end_date: this.endDate
+    }
     this.filterCount = 0;
     this.defaultMinCloud = -10;
     this.defaultMaxCloud = 60;
@@ -737,6 +743,7 @@ set zoomed_wkt(value: string) {
       this.ngxLoader.start(); // Start the loader
     this.getSatelliteCatalog(payload,{...queryParams, zoomed_wkt: this._zoomed_wkt})
     this.onFilterset.emit({params: {...queryParams, zoomed_wkt: this._zoomed_wkt}, payload});
+    this.getCalendarData(calendarPayload,queryParams)
   }
 
   /** Whether the number of selected elements matches the total number of rows. */
@@ -803,9 +810,10 @@ set zoomed_wkt(value: string) {
           }
           
           // Start the loader
-         
+         console.log(this.filterParams,'filterParamsfilterParamsfilterParamsfilterParams');
+         let queryParams = this.filterParams
         
-          this.satelliteService.getPolygonCalenderDays(payload).subscribe({
+          this.satelliteService.getPolygonCalenderDays(payload,queryParams).subscribe({
             next: (resp) => {
               this.ngxLoader.stop()
               this.calendarApiData = resp.data;
@@ -823,6 +831,23 @@ set zoomed_wkt(value: string) {
       }
     },300)
 
+  }
+
+  getCalendarData(payload:any,queryParams:any){
+    this.satelliteService.getPolygonCalenderDays(payload,queryParams).subscribe({
+      next: (resp) => {
+        this.ngxLoader.stop()
+        this.calendarApiData = resp.data;
+       
+      },
+      error: (err) => {
+        this.ngxLoader.stop()
+        console.error('Error fetching calendar data', err);
+        // Hide loader on error
+       
+      },
+      
+    });
   }
 
   //calculate newest and oldest in days week months or year
@@ -1546,6 +1571,12 @@ getDateTimeFormat(dateTime: string) {
         source:'library',
        
       }
+
+      const calendarPayload ={
+        polygon_wkt: this.polygon_wkt,
+        start_date: this.startDate,
+        end_date: this.endDate
+    }
       this.filterParams = {...this.filterParams, ...params}
 
       console.log('Selected Date and Time:', params);
@@ -1557,6 +1588,7 @@ getDateTimeFormat(dateTime: string) {
       this.getSatelliteCatalog(payload,params)
       this.closeFilterMenu()
      },300)
+     this.getCalendarData(calendarPayload,this.filterParams)
   }
 
   //Get Date Value function

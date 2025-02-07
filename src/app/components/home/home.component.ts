@@ -645,7 +645,7 @@ private fallbackCopyToClipboard(text: string): void {
       this.drawer._animationState = 'open';
         const mapContainer = this.mapContainer.nativeElement;
         // mapContainer.style.marginLeft = this.leftMargin >820 ? '820px': `${this.leftMargin}px`;
-        mapContainer.style.marginLeft = '420px'
+        // mapContainer.style.marginLeft = '420px'
       
     } else {
       this.drawer._animationState = 'void';
@@ -662,7 +662,7 @@ private fallbackCopyToClipboard(text: string): void {
       const mapContainer = this.mapContainer.nativeElement;
       mapContainer.style.marginLeft = `0px`;
       this.sharedService.setIsOpenedEventCalendar(false);
-      this.onResize()
+      // this.onResize()
   }
 
   //map shape drawing function
@@ -749,10 +749,12 @@ private fallbackCopyToClipboard(text: string): void {
               console.log('Polygon Bounds:', bounds);
               const geoJSON = layer.toGeoJSON();
                this.zoomed_wkt_polygon = ''
-               this.closeDrawer()
+              //  this.closeDrawer()
+              this.sharedService.setDrawShape(true);
                this.removeAllImageOverlays()
               this.getPolygonFromCoordinates({ geometry: geoJSON?.geometry }, bounds);
               setTimeout(() => {
+                 this.sharedService.setDrawShape(false)
                 this.map.fitBounds(bounds, {
                     padding: [50, 50], // Adds padding around the bounds
                     maxZoom: 20        // Caps the zoom level
@@ -765,10 +767,16 @@ private fallbackCopyToClipboard(text: string): void {
               console.log('Circle Bounds:', bounds);
               const geoJSON = layer.toGeoJSON();
                this.zoomed_wkt_polygon = ''
-               this.closeDrawer()
+              //  this.closeDrawer()
+              this.sharedService.setDrawShape(true);
+              console.log(this.drawer,'drawerdrawerdrawerdrawerdrawerdrawer');
+              this.drawer.toggle();
+              this.handleDropdownToggle(this.isDrawerOpen)
+              this.drawer._animationState = 'open';
                this.removeAllImageOverlays()
               this.getPolygonFromCoordinates({ geometry: geoJSON?.geometry }, bounds);
               setTimeout(() => {
+                this.sharedService.setDrawShape(false)
                 this.map.fitBounds(bounds, {
                     padding: [50, 50], // Adds padding around the bounds
                     maxZoom: 20       // Caps the zoom level
@@ -780,11 +788,17 @@ private fallbackCopyToClipboard(text: string): void {
               console.log('Rectangle Bounds:', bounds);
               const geoJSON = layer.toGeoJSON();
                this.zoomed_wkt_polygon = ''
-               this.closeDrawer()
+              //  this.closeDrawer()
+              this.sharedService.setDrawShape(true);
+              console.log(this.drawer,'drawerdrawerdrawerdrawerdrawerdrawer');
+              this.drawer.toggle();
+              this.handleDropdownToggle(this.isDrawerOpen)
+              this.drawer._animationState = 'open';
                this.removeAllImageOverlays()
               this.getPolygonFromCoordinates({ geometry: geoJSON?.geometry }, bounds);
              
               setTimeout(() => {
+                this.sharedService.setDrawShape(false)
                 this.map.fitBounds(bounds, {
                     padding: [50, 50], // Adds padding around the bounds
                     maxZoom: 16        // Caps the zoom level
@@ -915,71 +929,46 @@ private fallbackCopyToClipboard(text: string): void {
     return coordinates; // Return the updated payload
   }
   //Polygon data getting by using polygon fucntionality
-  getDataUsingPolygon(payload: any,queryParams: any) {
-    this.satelliteService.getDataFromPolygon(payload,queryParams).subscribe({
+  getDataUsingPolygon(payload: any, queryParams: any) {
+    this.satelliteService.getDataFromPolygon(payload, queryParams).subscribe({
       next: (resp) => {
-        console.log(resp,'satelliteServicesatelliteServicesatelliteServicesatelliteService');
+        console.log(resp, 'satelliteService response');
         
         this.extraShapesLayer?.clearLayers();
         if (Array.isArray(resp?.data)) {
-          resp.data.forEach((item:any) => {
+          resp.data.forEach((item: any) => {
             this.addPolygonWithMetadata(item);
           });
-          if(!this.isDrawerOpen){
-            this.isDrawerOpen = true
-             this.type = 'library'
-            this.toggleDrawer()
-           
-            
-
-  // Find the .leaflet-interactive element
-  
-            // this.type === 'library'? this.parentZoomLevel = 5: this.parentZoomLevel=4;
-            // this.onZoomLevelChange(this.parentZoomLevel)
-          } else if (this.type === 'library'){
-            console.log('yyyyyyyyyyyyyy');
-            
-          this.isDrawerOpen = true
-          this.drawer._animationState = 'open'
-          this.type = 'library'
-           this.toggleDrawer()
-           this.cdr.detectChanges();
-          }
-          setTimeout(() => {
-       
-            if(this.drawer?._animationState === 'open'){
-              const mapContainer = this.mapContainer.nativeElement;
-             console.log("Map viewport width:", this.map.getSize());
-             const containerElement = this.mapContainer.nativeElement;
-             containerElement.style.marginLeft = '820px'
-             const interactiveElement = mapContainer.querySelector('.leaflet-interactive');
-             console.log(interactiveElement,'interactiveElementinteractiveElementinteractiveElementinteractiveElement');
-             const mapViewportWidth = containerElement.offsetWidth;
-             // Get the width if the element exists
-             if (interactiveElement && mapViewportWidth) {
-               const width = interactiveElement.getBoundingClientRect().width; // Or use interactiveElement.offsetWidth
-               console.log('Width of leaflet-interactive:', width);
-             const  marginLeft = mapViewportWidth - width;
-             this.leftMargin = marginLeft <0 ? 0: marginLeft;
-             this.leftMargin = marginLeft >= 403 ? marginLeft : 403;
-             this.leftMargin = marginLeft >820 ? 820: marginLeft;
-             console.log("leftMarginleftMarginleftMargin", this.leftMargin, marginLeft);
-             
-             containerElement.style.marginLeft = `420px`;
-             }
-               // Get element width
-               
-       
-               // Get computed styles
-               console.log('Map viewport width:', mapViewportWidth);
-               
-           }
-           }, 600);
           
+          // Ensure drawer opens
+          if (!this.isDrawerOpen) {
+            this.isDrawerOpen = true;
+            this.type = 'library';
+            this.toggleDrawer();
+          } else if (this.type === 'library') {
+            this.isDrawerOpen = true;
+            this.drawer._animationState = 'open';
+            this.type = 'library';
+            this.toggleDrawer();
+            this.cdr.detectChanges();
+          }
+  
+          // Adjust map zoom to keep all drawn shapes visible
+          setTimeout(() => {
+            if (this.drawer?._animationState === 'open') {
+              const bounds = this.extraShapesLayer.getBounds();
+              if (bounds.isValid()) {
+                this.map.fitBounds(bounds, {
+                  padding: [50, 50], // Adjust padding for better visibility
+                  animate: true,
+                });
+              }
+            }
+          }, 600);
         }
       },
       error: (err) => {
-        console.log("err getPolyGonData: ", err);
+        console.log('Error in getDataUsingPolygon:', err);
       },
     });
   }
@@ -1701,7 +1690,12 @@ onDateRangeChanged(event: { startDate: string, endDate: string }) {
       start_date:this.startDate,
       end_date: this.endDate
     }
-    this.closeDrawer()
+    // this.closeDrawer()
+    console.log(this.drawer,'drawerdrawerdrawerdrawerdrawerdrawer');
+    this.sharedService.setDrawShape(true);
+      this.drawer.toggle();
+      this.handleDropdownToggle(this.isDrawerOpen)
+      this.drawer._animationState = 'open';
   this.getDataUsingPolygon(this.data,queryParams);
   }
   this.cdr.detectChanges();

@@ -92,14 +92,25 @@
         
         <div class="flex p-[15px] flex-col items-start gap-[15px] self-stretch rounded-[10px] border border-solid border-custom-border">
             <div class="flex items-center gap-[5px] self-stretch">
-                <div class="flex h-[60px] min-w-[70.25px] p-[8px] bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
+                <div class="flex h-[60px] min-w-[70.25px] group p-[8px] bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
                     <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px]">Oldest</span>
                     <span class="text-secondary-heiglight text-[10px] font-bold font-Barlow leading-[18px]">{{data?.markerData?.oldest_date | dateFormat}}</span>
+                    <div class="hidden absolute rounded-[10px] z-10 top-[235px] shadow-custom left-[25px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                      <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                          <span>Date time:</span>
+                          <span>{{data?.markerData?.oldest_info?.acquisition_datetime | utcDateTimePipe}} UTC</span>
+                      </div>
+                      <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                          <span>Vendor:</span>
+                          <span>{{data?.markerData?.oldest_info?.vendor_name }}</span>
+                      </div>
+                      
+                  </div>
                 </div>
                 <div class="flex h-[60px] group min-w-[70.25px] p-[8px] bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
                     <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px]">Newest</span>
                     <span class="text-secondary-heiglight text-[10px] font-bold font-Barlow leading-[18px]">{{data?.markerData?.newest_info?.acquisition_datetime | dateFormat}}</span>
-                    <div class="hidden absolute rounded-[10px] z-10 top-[285px] shadow-custom left-[25px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                    <div class="hidden absolute rounded-[10px] z-10 top-[235px] shadow-custom left-[25px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
                       <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
                           <span>Date time:</span>
                           <span>{{data?.markerData?.newest_info?.acquisition_datetime | utcDateTimePipe}} UTC</span>
@@ -111,13 +122,36 @@
                       
                   </div>
                 </div>
-                <div class="flex h-[60px] min-w-[70.25px] p-[8px] bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
+                <div class="flex h-[60px] min-w-[70.25px] group p-[8px] bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
                     <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px]">Total</span>
                     <span class="text-secondary-heiglight text-[10px] font-bold font-Barlow leading-[18px]">{{data?.markerData?.total_count}}</span>
+                    <div class="hidden absolute shadow-custom rounded-[10px] z-10 top-[245px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                      <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                          <span>Old Date:</span>
+                          <span>{{data?.markerData?.oldest_info?.acquisition_datetime | date: 'yyyy-MM-dd'}}</span>
+                      </div>
+                      <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                          <span>Newest Date:</span>
+                          <span>{{data?.markerData?.newest_info?.acquisition_datetime | date: 'yyyy-MM-dd'}}</span>
+                      </div>
+                      
+                  </div>
+                    
                 </div>
-                <div class="flex h-[60px] min-w-[70.25px] p-[8px] bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
+                <div class="flex h-[60px] min-w-[70.25px] p-[8px] group bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
                     <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px]">Avg</span>
                     <span class="text-secondary-heiglight text-[10px] font-bold font-Barlow leading-[18px]">{{data?.markerData?.average_per_day?.toFixed(3)}}</span>
+                    <div class="hidden absolute shadow-custom rounded-[10px] z-10 top-[245px] left-[156px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                      <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                          <span>Old Date:</span>
+                          <span>{{data?.markerData?.oldest_info?.acquisition_datetime | date: 'yyyy-MM-dd'}}</span>
+                      </div>
+                      <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                          <span>Newest Date:</span>
+                          <span>{{data?.markerData?.newest_info?.acquisition_datetime | date: 'yyyy-MM-dd'}}</span>
+                      </div>
+                      
+                  </div>
                 </div>
             </div>
             <div class="p-[3px] flex justify-between items-center self-stretch rounded-[50px] bg-secondaryBg">

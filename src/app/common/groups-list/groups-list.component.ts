@@ -81,13 +81,15 @@ export class GroupsListComponent {
   }
 
   setClass() {
+    const classesToRemove = ['site-menu', 'filter-overlay-container','library-overlay-container','custom-menu-container','imagery-filter-container'];
     const containerElement = this.overlayContainer.getContainerElement();
+    containerElement.classList.remove(...classesToRemove);
     containerElement.classList.add('group-overlay-container');
 
   }
 
   setMainClass(){
-    const classesToRemove = ['group-overlay-container'];
+    const classesToRemove = ['group-overlay-container', 'filter-overlay-container','library-overlay-container','custom-menu-container','imagery-filter-container'];
     const containerElement = this.overlayContainer.getContainerElement();
     containerElement.classList.remove(...classesToRemove);
     containerElement.classList.add('site-menu');

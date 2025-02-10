@@ -33,6 +33,7 @@ import { HttpClient } from '@angular/common/http';
 import dayjs from 'dayjs';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 import * as martinez from 'martinez-polygon-clipping';
+import interact from 'interactjs';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 (window as any).type = undefined;
 
@@ -82,6 +83,9 @@ declare module 'leaflet' {
 export class HomeComponent implements OnInit, AfterViewInit,OnDestroy {
   @ViewChild('mapContainer', { static: true }) mapContainer!: ElementRef;
   @ViewChild('drawer') drawer?: MatDrawer;
+  @ViewChild('draggableContainer') draggableContainer!: ElementRef;
+  sidebarWidth: number = 0;
+  marginleft:number = 0;
   map!: L.Map;
   zoomLevel: number = 4;
   longitude: number = -90;
@@ -147,7 +151,8 @@ hybridLayer:L.TileLayer = L.tileLayer(
   imageOverlay: L.ImageOverlay | undefined;
   imageOverlays: Map<string, L.ImageOverlay> = new Map();
   polygon:any;
-  leftMargin:any
+  leftMargin:any;
+  leftMargin2:any;
   private highlightedPolygon: L.Polygon | null = null;
   calendarApiData:any;
   zoomed_wkt_polygon:any = '';
@@ -182,8 +187,8 @@ hybridLayer:L.TileLayer = L.tileLayer(
   ngAfterViewInit(): void {
     if (isPlatformBrowser(this.platformId)) {
       console.log('Platform');
-      
-      this.initMap();
+        this.initMap();
+        
     }
     
     
@@ -210,7 +215,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
             this.ngxLoader.stop()
             console.error('Error fetching calendar data', err);
             // Hide loader on error
-           
+             
           },
           
         });
@@ -231,6 +236,44 @@ hybridLayer:L.TileLayer = L.tileLayer(
      });
     this.setDynamicHeight();
     window.addEventListener('resize', this.setDynamicHeight.bind(this))
+    this.updateSidebarWidth();
+    let sidebar = document.getElementById('draggableContainer');
+    // this.leftMargin2
+    // setTimeout(() => {
+    //   this.marginleft=413
+    // }, 3200);
+    const sidebarElement = this.draggableContainer.nativeElement;
+     console.log(sidebarElement,'sidebarElement');
+     interact(sidebarElement)
+     .resizable({
+      edges: { left: true, right: true, bottom: true, top: false },
+      listeners: {
+        move:(event)=> {
+          // const target = event.target as HTMLElement;
+          // target.style.width = `${event.rect.width}px`;
+          const target = event.target as HTMLElement;
+        
+          // Store updated width in the global variable
+          if(event.rect.width > 454 && event.rect.width < 1086){
+            this.sidebarWidth = event.rect.width;
+            target.style.width = `${this.sidebarWidth}px`;
+            console.log(this.sidebarWidth,'this.sidebarWidth');
+            
+            // this.leftMargin2
+            // console.log( `${event.rect.width}px`,' `${event.rect.width}px`');
+            
+            // console.log(this.leftMargin2,'this.leftMargin2');
+            // this.updateMapMargin();
+            // target.style.height = `${event.rect.height}px`;
+            target.style.height = `682.575px`;
+          }
+          // this.applyMargin()
+        },
+      },
+    });
+   this.sidebarWidth = sidebarElement.offsetWidth;
+console.log('Initial sidebar width:', this.sidebarWidth);
+
     this.sharedService.rightMenuHide$.subscribe((event) =>{
       if(event === false){
           
@@ -240,6 +283,60 @@ hybridLayer:L.TileLayer = L.tileLayer(
        
     }
     })
+  }
+
+  applyMargin() {
+    const contentElement = document.getElementById('mapContainer');
+    if (contentElement) {
+      contentElement.style.marginLeft = `${this.sidebarWidth}px`;
+      console.log('Margin applied:', this.sidebarWidth);
+    }
+  }
+
+  updateSidebarWidth(): void {
+    console.log('hiiiiiii');
+    console.log(this.sidebarWidth,'this.sidebarWidth');
+    
+    // this.sidebarWidth=820;
+    // this.applyMargin()
+    
+    const container = this.draggableContainer?.nativeElement as HTMLElement;
+    const sidebar = document.getElementById('draggableContainer');
+    const dragBtn = document.getElementById('dragBtn');
+
+    console.log(container,'container');
+    console.log(sidebar,'sidebar');
+    console.log(this.isDrawerOpen,'this.isDrawerOpen========');
+    
+    if (this.isDrawerOpen) {
+      if(sidebar.style.width!='0px'){
+        console.log(sidebar.style.width,'sidebar.style.width========================');
+        this.sidebarWidth=this.sidebarWidth+1
+        console.log(this.sidebarWidth,'this.sidebarWidth');
+        setTimeout(() => {
+          this.sidebarWidth=this.sidebarWidth
+          
+        }, 1000);
+      }else{
+        setTimeout(() => {
+          this.sidebarWidth=820
+          this.marginleft=413
+
+        console.log(this.sidebarWidth,'this.sidebarWidth settimeout');
+
+        }, 1000);
+      dragBtn.style.display='block'
+        sidebar.style.width = '820px'; // Default sidebar width
+        sidebar.style.height = '682.575px';
+        console.log(this.sidebarWidth,'this.sidebarWidth');
+        
+        // this.applyMargin()
+        // Default sidebar width
+      }
+    } else {
+      sidebar.style.width = '0px'; // Hide the sidebar
+      dragBtn.style.display='none'
+    }
   }
 
   //openstreetmap search and location markers function
@@ -662,7 +759,8 @@ private fallbackCopyToClipboard(text: string): void {
       const mapContainer = this.mapContainer.nativeElement;
       mapContainer.style.marginLeft = `0px`;
       this.sharedService.setIsOpenedEventCalendar(false);
-      // this.onResize()
+      this.onResize()
+      this.closeSideBar()
   }
 
   //map shape drawing function
@@ -939,18 +1037,27 @@ private fallbackCopyToClipboard(text: string): void {
           resp.data.forEach((item: any) => {
             this.addPolygonWithMetadata(item);
           });
-          
-          // Ensure drawer opens
-          if (!this.isDrawerOpen) {
-            this.isDrawerOpen = true;
-            this.type = 'library';
-            this.toggleDrawer();
-          } else if (this.type === 'library') {
-            this.isDrawerOpen = true;
-            this.drawer._animationState = 'open';
-            this.type = 'library';
-            this.toggleDrawer();
-            this.cdr.detectChanges();
+          if(!this.isDrawerOpen){
+            this.isDrawerOpen = true
+            this.updateSidebarWidth();
+
+             this.type = 'library'
+            this.toggleDrawer()
+           
+            
+
+  // Find the .leaflet-interactive element
+  
+            // this.type === 'library'? this.parentZoomLevel = 5: this.parentZoomLevel=4;
+            // this.onZoomLevelChange(this.parentZoomLevel)
+          } else if (this.type === 'library'){
+            console.log('yyyyyyyyyyyyyy');
+            
+          this.isDrawerOpen = true
+          this.drawer._animationState = 'open'
+          this.type = 'library'
+           this.toggleDrawer()
+           this.cdr.detectChanges();
           }
   
           // Adjust map zoom to keep all drawn shapes visible
@@ -1064,7 +1171,9 @@ polygon.on('click', (event: L.LeafletMouseEvent) => {
         page_size: '50',
         start_date: '',
         end_date: '',
-        vendor_id: data.vendor_id
+        vendor_id: data.vendor_id,
+        source:  'library',
+        enableLoader: 'enableLoader'
     };
     this.satelliteService.getDataFromPolygon('', queryParams).subscribe({
         next: (resp) => {
@@ -1180,9 +1289,10 @@ onFilterset(data) {
     });
   }
 
-  //handle toggle events
-  handleToggleEvent(data: string): void {
+   //handle toggle events
+   handleToggleEvent(data: string): void {
     console.log('Received data from child:', data);
+    console.log('Received data from child:', typeof(data));
   
     // if (this.type === data && this.isDrawerOpen) {
     //   // If the clicked type is the same as the current one and the drawer is already open, do nothing
@@ -1190,21 +1300,40 @@ onFilterset(data) {
     // }
     // Update the type to switch the drawer's content
     console.log(this.type,'switch');
+    if(data!=''){
+      if(this.type !== data){
+        this.type = data;
+        console.log(this.type,'typetypetypetypetype');
+        
+        this.isDrawerOpen = true;
+        
+          this.toggleDrawer()
+          this.updateSidebarWidth();
     
-  if(this.type !== data){
-    this.type = data;
-    console.log(this.type,'typetypetypetypetype');
-    
-    this.isDrawerOpen = true;
-    
-      this.toggleDrawer()
-
-  }else{
+      }else{
+        this.type = data;
+        console.log(this.type,'typetypetypetypetype22222');
+        
+        this.isDrawerOpen = true;
+        
+          this.toggleDrawer()
+          this.updateSidebarWidth();
+      }
+    }else{
     this.type = ''
     this.toggleDrawer();
     this.isDrawerOpen = false;
+    this.updateSidebarWidth();
+
   }
     // Ensure the drawer stays open
+  }
+
+  closeSideBar(){
+    this.type = ''
+    this.toggleDrawer();
+    this.isDrawerOpen = false;
+    this.updateSidebarWidth();
   }
 
    //Handles various button actions.

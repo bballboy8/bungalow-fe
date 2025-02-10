@@ -209,7 +209,7 @@ export class GroupsComponent implements OnInit,AfterViewInit {
    this.openDialog(data)
   }
 
-  renameGroup(type:any,group:any,value){
+  renameGroup(type:any,group:any,value:any){
     const data = {type:type, group:group,value:value}
     this.openDialog(data)
   }

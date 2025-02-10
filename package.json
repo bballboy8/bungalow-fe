@@ -26,6 +26,7 @@
     "apexcharts": "^4.3.0",
     "dayjs": "^1.11.13",
     "dayjs-plugin-utc": "^0.1.2",
+    "interactjs": "^1.10.27",
     "leaflet": "^1.9.4",
     "leaflet-draw": "^1.0.4",
     "martinez-polygon-clipping": "^0.7.4",

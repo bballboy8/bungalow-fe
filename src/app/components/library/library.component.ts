@@ -634,7 +634,17 @@ set zoomed_wkt(value: string) {
       
       
     })
+   this.sharedService.drawShape$.subscribe((shape) => {
+    const payload = {
+      wkt_polygon: this.polygon_wkt
+    }
+   setTimeout(() => {
+    this.loader = true
+    this.ngxLoader.start(); // Start the loader
+    this.getSatelliteCatalog(payload,this.filterParams);
    
+   },300)
+   })
     
     // Add mouse events
   }
@@ -744,7 +754,10 @@ set zoomed_wkt(value: string) {
       this.ngxLoader.start(); // Start the loader
     this.getSatelliteCatalog(payload,{...queryParams, zoomed_wkt: this._zoomed_wkt})
     this.onFilterset.emit({params: {...queryParams, zoomed_wkt: this._zoomed_wkt}, payload});
-    this.getCalendarData(calendarPayload,queryParams)
+    if(this.isEventsOpened){
+      this.getCalendarData(calendarPayload,queryParams)
+    }
+   
   }
 
   /** Whether the number of selected elements matches the total number of rows. */
@@ -1586,7 +1599,9 @@ getDateTimeFormat(dateTime: string) {
       this.getSatelliteCatalog(payload,params)
       this.closeFilterMenu()
      },300)
+     if(this.isEventsOpened){
      this.getCalendarData(calendarPayload,this.filterParams)
+     }
   }
 
   //Get Date Value function

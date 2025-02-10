@@ -1,0 +1,53 @@
+::ng-deep .imagery-filter-container{
+    .mat-mdc-menu-panel {
+      background-color: #20272d !important;
+      width: 410px !important;
+      max-width: 470px !important;
+      box-shadow: 5px 5px 5px 0px #0000001a !important;
+    }
+    .cdk-overlay-connected-position-bounding-box {
+      top: 120px !important;
+    //   left: 155px !important;
+      width: 480px !important;
+      height: 600px !important;
+    }
+    .cdk-overlay-pane {
+      width: 100%;
+    //   left: 0px !important;
+      top: 120px !important;
+      display: flex;
+      justify-content: center;
+    }
+    .mat-mdc-menu-content{
+      display: flex !important;
+      justify-content: center !important;
+    }
+    
+  }
+
+  #filter-imagery::ng-deep {
+    .mdc-text-field--outlined:not(.mdc-text-field--disabled)
+      .mdc-notched-outline
+      .mdc-notched-outline__notch {
+      border-color: #4a5863 !important;
+      border-right: none !important;
+      border-left: none !important;
+    }
+    .mdc-text-field--outlined .mdc-notched-outline .mdc-notched-outline__leading {
+      border-color: #4a5863 !important;
+    }
+    .mdc-text-field--outlined:not(.mdc-text-field--disabled)
+      .mdc-notched-outline__trailing {
+      border-color: #4a5863 !important;
+    }
+    .mdc-floating-label {
+      color: #4a5863 !important;
+      font-weight: 700 !important;
+      font-size: 12px !important;
+    }
+    .mat-mdc-select-arrow svg{
+      fill: #ABB7C0 !important;
+    }
+  
+    
+  }

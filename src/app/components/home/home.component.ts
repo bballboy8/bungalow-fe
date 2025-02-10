@@ -166,6 +166,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
   vendorData:any;
   pointData:any;
   loader: boolean = false;
+  filterParams:any;
   constructor(@Inject(PLATFORM_ID) private platformId: Object,
    private satelliteService:SatelliteService,private dialog: MatDialog,
    private http: HttpClient,
@@ -768,7 +769,7 @@ private fallbackCopyToClipboard(text: string): void {
     console.log("Selected Draw Type:", type);
     this.currentAction = null;
    this.shapeType = type
-
+   this.sharedService.setOverlayShapeData(null)
     // Remove existing shapes and event listeners
     if (this.polygon) {
         this.map.off('layeradd');
@@ -864,7 +865,7 @@ private fallbackCopyToClipboard(text: string): void {
               const bounds = (layer as L.Circle).getBounds();
               console.log('Circle Bounds:', bounds);
               const geoJSON = layer.toGeoJSON();
-               this.zoomed_wkt_polygon = ''
+               
               //  this.closeDrawer()
               this.sharedService.setDrawShape(true);
               console.log(this.drawer,'drawerdrawerdrawerdrawerdrawerdrawer');
@@ -885,7 +886,7 @@ private fallbackCopyToClipboard(text: string): void {
               const bounds = (layer as L.Rectangle).getBounds();
               console.log('Rectangle Bounds:', bounds);
               const geoJSON = layer.toGeoJSON();
-               this.zoomed_wkt_polygon = ''
+              
               //  this.closeDrawer()
               this.sharedService.setDrawShape(true);
               console.log(this.drawer,'drawerdrawerdrawerdrawerdrawerdrawer');
@@ -912,7 +913,7 @@ private fallbackCopyToClipboard(text: string): void {
 
             console.log("Drawing disabled after shape creation.");
         });
-         this.zoomed_wkt_polygon = ''
+        
          this.map.on('zoomend', () => {
           console.log('Zoom changed:', this.map.getZoom());
           this.zoomLevel = this.map.getZoom();
@@ -971,10 +972,11 @@ private fallbackCopyToClipboard(text: string): void {
             console.log(this.endDate, 'Previous day end date and time');
           }
           let queryParams ={
+            ...this.filterParams,
             page_number: '1',
-      page_size: '50',
-      start_date:this.startDate,
-      end_date: this.endDate
+            page_size: '50',
+            start_date:this.startDate,
+            end_date: this.endDate
           }
           this.data = resp?.data;
           this.getDataUsingPolygon(resp?.data,queryParams)};
@@ -1052,7 +1054,7 @@ private fallbackCopyToClipboard(text: string): void {
             // this.onZoomLevelChange(this.parentZoomLevel)
           } else if (this.type === 'library'){
             console.log('yyyyyyyyyyyyyy');
-            
+            this.zoomed_wkt_polygon = ''
           this.isDrawerOpen = true
           this.drawer._animationState = 'open'
           this.type = 'library'
@@ -1171,7 +1173,6 @@ polygon.on('click', (event: L.LeafletMouseEvent) => {
       });
   
       console.log('Intersecting Polygons Data:', intersectingPolygons);
-  
       // Fetch data for all intersecting polygons
       let queryParams = {
         page_number: '1',
@@ -1187,6 +1188,7 @@ polygon.on('click', (event: L.LeafletMouseEvent) => {
             console.log(resp, 'Data received');
             const vendorData = resp.data[0];
             this.vendorData = resp.data[0];
+            this.sharedService.setVendorData(this.vendorData)
             this.onPolygonOut(null)
             // this.openDialogAtPosition(polygon, vendorData);
             this.popUpData = vendorData
@@ -1278,6 +1280,7 @@ private getBoundingBox(latlngs: L.LatLng[]): { minLat: number; maxLat: number; m
 }
 
 onFilterset(data) {
+  this.filterParams = data.params;
   data.params = {...data.params, source: 'home',  page_number: '1', page_size: '50'}
   this.getDataUsingPolygon(data.payload,  data.params);
   this.cdr.detectChanges();
@@ -1814,6 +1817,7 @@ onDateRangeChanged(event: { startDate: string, endDate: string }) {
 
   if (this.data) {
     let queryParams ={
+      ...this.filterParams,
       page_number: '1',
       page_size: '50',
       start_date:this.startDate,
@@ -2215,7 +2219,7 @@ layercalculateVisibleWKT(): void {
       } else {
         console.log('Decoded WKT:qqqqqqqqqqqq');
         
-        this.zoomed_wkt_polygon = this.polygon_wkt;
+        this.zoomed_wkt_polygon = '';
       }
     } else {
       console.log('No intersection detected.');

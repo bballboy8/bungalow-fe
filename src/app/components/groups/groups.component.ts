@@ -183,12 +183,14 @@ export class GroupsComponent implements OnInit,AfterViewInit {
   }
 
   setClass(){
+    const classesToRemove = ['site-menu', 'filter-overlay-container','library-overlay-container','imagery-filter-container'];
     const containerElement = this.overlayContainer.getContainerElement();
+    containerElement.classList.remove(...classesToRemove);
     containerElement.classList.add('custom-menu-container');  
   }
 
   setMainClass(){
-    const classesToRemove = ['custom-menu-container'];
+    const classesToRemove = ['custom-menu-container','filter-overlay-container','library-overlay-container','imagery-filter-container'];
     const containerElement = this.overlayContainer.getContainerElement();
     containerElement.classList.remove(...classesToRemove);
     containerElement.classList.add('site-menu');

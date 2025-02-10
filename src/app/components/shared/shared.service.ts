@@ -21,6 +21,8 @@ export class SharedService {
   overlayShapeData$ = this.overlayShapeData.asObservable()
   private drawShape = new BehaviorSubject<any>(null);
   drawShape$ = this.drawShape.asObservable()
+  private vendorData = new BehaviorSubject<any>(null);
+  vendorData$ = this.vendorData.asObservable()
   constructor() {}
 
   setIsOpenedEventCalendar(isOpened: boolean): void {
@@ -49,5 +51,9 @@ setOverlayShapeData(data: any): void{
 
 setDrawShape(data: any): void{
   this.drawShape.next(data);
+}
+
+setVendorData(data: any): void {
+  this.vendorData.next(data);
 }
 }

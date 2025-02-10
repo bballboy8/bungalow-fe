@@ -333,7 +333,6 @@ set zoomed_wkt(value: string) {
         start_date: this.startDate,
         end_date: this.endDate,
         source: 'library',
-       
         focused_records_ids: this.idArray
       };
       const payload = {
@@ -548,11 +547,6 @@ set zoomed_wkt(value: string) {
       const payload = {
         wkt_polygon: this.polygon_wkt
       }
-     setTimeout(() => {
-      this.loader = true
-      this.ngxLoader.start(); // Start the loader
-      this.getSatelliteCatalog(payload,this.filterParams)
-     },300)
       
     }
     
@@ -632,20 +626,27 @@ set zoomed_wkt(value: string) {
    this.lastMatchId 
     ? overlayShapeData.find(item => item.id === this.lastMatchId)
     : null;
+      } else {
+        this.idArray = []
       }
+      
       
       
     })
    this.sharedService.drawShape$.subscribe((shape) => {
-    const payload = {
-      wkt_polygon: this.polygon_wkt
+    console.log(shape,'shapeshapeshapeshapeshapeshapeshapeshape');
+    if(shape){
+      const payload = {
+        wkt_polygon: this.polygon_wkt
+      }
+     setTimeout(() => {
+      this.loader = true
+      this.ngxLoader.start(); // Start the loader
+      this.getSatelliteCatalog(payload,this.filterParams);
+     
+     },300)
     }
-   setTimeout(() => {
-    this.loader = true
-    this.ngxLoader.start(); // Start the loader
-    this.getSatelliteCatalog(payload,this.filterParams);
-   
-   },300)
+    
    })
     
     // Add mouse events
@@ -1477,7 +1478,7 @@ getDateTimeFormat(dateTime: string) {
   sliderShow:boolean = false;
   //Overlay container customization class add functionality
   setClass(){
-    const classesToRemove = ['column-menu', 'filter-overlay-container'];
+    const classesToRemove = ['column-menu', 'filter-overlay-container','site-menu','custom-menu-container','group-overlay-container','imagery-filter-container'];
     const containerElement = this.overlayContainer.getContainerElement();
     containerElement.classList.remove(...classesToRemove);
     containerElement.classList.add('library-overlay-container');
@@ -1486,7 +1487,7 @@ getDateTimeFormat(dateTime: string) {
   setFilterClass(){
     const containerElement = this.overlayContainer.getContainerElement();
     // Remove existing class before adding a new one
-    const classesToRemove = ['column-menu', 'library-overlay-container'];
+    const classesToRemove = ['column-menu', 'library-overlay-container','site-menu','custom-menu-container','group-overlay-container','imagery-filter-container'];
     containerElement.classList.remove(...classesToRemove);
     containerElement.classList.add('filter-overlay-container');
     containerElement.addEventListener('click', (event:  Event)=> {

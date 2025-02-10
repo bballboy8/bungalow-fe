@@ -1514,6 +1514,7 @@ getDateTimeFormat(dateTime: string) {
       page_size: '100',
       start_date:'',
       end_date: '',
+      source: 'library',
       vendor_id: vendorId
     }
     this.satelliteService.getDataFromPolygon('', queryParams).subscribe({

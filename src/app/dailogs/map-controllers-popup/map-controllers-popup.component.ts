@@ -103,6 +103,7 @@ export class MapControllersPopupComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes?.['previousValue']?.['vendorData'] != changes?.['currentValue']?.['vendorData']) {
         this.vendorData = changes?.['currentValue']?.['vendorData'];
+        this.data = {type:this.type, vendorData:this.vendorData}
     }
   }
 

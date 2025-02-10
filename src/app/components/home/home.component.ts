@@ -1054,7 +1054,7 @@ private fallbackCopyToClipboard(text: string): void {
             // this.onZoomLevelChange(this.parentZoomLevel)
           } else if (this.type === 'library'){
             console.log('yyyyyyyyyyyyyy');
-            this.zoomed_wkt_polygon = ''
+            // this.zoomed_wkt_polygon = ''
           this.isDrawerOpen = true
           this.drawer._animationState = 'open'
           this.type = 'library'
@@ -2219,7 +2219,7 @@ layercalculateVisibleWKT(): void {
       } else {
         console.log('Decoded WKT:qqqqqqqqqqqq');
         
-        this.zoomed_wkt_polygon = '';
+        this.zoomed_wkt_polygon = this.polygon_wkt;
       }
     } else {
       console.log('No intersection detected.');

@@ -167,6 +167,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
   pointData:any;
   loader: boolean = false;
   filterParams:any;
+  isProgrammaticMove = false;
   constructor(@Inject(PLATFORM_ID) private platformId: Object,
    private satelliteService:SatelliteService,private dialog: MatDialog,
    private http: HttpClient,
@@ -833,6 +834,7 @@ private fallbackCopyToClipboard(text: string): void {
 
     if (drawHandler) {
         // Start the drawing process immediately
+        this.isProgrammaticMove = true;  // Set the flag before programmatic move
         drawHandler.enable();
         this.drawHandler = drawHandler; // Store the handler for later use
 
@@ -852,13 +854,17 @@ private fallbackCopyToClipboard(text: string): void {
               this.sharedService.setDrawShape(true);
                this.removeAllImageOverlays()
               this.getPolygonFromCoordinates({ geometry: geoJSON?.geometry }, bounds);
+             
               setTimeout(() => {
                  this.sharedService.setDrawShape(false)
                 this.map.fitBounds(bounds, {
                     padding: [50, 50], // Adds padding around the bounds
                     maxZoom: 20        // Caps the zoom level
                 });
-            }, 500);            
+            }, 500);
+            setTimeout(() => {
+              this.isProgrammaticMove = false;
+            }, 600); // Adjust the delay as needed            
              
              
           } else if (event.layerType === 'circle' && type === 'Circle') {
@@ -877,7 +883,7 @@ private fallbackCopyToClipboard(text: string): void {
               setTimeout(() => {
                 this.sharedService.setDrawShape(false)
                 this.map.fitBounds(bounds, {
-                    padding: [50, 50], // Adds padding around the bounds
+                    padding: [10, 10], // Adds padding around the bounds
                     maxZoom: 20       // Caps the zoom level
                 });
             }, 500);            
@@ -902,7 +908,10 @@ private fallbackCopyToClipboard(text: string): void {
                     padding: [50, 50], // Adds padding around the bounds
                     maxZoom: 16        // Caps the zoom level
                 });
-            }, 500);            
+            }, 500);
+            setTimeout(() => {
+              this.isProgrammaticMove = false;
+            }, 600);             
               
           }
 
@@ -930,7 +939,10 @@ private fallbackCopyToClipboard(text: string): void {
     
         this.map.on('dragend', () => {
           console.log('Drag changed:', this.map.getZoom());
-              this.layercalculateVisibleWKT();
+          if (!this.isProgrammaticMove) {
+            // Only call API if the movement is user-triggered
+            this.layercalculateVisibleWKT();
+          }
             
         
         });

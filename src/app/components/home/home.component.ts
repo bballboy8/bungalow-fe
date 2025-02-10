@@ -321,7 +321,7 @@ console.log('Initial sidebar width:', this.sidebarWidth);
       }else{
         setTimeout(() => {
           this.sidebarWidth=820
-          this.marginleft=413
+          // this.marginleft=413
 
         console.log(this.sidebarWidth,'this.sidebarWidth settimeout');
 

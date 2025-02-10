@@ -505,13 +505,13 @@ setClass(){
 }
 
 imagePreview(data:any,type:any) {
-    const dialogRef = this.dialog.open(ImagePreviewComponent, {
-      width: "880px",
-      maxHeight:'700px',
-      data:  {images:data, type:type} ,
-      panelClass: "custom-preview",
-    });
-
+  const dialogRef = this.dialog.open(ImagePreviewComponent, {
+    width: "1680px",
+    maxHeight:'1200px',
+    data:  {images:data, type:type} ,
+    panelClass: "custom-preview",
+  });
+ 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         console.log("Selected date range:", result);

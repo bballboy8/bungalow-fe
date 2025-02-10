@@ -587,7 +587,7 @@ set zoomed_wkt(value: string) {
       this.tableRowHovered = rowHover
     })
     this.sharedService.overlayShapeData$.subscribe((overlayShapeData) => {
-      if(overlayShapeData.length>1){
+      if(overlayShapeData?.length>1){
         console.log(overlayShapeData,'overlayShapeDataoverlayShapeDataoverlayShapeDataoverlayShapeData');
        this.idArray = overlayShapeData.map((record) => record.id)?.join(',');
 

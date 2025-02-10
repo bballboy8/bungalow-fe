@@ -30,15 +30,25 @@ export const LoadingInterceptor = (
     mainLoader.setValue(true)
     ngxLoader.startLoader('customLoader');
    
+  } else if (paramString?.includes('enableLoader')) {
+    mainLoader.setValue(true)
+    console.log("enableLoaderenableLoaderenableLoader");
+    
+
   } else {
     // mainLoader.setValue(false)
   }
 
   return next(req).pipe(
     finalize(() => {
-      if(!paramString?.includes('library') && !req.url.includes('/get-sites')){
+      if(!paramString?.includes('library') && paramString?.includes('enableLoader') && !req.url.includes('/get-sites')){
       ngxLoader.stopLoader('customLoader');
       mainLoader.setValue(false)
+      } else  if (paramString?.includes('enableLoader')) {
+        console.log("enableLoaderenableLoaderenableLoader");
+
+        mainLoader.setValue(false)
+    
       }
     })
   );

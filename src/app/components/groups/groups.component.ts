@@ -209,13 +209,13 @@ export class GroupsComponent implements OnInit,AfterViewInit {
    this.openDialog(data)
   }
 
-  renameGroup(type:any,group:any){
-    const data = {type:type, group:group}
+  renameGroup(type:any,group:any,value:any){
+    const data = {type:type, group:group,value:value}
     this.openDialog(data)
   }
 
-  deleteGroup(type:any,group:any){
-    const data = {type:type, group:group}
+  deleteGroup(type:any,group:any,value){
+    const data = {type:type, group:group,value:value}
     this.openDialog(data)
   }
 
@@ -229,11 +229,23 @@ export class GroupsComponent implements OnInit,AfterViewInit {
       dialogRef.afterClosed().subscribe((result) => {
         console.log('Dialog closed', result);
         if(result){
-          if(data?.group){
+          if(data?.type=='addGroup'){
             this.getGroups();
             this._snackBar.open('Group updated successfully.', 'Ok', {
               duration: 2000  // Snackbar will disappear after 300 milliseconds
             });
+          } else if(data.type === 'addSubgroup') {
+            const payload = {group_id:data?.group.id}
+            this.satelliteService.getNestedGroup(payload).subscribe({
+              next: (resp) => {
+                console.log(resp,'getNestedGroupgetNestedGroupgetNestedGroupgetNestedGroup');
+        
+                this.nestedGroupsData = resp
+        
+              }})
+          } else if(data.value ==='renameGroup' || data.value ==='deleteGroup') {
+            this.getGroups()
+            
           } else {
             if (data?.type == 'rename') {
               

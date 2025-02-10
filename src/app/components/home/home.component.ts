@@ -178,6 +178,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
     this.data = null;
   }
 
+
   ngOnInit(): void {
     this.setDynamicHeight();
     window.addEventListener('resize', this.setDynamicHeight.bind(this))
@@ -202,9 +203,9 @@ hybridLayer:L.TileLayer = L.tileLayer(
         }
         
         // Start the loader
-       
+       let queryParams = {}
       
-        this.satelliteService.getPolygonCalenderDays(payload).subscribe({
+        this.satelliteService.getPolygonCalenderDays(payload,queryParams).subscribe({
           next: (resp) => {
             this.ngxLoader.stop()
             this.calendarApiData = resp.data;
@@ -238,9 +239,9 @@ hybridLayer:L.TileLayer = L.tileLayer(
     this.updateSidebarWidth();
     let sidebar = document.getElementById('draggableContainer');
     // this.leftMargin2
-    setTimeout(() => {
-      this.marginleft=413
-    }, 3200);
+    // setTimeout(() => {
+    //   this.marginleft=413
+    // }, 3200);
     const sidebarElement = this.draggableContainer.nativeElement;
      console.log(sidebarElement,'sidebarElement');
      interact(sidebarElement)
@@ -319,6 +320,10 @@ console.log('Initial sidebar width:', this.sidebarWidth);
       }else{
         setTimeout(() => {
           this.sidebarWidth=820
+          this.marginleft=413
+
+        console.log(this.sidebarWidth,'this.sidebarWidth settimeout');
+
         }, 1000);
       dragBtn.style.display='block'
         sidebar.style.width = '820px'; // Default sidebar width
@@ -737,7 +742,7 @@ private fallbackCopyToClipboard(text: string): void {
       this.drawer._animationState = 'open';
         const mapContainer = this.mapContainer.nativeElement;
         // mapContainer.style.marginLeft = this.leftMargin >820 ? '820px': `${this.leftMargin}px`;
-        mapContainer.style.marginLeft = '0px'
+        // mapContainer.style.marginLeft = '420px'
       
     } else {
       this.drawer._animationState = 'void';
@@ -842,10 +847,12 @@ private fallbackCopyToClipboard(text: string): void {
               console.log('Polygon Bounds:', bounds);
               const geoJSON = layer.toGeoJSON();
                this.zoomed_wkt_polygon = ''
-               this.closeDrawer()
+              //  this.closeDrawer()
+              this.sharedService.setDrawShape(true);
                this.removeAllImageOverlays()
               this.getPolygonFromCoordinates({ geometry: geoJSON?.geometry }, bounds);
               setTimeout(() => {
+                 this.sharedService.setDrawShape(false)
                 this.map.fitBounds(bounds, {
                     padding: [50, 50], // Adds padding around the bounds
                     maxZoom: 20        // Caps the zoom level
@@ -858,10 +865,16 @@ private fallbackCopyToClipboard(text: string): void {
               console.log('Circle Bounds:', bounds);
               const geoJSON = layer.toGeoJSON();
                this.zoomed_wkt_polygon = ''
-               this.closeDrawer()
+              //  this.closeDrawer()
+              this.sharedService.setDrawShape(true);
+              console.log(this.drawer,'drawerdrawerdrawerdrawerdrawerdrawer');
+              this.drawer.toggle();
+              this.handleDropdownToggle(this.isDrawerOpen)
+              this.drawer._animationState = 'open';
                this.removeAllImageOverlays()
               this.getPolygonFromCoordinates({ geometry: geoJSON?.geometry }, bounds);
               setTimeout(() => {
+                this.sharedService.setDrawShape(false)
                 this.map.fitBounds(bounds, {
                     padding: [50, 50], // Adds padding around the bounds
                     maxZoom: 20       // Caps the zoom level
@@ -873,11 +886,17 @@ private fallbackCopyToClipboard(text: string): void {
               console.log('Rectangle Bounds:', bounds);
               const geoJSON = layer.toGeoJSON();
                this.zoomed_wkt_polygon = ''
-               this.closeDrawer()
+              //  this.closeDrawer()
+              this.sharedService.setDrawShape(true);
+              console.log(this.drawer,'drawerdrawerdrawerdrawerdrawerdrawer');
+              this.drawer.toggle();
+              this.handleDropdownToggle(this.isDrawerOpen)
+              this.drawer._animationState = 'open';
                this.removeAllImageOverlays()
               this.getPolygonFromCoordinates({ geometry: geoJSON?.geometry }, bounds);
              
               setTimeout(() => {
+                this.sharedService.setDrawShape(false)
                 this.map.fitBounds(bounds, {
                     padding: [50, 50], // Adds padding around the bounds
                     maxZoom: 16        // Caps the zoom level
@@ -953,7 +972,7 @@ private fallbackCopyToClipboard(text: string): void {
           }
           let queryParams ={
             page_number: '1',
-      page_size: '100',
+      page_size: '50',
       start_date:this.startDate,
       end_date: this.endDate
           }
@@ -1008,14 +1027,14 @@ private fallbackCopyToClipboard(text: string): void {
     return coordinates; // Return the updated payload
   }
   //Polygon data getting by using polygon fucntionality
-  getDataUsingPolygon(payload: any,queryParams: any) {
-    this.satelliteService.getDataFromPolygon(payload,queryParams).subscribe({
+  getDataUsingPolygon(payload: any, queryParams: any) {
+    this.satelliteService.getDataFromPolygon(payload, queryParams).subscribe({
       next: (resp) => {
-        console.log(resp,'satelliteServicesatelliteServicesatelliteServicesatelliteService');
+        console.log(resp, 'satelliteService response');
         
         this.extraShapesLayer?.clearLayers();
         if (Array.isArray(resp?.data)) {
-          resp.data.forEach((item:any) => {
+          resp.data.forEach((item: any) => {
             this.addPolygonWithMetadata(item);
           });
           if(!this.isDrawerOpen){
@@ -1040,41 +1059,23 @@ private fallbackCopyToClipboard(text: string): void {
            this.toggleDrawer()
            this.cdr.detectChanges();
           }
+  
+          // Adjust map zoom to keep all drawn shapes visible
           setTimeout(() => {
-       
-            if(this.drawer?._animationState === 'open'){
-              const mapContainer = this.mapContainer.nativeElement;
-             console.log("Map viewport width:", this.map.getSize());
-             const containerElement = this.mapContainer.nativeElement;
-             containerElement.style.marginLeft = '820px'
-             const interactiveElement = mapContainer.querySelector('.leaflet-interactive');
-             console.log(interactiveElement,'interactiveElementinteractiveElementinteractiveElementinteractiveElement');
-             const mapViewportWidth = containerElement.offsetWidth;
-             // Get the width if the element exists
-             if (interactiveElement && mapViewportWidth) {
-               const width = interactiveElement.getBoundingClientRect().width; // Or use interactiveElement.offsetWidth
-               console.log('Width of leaflet-interactive:', width);
-             const  marginLeft = mapViewportWidth - width;
-             this.leftMargin = marginLeft <0 ? 0: marginLeft;
-             this.leftMargin = marginLeft >= 403 ? marginLeft : 403;
-             this.leftMargin = marginLeft >820 ? 820: marginLeft;
-             console.log("leftMarginleftMarginleftMargin", this.leftMargin, marginLeft);
-             
-             containerElement.style.marginLeft = `0px`;
-             }
-               // Get element width
-               
-       
-               // Get computed styles
-               console.log('Map viewport width:', mapViewportWidth);
-               
-           }
-           }, 600);
-          
+            if (this.drawer?._animationState === 'open') {
+              const bounds = this.extraShapesLayer.getBounds();
+              if (bounds.isValid()) {
+                this.map.fitBounds(bounds, {
+                  padding: [50, 50], // Adjust padding for better visibility
+                  animate: true,
+                });
+              }
+            }
+          }, 600);
         }
       },
       error: (err) => {
-        console.log("err getPolyGonData: ", err);
+        console.log('Error in getDataUsingPolygon:', err);
       },
     });
   }
@@ -1174,7 +1175,7 @@ polygon.on('click', (event: L.LeafletMouseEvent) => {
       // Fetch data for all intersecting polygons
       let queryParams = {
         page_number: '1',
-        page_size: '100',
+        page_size: '50',
         start_date: '',
         end_date: '',
         vendor_id: data.vendor_id
@@ -1275,7 +1276,7 @@ private getBoundingBox(latlngs: L.LatLng[]): { minLat: number; maxLat: number; m
 }
 
 onFilterset(data) {
-  data.params = {...data.params, source: 'home',  page_number: '1', page_size: '100'}
+  data.params = {...data.params, source: 'home',  page_number: '1', page_size: '50'}
   this.getDataUsingPolygon(data.payload,  data.params);
   this.cdr.detectChanges();
 
@@ -1812,11 +1813,16 @@ onDateRangeChanged(event: { startDate: string, endDate: string }) {
   if (this.data) {
     let queryParams ={
       page_number: '1',
-      page_size: '100',
+      page_size: '50',
       start_date:this.startDate,
       end_date: this.endDate
     }
-    this.closeDrawer()
+    // this.closeDrawer()
+    console.log(this.drawer,'drawerdrawerdrawerdrawerdrawerdrawer');
+    this.sharedService.setDrawShape(true);
+      this.drawer.toggle();
+      this.handleDropdownToggle(this.isDrawerOpen)
+      this.drawer._animationState = 'open';
   this.getDataUsingPolygon(this.data,queryParams);
   }
   this.cdr.detectChanges();

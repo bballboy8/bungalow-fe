@@ -182,12 +182,7 @@
 
                 <div class="hidden absolute shadow-custom rounded-[10px] z-10 top-[245px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
                     <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
-                        <span>Old Date:</span>
-                        <span>{{analyticsData?.oldest_info?.acquisition_datetime | date: 'yyyy-MM-dd'}}</span>
-                    </div>
-                    <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
-                        <span>Newest Date:</span>
-                        <span>{{analyticsData?.newest_info?.acquisition_datetime | date: 'yyyy-MM-dd'}}</span>
+                        <span>Total count in last 90 days</span>
                     </div>
                     
                 </div>
@@ -203,14 +198,8 @@
 
                 <div class="hidden absolute shadow-custom rounded-[10px] z-10 top-[245px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
                     <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
-                        <span>Old Date:</span>
-                        <span>{{analyticsData?.oldest_info?.acquisition_datetime | date: 'yyyy-MM-dd'}}</span>
-                    </div>
-                    <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
-                        <span>Newest Date:</span>
-                        <span>{{analyticsData?.newest_info?.acquisition_datetime | date: 'yyyy-MM-dd'}}</span>
-                    </div>
-                    
+                        <span>Total Count in last 90 Days {{formatNumber(analyticsData?.total_count)}}/90</span>
+                    </div>               
                 </div>
             </div>
             <div
@@ -354,6 +343,14 @@
                                     <mat-select class="!text-secondaryText" multiple formControlName="vendor" name="vendor">
                                     @for (vendor of vendorsList; track vendor) {
                                         <mat-option [value]="vendor">{{vendor}}</mat-option>
+                                    }
+                                    </mat-select>
+                                </mat-form-field>
+                                <mat-form-field appearance="outline" id="filter" >
+                                    <mat-label class="!text-secondaryText">Type</mat-label>
+                                    <mat-select class="!text-secondaryText" multiple formControlName="type" name="type">
+                                    @for (type of typesList; track type) {
+                                        <mat-option [value]="type">{{type}}</mat-option>
                                     }
                                     </mat-select>
                                 </mat-form-field>
@@ -598,7 +595,7 @@
                 <ng-container matColumnDef="type">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header class="min-w-[80px] !pl-[10px] text-secondaryText font-semibold">
                         Type</th>
-                    <td mat-cell *matCellDef="let row" class="min-w-[80px] !pl-[10px] text-secondaryText">{{ getTimePeriod(row?.acquisition_datetime,row?.centroid) }}</td>
+                    <td mat-cell *matCellDef="let row" class="min-w-[80px] !pl-[10px] text-secondaryText">{{ row?.type| titlecase }}</td>
                 </ng-container>
 
                 <ng-container matColumnDef="vendor_id">

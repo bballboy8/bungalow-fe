@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, Inject, Input, OnInit, Optional, TemplateRef, ViewChild } from '@angular/core';
+import { Component, inject, Inject, Input, OnChanges, OnInit, Optional, SimpleChanges, TemplateRef, ViewChild } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -49,7 +49,7 @@ export class Group {
   templateUrl: './map-controllers-popup.component.html',
   styleUrls: ['./map-controllers-popup.component.scss']
 })
-export class MapControllersPopupComponent implements OnInit {
+export class MapControllersPopupComponent implements OnInit, OnChanges {
   @ViewChild('myTemplate', { static: true }) myTemplate!: TemplateRef<any>;
   selectedTimeFrame: any = 1;
   renderGroup!: TemplateRef<any> | null;
@@ -98,6 +98,13 @@ export class MapControllersPopupComponent implements OnInit {
         console.error('API call failed', err);
       }
     });
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes?.['previousValue']?.['vendorData'] != changes?.['currentValue']?.['vendorData']) {
+        this.vendorData = changes?.['currentValue']?.['vendorData'];
+        this.data = {type:this.type, vendorData:this.vendorData}
+    }
   }
 
   ngOnInit(): void {

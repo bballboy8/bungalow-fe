@@ -847,7 +847,7 @@ private fallbackCopyToClipboard(text: string): void {
               const bounds = (layer as L.Polygon).getBounds();
               console.log('Polygon Bounds:', bounds);
               const geoJSON = layer.toGeoJSON();
-               this.zoomed_wkt_polygon = ''
+              //  this.zoomed_wkt_polygon = ''
               //  this.closeDrawer()
               this.sharedService.setDrawShape(true);
                this.removeAllImageOverlays()
@@ -858,7 +858,7 @@ private fallbackCopyToClipboard(text: string): void {
                     padding: [50, 50], // Adds padding around the bounds
                     maxZoom: 20        // Caps the zoom level
                 });
-            }, 1000);            
+            }, 500);            
              
              
           } else if (event.layerType === 'circle' && type === 'Circle') {
@@ -880,13 +880,13 @@ private fallbackCopyToClipboard(text: string): void {
                     padding: [50, 50], // Adds padding around the bounds
                     maxZoom: 20       // Caps the zoom level
                 });
-            }, 1000);            
+            }, 500);            
              
           } else if (event.layerType === 'rectangle' && type === 'Box') {
               const bounds = (layer as L.Rectangle).getBounds();
               console.log('Rectangle Bounds:', bounds);
               const geoJSON = layer.toGeoJSON();
-              
+              //  this.zoomed_wkt_polygon = ''
               //  this.closeDrawer()
               this.sharedService.setDrawShape(true);
               console.log(this.drawer,'drawerdrawerdrawerdrawerdrawerdrawer');
@@ -902,7 +902,7 @@ private fallbackCopyToClipboard(text: string): void {
                     padding: [50, 50], // Adds padding around the bounds
                     maxZoom: 16        // Caps the zoom level
                 });
-            }, 1000);            
+            }, 500);            
               
           }
 

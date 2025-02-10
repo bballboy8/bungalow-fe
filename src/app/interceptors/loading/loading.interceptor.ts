@@ -41,7 +41,7 @@ export const LoadingInterceptor = (
 
   return next(req).pipe(
     finalize(() => {
-      if(!paramString?.includes('library') && paramString?.includes('enableLoader') && !req.url.includes('/get-sites')){
+      if(!paramString?.includes('library')  && !req.url.includes('/get-sites')){
       ngxLoader.stopLoader('customLoader');
       mainLoader.setValue(false)
       } else  if (paramString?.includes('enableLoader')) {

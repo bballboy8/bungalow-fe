@@ -1071,7 +1071,8 @@ polygon.on('click', (event: L.LeafletMouseEvent) => {
         page_size: '50',
         start_date: '',
         end_date: '',
-        vendor_id: data.vendor_id
+        vendor_id: data.vendor_id,
+        source:  'library'
     };
     this.satelliteService.getDataFromPolygon('', queryParams).subscribe({
         next: (resp) => {

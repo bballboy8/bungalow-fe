@@ -1516,24 +1516,30 @@ getDateTimeFormat(dateTime: string) {
       end_date: '',
       vendor_id: vendorId
     }
-    this.satelliteService.getDataFromPolygon('',queryParams).subscribe({
+    this.satelliteService.getDataFromPolygon('', queryParams).subscribe({
       next: (resp) => {
-        console.log(resp,"resp");
-        console.log(resp.data[0],"resp");
-        vendorData = resp.data[0];
-      }});
-
-    const dialogRef = this.dialog.open(MapControllersPopupComponent, {
-      width: `280px`,
-      height: 'auto',
-      data: { type: 'vendor', vendorData: vendorData },
-      // position,
-      panelClass: 'custom-dialog-class',
-    });
+        if (resp?.data && resp.data.length > 0) {
+          vendorData = resp.data[0];
+          // Open the dialog after setting vendorData
+          const dialogRef = this.dialog.open(MapControllersPopupComponent, {
+            width: `280px`,
+            height: 'auto',
+            data: { type: 'vendor', vendorData: vendorData },
+            panelClass: 'custom-dialog-class',
+          });
   
-    dialogRef.afterClosed().subscribe((result) => {
-      this.popUpData = null
+          dialogRef.afterClosed().subscribe((result) => {
+            this.popUpData = null;
+          });
+        } else {
+          console.log('No data found for the given vendor ID');
+        }
+      },
+      error: (err) => {
+        console.error('API call failed', err);
+      }
     });
+    
   }
   //Filter Form submit functionality
   onSubmit() {

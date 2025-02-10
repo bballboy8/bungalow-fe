@@ -874,7 +874,7 @@ private fallbackCopyToClipboard(text: string): void {
           }
           let queryParams ={
             page_number: '1',
-      page_size: '100',
+      page_size: '50',
       start_date:this.startDate,
       end_date: this.endDate
           }
@@ -1068,7 +1068,7 @@ polygon.on('click', (event: L.LeafletMouseEvent) => {
       // Fetch data for all intersecting polygons
       let queryParams = {
         page_number: '1',
-        page_size: '100',
+        page_size: '50',
         start_date: '',
         end_date: '',
         vendor_id: data.vendor_id
@@ -1169,7 +1169,7 @@ private getBoundingBox(latlngs: L.LatLng[]): { minLat: number; maxLat: number; m
 }
 
 onFilterset(data) {
-  data.params = {...data.params, source: 'home',  page_number: '1', page_size: '100'}
+  data.params = {...data.params, source: 'home',  page_number: '1', page_size: '50'}
   this.getDataUsingPolygon(data.payload,  data.params);
   this.cdr.detectChanges();
 
@@ -1686,7 +1686,7 @@ onDateRangeChanged(event: { startDate: string, endDate: string }) {
   if (this.data) {
     let queryParams ={
       page_number: '1',
-      page_size: '100',
+      page_size: '50',
       start_date:this.startDate,
       end_date: this.endDate
     }

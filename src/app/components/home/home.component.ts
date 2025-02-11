@@ -1463,7 +1463,10 @@ handleAction(action: string): void {
                   // Adjust horizontal position (left or right)
                   let newLeft = markerPoint.x + mapContainer.offsetLeft + 20;
                   if (markerPoint.x + 300 > mapWidth) {
+                    
+                    
                     newLeft = markerPoint.x + mapContainer.offsetLeft - 300 - 20; // Move to the left
+                    console.log('markerPointmarkerPointmarkerPoint',newLeft);
                   }
           
                   // Adjust vertical position (top or bottom)
@@ -1485,12 +1488,12 @@ handleAction(action: string): void {
                     );
                   }
     
-                  console.log(newTop,'newTopnewTopnewTopnewTop');
+                  console.log(newTop,'newTopnewTopnewTopnewTop',newLeft);
                   
                   // Update dialog position dynamically
                   dialogRef.updatePosition({
-                    top: `${newTop}px`,
-                    left: `${newLeft}px`,
+                    top: `${newTop+10}px`,
+                    left: newLeft> 1300? `${newLeft-400}px`: `${newLeft}px`,
                   });
                 }
               });

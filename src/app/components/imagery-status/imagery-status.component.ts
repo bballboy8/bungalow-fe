@@ -468,4 +468,17 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
       this.startDatePicker.hide();
     }
   }
+
+  openEndDatePicker(){
+    this.endDatePicker.open();
+    if (this.startDatePicker && this.startDatePicker.opens) {
+      this.startDatePicker.hide();
+    }
+  }
+  openStartDatePicker(){
+    this.startDatePicker.open();
+    if (this.endDatePicker && this.endDatePicker.opens) {
+      this.endDatePicker.hide();
+    }
+  }
 }

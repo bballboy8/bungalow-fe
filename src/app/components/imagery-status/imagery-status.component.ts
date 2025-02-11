@@ -385,7 +385,7 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
     };
 
     this.filterParams = { ...params };
-    if(this.filterParams.start_date || this.filterParams.end_date || this.filterParams.vendor){
+    if(this.filterParams.start_date || this.filterParams.end_date || this.filterParams.vendor_name){
     setTimeout(() => {
       this.loader = true;
       // this.ngxLoader.start(); // Start the loader

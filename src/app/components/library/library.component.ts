@@ -576,8 +576,6 @@ set zoomed_wkt(value: string) {
   
     div.addEventListener('wheel', this.handleWheelEvent);
     this.sharedService.rowHover$.subscribe((rowHover) => {
-      console.log(rowHover,'rowHoverrowHoverrowHoverrowHover');
-      
       this.tableRowHovered = rowHover
     })
     this.sharedService.overlayShapeData$.subscribe((overlayShapeData) => {
@@ -1507,7 +1505,44 @@ getDateTimeFormat(dateTime: string) {
   onMenuClose(){
     this.sliderShow = false;
   }
+
+  //Open Map Controller Popup
+  openDialog(vendorId:any){
+    //calling API by vendorID
+    let vendorData:any [] = [];
+    let queryParams ={
+      page_number: '1',
+      page_size: '100',
+      start_date:'',
+      end_date: '',
+      source: 'library',
+      vendor_id: vendorId
+    }
+    this.satelliteService.getDataFromPolygon('', queryParams).subscribe({
+      next: (resp) => {
+        if (resp?.data && resp.data.length > 0) {
+          vendorData = resp.data[0];
+          // Open the dialog after setting vendorData
+          const dialogRef = this.dialog.open(MapControllersPopupComponent, {
+            width: `280px`,
+            height: 'auto',
+            data: { type: 'vendor', vendorData: vendorData },
+            panelClass: 'custom-dialog-class',
+          });
   
+          dialogRef.afterClosed().subscribe((result) => {
+            this.popUpData = null;
+          });
+        } else {
+          console.log('No data found for the given vendor ID');
+        }
+      },
+      error: (err) => {
+        console.error('API call failed', err);
+      }
+    });
+    
+  }
   //Filter Form submit functionality
   onSubmit() {
     this.updateFilterCount(); 

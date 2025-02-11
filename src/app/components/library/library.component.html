@@ -142,7 +142,7 @@
     <div id="not_found" class="mx-[15px] bg-secondaryBg rounded-[5px] font-Barlow">
         <div class="mx-[15px] gap-[5px] flex font-Barlow">
             <div
-                class="w-[182px] group flex flex-col p-[10px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">
+                class="w-[182px] group flex flex-col p-[10px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center" (click)="openDialog(analyticsData.oldest_info.vendor_id)">
                 <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">
                     Oldest
                 </span>
@@ -203,7 +203,7 @@
                 </div>
             </div>
             <div
-                class="w-[182px] group flex flex-col p-[10px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">
+                class="w-[182px] group flex flex-col p-[10px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center" (click)="openDialog(analyticsData.newest_info.vendor_id)">
                 <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">
                     Most recent
                 </span>
@@ -223,7 +223,7 @@
                 </div>
             </div>
             <div
-                class="w-[182px] group flex flex-col p-[10px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">
+                class="w-[182px] group flex flex-col p-[10px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center" (click)="openDialog(analyticsData.newest_clear_cloud_cover_info.vendor_id)">
                 <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">
                     Most recent clear
                 </span>

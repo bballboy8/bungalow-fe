@@ -82,7 +82,7 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
   defaultFilter() {
     return {
       page_number: 1,
-      page_size: 50,
+      page_size: 100,
     };
   }
   originalData: any[] = [];
@@ -101,8 +101,9 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
     format: "YYYY-MM-DD", // Custom format with UTC label
     
   };
-  start_date: any = '';
-  end_date: any = '';
+  start_date: any = null;
+  end_date: any = null;
+  minDate:any=dayjs().utc();
   constructor(
     private satelliteService: SatelliteService,
     private el: ElementRef,
@@ -126,6 +127,7 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     console.log(this.maxDate, "sssssssssssssssss");
     this.maxDate = this.maxDate.format("YYYY-MM-DD HH:mm [UTC]");
+    this.minDate = this.minDate.format("YYYY-MM-DD HH:mm [UTC]");
     this.filterParams = { ...this.defaultFilter() };
     let queryParams = {
       ...this.filterParams,
@@ -358,7 +360,7 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
       }
       this.filterParams = {...queryParams}
     }
-     if (this.start_date !== '') {
+     if (this.start_date.startDate !== null) {
       console.log('eeeeeeeeeeee');
      const queryParams = {
       ...this.filterParams,
@@ -366,12 +368,12 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
      }
      this.filterParams = {...queryParams,...this.filterParams}
     }
-     if (this.end_date !=='') {
+     if (this.end_date.endDate !==null) {
       console.log('ddddddddddddddd');
       
       const queryParams = {
        ...this.filterParams,
-       end_date: dayjs(this.end_date).utc().format('YYYY-MM-DDTHH:mm:ss.SSSSSSZ')
+       end_date: dayjs(this.end_date.endDate).utc().format('YYYY-MM-DDTHH:mm:ss.SSSSSSZ')
       }
       this.filterParams = {...queryParams,...this.filterParams}
      }
@@ -383,12 +385,14 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
     };
 
     this.filterParams = { ...params };
+    if(this.filterParams.start_date || this.filterParams.end_date || this.filterParams.vendor){
     setTimeout(() => {
       this.loader = true;
       // this.ngxLoader.start(); // Start the loader
       this.getImageryCollection(params);
       this.closeFilterMenu();
     }, 300);
+    }
   }
 
   //Filter menu close button
@@ -407,8 +411,11 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
      let date = dayjs(event.startDate).utc().startOf('day'); // Force start of day
       
       let today = dayjs().utc().startOf('day');
+      console.log(date,'datedatedatedatedatedatedate');
+      
       // If start date is today, end date = current time, else set to 23:59
     this.start_date=date.isSame(today, 'day') ? dayjs().utc(): date.startOf('day')
+    this.minDate = this.start_date
     }
   }
 
@@ -419,7 +426,7 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
       let selectedEndDate = dayjs(event.endDate).utc();
       // Ensure End Date is not before Start Date
       if (selectedEndDate.isBefore(this.start_date)) {
-       
+        this.end_date = null
         return console.error('End Date must be after Start date')
       } else if (selectedEndDate.isSame(dayjs().utc(), 'day')) {
         console.log('End Date is today, setting current time');

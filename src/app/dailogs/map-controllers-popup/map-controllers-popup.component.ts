@@ -22,6 +22,7 @@ import { ImagePreviewComponent } from '../image-preview/image-preview.component'
 import momentZone from 'moment-timezone';
 import tzLookup from 'tz-lookup';
 import { SharedService } from '../../components/shared/shared.service';
+import { CommonDailogsComponent } from '../common-dailogs/common-dailogs.component';
 export class Group {
   name?: string;
   icon?: string; // icon name for Angular Material icons
@@ -225,7 +226,7 @@ export class MapControllersPopupComponent implements OnInit, OnChanges,AfterView
 
   addSite() {
     let payload
-    if(this.addGroup) {
+    if(this.selectedGroup !==null) {
     if (this.pointData) {
       payload = {
         name: this.name,
@@ -256,7 +257,28 @@ export class MapControllersPopupComponent implements OnInit, OnChanges,AfterView
         console.log(resp, 'successsuccesssuccesssuccess');
         this.siteData = resp
         this.addGroup = true;  // This will execute if the API call is successful
-
+        const data = {
+          group_id: this.selectedGroup.id,
+          site_id:resp.id
+        }
+        this.satelliteService.addGroupSite(data).subscribe({
+          next: (resp) => {
+            if(resp){
+              this.snackBar.open('Site has been added to assigned group.', 'Ok', {
+                duration: 2000  // Snackbar will disappear after 300 milliseconds
+              });
+            }
+            
+          },
+          error: (err) => {
+            console.error('Error occurred:', err);
+    
+            this.addGroup = false;
+    
+    
+    
+          }
+        })
       },
       error: (err) => {
         console.error('Error occurred:', err);
@@ -279,6 +301,7 @@ export class MapControllersPopupComponent implements OnInit, OnChanges,AfterView
     console.log(event, 'selectedeventeventeventevent');
     this.activeGroup = event
   }
+  
 
   saveGroup() {
     this.selectedGroup = this.activeGroup.group
@@ -529,4 +552,37 @@ imagePreview(data:any,type:any) {
     });
   }
 
+  assignedGroup(data:any){
+    this.selectedGroup = data
+    this.closeMenu();
+  }
+
+  addNewGroup(type: string) {
+    let data 
+   
+      data = {type: type}
+    
+   
+   this.openDialog(data)
+  }
+openDialog(data:any){
+    const dialogRef = this.dialog.open(CommonDailogsComponent, {
+        width: '350px',
+        height: 'auto',
+        data: data,
+        panelClass: 'custom-dialog-class',
+      });
+      dialogRef.afterClosed().subscribe((result) => {
+        console.log('Dialog closed', result);
+        if(result){
+         
+            this.snackBar.open('Group Added successfully.', 'Ok', {
+              duration: 2000  // Snackbar will disappear after 300 milliseconds
+            });
+          }
+
+        
+      
+  })
+}
 }

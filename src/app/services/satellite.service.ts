@@ -88,4 +88,9 @@ export class SatelliteService extends BaseService {
       params:queryParams
     });
   }
+  removeGroup(queryParams): Observable<any> {
+    return this.delete(createUrl("/remove-group-and-its-sites"),{
+      params:queryParams
+    });
+  }
 }

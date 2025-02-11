@@ -59,6 +59,7 @@
               <mat-form-field appearance="outline" id="filter-imagery" class="">
                 <mat-label>Start date</mat-label>
                 <input
+                  #startDatePicker
                   matInput
                   type="text"
                   ngxDaterangepickerMd
@@ -68,11 +69,13 @@
                   [autoApply]="true"
                   [maxDate]="maxDate"
                   (datesUpdated)="onStartDateChange($event)"
+                  (focus)="onStartDateFocus()"
                 />
               </mat-form-field>
               <mat-form-field appearance="outline" id="filter-imagery" class="">
                 <mat-label>End date</mat-label>
                 <input
+                  #endDatePicker
                   matInput
                   type="text"
                   ngxDaterangepickerMd
@@ -83,6 +86,7 @@
                   [maxDate]="maxDate"
                   [minDate]="minDate"
                   (datesUpdated)="onEndDateChange($event)"
+                  (focus)="onEndDateFocus()"
                 />
               </mat-form-field>
               <!-- <mat-form-field appearance="outline" id="filter" (click)="$event.stopPropagation()">
@@ -121,7 +125,7 @@
     </div>
   </div>
 
-  <div class="overflow-auto content"  id="imagery_table" #scrollableDiv>
+  <div class="overflow-auto content scrollbar scrollbar-thumb-secondaryText scrollbar-track-gray-200 "  id="imagery_table" #scrollableDiv>
     @if (dataSource) {
     <div
       class="w-full flex justify-center items-center"

@@ -77,4 +77,10 @@ export class SatelliteService extends BaseService {
   updateGroup(data:any): Observable<any> {
     return this.put(createUrl("/update-group"),data)
   }
+
+  getCollectionHistory(queryParams): Observable<any> {
+    return this.get(createUrl("/get-collection-history"),{
+      params:queryParams
+    });
+  }
 }

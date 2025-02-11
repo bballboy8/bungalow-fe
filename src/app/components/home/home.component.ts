@@ -166,6 +166,8 @@ hybridLayer:L.TileLayer = L.tileLayer(
   vendorData:any;
   pointData:any;
   loader: boolean = false;
+  filterParams:any;
+  isProgrammaticMove = false;
   constructor(@Inject(PLATFORM_ID) private platformId: Object,
    private satelliteService:SatelliteService,private dialog: MatDialog,
    private http: HttpClient,
@@ -320,7 +322,7 @@ console.log('Initial sidebar width:', this.sidebarWidth);
       }else{
         setTimeout(() => {
           this.sidebarWidth=820
-          this.marginleft=413
+          // this.marginleft=413
 
         console.log(this.sidebarWidth,'this.sidebarWidth settimeout');
 
@@ -768,7 +770,7 @@ private fallbackCopyToClipboard(text: string): void {
     console.log("Selected Draw Type:", type);
     this.currentAction = null;
    this.shapeType = type
-
+   this.sharedService.setOverlayShapeData(null)
     // Remove existing shapes and event listeners
     if (this.polygon) {
         this.map.off('layeradd');
@@ -832,6 +834,7 @@ private fallbackCopyToClipboard(text: string): void {
 
     if (drawHandler) {
         // Start the drawing process immediately
+        this.isProgrammaticMove = true;  // Set the flag before programmatic move
         drawHandler.enable();
         this.drawHandler = drawHandler; // Store the handler for later use
 
@@ -846,25 +849,29 @@ private fallbackCopyToClipboard(text: string): void {
               const bounds = (layer as L.Polygon).getBounds();
               console.log('Polygon Bounds:', bounds);
               const geoJSON = layer.toGeoJSON();
-               this.zoomed_wkt_polygon = ''
+              //  this.zoomed_wkt_polygon = ''
               //  this.closeDrawer()
               this.sharedService.setDrawShape(true);
                this.removeAllImageOverlays()
               this.getPolygonFromCoordinates({ geometry: geoJSON?.geometry }, bounds);
+             
               setTimeout(() => {
                  this.sharedService.setDrawShape(false)
                 this.map.fitBounds(bounds, {
                     padding: [50, 50], // Adds padding around the bounds
                     maxZoom: 20        // Caps the zoom level
                 });
-            }, 1000);            
+            }, 500);
+            setTimeout(() => {
+              this.isProgrammaticMove = false;
+            }, 600); // Adjust the delay as needed            
              
              
           } else if (event.layerType === 'circle' && type === 'Circle') {
               const bounds = (layer as L.Circle).getBounds();
               console.log('Circle Bounds:', bounds);
               const geoJSON = layer.toGeoJSON();
-               this.zoomed_wkt_polygon = ''
+               
               //  this.closeDrawer()
               this.sharedService.setDrawShape(true);
               console.log(this.drawer,'drawerdrawerdrawerdrawerdrawerdrawer');
@@ -876,16 +883,16 @@ private fallbackCopyToClipboard(text: string): void {
               setTimeout(() => {
                 this.sharedService.setDrawShape(false)
                 this.map.fitBounds(bounds, {
-                    padding: [50, 50], // Adds padding around the bounds
+                    padding: [10, 10], // Adds padding around the bounds
                     maxZoom: 20       // Caps the zoom level
                 });
-            }, 1000);            
+            }, 500);            
              
           } else if (event.layerType === 'rectangle' && type === 'Box') {
               const bounds = (layer as L.Rectangle).getBounds();
               console.log('Rectangle Bounds:', bounds);
               const geoJSON = layer.toGeoJSON();
-               this.zoomed_wkt_polygon = ''
+              //  this.zoomed_wkt_polygon = ''
               //  this.closeDrawer()
               this.sharedService.setDrawShape(true);
               console.log(this.drawer,'drawerdrawerdrawerdrawerdrawerdrawer');
@@ -901,7 +908,10 @@ private fallbackCopyToClipboard(text: string): void {
                     padding: [50, 50], // Adds padding around the bounds
                     maxZoom: 16        // Caps the zoom level
                 });
-            }, 1000);            
+            }, 500);
+            setTimeout(() => {
+              this.isProgrammaticMove = false;
+            }, 600);             
               
           }
 
@@ -912,7 +922,7 @@ private fallbackCopyToClipboard(text: string): void {
 
             console.log("Drawing disabled after shape creation.");
         });
-         this.zoomed_wkt_polygon = ''
+        
          this.map.on('zoomend', () => {
           console.log('Zoom changed:', this.map.getZoom());
           this.zoomLevel = this.map.getZoom();
@@ -929,7 +939,10 @@ private fallbackCopyToClipboard(text: string): void {
     
         this.map.on('dragend', () => {
           console.log('Drag changed:', this.map.getZoom());
-              this.layercalculateVisibleWKT();
+          if (!this.isProgrammaticMove) {
+            // Only call API if the movement is user-triggered
+            this.layercalculateVisibleWKT();
+          }
             
         
         });
@@ -971,10 +984,11 @@ private fallbackCopyToClipboard(text: string): void {
             console.log(this.endDate, 'Previous day end date and time');
           }
           let queryParams ={
+            ...this.filterParams,
             page_number: '1',
-      page_size: '50',
-      start_date:this.startDate,
-      end_date: this.endDate
+            page_size: '50',
+            start_date:this.startDate,
+            end_date: this.endDate
           }
           this.data = resp?.data;
           this.getDataUsingPolygon(resp?.data,queryParams)};
@@ -1052,7 +1066,7 @@ private fallbackCopyToClipboard(text: string): void {
             // this.onZoomLevelChange(this.parentZoomLevel)
           } else if (this.type === 'library'){
             console.log('yyyyyyyyyyyyyy');
-            
+            // this.zoomed_wkt_polygon = ''
           this.isDrawerOpen = true
           this.drawer._animationState = 'open'
           this.type = 'library'
@@ -1180,6 +1194,7 @@ polygon.on('click', (event: L.LeafletMouseEvent) => {
             console.log(resp, 'Data received');
             const vendorData = resp.data[0];
             this.vendorData = resp.data[0];
+            this.sharedService.setVendorData(this.vendorData)
             this.onPolygonOut(null)
             // this.openDialogAtPosition(polygon, vendorData);
             this.popUpData = vendorData
@@ -1271,6 +1286,7 @@ private getBoundingBox(latlngs: L.LatLng[]): { minLat: number; maxLat: number; m
 }
 
 onFilterset(data) {
+  this.filterParams = data.params;
   data.params = {...data.params, source: 'home',  page_number: '1', page_size: '50'}
   this.getDataUsingPolygon(data.payload,  data.params);
   this.cdr.detectChanges();
@@ -1807,6 +1823,7 @@ onDateRangeChanged(event: { startDate: string, endDate: string }) {
 
   if (this.data) {
     let queryParams ={
+      ...this.filterParams,
       page_number: '1',
       page_size: '50',
       start_date:this.startDate,

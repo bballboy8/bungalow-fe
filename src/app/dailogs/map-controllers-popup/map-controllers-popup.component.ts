@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, Inject, Input, OnChanges, OnInit, Optional, SimpleChanges, TemplateRef, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, inject, Inject, Input, OnChanges, OnInit, Optional, SimpleChanges, TemplateRef, ViewChild } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -21,6 +21,7 @@ import { OverlayContainer } from '@angular/cdk/overlay';
 import { ImagePreviewComponent } from '../image-preview/image-preview.component';
 import momentZone from 'moment-timezone';
 import tzLookup from 'tz-lookup';
+import { SharedService } from '../../components/shared/shared.service';
 export class Group {
   name?: string;
   icon?: string; // icon name for Angular Material icons
@@ -49,7 +50,7 @@ export class Group {
   templateUrl: './map-controllers-popup.component.html',
   styleUrls: ['./map-controllers-popup.component.scss']
 })
-export class MapControllersPopupComponent implements OnInit, OnChanges {
+export class MapControllersPopupComponent implements OnInit, OnChanges,AfterViewInit {
   @ViewChild('myTemplate', { static: true }) myTemplate!: TemplateRef<any>;
   selectedTimeFrame: any = 1;
   renderGroup!: TemplateRef<any> | null;
@@ -68,14 +69,15 @@ export class MapControllersPopupComponent implements OnInit, OnChanges {
   @ViewChild(GroupsListComponent) childComponent!: GroupsListComponent;
   @ViewChild(MatMenuTrigger) menuTrigger!: MatMenuTrigger;
   siteData: any;
-  @Input()vendorData:any = null
+  vendorData:any = null;
   @Input()type:string = '';
   isHovered:boolean = false;
   @Input()pointMarkerData:any = null
   constructor(@Optional() @Inject(MAT_DIALOG_DATA) public data: any,
   private dialog: MatDialog,
   private satelliteService: SatelliteService,
-  private overlayContainer: OverlayContainer) {
+  private overlayContainer: OverlayContainer,
+  private sharedService: SharedService) {
     // Apply debounceTime to the Subject and switch to the latest observable (API call)
     this.searchInput.pipe(
       debounceTime(1000),  // Wait for 1000ms after the last key press
@@ -105,6 +107,17 @@ export class MapControllersPopupComponent implements OnInit, OnChanges {
         this.vendorData = changes?.['currentValue']?.['vendorData'];
         this.data = {type:this.type, vendorData:this.vendorData}
     }
+  }
+
+  ngAfterViewInit(): void {
+    this.sharedService.vendorData$.subscribe((v) => {
+      console.log(v,'vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv');
+      
+      this.vendorData = v;
+      if(this.vendorData){
+        this.data = {type:this.type, vendorData:this.vendorData}
+      }
+    })
   }
 
   ngOnInit(): void {
@@ -503,13 +516,13 @@ setClass(){
 }
 
 imagePreview(data:any,type:any) {
-    const dialogRef = this.dialog.open(ImagePreviewComponent, {
-      width: "880px",
-      maxHeight:'700px',
-      data:  {images:data, type:type} ,
-      panelClass: "custom-preview",
-    });
-
+  const dialogRef = this.dialog.open(ImagePreviewComponent, {
+    width: "1680px",
+    maxHeight:'1200px',
+    data:  {images:data, type:type} ,
+    panelClass: "custom-preview",
+  });
+ 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         console.log("Selected date range:", result);

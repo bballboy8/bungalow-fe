@@ -466,6 +466,7 @@ set zoomed_wkt(value: string) {
   searchSubject$ = new Subject<string>();
   filteredColumns = this.columns;
   lastMatchId:any = null
+  isRefresh: boolean = true;
   constructor(
     private dialog: MatDialog,
     private sharedService: SharedService,
@@ -1308,6 +1309,12 @@ onCheckboxChange(row: any) {
       this.selectedRow = null;
       this.vendorData = null;
     });
+  }
+}
+onRefreshCheckboxChange(e:any){
+  if(e.checked){
+    console.log(e,'event');
+    this.isRefresh = e.checked;
   }
 }
 

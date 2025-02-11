@@ -437,6 +437,9 @@
                 <span class="p-[10px] flex bg-yellow rounded-[10px] text-secondaryBg font-Barlow text-sm font-medium cursor-pointer" (click)="resetSorting()">Reset</span>
              </div>
         </div>
+        <div class="mx-[20px]">
+            <mat-checkbox [(ngModel)]="isRefresh" (change)="onRefreshCheckboxChange($event)">Refresh List</mat-checkbox>
+        </div>
         <div *ngIf="loader" class="z-[1000000] absolute" id="loader"> <ngx-ui-loader></ngx-ui-loader></div>
         @if (viewType=='browse') {
         <div class="w-[840px] overflow-auto browser-content" #scrollableDiv>

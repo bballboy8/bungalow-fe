@@ -56,7 +56,7 @@
                   }
                 </mat-select>
               </mat-form-field>
-              <mat-form-field appearance="outline" id="filter-imagery" class="">
+              <mat-form-field (click)="openStartDatePicker()" appearance="outline" id="filter-imagery" class="">
                 <mat-label>Start date</mat-label>
                 <input
                   #startDatePicker
@@ -72,7 +72,7 @@
                   (focus)="onStartDateFocus()"
                 />
               </mat-form-field>
-              <mat-form-field appearance="outline" id="filter-imagery" class="">
+              <mat-form-field (click)="openEndDatePicker()" appearance="outline" id="filter-imagery" class="">
                 <mat-label>End date</mat-label>
                 <input
                   #endDatePicker

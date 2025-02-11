@@ -82,8 +82,8 @@ export class MapControllersPopupComponent implements OnInit, OnChanges,AfterView
     this.searchInput.pipe(
       debounceTime(1000),  // Wait for 1000ms after the last key press
       switchMap((inputValue) => {
-        const data = { group_name: inputValue };
-        return this.satelliteService.getGroupsForAssignment(data).pipe(
+        const data = { search: inputValue };
+        return this.satelliteService.getGroupsWithoutNesting(data).pipe(
           catchError((err) => {
             console.error('API error:', err);
             // Return an empty array to allow subsequent API calls to be made
@@ -149,24 +149,17 @@ export class MapControllersPopupComponent implements OnInit, OnChanges,AfterView
 
   getGroups() {
     this.selectedGroupEvent(null)
-    if (this.addGroup) {
       const data = {
-        group_name: ''
+        search: ''
       }
-      this.satelliteService.getGroupsForAssignment(data).subscribe({
+      this.satelliteService.getGroupsWithoutNesting(data).subscribe({
         next: (resp) => {
           console.log(resp, 'respresprespresprespresprespresprespresp');
-          this.groups = resp
+          this.groups = resp.data
+          this.addGroup = true;
 
         }
       })
-    } else {
-      this.snackBar.open('Please first add site.', 'Close', {
-        duration: 3000,
-        verticalPosition: 'top',
-      });
-    }
-
   }
 
   onKeyPress(event: KeyboardEvent): void {
@@ -232,6 +225,7 @@ export class MapControllersPopupComponent implements OnInit, OnChanges,AfterView
 
   addSite() {
     let payload
+    if(this.addGroup) {
     if (this.pointData) {
       payload = {
         name: this.name,
@@ -273,7 +267,12 @@ export class MapControllersPopupComponent implements OnInit, OnChanges,AfterView
 
       }
     });
-
+  }else {
+    this.snackBar.open('Please first assign group.', 'Close', {
+      duration: 3000,
+      verticalPosition: 'top',
+    });
+  }
   }
 
   selectedGroupEvent(event: any) {

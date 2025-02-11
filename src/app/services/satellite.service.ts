@@ -33,6 +33,11 @@ export class SatelliteService extends BaseService {
       params:data
     });
   }
+  getGroupsWithoutNesting(data: {search:any}): Observable<any> {
+    return this.get(createUrl("/get-groups-list-without-nesting"),{
+      params:data
+    });
+  }
   generateCirclePolygon(data: any): Observable<any> {
     return this.post(createUrl("/generate-circle-polygon/"), data);
   }

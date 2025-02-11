@@ -30,19 +30,10 @@
         @if(selectedGroup == null){
           <div class="flex relative items-center gap-[15px] self-stretch w-full">
             <span class="flex-0 cursor-pointer font-Barlow font-sm font-medium leading-[18px] text-yellow" (click)="getGroups();setClass()"
-            [matMenuTriggerFor]="addGroup ? assign : null">Assign to a group</span> 
+            [matMenuTriggerFor]="assign">Assign to a group</span> 
             <mat-menu class="bg-primaryBg absolute" #assign="matMenu" id="assign">
               <div class="p-[15px] flex flex-col gap-[10px]" (click)="$event.stopPropagation()">
                 <!-- Groups Section -->
-                <div class="container">
-                  @for (group of groups; track group;let index = $index) {
-                    <ng-container>
-                      <app-groups-list [group]="group" (selectedGroup)="selectedGroupEvent($event)" [index]="index" [backgroundColor]="'#191E22'"></app-groups-list>
-                    </ng-container>
-                  }
-                </div>
-            
-                <!-- Search and Assign Section -->
                 <div class="flex flex-col gap-3">
                   <span class="text-secondary-heiglight font-semibold text-xs leading-[18px]">Assign to group</span>
                   <mat-form-field
@@ -56,6 +47,24 @@
                     <img src="assets/svg-icons/search-icon.svg" alt="Search" class="w-[14px]" />
                   </mat-form-field>
                 </div>
+                <div class="container max-h-[400px] overflow-y-auto">
+                  @for (group of groups; track group;let index = $index) {
+                    <div class="font-Barlow" >
+                      <!-- Group Header -->
+                      <div class="group-header flex gap-[15px] text-sm font-medium text-secondaryText p-[15px] border-y border-y-solid border-y-custom-border">
+                          
+                              <span class="!w-[14px] h-[12px]">
+                                  <img src="assets/svg-icons/folder-icon.svg" alt="Search" class="w-[14px]" />
+                              </span>
+                          
+                        {{ group.name }}
+                      </div>
+                      </div>
+                  }
+                </div>
+            
+                <!-- Search and Assign Section -->
+                
             
                 <!-- Checkbox Section -->
                 <span>

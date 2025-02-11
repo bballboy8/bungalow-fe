@@ -345,12 +345,13 @@ set zoomed_wkt(value: string) {
       } else {
         queryParams = {...queryParams,  zoomed_wkt: ''}
       }
+      if(this.isRefresh){
       this.loader = true;
       this.ngxLoader.start(); // Start the loader
       this.page_number = '1';
       this.filterParams = {...queryParams}
-      
-      this.getSatelliteCatalog(payload, queryParams);
+        this.getSatelliteCatalog(payload, queryParams);
+      }
     }, 800);
      // Debounce time: 600ms
   }

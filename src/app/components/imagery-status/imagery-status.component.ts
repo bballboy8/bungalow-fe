@@ -19,6 +19,7 @@ import momentZone from "moment-timezone";
 import { OverlayContainer } from "@angular/cdk/overlay";
 import {
   FormBuilder,
+  FormControl,
   FormGroup,
   FormsModule,
   ReactiveFormsModule,
@@ -30,6 +31,8 @@ import { MatMenuModule, MatMenuTrigger } from "@angular/material/menu";
 import { NgxDaterangepickerMd } from "ngx-daterangepicker-material";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
+import { startWith } from "rxjs";
+import { error } from "console";
 dayjs.extend(utc);
 @Component({
   selector: "app-imagery-status",
@@ -74,7 +77,7 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
   @ViewChild("scrollableDiv") scrollableDiv!: ElementRef<HTMLDivElement>;
   sliderShow: boolean = false;
   filterCount: any = 0;
-  formGroup: FormGroup;
+  vendor = new FormControl([]);
   //Default Query parameters
   defaultFilter() {
     return {
@@ -95,31 +98,36 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
   ];
   maxDate: any = dayjs().utc();
   locale = {
-    format: "YYYY-MM-DD HH:mm [UTC]", // Custom format with UTC label
-    displayFormat: "YYYY-MM-DD HH:mm [UTC]",
+    format: "YYYY-MM-DD", // Custom format with UTC label
+    
   };
-  start_date: any;
-  end_date: any;
+  start_date: any = null;
+  end_date: any = null;
+  minDate:any=dayjs().utc();
   constructor(
     private satelliteService: SatelliteService,
     private el: ElementRef,
     private renderer: Renderer2,
     private sharedService: SharedService,
     private overlayContainer: OverlayContainer,
-    private fb: FormBuilder
+   
   ) {
-    this.formGroup = this.fb.group({
-      vendor: [],
-      start_date: [],
-      end_date: [],
-    });
-    this.start_date = dayjs().utc();
-    this.end_date = dayjs().utc();
+  }
+
+  initializeDates() {
+    let today = dayjs().utc().startOf('day'); // Today's date at 00:00 UTC
+    let now = dayjs().utc(); // Current date & time
+
+    this.start_date = today; // Default start date is today at 00:00 UTC
+
+    // If today, set end_date to current time, else set to 23:59 UTC
+    this.end_date = now.isSame(today, 'day') ? now : today.endOf('day');
   }
 
   ngOnInit(): void {
     console.log(this.maxDate, "sssssssssssssssss");
     this.maxDate = this.maxDate.format("YYYY-MM-DD HH:mm [UTC]");
+    this.minDate = this.minDate.format("YYYY-MM-DD HH:mm [UTC]");
     this.filterParams = { ...this.defaultFilter() };
     let queryParams = {
       ...this.filterParams,
@@ -339,29 +347,52 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
       "start_datestart_datestart_datestart_datestart_datestart_date",
       this.end_date
     );
+     
 
-    let queryParams = {
+      
+      console.log(this.vendor.value,'vendorvendorvendorvendorvendorvendorvendor');
+      
+    if(this.vendor?.value?.length>0 || this.vendor.value !== null){
+      const queryParams ={
+        ...this.filterParams,
+        vendor_name: this.vendor.value,
+
+      }
+      this.filterParams = {...queryParams}
+    }
+     if (this.start_date.startDate !== null) {
+      console.log('eeeeeeeeeeee');
+     const queryParams = {
       ...this.filterParams,
-      // end_date:this.getDateValue(this.endDate),
-      // start_date:this.getDateValue(this.startDate),
-      vendor_name: this.formGroup.get("vendor")?.value
-        ? this.formGroup.get("vendor").value?.join(",")
-        : "",
-    };
+      start_date: dayjs(this.start_date).utc().format('YYYY-MM-DDTHH:mm:ss.SSSSSSZ')
+     }
+     this.filterParams = {...queryParams,...this.filterParams}
+    }
+     if (this.end_date.endDate !==null) {
+      console.log('ddddddddddddddd');
+      
+      const queryParams = {
+       ...this.filterParams,
+       end_date: dayjs(this.end_date.endDate).utc().format('YYYY-MM-DDTHH:mm:ss.SSSSSSZ')
+      }
+      this.filterParams = {...queryParams,...this.filterParams}
+     }
 
     const params = {
-      ...queryParams,
+      ...this.filterParams,
       page_number: 1,
       page_size: 100,
     };
 
-    this.filterParams = { ...this.filterParams, ...params };
+    this.filterParams = { ...params };
+    if(this.filterParams.start_date || this.filterParams.end_date || this.filterParams.vendor_name){
     setTimeout(() => {
       this.loader = true;
       // this.ngxLoader.start(); // Start the loader
       this.getImageryCollection(params);
       this.closeFilterMenu();
     }, 300);
+    }
   }
 
   //Filter menu close button
@@ -371,5 +402,54 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
     if (this.menuFilterTrigger) {
       this.menuFilterTrigger.closeMenu();
     }
+  }
+
+  onStartDateChange(event) {
+    console.log('Start Date Changed:', event);
+    
+    if (event.startDate) {
+     let date = dayjs(event.startDate).utc().startOf('day'); // Force start of day
+      
+      let today = dayjs().utc().startOf('day');
+      console.log(date,'datedatedatedatedatedatedate');
+      
+      // If start date is today, end date = current time, else set to 23:59
+    this.start_date=date.isSame(today, 'day') ? dayjs().utc(): date.startOf('day')
+    this.minDate = this.start_date
+    }
+  }
+
+  onEndDateChange(event) {
+    console.log('End Date Changed:', event);
+    
+    if (event.endDate) {
+      let selectedEndDate = dayjs(event.endDate).utc();
+      // Ensure End Date is not before Start Date
+      if (selectedEndDate.isBefore(this.start_date)) {
+        this.end_date = null
+        return console.error('End Date must be after Start date')
+      } else if (selectedEndDate.isSame(dayjs().utc(), 'day')) {
+        console.log('End Date is today, setting current time');
+        this.end_date = dayjs().utc()
+      //  return this.formGroup.get('end_date').setValue(dayjs().utc())
+      } else {
+        
+        this.end_date = dayjs(selectedEndDate).utc().endOf('day')
+        // this.formGroup.get('end_date').setValue(dayjs(selectedEndDate).utc().endOf('day'));
+        console.log('eeeeeeeeee',this.end_date);
+      }
+    }
+  }
+
+  resetFilter(): void {
+    this.vendor.reset()
+    this.start_date = ''
+    this.end_date = ''
+    let queryParams = {
+      page_number:1,
+      page_size : 50
+    }
+    this.filterParams = queryParams
+    this.getImageryCollection(queryParams)
   }
 }

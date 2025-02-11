@@ -6,7 +6,8 @@
     <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight"
       >Imagery</span
     >
-    <div class="flex items-center justify-center gap-[15px]"  >
+        
+    <div class="flex items-center justify-center gap-[15px]">
       <div class="relative flex justify-center items-center">
         <button
           class="flex gap-[5px] font-Barlow text-base font-medium justify-center items-center w-[70px] h-[50px] my-0 ml-[8px] rounded-[19px]"
@@ -33,10 +34,10 @@
           (closed)="onMenuClose()"
         >
           <div class="p-[15px]" (click)="$event.stopPropagation()">
-            <form
+            <div
               class="flex flex-col font-Barlow gap-[15px] w-[330px]"
-              [formGroup]="formGroup"
-              (ngSubmit)="onSubmit()"
+              
+             
             >
               <span
                 class="text-sm text-secondaryText font-Barlow font-bold leading-[18px]"
@@ -47,7 +48,7 @@
                 <mat-select
                   class="!text-secondaryText"
                   multiple
-                  formControlName="vendor"
+                  [formControl]="vendor"
                   name="vendor"
                 >
                   @for (vendor of vendorsList; track vendor) {
@@ -55,7 +56,7 @@
                   }
                 </mat-select>
               </mat-form-field>
-              <mat-form-field appearance="outline" id="filter-imagery">
+              <mat-form-field appearance="outline" id="filter-imagery" class="">
                 <mat-label>Start date</mat-label>
                 <input
                   matInput
@@ -66,9 +67,10 @@
                   [locale]="locale"
                   [autoApply]="true"
                   [maxDate]="maxDate"
+                  (datesUpdated)="onStartDateChange($event)"
                 />
               </mat-form-field>
-              <mat-form-field appearance="outline" id="filter-imagery">
+              <mat-form-field appearance="outline" id="filter-imagery" class="">
                 <mat-label>End date</mat-label>
                 <input
                   matInput
@@ -79,6 +81,8 @@
                   [locale]="locale"
                   [autoApply]="true"
                   [maxDate]="maxDate"
+                  [minDate]="start_date"
+                  (datesUpdated)="onEndDateChange($event)"
                 />
               </mat-form-field>
               <!-- <mat-form-field appearance="outline" id="filter" (click)="$event.stopPropagation()">
@@ -98,15 +102,16 @@
                 </button>
                 <button
                   class="text-xs w-1/2 leading-[18px] py-[9px] font-semibold my-[7px] mr-[7px] rounded-[10px] px-[20px] bg-yellow text-[#453303]"
-                  type="submit"
+                  (click)="onSubmit()"
                 >
                   Submit
                 </button>
               </div>
-            </form>
+            </div>
           </div>
         </mat-menu>
       </div>
+      <span class="p-[10px] flex bg-yellow rounded-[10px] text-secondaryBg font-Barlow text-sm font-medium cursor-pointer" (click)="resetFilter()">Reset</span>
       <span
         class="w-[16px] h-[14px] cursor-pointer"
         (click)="closeLibraryDrawer()"

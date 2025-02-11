@@ -4,6 +4,7 @@
       width: 410px !important;
       max-width: 470px !important;
       box-shadow: 5px 5px 5px 0px #0000001a !important;
+      overflow: visible !important;
     }
     .cdk-overlay-connected-position-bounding-box {
       top: 120px !important;
@@ -50,6 +51,25 @@
     }
   
     
+  }
+
+  ::ng-deep {
+    .md-drppicker{
+        background-color: #191E22 !important;
+        left: -268px !important;
+         .calendar-table {
+            background-color: #191E22 !important;
+            border: none !important;
+         }
+         td.off{
+            background-color: transparent !important;
+            color: #4A5863 !important;
+          }
+          td{
+            color: #ABB7C0 !important;
+            // margin: 0px !important;
+          }
+    }
   }
 
   #imagery_table ::ng-deep tbody {

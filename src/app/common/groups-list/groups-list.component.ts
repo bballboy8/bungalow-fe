@@ -69,15 +69,23 @@ export class GroupsListComponent {
     
     if (group !== this.activeIndex) {
       this.activeIndex = group
+      console.log('activeIndexactiveIndexactiveIndexactiveIndex',group);
+      this.selectedGroup.emit({ group });
+      this.SharedService.setGroupData(group)
     
     } else {
       this.activeIndex = null;
+      this.selectedGroup.emit( null )
+      this.SharedService.setGroupData(null)
     }
     this.isExpanded = !this.isExpanded; // Toggle expand/collapse
     this.backgroundColor = this.isExpanded ? '#232B32' : '#191E22';
+    
     if (this.isExpanded) {
-      this.selectedGroup.emit({ group })
-    }
+      console.log('Togglinggggggggggggggggggggggggggggg',group);
+      
+      
+    } 
   }
 
   setClass() {

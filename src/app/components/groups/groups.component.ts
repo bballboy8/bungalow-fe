@@ -237,7 +237,9 @@ export class GroupsComponent implements OnInit,AfterViewInit {
               duration: 2000  // Snackbar will disappear after 300 milliseconds
             });
           } else if(data.type === 'addSubgroup') {
-            const payload = {group_id:data?.group.id}
+            console.log(data,'addSubgroupaddSubgroupaddSubgroupaddSubgroup');
+            
+            const payload = {group_id:data?.group?.id || data.parent}
             this.satelliteService.getNestedGroup(payload).subscribe({
               next: (resp) => {
                 console.log(resp,'getNestedGroupgetNestedGroupgetNestedGroupgetNestedGroup');

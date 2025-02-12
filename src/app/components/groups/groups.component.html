@@ -1,7 +1,8 @@
 <div class="flex h-full flex-col z-[1000000000] font-Barlow">
     <div id="header"
         class="flex items-center justify-center self-stretch min-h-[48px] bg-secondaryBg px-[15px] gap-[15px] border-y border-solid border-custom-border">
-        <span class="text-xs leading-[18px] font-bold text-secondary-heiglight w-full">
+        <span class="text-xs leading-[18px] font-bold text-secondary-heiglight w-full flex gap-[15px] items-center">
+            <img src="assets/svg-icons/search-icon.svg" class="w-[14px] h-[14px]" />
             <input matInput placeholder="Search Groups Here" (keyup)="onKeyPress($event)"
                 class="outline-none bg-secondaryBg w-full placeholder:text-secondary-heiglight text-secondary-heiglight text-xs leading-[18px] font-bold" />
         </span>

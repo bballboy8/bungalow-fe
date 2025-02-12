@@ -357,7 +357,7 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
     if(this.vendor?.value?.length>0 || this.vendor.value !== null){
       const queryParams ={
         ...this.filterParams,
-        vendor_name: this.vendor.value,
+        vendor_name: this.vendor.value?.join(','),
 
       }
       this.filterParams = {...queryParams}

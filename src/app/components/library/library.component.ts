@@ -59,6 +59,7 @@ import { MatSliderModule } from "@angular/material/slider";
 import { Options,NgxSliderModule, LabelType } from '@angular-slider/ngx-slider';
 import momentZone from 'moment-timezone';
 import tzLookup from 'tz-lookup';
+import { CommonDailogsComponent } from "../../dailogs/common-dailogs/common-dailogs.component";
 
 export class Group {
   name?: string;
@@ -409,6 +410,14 @@ set zoomed_wkt(value: string) {
   defaultMaxAngle = 55;
   defaultMinGsd = 0;
   defaultMaxGsd = 4;
+  defaultMinAzimuthAngle = 0;
+  defaultMaxAzimuthAngle = 365;
+  defaultMinholdbackSecond = -1;
+  defaultMaxHoldbackSecond = 5100000;
+  defaultMinIlluminationAzimuthAngle = 0;
+  defaultMaxIlluminationAzimuthAngle = 365;
+  defaultMinIlluminationElevationAngle = 0;
+  defaultMaxIlluminationElevationAngle = 365;
   max_cloud:number = this.defaultMaxCloud
   min_cloud: number = this.defaultMinCloud;
   options: Options = {
@@ -431,6 +440,14 @@ set zoomed_wkt(value: string) {
   };
   max_angle:number = this.defaultMaxAngle;
   min_angle: number = this.defaultMinAngle;
+  min_azimuth_angle:number = this.defaultMinAzimuthAngle;
+  max_azimuth_angle:number = this.defaultMaxAzimuthAngle;
+  min_holdback_seconds:number = this.defaultMinholdbackSecond;
+  max_holdback_seconds:number = this.defaultMaxHoldbackSecond;
+  min_illumination_azimuth_angle:number = this.defaultMinIlluminationAzimuthAngle;
+  max_illumination_azimuth_angle:number = this.defaultMaxIlluminationAzimuthAngle;
+  min_illumination_elevation_angle:number = this.defaultMinIlluminationElevationAngle;
+  max_illumination_elevation_angle:number = this.defaultMaxIlluminationElevationAngle;
   angleOptions: Options = {
     step: 5,
     showTicks: true,
@@ -441,6 +458,62 @@ set zoomed_wkt(value: string) {
         return '0';
       } else if (value === 55) {
         return '50+';
+      }
+      return `${value}°`; // Default for other values
+    },
+  };
+  azimuthOptions: Options = {
+    step: 10,
+    showTicks: true,
+    floor: 0,
+    ceil: 365,
+    translate: (value: number, label: LabelType): string => {
+      if (value === 0) {
+        return '0';
+      } else if (value === 365) {
+        return '360+';
+      }
+      return `${value}°`; // Default for other values
+    },
+  };
+  holdbackOptions: Options = {
+    step: 150000,
+    showTicks: true,
+    floor: -1,
+    ceil: 5100000,
+    translate: (value: number, label: LabelType): string => {
+      if (value === 0) {
+        return '0';
+      } else if (value === 5100000) {
+        return '5000000+';
+      }
+      return `${value}°`; // Default for other values
+    },
+  };
+  illuminationAzimuthOptions: Options = {
+    step: 10,
+    showTicks: true,
+    floor: 1,
+    ceil: 365,
+    translate: (value: number, label: LabelType): string => {
+      if (value === 0) {
+        return '0';
+      } else if (value === 365) {
+        return '360+';
+      }
+      return `${value}°`; // Default for other values
+    },
+  };
+  illuminationElevationOptions: Options = {
+    step: 10,
+    showTicks: true,
+    floor: 1,
+    ceil: 365,
+    translate: (value: number, label: LabelType): string => {
+      if (value === 0) {
+        return '0';
+      } else if (value === 365) {
+        return '360+';
       }
       return `${value}°`; // Default for other values
     },
@@ -1372,21 +1445,13 @@ private handleWheelEvent = (event: WheelEvent): void => {
         minCloud = this.min_cloud
       } 
       let queryParams ={
+        ...this.filterParams,
         page_number: this.page_number,
         page_size: this.page_size,
         start_date:this.startDate,
         end_date: this.endDate,
         source: 'library',
         zoomed_wkt:this._zoomed_wkt,
-        max_cloud_cover: this.max_cloud,
-        min_cloud_cover:minCloud,
-        max_off_nadir_angle: this.max_angle === 55 ? 1000: this.max_angle,
-        min_off_nadir_angle:this.min_angle,
-        vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
-        vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
-        type:this.formGroup.get('type')?.value?this.formGroup.get('type').value?.join(','):'',
-        max_gsd:this.max_gsd === 4 ? 1000 : this.max_gsd,
-        min_gsd:this.min_gsd,
       }
       const payload = {
         wkt_polygon: this.polygon_wkt
@@ -1552,15 +1617,7 @@ getDateTimeFormat(dateTime: string) {
     
   }
   //Filter Form submit functionality
-  onSubmit() {
-    this.updateFilterCount(); 
-    let minCloud
-    if(this.min_cloud <= -1) {
-      minCloud = -1
-    } else {
-      minCloud = this.min_cloud
-    } 
-      const datetime = this.formGroup.value.end_date;
+  onSubmit(filters?: any) {
       let timeZone: string;
       if(this.selectedZone === 'local'){
         timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone; 
@@ -1571,29 +1628,25 @@ getDateTimeFormat(dateTime: string) {
       const payload = {
         wkt_polygon: this.polygon_wkt
       }
-      let queryParams = {
-        ...this.filterParams,
-        end_date:this.getDateValue(this.endDate),
-        start_date:this.getDateValue(this.startDate),
-        max_cloud_cover: this.max_cloud === 60 ? 1000 : this.max_cloud,
-        min_cloud_cover:minCloud,
-        max_off_nadir_angle: this.max_angle === 55 ? 1000: this.max_angle,
-        min_off_nadir_angle:this.min_angle,
-        vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
-        vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
-        user_duration_type:this.formGroup.get('type')?.value?this.formGroup.get('type').value?.join(','):'',
-        user_timezone:timeZone,
-        max_gsd:this.max_gsd === 4 ? 1000 : this.max_gsd,
-        min_gsd:this.min_gsd,
-        focused_records_ids: this.idArray,
-        zoomed_wkt: this._zoomed_wkt
-      }
+      let queryParams: any = {
+        ...filters,
+        end_date: this.getDateValue(this.endDate),
+        start_date: this.getDateValue(this.startDate),
+        user_timezone: timeZone,
+        focused_records_ids: this.idArray
+      };
+    
+      let filterCount = 0; // Counter for applied filters
+    
+    
+      // Log the number of applied filters
+      console.log("Number of filters applied:", filterCount);
       if (this._zoomed_wkt !== '') {
-        queryParams = {...queryParams,  zoomed_wkt: this._zoomed_wkt}
+        queryParams._zoomed_wkt = this.zoomed_wkt
        
         
       } else {
-        queryParams = {...queryParams,  zoomed_wkt: ''}
+        queryParams._zoomed_wkt = ''
        
       }
       const params = {
@@ -1609,10 +1662,10 @@ getDateTimeFormat(dateTime: string) {
         start_date: this.startDate,
         end_date: this.endDate
     }
-      this.filterParams = {...this.filterParams, ...params}
+      this.filterParams = {...this.filterParams, ...queryParams}
 
-      console.log('Selected Date and Time:', params);
-      this.parentFilter.emit(queryParams)
+      console.log('Selected Date and Time:', this.filterParams);
+      this.parentFilter.emit(this.filterParams)
       this.onFilterset.emit({params:  this.filterParams, payload});
      setTimeout(() => {
       this.loader = true
@@ -1621,10 +1674,28 @@ getDateTimeFormat(dateTime: string) {
       this.closeFilterMenu()
      },300)
      if(this.isEventsOpened){
-     this.getCalendarData(calendarPayload,this.filterParams)
+     this.getCalendarData(calendarPayload,params)
      }
   }
 
+  openFilterDialog(){
+    console.log(this.filterParams,'openFilterDialogopenFilterDialogopenFilterDialogopenFilterDialog');
+    
+    const data = {filterParams:this.filterParams,type:'filters'}
+    const dialogRef = this.dialog.open(CommonDailogsComponent, {
+            width: '550px',
+            height: 'auto',
+            data: data,
+            panelClass: 'filter-dialog-class',
+          });
+          dialogRef.afterClosed().subscribe((result) => {
+            console.log('Dialog closed', result);
+            if(result.queryParams){
+              this.onSubmit(result.queryParams)
+              this.filterCount = result.filterCount
+            }
+          })
+  }
   //Get Date Value function
   getDateValue(date:any){
     if (!date) {

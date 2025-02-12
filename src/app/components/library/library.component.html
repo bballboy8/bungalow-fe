@@ -359,127 +359,13 @@
                                         <button
                                             class=" flex gap-[5px] font-Barlow text-sm font-medium justify-center items-center w-[60px] h-[40px] my-0 ml-[8px] rounded-[15px]"
                                             [ngClass]="filterCount >0 ? 'bg-yellow ':'bg-primaryBg'"
-                                            (click)="setFilterClass()" [matMenuTriggerFor]="filter"
-                                            #menuFilterTrigger="matMenuTrigger">
+                                            (click)="openFilterDialog()" 
+                                            >
                                             <img [src]="filterCount>0 ? 'assets/svg-icons/filter-icon-active.svg':'assets/svg-icons/filter-icon.svg'"
                                                 alt="">
                                             {{filterCount >0 ? filterCount :''}}
                                         </button>
-                                        <mat-menu #filter="matMenu" (click)="$event.stopPropagation()" id="filter"
-                                            class="bg-primaryBg" (closed)="onMenuClose()">
-                                            <div class="p-[10px]" (click)="$event.stopPropagation()">
-                                                <form class="flex flex-col font-Barlow gap-[10px] w-[280px]"
-                                                    [formGroup]="formGroup" (ngSubmit)="onSubmit()">
-                                                    <span
-                                                        class="text-sm text-secondaryText font-Barlow font-bold leading-[16px]">Apply
-                                                        filters</span>
-                                                    <mat-form-field appearance="outline" id="filter">
-                                                        <mat-label class="!text-secondaryText text-xs">Vendor name</mat-label>
-                                                        <mat-select class="!text-secondaryText text-xs" multiple
-                                                            formControlName="vendor" name="vendor">
-                                                            @for (vendor of vendorsList; track vendor) {
-                                                            <mat-option [value]="vendor">{{vendor}}</mat-option>
-                                                            }
-                                                        </mat-select>
-                                                    </mat-form-field>
-                                                    <mat-form-field appearance="outline" id="filter">
-                                                        <mat-label class="!text-secondaryText text-xs">Type</mat-label>
-                                                        <mat-select class="!text-secondaryText text-xs" multiple
-                                                            formControlName="type" name="type">
-                                                            @for (type of typesList; track type) {
-                                                            <mat-option [value]="type">{{type}}</mat-option>
-                                                            }
-                                                        </mat-select>
-                                                    </mat-form-field>
-                                                    <mat-form-field appearance="outline" id="filter">
-                                                        <mat-label class="!text-secondaryText text-xs">Vendor ID</mat-label>
-                                                        <input class="!text-secondaryText text-xs" matInput type="text"
-                                                            formControlName="vendorId">
-                                                    </mat-form-field>
-
-                                                    <div class="flex-col gap-2 custom-slider pb-[10px] relative">
-                                                        <!-- <mat-form-field class="w-1/2" appearance="outline" id="filter" (click)="$event.stopPropagation()">
-                                            <mat-label class="!text-secondaryText">Min Cloud Cover</mat-label>
-                                            <input class="!text-secondaryText" matInput [max]="100" type="number" formControlName="min_cloud">
-                                        </mat-form-field>
-                                        <mat-form-field class="w-1/2" appearance="outline" id="filter" (click)="$event.stopPropagation()">
-                                            <mat-label class="!text-secondaryText">Max Cloud Cover</mat-label>
-                                            <input class="!text-secondaryText" matInput [max]="100" type="number" formControlName="max_cloud">
-                                        </mat-form-field> -->
-                                                        <mat-label class="!text-secondaryText text-xs">Cloud Cover
-                                                            (%)</mat-label>
-                                                        <ngx-slider (click)="$event.stopPropagation()" class="z-20"
-                                                            *ngIf="sliderShow" #sliderElement [(value)]="min_cloud"
-                                                            [(highValue)]="max_cloud" [options]="options"></ngx-slider>
-                                                        <span
-                                                            class="!text-secondaryText absolute -bottom-[5px] -left-[19px] text-xs">SAR</span>
-                                                        <span
-                                                            class="!text-secondaryText absolute -bottom-[5px]  left-[45px] text-xs">0</span>
-                                                        <span
-                                                            class="!text-secondaryText absolute -bottom-[5px] -right-[13px] text-xs">50+</span>
-                                                    </div>
-                                                    <!-- <mat-form-field appearance="outline" id="filter" (click)="$event.stopPropagation()">
-                                        <mat-label>GSD</mat-label>
-                                        <input matInput type="text" formControlName="gsd">
-                                    </mat-form-field> -->
-                                                    <div class="flex-col gap-2 custom-slider"
-                                                        (click)="$event.stopPropagation()">
-                                                        <!-- <mat-form-field class="w-1/2" appearance="outline" id="filter" (click)="$event.stopPropagation()">
-                                            <mat-label class="!text-secondaryText">Min Off NADIR Angle</mat-label>
-                                            <input class="!text-secondaryText" matInput [max]="360" type="number" formControlName="min_angle">
-                                        </mat-form-field>
-                                        <mat-form-field class="w-1/2" appearance="outline" id="filter" (click)="$event.stopPropagation()">
-                                            <mat-label class="!text-secondaryText">Max Off NADIR Angle</mat-label>
-                                            <input class="!text-secondaryText" matInput [max]="360" type="number" formControlName="max_angle">
-                                        </mat-form-field> -->
-                                                        <mat-label class="!text-secondaryText text-xs">Off NADIR Angle
-                                                            (°)</mat-label>
-                                                        <ngx-slider *ngIf="sliderShow" #sliderElement
-                                                            [(value)]="min_angle" [(highValue)]="max_angle"
-                                                            [options]="angleOptions"
-                                                            (click)="$event.stopPropagation()"></ngx-slider>
-                                                    </div>
-                                                    <div class="flex-col gap-2 custom-slider"
-                                                        (click)="$event.stopPropagation()">
-                                                        <!-- <mat-form-field  class="w-1/2" appearance="outline" id="filter" (click)="$event.stopPropagation()">
-                                            <mat-label class="!text-secondaryText">Min GSD</mat-label>
-                                            <input class="!text-secondaryText" matInput [max]="100" type="number" formControlName="min_gsd">
-                                        </mat-form-field>
-                                        <mat-form-field class="w-1/2" appearance="outline" id="filter" (click)="$event.stopPropagation()">
-                                            <mat-label class="!text-secondaryText">Max GSD</mat-label>
-                                            <input class="!text-secondaryText" matInput [max]="100" type="number" formControlName="max_gsd">
-                                        </mat-form-field> -->
-                                                        <mat-label class="!text-secondaryText text-xs">GSD (m)</mat-label>
-
-                                                        <ngx-slider *ngIf="sliderShow"
-                                                            (click)="$event.stopPropagation()" #sliderElement
-                                                            [(value)]="min_gsd" [(highValue)]="max_gsd"
-                                                            [options]="gsd_options"></ngx-slider>
-                                                    </div>
-                                                    <!-- <mat-form-field appearance="outline" id="filter" (click)="$event.stopPropagation()">
-                                        <mat-label>Start date</mat-label>
-                                        <input matInput [matDatepicker]="start" formControlName="start_date">
-                                          <mat-hint>MM/DD/YYYY</mat-hint>
-                                          <mat-datepicker-toggle matIconSuffix [for]="start"></mat-datepicker-toggle>
-                                          <mat-datepicker #start></mat-datepicker>
-                                    </mat-form-field> -->
-                                                    <div class="flex gap-3 justify-center">
-                                                        <button (click)="closeFilterMenu()"
-                                                            class="text-xs w-1/2 leading-[16px] py-[7px] font-semibold my-[5px] mr-[7px] rounded-[8px] px-[15px] bg-secondary-heiglight text-secondaryText"
-                                                            type="button">
-                                                            Cancel
-                                                        </button>
-                                                        <button
-                                                            class="text-xs w-1/2 leading-[16px] py-[7px] font-semibold my-[5px] mr-[7px] rounded-[8px] px-[15px] bg-yellow text-[#453303]"
-                                                            type="submit">
-                                                            Submit
-                                                        </button>
-                                                    </div>
-                                                </form>
-                                            </div>
-
-
-                                        </mat-menu>
+                                        
                                     </div>
                                     <button (click)="calendarEventsOpen()"
                                         class="py-[9px] px-[20px] my-0 mx-[8px] rounded-[19px]"
@@ -739,13 +625,13 @@
                                             [@detailExpand]="element == expandedElement ? 'expanded' : 'collapsed'">
                                             <div class="p-7 flex" *ngIf="expandedElement !== null">
                                                 <div class="image relative bg-secondary-heiglight rounded-[5px]">
-                                                    <img [src]="element?.presigned_url" alt="">
+                                                    <img class="w-[350px]" [src]="element?.presigned_url" alt="">
                                                     <img class="absolute cursor-pointer right-[20px] bottom-[15px]"
                                                         src="assets/svg-icons/image-zoom-icon.svg" alt="" />
                                                 </div>
                                                 <div class="detail px-3">
                                                     <div class="flex py-2"> <span
-                                                            class="text-secondary-heiglight font-semibold">Constellation:
+                                                            class="text-secondary-heiglight font-semibold">Vendor:
                                                         </span> <span
                                                             class="text-secondaryText">{{element?.vendor_name}}</span>
                                                     </div>
@@ -755,35 +641,64 @@
                                                             class="text-secondaryText">{{getFormattedDate(element?.acquisition_datetime,element?.centroid)}}</span>
                                                     </div>
                                                     <div class="flex py-2"> <span
-                                                            class="text-secondary-heiglight font-semibold">Day of Week:
-                                                        </span> <span
-                                                            class="text-secondaryText">{{getDayOfWeek(element?.acquisition_datetime,element?.centroid)}}</span>
-                                                    </div>
-                                                    <div class="flex py-2"> <span
-                                                            class="text-secondary-heiglight font-semibold">Image ID:
+                                                        class="text-secondary-heiglight font-semibold">Image ID:
                                                         </span> <span
                                                             class="text-secondaryText">{{element?.vendor_id}}</span>
                                                     </div>
-                                                    <!-- <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Time:
-                                            </span> <span class="text-secondaryText">{{formatUtcTime(element?.acquisition_datetime)}}</span> </div> -->
                                                     <div class="flex py-2"> <span
-                                                            class="text-secondary-heiglight font-semibold">Cloud Cover:
+                                                        class="text-secondary-heiglight font-semibold">Cloud Cover:
                                                         </span> <span class="text-secondaryText">{{ element?.vendor_name
                                                             !== 'capella' && element?.vendor_name !== 'skyfi-umbra' ?
                                                             roundOff(element?.cloud_cover)+'%' : 'SAR' }}</span>
+                                                     </div>
+                                                     <div class="flex py-2">
+                                                        <span class="text-secondary-heiglight font-semibold">Constellation: </span> 
+                                                        <span class="text-secondaryText">{{ element?.constellation}}</span>
                                                     </div>
+                                                    <div class="flex py-2">
+                                                        <span class="text-secondary-heiglight font-semibold">Platform: </span> 
+                                                        <span class="text-secondaryText">{{ element?.platform}}</span>
+                                                    </div>
+                                                    
+                                                    <div class="flex py-2">
+                                                        <span class="text-secondary-heiglight font-semibold">GSD:</span>
+                                                        <span
+                                                            class="text-secondaryText">{{roundOff(element?.gsd)}}m
+                                                        </span>
+                                                    </div>
+                                                    <div class="flex py-2"> <span
+                                                        class="text-secondary-heiglight font-semibold">Off NADIR
+                                                        Angle: </span> <span
+                                                        class="text-secondaryText">{{element?.sun_elevation.toFixed(2)}}°</span>
+                                                    </div>
+                                                    <div class="flex py-2">
+                                                        <span class="text-secondary-heiglight font-semibold">Azimuth Angle: </span> 
+                                                        <span class="text-secondaryText">{{element?.azimuth_angle? element?.azimuth_angle.toFixed(2):'0'}}</span>
+                                                    </div>
+                                                    <div class="flex py-2">
+                                                        <span class="text-secondary-heiglight font-semibold">Satellite Azimuth Angle: </span> 
+                                                        <span class="text-secondaryText">{{element?.illumination_azimuth_angle? element?.illumination_azimuth_angle.toFixed(2):'0'}}</span>
+                                                    </div>
+                                                    <div class="flex py-2">
+                                                        <span class="text-secondary-heiglight font-semibold">Illumination Elevation Angle: </span> 
+                                                        <span class="text-secondaryText">{{element?.illumination_elevation_angle? element?.illumination_elevation_angle.toFixed(2):'0'}}</span>
+                                                    </div>
+                                                    <div class="flex py-2">
+                                                        <span class="text-secondary-heiglight font-semibold">Publication Date Time: </span> 
+                                                        <span class="text-secondaryText">{{element?.publication_datetime? getFormattedDate(element?.publication_datetime):null}}</span>
+                                                    </div>
+                                                    <div class="flex py-2"> <span
+                                                            class="text-secondary-heiglight font-semibold">Day of Week:
+                                                        </span><span
+                                                            class="text-secondaryText">{{getDayOfWeek(element?.acquisition_datetime,element?.centroid)}}</span>
+                                                    </div>
+                                                    
+                                                    <!-- <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Time:
+                                            </span> <span class="text-secondaryText">{{formatUtcTime(element?.acquisition_datetime)}}</span> </div> -->
                                                     <!-- <div class="flex py-2"> <span
                                             class="text-secondary-heiglight font-semibold">Constellation: </span> <span
                                             class="text-secondaryText">{{element?.resolution}}</span> </div> -->
-                                                    <div class="flex py-2"> <span
-                                                            class="text-secondary-heiglight font-semibold">Platform:
-                                                        </span> <span
-                                                            class="text-secondaryText">{{element?.sensor}}</span> </div>
-                                                    <div class="flex py-2"> <span
-                                                            class="text-secondary-heiglight font-semibold">GSD:</span>
-                                                        <span
-                                                            class="text-secondaryText">{{roundOff(element?.gsd)}}m</span>
-                                                    </div>
+                                                   
                                                     <div class="flex py-2"> <span
                                                             class="text-secondary-heiglight font-semibold">Area:
                                                         </span> <span
@@ -796,11 +711,7 @@
                                                     </div>
                                                     <!-- <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Collection Date:
                                         </span> <span class="text-secondaryText">{{getDateTimeFormat(element?.acquisition_datetime)}}</span> </div> -->
-                                                    <div class="flex py-2"> <span
-                                                            class="text-secondary-heiglight font-semibold">Off NADIR
-                                                            Angle: </span> <span
-                                                            class="text-secondaryText">{{element?.sun_elevation.toFixed(2)}}°</span>
-                                                    </div>
+                                                    
                                                     <div class="flex gap-2 py-2"> <span
                                                             class="text-secondary-heiglight font-semibold">Centroid Lat:
                                                         </span>

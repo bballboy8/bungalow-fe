@@ -299,164 +299,248 @@
                     }
 
 
-         <div class="bg-secondaryBg w-full relative mt-3" id="custom_table" style="height: 800px;">
-            <div id="container" class="flex m-[20px] justify-between items-center flex-wrap gap-2">
-            <!-- <p class="text-xs font-semibold leading-[18px] text-secondaryText">Image library 11</p> -->
-            <div class="rounded-[25px] bg-primaryBg flex items-center justify-between">
-                <button (click)="selectPreviewMethod('table')"
-                    class="text-xs leading-[18px] py-[9px] font-semibold my-[7px] mr-[10px] ml-[7px] rounded-[19px] px-[20px]"
-                    [ngClass]="viewType ==='table'?'text-[#453303] bg-yellow':'text-secondary-heiglight'">Image Library
-                     {{viewType ==='table'? zoomed_captures_count + ' / ':''}}{{viewType ==='table'? formatNumber(total_count):''}}</button>
-                <button (click)="selectPreviewMethod('browse')"
-                    class="text-xs leading-[18px] py-[9px] font-semibold my-[7px] mr-[7px] rounded-[19px] px-[20px] "
-                    [ngClass]="viewType ==='browse'?'text-[#453303] bg-yellow':'text-secondary-heiglight'">Browse
-                    {{viewType ==='browse'? zoomed_captures_count + ' / ':''}}{{viewType ==='browse'? formatNumber(total_count):''}}</button>
-            </div>
-            <div>
-                <div [matMenuTriggerFor]="columnsMenu" (click)="setColumnMenuClass()" class="p-[10px] cursor-pointer flex justify-center items-center rounded-[5px] border border-solid border-yellow">
-                    <img src="assets/svg-icons/toggle-column-icon.svg" alt="" width="20" height="20" />
-                </div>
-                <mat-menu class="bg-primaryBg p-[15px]" #columnsMenu="matMenu">
-                    
-                    <div class="bg-primaryBg flex flex-col gap-[10px]">
-                        <mat-form-field appearance="outline" id="filter" (click)="$event.stopPropagation()">
-                            <mat-label class="!text-secondaryText">Search columns</mat-label>
-                            <input matInput 
-                                placeholder="Search columns"
-                                [ngModel]="searchQuery"
-                                (ngModelChange)="onSearchChange($event)"
-                            class="!text-secondaryText placeholder:!text-secondaryText">
-                        </mat-form-field>
-                        <button class="text-secondaryBg bg-yellow p-[10px] rounded-[5px]" (click)="resetColumns()"> Reset Columns</button>
-                        <div *ngFor="let col of filteredColumns" class="menu-item" (click)="$event.stopPropagation()">
-                          <mat-checkbox [(ngModel)]="col.visible" 
-                          color="primary" 
-                          (click)="$event.stopPropagation()" 
-                          [disabled]="col.id === 'acquisition_datetime'"
-                          [checked]="col.id === 'acquisition_datetime' ? true : col.visible">
-                            <span class="text-secondaryText">{{col.displayName}}</span>
-                          </mat-checkbox>
-                        </div>
-                      </div>
-                </mat-menu>
-            </div>
-            <div class="Menu">
-                <div class="flex">
-                    <div class="rounded-[25px] bg-primaryBg flex items-center justify-between">
-                        <button (click)="selectedTimeZone('UTC')"
-                            class="text-xs leading-[18px] py-[9px] font-semibold my-[6px] mr-[10px] ml-[8px]  rounded-[19px] px-[20px] "
-                            [ngClass]="selectedZone ==='UTC'?' bg-yellow text-[#453303]':'text-secondary-heiglight'">UTC</button>
-                        <button (click)="selectedTimeZone('local')"
-                            class="text-xs leading-[18px] py-[9px] font-semibold my-[6px] mr-[7px]  rounded-[19px] px-[20px]"
-                            [ngClass]="selectedZone ==='local'?' bg-yellow text-[#453303]':'text-secondary-heiglight'">Local
-                            time</button>
-                    </div>
-                    <div class="relative flex justify-center items-center">
-                        <button class="flex gap-[5px] font-Barlow text-sm font-medium justify-center items-center w-[60px] h-[40px] my-0 ml-[8px] rounded-[15px]" [ngClass]="filterCount > 0 ? 'bg-yellow' : 'bg-primaryBg'" (click)="setFilterClass()" [matMenuTriggerFor]="filter" #menuFilterTrigger="matMenuTrigger">
-                            <img [src]="filterCount > 0 ? 'assets/svg-icons/filter-icon-active.svg' : 'assets/svg-icons/filter-icon.svg'" alt="">
-                            {{ filterCount > 0 ? filterCount : '' }}
-                        </button>
-                        <mat-menu #filter="matMenu" (click)="$event.stopPropagation()" id="filter" class="bg-primaryBg" (closed)="onMenuClose()">
-                            <div class="p-[10px]" (click)="$event.stopPropagation()">
-                                <form class="flex flex-col font-Barlow gap-[10px] w-[280px]" [formGroup]="formGroup" (ngSubmit)="onSubmit()">
-                                    <span class="text-xs text-secondaryText font-Barlow font-bold leading-[16px]">Apply filters</span>
-                                    <mat-form-field appearance="outline" id="filter">
-                                        <mat-label class="!text-secondaryText text-xs">Vendor name</mat-label>
-                                        <mat-select class="!text-secondaryText text-xs" multiple formControlName="vendor" name="vendor">
-                                            @for (vendor of vendorsList; track vendor) {
-                                                <mat-option [value]="vendor">{{vendor}}</mat-option>
-                                            }
-                                        </mat-select>
-                                    </mat-form-field>
-                                    <mat-form-field appearance="outline" id="filter">
-                                        <mat-label class="!text-secondaryText text-xs">Type</mat-label>
-                                        <mat-select class="!text-secondaryText text-xs" multiple formControlName="type" name="type">
-                                            @for (type of typesList; track type) {
-                                                <mat-option [value]="type">{{type}}</mat-option>
-                                            }
-                                        </mat-select>
-                                    </mat-form-field>
-                                    <mat-form-field appearance="outline" id="filter">
-                                        <mat-label class="!text-secondaryText text-xs">Vendor ID</mat-label>
-                                        <input class="!text-secondaryText text-xs" matInput type="text" formControlName="vendorId">
-                                    </mat-form-field>
-                    
-                                    <div class="flex-col gap-2 custom-slider pb-[10px] relative">
-                                        <mat-label class="!text-secondaryText text-xs">Cloud Cover (%)</mat-label>
-                                        <ngx-slider (click)="$event.stopPropagation()" class="z-20" *ngIf="sliderShow" #sliderElement [(value)]="min_cloud" [(highValue)]="max_cloud" [options]="options"></ngx-slider>
-                                        <span class="!text-secondaryText absolute -bottom-[5px] -left-[19px] text-xs">SAR</span>
-                                        <span class="!text-secondaryText absolute -bottom-[5px] left-[45px] text-xs">0</span>
-                                        <span class="!text-secondaryText absolute -bottom-[5px] -right-[13px] text-xs">50+</span>
-                                    </div>
-                    
-                                    <div class="flex-col gap-2 custom-slider" (click)="$event.stopPropagation()">
-                                        <mat-label class="!text-secondaryText text-xs">Off NADIR Angle (°)</mat-label>
-                                        <ngx-slider *ngIf="sliderShow" #sliderElement [(value)]="min_angle" [(highValue)]="max_angle" [options]="angleOptions" (click)="$event.stopPropagation()"></ngx-slider>
-                                    </div>
-                    
-                                    <div class="flex-col gap-2 custom-slider" (click)="$event.stopPropagation()">
-                                        <mat-label class="!text-secondaryText text-xs">GSD (m)</mat-label>
-                                        <ngx-slider *ngIf="sliderShow" (click)="$event.stopPropagation()" #sliderElement [(value)]="min_gsd" [(highValue)]="max_gsd" [options]="gsd_options"></ngx-slider>
-                                    </div>
-                    
-                                    <div class="flex gap-3 justify-center">
-                                        <button (click)="closeFilterMenu()" class="text-xs w-1/2 leading-[16px] py-[7px] font-semibold my-[5px] mr-[7px] rounded-[8px] px-[15px] bg-secondary-heiglight text-secondaryText" type="button">
-                                            Cancel
-                                        </button>
-                                        <button class="text-xs w-1/2 leading-[16px] py-[7px] font-semibold my-[5px] mr-[7px] rounded-[8px] px-[15px] bg-yellow text-[#453303]" type="submit">
-                                            Submit
-                                        </button>
-                                    </div>
-                                </form>
+                    <div class="bg-secondaryBg w-full relative mt-3" id="custom_table" style="height: 800px;">
+                        <div id="container" class="flex m-[20px] justify-between items-center flex-wrap gap-2">
+                            <!-- <p class="text-xs font-semibold leading-[18px] text-secondaryText">Image library 11</p> -->
+                            <div class="rounded-[25px] bg-primaryBg flex items-center justify-between">
+                                <button (click)="selectPreviewMethod('table')"
+                                    class="text-xs leading-[18px] py-[9px] font-semibold my-[7px] mr-[10px] ml-[7px] rounded-[19px] px-[20px]"
+                                    [ngClass]="viewType ==='table'?'text-[#453303] bg-yellow':'text-secondary-heiglight'">Image
+                                    Library
+                                    {{viewType ==='table'? zoomed_captures_count + ' / ':''}}{{viewType ==='table'?
+                                    formatNumber(total_count):''}}</button>
+                                <button (click)="selectPreviewMethod('browse')"
+                                    class="text-xs leading-[18px] py-[9px] font-semibold my-[7px] mr-[7px] rounded-[19px] px-[20px] "
+                                    [ngClass]="viewType ==='browse'?'text-[#453303] bg-yellow':'text-secondary-heiglight'">Browse
+                                    {{viewType ==='browse'? zoomed_captures_count + ' / ':''}}{{viewType ==='browse'?
+                                    formatNumber(total_count):''}}</button>
                             </div>
-                        </mat-menu>
-                    </div>
-                    <button (click)="calendarEventsOpen()" class="py-[9px] px-[20px] my-0 mx-[8px] rounded-[19px]"
-                        [ngClass]="isEventsOpened ?'text-[#453303] bg-yellow':'bg-primaryBg'">
-                        @if (isEventsOpened) {
-                        <img src="assets/svg-icons/calendar-icon-black.svg" alt="">
-                        } @else {
-                        <img src="assets/svg-icons/calendar-icon.svg" alt="">
-                        } </button>
-                </div>
-            </div>
-            <div class="flex justify-end">
-                <span class="p-[10px] flex bg-yellow rounded-[10px] text-secondaryBg font-Barlow text-sm font-medium cursor-pointer" (click)="resetSorting()">Reset</span>
-             </div>
-        </div>
-        <div *ngIf="loader" class="z-[1000000] absolute" id="loader"> <ngx-ui-loader></ngx-ui-loader></div>
-        @if (viewType=='browse') {
-        <div class="w-[840px] overflow-auto browser-content" #scrollableDiv>
-            <div class="flex flex-start all_wrap flex-wrap ml-[20px]">
-               @if(dataSource?.data?.length){
-                
-                <div class="flex flex-col w-full gap-[10px] pb-[5px] border-b-2 border-b-solid border-b-red-600" *ngIf="overlapListData.length>0">
-                    <span class="text-sm text-secondaryText leading-[18px]">Overlap</span>
-                    <div class="flex flex-start all_wrap flex-wrap">
-                    <div *ngFor="let item of getInviewList(0, focused_captures_count);let index = index"
-                    class="bg-secondaryBg rounded-[5px] relative font-Barlow single_browse w-[182px]">
-                        <div class="flex flex-col" 
-                            >
-                            <div class="relative h-[220px] bg-[#232B32] w-[181.262px] group cursor-pointer" (mouseover)="onRowHover(item)"
-                            (mouseout)="onRowHover(null)" (click)="openImagePreviewDialog(index)">
-                                @if (item?.presigned_url) {
-                                    <img [src]="item?.presigned_url" alt="Map" class="w-full h-full object-contain">
-                                } @else {
-                                    <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Image not found</span>
-                                }
-                                <div
-                                    class="absolute inset-0 bg-black/70 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                    <img src="assets/svg-icons/magnifying-icon.svg" alt="" srcset="">
+                            <div>
+                                <div [matMenuTriggerFor]="columnsMenu" (click)="setColumnMenuClass()"
+                                    class="p-[10px] cursor-pointer flex justify-center items-center rounded-[5px] border border-solid border-yellow">
+                                    <img src="assets/svg-icons/toggle-column-icon.svg" alt="" width="20" height="20" />
+                                </div>
+                                <mat-menu class="bg-primaryBg p-[15px]" #columnsMenu="matMenu">
+
+                                    <div class="bg-primaryBg flex flex-col gap-[10px]">
+                                        <mat-form-field appearance="outline" id="filter"
+                                            (click)="$event.stopPropagation()">
+                                            <mat-label class="!text-secondaryText">Search columns</mat-label>
+                                            <input matInput placeholder="Search columns" [ngModel]="searchQuery"
+                                                (ngModelChange)="onSearchChange($event)"
+                                                class="!text-secondaryText placeholder:!text-secondaryText">
+                                        </mat-form-field>
+                                        <button class="text-secondaryBg bg-yellow p-[10px] rounded-[5px]"
+                                            (click)="resetColumns()"> Reset Columns</button>
+                                        <div *ngFor="let col of filteredColumns" class="menu-item"
+                                            (click)="$event.stopPropagation()">
+                                            <mat-checkbox [(ngModel)]="col.visible" color="primary"
+                                                (click)="$event.stopPropagation()"
+                                                [disabled]="col.id === 'acquisition_datetime'"
+                                                [checked]="col.id === 'acquisition_datetime' ? true : col.visible">
+                                                <span class="text-secondaryText">{{col.displayName}}</span>
+                                            </mat-checkbox>
+                                        </div>
+                                    </div>
+                                </mat-menu>
+                            </div>
+                            <div class="Menu">
+                                <div class="flex">
+                                    <div class="rounded-[25px] bg-primaryBg flex items-center justify-between">
+                                        <button (click)="selectedTimeZone('UTC')"
+                                            class="text-xs leading-[18px] py-[9px] font-semibold my-[6px] mr-[10px] ml-[8px]  rounded-[19px] px-[20px] "
+                                            [ngClass]="selectedZone ==='UTC'?' bg-yellow text-[#453303]':'text-secondary-heiglight'">UTC</button>
+                                        <button (click)="selectedTimeZone('local')"
+                                            class="text-xs leading-[18px] py-[9px] font-semibold my-[6px] mr-[7px]  rounded-[19px] px-[20px]"
+                                            [ngClass]="selectedZone ==='local'?' bg-yellow text-[#453303]':'text-secondary-heiglight'">Local
+                                            time</button>
+                                    </div>
+                                    <div class="relative flex justify-center items-center">
+                                        <button
+                                            class=" flex gap-[5px] font-Barlow text-sm font-medium justify-center items-center w-[60px] h-[40px] my-0 ml-[8px] rounded-[15px]"
+                                            [ngClass]="filterCount >0 ? 'bg-yellow ':'bg-primaryBg'"
+                                            (click)="setFilterClass()" [matMenuTriggerFor]="filter"
+                                            #menuFilterTrigger="matMenuTrigger">
+                                            <img [src]="filterCount>0 ? 'assets/svg-icons/filter-icon-active.svg':'assets/svg-icons/filter-icon.svg'"
+                                                alt="">
+                                            {{filterCount >0 ? filterCount :''}}
+                                        </button>
+                                        <mat-menu #filter="matMenu" (click)="$event.stopPropagation()" id="filter"
+                                            class="bg-primaryBg" (closed)="onMenuClose()">
+                                            <div class="p-[10px]" (click)="$event.stopPropagation()">
+                                                <form class="flex flex-col font-Barlow gap-[10px] w-[280px]"
+                                                    [formGroup]="formGroup" (ngSubmit)="onSubmit()">
+                                                    <span
+                                                        class="text-sm text-secondaryText font-Barlow font-bold leading-[16px]">Apply
+                                                        filters</span>
+                                                    <mat-form-field appearance="outline" id="filter">
+                                                        <mat-label class="!text-secondaryText text-xs">Vendor name</mat-label>
+                                                        <mat-select class="!text-secondaryText text-xs" multiple
+                                                            formControlName="vendor" name="vendor">
+                                                            @for (vendor of vendorsList; track vendor) {
+                                                            <mat-option [value]="vendor">{{vendor}}</mat-option>
+                                                            }
+                                                        </mat-select>
+                                                    </mat-form-field>
+                                                    <mat-form-field appearance="outline" id="filter">
+                                                        <mat-label class="!text-secondaryText text-xs">Type</mat-label>
+                                                        <mat-select class="!text-secondaryText text-xs" multiple
+                                                            formControlName="type" name="type">
+                                                            @for (type of typesList; track type) {
+                                                            <mat-option [value]="type">{{type}}</mat-option>
+                                                            }
+                                                        </mat-select>
+                                                    </mat-form-field>
+                                                    <mat-form-field appearance="outline" id="filter">
+                                                        <mat-label class="!text-secondaryText text-xs">Vendor ID</mat-label>
+                                                        <input class="!text-secondaryText text-xs" matInput type="text"
+                                                            formControlName="vendorId">
+                                                    </mat-form-field>
+
+                                                    <div class="flex-col gap-2 custom-slider pb-[10px] relative">
+                                                        <!-- <mat-form-field class="w-1/2" appearance="outline" id="filter" (click)="$event.stopPropagation()">
+                                            <mat-label class="!text-secondaryText">Min Cloud Cover</mat-label>
+                                            <input class="!text-secondaryText" matInput [max]="100" type="number" formControlName="min_cloud">
+                                        </mat-form-field>
+                                        <mat-form-field class="w-1/2" appearance="outline" id="filter" (click)="$event.stopPropagation()">
+                                            <mat-label class="!text-secondaryText">Max Cloud Cover</mat-label>
+                                            <input class="!text-secondaryText" matInput [max]="100" type="number" formControlName="max_cloud">
+                                        </mat-form-field> -->
+                                                        <mat-label class="!text-secondaryText text-xs">Cloud Cover
+                                                            (%)</mat-label>
+                                                        <ngx-slider (click)="$event.stopPropagation()" class="z-20"
+                                                            *ngIf="sliderShow" #sliderElement [(value)]="min_cloud"
+                                                            [(highValue)]="max_cloud" [options]="options"></ngx-slider>
+                                                        <span
+                                                            class="!text-secondaryText absolute -bottom-[5px] -left-[19px] text-xs">SAR</span>
+                                                        <span
+                                                            class="!text-secondaryText absolute -bottom-[5px]  left-[45px] text-xs">0</span>
+                                                        <span
+                                                            class="!text-secondaryText absolute -bottom-[5px] -right-[13px] text-xs">50+</span>
+                                                    </div>
+                                                    <!-- <mat-form-field appearance="outline" id="filter" (click)="$event.stopPropagation()">
+                                        <mat-label>GSD</mat-label>
+                                        <input matInput type="text" formControlName="gsd">
+                                    </mat-form-field> -->
+                                                    <div class="flex-col gap-2 custom-slider"
+                                                        (click)="$event.stopPropagation()">
+                                                        <!-- <mat-form-field class="w-1/2" appearance="outline" id="filter" (click)="$event.stopPropagation()">
+                                            <mat-label class="!text-secondaryText">Min Off NADIR Angle</mat-label>
+                                            <input class="!text-secondaryText" matInput [max]="360" type="number" formControlName="min_angle">
+                                        </mat-form-field>
+                                        <mat-form-field class="w-1/2" appearance="outline" id="filter" (click)="$event.stopPropagation()">
+                                            <mat-label class="!text-secondaryText">Max Off NADIR Angle</mat-label>
+                                            <input class="!text-secondaryText" matInput [max]="360" type="number" formControlName="max_angle">
+                                        </mat-form-field> -->
+                                                        <mat-label class="!text-secondaryText text-xs">Off NADIR Angle
+                                                            (°)</mat-label>
+                                                        <ngx-slider *ngIf="sliderShow" #sliderElement
+                                                            [(value)]="min_angle" [(highValue)]="max_angle"
+                                                            [options]="angleOptions"
+                                                            (click)="$event.stopPropagation()"></ngx-slider>
+                                                    </div>
+                                                    <div class="flex-col gap-2 custom-slider"
+                                                        (click)="$event.stopPropagation()">
+                                                        <!-- <mat-form-field  class="w-1/2" appearance="outline" id="filter" (click)="$event.stopPropagation()">
+                                            <mat-label class="!text-secondaryText">Min GSD</mat-label>
+                                            <input class="!text-secondaryText" matInput [max]="100" type="number" formControlName="min_gsd">
+                                        </mat-form-field>
+                                        <mat-form-field class="w-1/2" appearance="outline" id="filter" (click)="$event.stopPropagation()">
+                                            <mat-label class="!text-secondaryText">Max GSD</mat-label>
+                                            <input class="!text-secondaryText" matInput [max]="100" type="number" formControlName="max_gsd">
+                                        </mat-form-field> -->
+                                                        <mat-label class="!text-secondaryText text-xs">GSD (m)</mat-label>
+
+                                                        <ngx-slider *ngIf="sliderShow"
+                                                            (click)="$event.stopPropagation()" #sliderElement
+                                                            [(value)]="min_gsd" [(highValue)]="max_gsd"
+                                                            [options]="gsd_options"></ngx-slider>
+                                                    </div>
+                                                    <!-- <mat-form-field appearance="outline" id="filter" (click)="$event.stopPropagation()">
+                                        <mat-label>Start date</mat-label>
+                                        <input matInput [matDatepicker]="start" formControlName="start_date">
+                                          <mat-hint>MM/DD/YYYY</mat-hint>
+                                          <mat-datepicker-toggle matIconSuffix [for]="start"></mat-datepicker-toggle>
+                                          <mat-datepicker #start></mat-datepicker>
+                                    </mat-form-field> -->
+                                                    <div class="flex gap-3 justify-center">
+                                                        <button (click)="closeFilterMenu()"
+                                                            class="text-xs w-1/2 leading-[16px] py-[7px] font-semibold my-[5px] mr-[7px] rounded-[8px] px-[15px] bg-secondary-heiglight text-secondaryText"
+                                                            type="button">
+                                                            Cancel
+                                                        </button>
+                                                        <button
+                                                            class="text-xs w-1/2 leading-[16px] py-[7px] font-semibold my-[5px] mr-[7px] rounded-[8px] px-[15px] bg-yellow text-[#453303]"
+                                                            type="submit">
+                                                            Submit
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            </div>
+
+
+                                        </mat-menu>
+                                    </div>
+                                    <button (click)="calendarEventsOpen()"
+                                        class="py-[9px] px-[20px] my-0 mx-[8px] rounded-[19px]"
+                                        [ngClass]="isEventsOpened ?'text-[#453303] bg-yellow':'bg-primaryBg'">
+                                        @if (isEventsOpened) {
+                                        <img src="assets/svg-icons/calendar-icon-black.svg" alt="">
+                                        } @else {
+                                        <img src="assets/svg-icons/calendar-icon.svg" alt="">
+                                        } </button>
                                 </div>
                             </div>
-    
-                            <div class="flex justify-between">
-                                <span class="text-secondaryText text-xs font-bold">{{getFormattedDate(item?.acquisition_datetime,item?.centroid)}}</span>
-                                <span class="text-secondaryText text-xs font-bold">{{formatUtcTime(item)}}</span>
+                            <div class="flex justify-end">
+                                <span
+                                    class="p-[10px] flex bg-yellow rounded-[10px] text-secondaryBg font-Barlow text-sm font-medium cursor-pointer"
+                                    (click)="resetSorting()">Reset</span>
                             </div>
                         </div>
-                    </div>
-                    </div>
+        <div class="mx-[20px]">
+            <mat-checkbox [(ngModel)]="isRefresh" (change)="onRefreshCheckboxChange($event)">Refresh List</mat-checkbox>
+        </div>
+                        <div *ngIf="loader" class="z-[1000000] absolute" id="loader"> <ngx-ui-loader></ngx-ui-loader>
+                        </div>
+                        @if (viewType=='browse') {
+                        <div class="w-[840px] overflow-auto browser-content" #scrollableDiv>
+                            <div class="flex flex-start all_wrap flex-wrap ml-[20px]">
+                                @if(dataSource?.data?.length){
+
+                                <div class="flex flex-col w-full gap-[10px] pb-[5px] border-b-2 border-b-solid border-b-red-600"
+                                    *ngIf="overlapListData.length>0">
+                                    <span class="text-sm text-secondaryText leading-[18px]">Overlap</span>
+                                    <div class="flex flex-start all_wrap flex-wrap">
+                                        <div *ngFor="let item of getInviewList(0, focused_captures_count);let index = index"
+                                            class="bg-secondaryBg rounded-[5px] relative font-Barlow single_browse w-[182px]">
+                                            <div class="flex flex-col">
+                                                <div class="relative h-[220px] bg-[#232B32] w-[181.262px] group cursor-pointer"
+                                                    (mouseover)="onRowHover(item)" (mouseout)="onRowHover(null)"
+                                                    (click)="openImagePreviewDialog(index)">
+                                                    @if (item?.presigned_url) {
+                                                    <img [src]="item?.presigned_url" alt="Map"
+                                                        class="w-full h-full object-contain">
+                                                    } @else {
+                                                    <span
+                                                        class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Image
+                                                        not found</span>
+                                                    }
+                                                    <div
+                                                        class="absolute inset-0 bg-black/70 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                                        <img src="assets/svg-icons/magnifying-icon.svg" alt=""
+                                                            srcset="">
+                                                    </div>
+                                                </div>
+
+                                                <div class="flex justify-between">
+                                                    <span
+                                                        class="text-secondaryText text-xs font-bold">{{getFormattedDate(item?.acquisition_datetime,item?.centroid)}}</span>
+                                                    <span
+                                                        class="text-secondaryText text-xs font-bold">{{formatUtcTime(item)}}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
 
                                 </div>
                                 <div class="flex flex-col w-full gap-[10px] pb-[5px] border-b-2 border-b-solid border-b-white"

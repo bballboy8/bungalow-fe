@@ -203,7 +203,7 @@ export class ImagePreviewComponent implements OnInit,AfterViewInit {
   zoomImage(event: WheelEvent) {
     event.preventDefault();
   
-    const zoomIntensity = 0.015;
+    const zoomIntensity = 0.05;
     const delta = event.deltaY < 0 ? 1 + zoomIntensity : 1 - zoomIntensity;
     const newScale = this.scale * delta;
     const minScale = 1;

@@ -333,7 +333,6 @@ set zoomed_wkt(value: string) {
         start_date: this.startDate,
         end_date: this.endDate,
         source: 'library',
-       
         focused_records_ids: this.idArray
       };
       const payload = {
@@ -548,11 +547,6 @@ set zoomed_wkt(value: string) {
       const payload = {
         wkt_polygon: this.polygon_wkt
       }
-     setTimeout(() => {
-      this.loader = true
-      this.ngxLoader.start(); // Start the loader
-      this.getSatelliteCatalog(payload,this.filterParams)
-     },300)
       
     }
     
@@ -582,12 +576,10 @@ set zoomed_wkt(value: string) {
   
     div.addEventListener('wheel', this.handleWheelEvent);
     this.sharedService.rowHover$.subscribe((rowHover) => {
-      console.log(rowHover,'rowHoverrowHoverrowHoverrowHover');
-      
       this.tableRowHovered = rowHover
     })
     this.sharedService.overlayShapeData$.subscribe((overlayShapeData) => {
-      if(overlayShapeData.length>1){
+      if(overlayShapeData?.length>1){
         console.log(overlayShapeData,'overlayShapeDataoverlayShapeDataoverlayShapeDataoverlayShapeData');
        this.idArray = overlayShapeData.map((record) => record.id)?.join(',');
 
@@ -632,20 +624,27 @@ set zoomed_wkt(value: string) {
    this.lastMatchId 
     ? overlayShapeData.find(item => item.id === this.lastMatchId)
     : null;
+      } else {
+        this.idArray = []
       }
+      
       
       
     })
    this.sharedService.drawShape$.subscribe((shape) => {
-    const payload = {
-      wkt_polygon: this.polygon_wkt
+    console.log(shape,'shapeshapeshapeshapeshapeshapeshapeshape');
+    if(shape){
+      const payload = {
+        wkt_polygon: this.polygon_wkt
+      }
+     setTimeout(() => {
+      this.loader = true
+      this.ngxLoader.start(); // Start the loader
+      this.getSatelliteCatalog(payload,this.filterParams);
+     
+     },300)
     }
-   setTimeout(() => {
-    this.loader = true
-    this.ngxLoader.start(); // Start the loader
-    this.getSatelliteCatalog(payload,this.filterParams);
-   
-   },300)
+    
    })
     
     // Add mouse events
@@ -1477,7 +1476,7 @@ getDateTimeFormat(dateTime: string) {
   sliderShow:boolean = false;
   //Overlay container customization class add functionality
   setClass(){
-    const classesToRemove = ['column-menu', 'filter-overlay-container'];
+    const classesToRemove = ['column-menu', 'filter-overlay-container','site-menu','custom-menu-container','group-overlay-container','imagery-filter-container'];
     const containerElement = this.overlayContainer.getContainerElement();
     containerElement.classList.remove(...classesToRemove);
     containerElement.classList.add('library-overlay-container');
@@ -1486,7 +1485,7 @@ getDateTimeFormat(dateTime: string) {
   setFilterClass(){
     const containerElement = this.overlayContainer.getContainerElement();
     // Remove existing class before adding a new one
-    const classesToRemove = ['column-menu', 'library-overlay-container'];
+    const classesToRemove = ['column-menu', 'library-overlay-container','site-menu','custom-menu-container','group-overlay-container','imagery-filter-container'];
     containerElement.classList.remove(...classesToRemove);
     containerElement.classList.add('filter-overlay-container');
     containerElement.addEventListener('click', (event:  Event)=> {
@@ -1506,7 +1505,44 @@ getDateTimeFormat(dateTime: string) {
   onMenuClose(){
     this.sliderShow = false;
   }
+
+  //Open Map Controller Popup
+  openDialog(vendorId:any){
+    //calling API by vendorID
+    let vendorData:any [] = [];
+    let queryParams ={
+      page_number: '1',
+      page_size: '100',
+      start_date:'',
+      end_date: '',
+      source: 'library',
+      vendor_id: vendorId
+    }
+    this.satelliteService.getDataFromPolygon('', queryParams).subscribe({
+      next: (resp) => {
+        if (resp?.data && resp.data.length > 0) {
+          vendorData = resp.data[0];
+          // Open the dialog after setting vendorData
+          const dialogRef = this.dialog.open(MapControllersPopupComponent, {
+            width: `280px`,
+            height: 'auto',
+            data: { type: 'vendor', vendorData: vendorData },
+            panelClass: 'custom-dialog-class',
+          });
   
+          dialogRef.afterClosed().subscribe((result) => {
+            this.popUpData = null;
+          });
+        } else {
+          console.log('No data found for the given vendor ID');
+        }
+      },
+      error: (err) => {
+        console.error('API call failed', err);
+      }
+    });
+    
+  }
   //Filter Form submit functionality
   onSubmit() {
     this.updateFilterCount(); 

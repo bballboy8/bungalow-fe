@@ -172,7 +172,8 @@ export class ImagePreviewComponent implements OnInit,AfterViewInit {
   centerImage() {
     const containerRect = this.container.nativeElement.getBoundingClientRect();
     const img = this.img.nativeElement;
-
+    img.style.width = 300+'px';
+    img.style.height = 300+'px';
     this.translateX = (containerRect.width - img.clientWidth) / 2;
     this.translateY = (containerRect.height - img.clientHeight) / 2;
   }
@@ -202,7 +203,7 @@ export class ImagePreviewComponent implements OnInit,AfterViewInit {
   zoomImage(event: WheelEvent) {
     event.preventDefault();
   
-    const zoomIntensity = 0.1;
+    const zoomIntensity = 0.015;
     const delta = event.deltaY < 0 ? 1 + zoomIntensity : 1 - zoomIntensity;
     const newScale = this.scale * delta;
     const minScale = 1;
@@ -222,7 +223,7 @@ export class ImagePreviewComponent implements OnInit,AfterViewInit {
   
     // Adjust the translate values to keep the image centered
     this.scale = newScale;
-    console.log(containerCenterX,'containerCenterXcontainerCenterXcontainerCenterXcontainerCenterX');
+    console.log(containerCenterX,'containerCenterXcontainerCenterXcontainerCenterXcontainerCenterX',newScale);
     
     this.translateX = containerCenterX -200 ;
     this.translateY = containerCenterY-150;
@@ -230,8 +231,10 @@ export class ImagePreviewComponent implements OnInit,AfterViewInit {
   
 
   get transformStyle() {
-    if (this.scale === 1) {
-      return `translate(365.517px, 150.9985px) scale(1)`;
+    if (this.scale <= 1.4) {
+      console.log('ssssssssssssssssssss');
+      
+      return `translate(365.517px, 260.9985px) scale(1)`;
     }
     return `translate(${this.translateX}px, ${this.translateY}px) scale(${this.scale})`;
   }

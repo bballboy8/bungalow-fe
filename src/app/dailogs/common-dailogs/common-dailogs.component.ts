@@ -77,17 +77,26 @@ export class CommonDailogsComponent implements OnInit  {
       if(this.data?.group?.id){
          payload = {
           group_id: this.data.group.id,
-          name: this.data?.group?.name,
-          is_deleted: true,
         }
+        this.satelliteService.removeGroup(payload).subscribe({
+          next: (resp)=>{
+            console.log(resp,'wwwwwwwwwwwwwwwwwwww');
+            this.dialogRef.close(resp);
+            
+          },
+          error: (err)=>{
+
+          }
+        })
       } else {
         payload = {
           site_id: this.data?.site?.id,
           name: this.data?.site?.name,
           is_deleted: true,
         }
+        this.updateGroup(payload)
       }
-    this.updateGroup(payload)
+   
   }
 
   updateGroup(payload: any) {

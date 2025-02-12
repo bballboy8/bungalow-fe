@@ -33,6 +33,7 @@ import { HttpClient } from '@angular/common/http';
 import dayjs from 'dayjs';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
 import * as martinez from 'martinez-polygon-clipping';
+import interact from 'interactjs';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 (window as any).type = undefined;
 
@@ -82,6 +83,9 @@ declare module 'leaflet' {
 export class HomeComponent implements OnInit, AfterViewInit,OnDestroy {
   @ViewChild('mapContainer', { static: true }) mapContainer!: ElementRef;
   @ViewChild('drawer') drawer?: MatDrawer;
+  @ViewChild('draggableContainer') draggableContainer!: ElementRef;
+  sidebarWidth: number = 0;
+  marginleft:number = 0;
   map!: L.Map;
   zoomLevel: number = 4;
   longitude: number = -90;
@@ -147,7 +151,8 @@ hybridLayer:L.TileLayer = L.tileLayer(
   imageOverlay: L.ImageOverlay | undefined;
   imageOverlays: Map<string, L.ImageOverlay> = new Map();
   polygon:any;
-  leftMargin:any
+  leftMargin:any;
+  leftMargin2:any;
   private highlightedPolygon: L.Polygon | null = null;
   calendarApiData:any;
   zoomed_wkt_polygon:any = '';
@@ -161,6 +166,8 @@ hybridLayer:L.TileLayer = L.tileLayer(
   vendorData:any;
   pointData:any;
   loader: boolean = false;
+  filterParams:any;
+  isProgrammaticMove = false;
   constructor(@Inject(PLATFORM_ID) private platformId: Object,
    private satelliteService:SatelliteService,private dialog: MatDialog,
    private http: HttpClient,
@@ -182,8 +189,8 @@ hybridLayer:L.TileLayer = L.tileLayer(
   ngAfterViewInit(): void {
     if (isPlatformBrowser(this.platformId)) {
       console.log('Platform');
-      
-      this.initMap();
+        this.initMap();
+        
     }
     
     
@@ -210,7 +217,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
             this.ngxLoader.stop()
             console.error('Error fetching calendar data', err);
             // Hide loader on error
-           
+             
           },
           
         });
@@ -231,6 +238,44 @@ hybridLayer:L.TileLayer = L.tileLayer(
      });
     this.setDynamicHeight();
     window.addEventListener('resize', this.setDynamicHeight.bind(this))
+    this.updateSidebarWidth();
+    let sidebar = document.getElementById('draggableContainer');
+    // this.leftMargin2
+    // setTimeout(() => {
+    //   this.marginleft=413
+    // }, 3200);
+    const sidebarElement = this.draggableContainer.nativeElement;
+     console.log(sidebarElement,'sidebarElement');
+     interact(sidebarElement)
+     .resizable({
+      edges: { left: true, right: true, bottom: true, top: false },
+      listeners: {
+        move:(event)=> {
+          // const target = event.target as HTMLElement;
+          // target.style.width = `${event.rect.width}px`;
+          const target = event.target as HTMLElement;
+        
+          // Store updated width in the global variable
+          if(event.rect.width > 454 && event.rect.width < 1086){
+            this.sidebarWidth = event.rect.width;
+            target.style.width = `${this.sidebarWidth}px`;
+            console.log(this.sidebarWidth,'this.sidebarWidth');
+            
+            // this.leftMargin2
+            // console.log( `${event.rect.width}px`,' `${event.rect.width}px`');
+            
+            // console.log(this.leftMargin2,'this.leftMargin2');
+            // this.updateMapMargin();
+            // target.style.height = `${event.rect.height}px`;
+            target.style.height = `682.575px`;
+          }
+          // this.applyMargin()
+        },
+      },
+    });
+   this.sidebarWidth = sidebarElement.offsetWidth;
+console.log('Initial sidebar width:', this.sidebarWidth);
+
     this.sharedService.rightMenuHide$.subscribe((event) =>{
       if(event === false){
           
@@ -240,6 +285,60 @@ hybridLayer:L.TileLayer = L.tileLayer(
        
     }
     })
+  }
+
+  applyMargin() {
+    const contentElement = document.getElementById('mapContainer');
+    if (contentElement) {
+      contentElement.style.marginLeft = `${this.sidebarWidth}px`;
+      console.log('Margin applied:', this.sidebarWidth);
+    }
+  }
+
+  updateSidebarWidth(): void {
+    console.log('hiiiiiii');
+    console.log(this.sidebarWidth,'this.sidebarWidth');
+    
+    // this.sidebarWidth=820;
+    // this.applyMargin()
+    
+    const container = this.draggableContainer?.nativeElement as HTMLElement;
+    const sidebar = document.getElementById('draggableContainer');
+    const dragBtn = document.getElementById('dragBtn');
+
+    console.log(container,'container');
+    console.log(sidebar,'sidebar');
+    console.log(this.isDrawerOpen,'this.isDrawerOpen========');
+    
+    if (this.isDrawerOpen) {
+      if(sidebar.style.width!='0px'){
+        console.log(sidebar.style.width,'sidebar.style.width========================');
+        this.sidebarWidth=this.sidebarWidth+1
+        console.log(this.sidebarWidth,'this.sidebarWidth');
+        setTimeout(() => {
+          this.sidebarWidth=this.sidebarWidth
+          
+        }, 1000);
+      }else{
+        setTimeout(() => {
+          this.sidebarWidth=820
+          // this.marginleft = 413
+
+        console.log(this.sidebarWidth,'this.sidebarWidth settimeout');
+
+        }, 1000);
+      dragBtn.style.display='block'
+        sidebar.style.width = '820px'; // Default sidebar width
+        sidebar.style.height = '682.575px';
+        console.log(this.sidebarWidth,'this.sidebarWidth');
+        
+        // this.applyMargin()
+        // Default sidebar width
+      }
+    } else {
+      sidebar.style.width = '0px'; // Hide the sidebar
+      dragBtn.style.display='none'
+    }
   }
 
   //openstreetmap search and location markers function
@@ -662,7 +761,8 @@ private fallbackCopyToClipboard(text: string): void {
       const mapContainer = this.mapContainer.nativeElement;
       mapContainer.style.marginLeft = `0px`;
       this.sharedService.setIsOpenedEventCalendar(false);
-      // this.onResize()
+      this.onResize()
+      this.closeSideBar()
   }
 
   //map shape drawing function
@@ -670,7 +770,7 @@ private fallbackCopyToClipboard(text: string): void {
     console.log("Selected Draw Type:", type);
     this.currentAction = null;
    this.shapeType = type
-
+   this.sharedService.setOverlayShapeData(null)
     // Remove existing shapes and event listeners
     if (this.polygon) {
         this.map.off('layeradd');
@@ -734,6 +834,7 @@ private fallbackCopyToClipboard(text: string): void {
 
     if (drawHandler) {
         // Start the drawing process immediately
+        this.isProgrammaticMove = true;  // Set the flag before programmatic move
         drawHandler.enable();
         this.drawHandler = drawHandler; // Store the handler for later use
 
@@ -748,25 +849,29 @@ private fallbackCopyToClipboard(text: string): void {
               const bounds = (layer as L.Polygon).getBounds();
               console.log('Polygon Bounds:', bounds);
               const geoJSON = layer.toGeoJSON();
-               this.zoomed_wkt_polygon = ''
+              //  this.zoomed_wkt_polygon = ''
               //  this.closeDrawer()
               this.sharedService.setDrawShape(true);
                this.removeAllImageOverlays()
               this.getPolygonFromCoordinates({ geometry: geoJSON?.geometry }, bounds);
+             
               setTimeout(() => {
                  this.sharedService.setDrawShape(false)
                 this.map.fitBounds(bounds, {
                     padding: [50, 50], // Adds padding around the bounds
                     maxZoom: 20        // Caps the zoom level
                 });
-            }, 1000);            
+            }, 500);
+            setTimeout(() => {
+              this.isProgrammaticMove = false;
+            }, 600); // Adjust the delay as needed            
              
              
           } else if (event.layerType === 'circle' && type === 'Circle') {
               const bounds = (layer as L.Circle).getBounds();
               console.log('Circle Bounds:', bounds);
               const geoJSON = layer.toGeoJSON();
-               this.zoomed_wkt_polygon = ''
+               
               //  this.closeDrawer()
               this.sharedService.setDrawShape(true);
               console.log(this.drawer,'drawerdrawerdrawerdrawerdrawerdrawer');
@@ -778,16 +883,16 @@ private fallbackCopyToClipboard(text: string): void {
               setTimeout(() => {
                 this.sharedService.setDrawShape(false)
                 this.map.fitBounds(bounds, {
-                    padding: [50, 50], // Adds padding around the bounds
+                    padding: [10, 10], // Adds padding around the bounds
                     maxZoom: 20       // Caps the zoom level
                 });
-            }, 1000);            
+            }, 500);            
              
           } else if (event.layerType === 'rectangle' && type === 'Box') {
               const bounds = (layer as L.Rectangle).getBounds();
               console.log('Rectangle Bounds:', bounds);
               const geoJSON = layer.toGeoJSON();
-               this.zoomed_wkt_polygon = ''
+              //  this.zoomed_wkt_polygon = ''
               //  this.closeDrawer()
               this.sharedService.setDrawShape(true);
               console.log(this.drawer,'drawerdrawerdrawerdrawerdrawerdrawer');
@@ -803,7 +908,10 @@ private fallbackCopyToClipboard(text: string): void {
                     padding: [50, 50], // Adds padding around the bounds
                     maxZoom: 16        // Caps the zoom level
                 });
-            }, 1000);            
+            }, 500);
+            setTimeout(() => {
+              this.isProgrammaticMove = false;
+            }, 600);             
               
           }
 
@@ -814,7 +922,7 @@ private fallbackCopyToClipboard(text: string): void {
 
             console.log("Drawing disabled after shape creation.");
         });
-         this.zoomed_wkt_polygon = ''
+        
          this.map.on('zoomend', () => {
           console.log('Zoom changed:', this.map.getZoom());
           this.zoomLevel = this.map.getZoom();
@@ -831,7 +939,10 @@ private fallbackCopyToClipboard(text: string): void {
     
         this.map.on('dragend', () => {
           console.log('Drag changed:', this.map.getZoom());
-              this.layercalculateVisibleWKT();
+          if (!this.isProgrammaticMove) {
+            // Only call API if the movement is user-triggered
+            this.layercalculateVisibleWKT();
+          }
             
         
         });
@@ -873,10 +984,11 @@ private fallbackCopyToClipboard(text: string): void {
             console.log(this.endDate, 'Previous day end date and time');
           }
           let queryParams ={
+            ...this.filterParams,
             page_number: '1',
-      page_size: '50',
-      start_date:this.startDate,
-      end_date: this.endDate
+            page_size: '50',
+            start_date:this.startDate,
+            end_date: this.endDate
           }
           this.data = resp?.data;
           this.getDataUsingPolygon(resp?.data,queryParams)};
@@ -939,18 +1051,27 @@ private fallbackCopyToClipboard(text: string): void {
           resp.data.forEach((item: any) => {
             this.addPolygonWithMetadata(item);
           });
-          
-          // Ensure drawer opens
-          if (!this.isDrawerOpen) {
-            this.isDrawerOpen = true;
-            this.type = 'library';
-            this.toggleDrawer();
-          } else if (this.type === 'library') {
-            this.isDrawerOpen = true;
-            this.drawer._animationState = 'open';
-            this.type = 'library';
-            this.toggleDrawer();
-            this.cdr.detectChanges();
+          if(!this.isDrawerOpen){
+            this.isDrawerOpen = true
+            this.updateSidebarWidth();
+
+             this.type = 'library'
+            this.toggleDrawer()
+           
+            
+
+  // Find the .leaflet-interactive element
+  
+            // this.type === 'library'? this.parentZoomLevel = 5: this.parentZoomLevel=4;
+            // this.onZoomLevelChange(this.parentZoomLevel)
+          } else if (this.type === 'library'){
+            console.log('yyyyyyyyyyyyyy');
+            // this.zoomed_wkt_polygon = ''
+          this.isDrawerOpen = true
+          this.drawer._animationState = 'open'
+          this.type = 'library'
+           this.toggleDrawer()
+           this.cdr.detectChanges();
           }
   
           // Adjust map zoom to keep all drawn shapes visible
@@ -1049,12 +1170,8 @@ polygon.on('click', (event: L.LeafletMouseEvent) => {
           if (layer instanceof L.Polygon) {
               const layerLatLngs = layer.getLatLngs()[0] as L.LatLng[]; // Get the coordinates of this polygon
               const layerBoundingBox = this.getBoundingBox(layerLatLngs); // Get its bounding box
-  
-              console.log('Checking Bounding Box:', layerBoundingBox);
-  
               // Check if the bounding boxes intersect
               if (this.isBoundingBoxIntersecting(clickedBoundingBox, layerBoundingBox)) {
-                  console.log('Bounding Box Intersected with:', layerBoundingBox);
                   const polygonData = (layer as any).options.data; // Assuming metadata is stored in options.data
                   if (polygonData) {
                       intersectingPolygons.push(polygonData); // Add matching polygon's data
@@ -1062,22 +1179,22 @@ polygon.on('click', (event: L.LeafletMouseEvent) => {
               }
           }
       });
-  
-      console.log('Intersecting Polygons Data:', intersectingPolygons);
-  
       // Fetch data for all intersecting polygons
       let queryParams = {
         page_number: '1',
         page_size: '50',
         start_date: '',
         end_date: '',
-        vendor_id: data.vendor_id
+        vendor_id: data.vendor_id,
+        source:  'library',
+        enableLoader: 'enableLoader'
     };
     this.satelliteService.getDataFromPolygon('', queryParams).subscribe({
         next: (resp) => {
             console.log(resp, 'Data received');
             const vendorData = resp.data[0];
             this.vendorData = resp.data[0];
+            this.sharedService.setVendorData(this.vendorData)
             this.onPolygonOut(null)
             // this.openDialogAtPosition(polygon, vendorData);
             this.popUpData = vendorData
@@ -1169,6 +1286,7 @@ private getBoundingBox(latlngs: L.LatLng[]): { minLat: number; maxLat: number; m
 }
 
 onFilterset(data) {
+  this.filterParams = data.params;
   data.params = {...data.params, source: 'home',  page_number: '1', page_size: '50'}
   this.getDataUsingPolygon(data.payload,  data.params);
   this.cdr.detectChanges();
@@ -1187,9 +1305,10 @@ onFilterset(data) {
     });
   }
 
-  //handle toggle events
-  handleToggleEvent(data: string): void {
+   //handle toggle events
+   handleToggleEvent(data: string): void {
     console.log('Received data from child:', data);
+    console.log('Received data from child:', typeof(data));
   
     // if (this.type === data && this.isDrawerOpen) {
     //   // If the clicked type is the same as the current one and the drawer is already open, do nothing
@@ -1197,21 +1316,40 @@ onFilterset(data) {
     // }
     // Update the type to switch the drawer's content
     console.log(this.type,'switch');
+    if(data!=''){
+      if(this.type !== data){
+        this.type = data;
+        console.log(this.type,'typetypetypetypetype');
+        
+        this.isDrawerOpen = true;
+        
+          this.toggleDrawer()
+          this.updateSidebarWidth();
     
-  if(this.type !== data){
-    this.type = data;
-    console.log(this.type,'typetypetypetypetype');
-    
-    this.isDrawerOpen = true;
-    
-      this.toggleDrawer()
-
-  }else{
+      }else{
+        this.type = data;
+        console.log(this.type,'typetypetypetypetype22222');
+        
+        this.isDrawerOpen = true;
+        
+          this.toggleDrawer()
+          this.updateSidebarWidth();
+      }
+    }else{
     this.type = ''
     this.toggleDrawer();
     this.isDrawerOpen = false;
+    this.updateSidebarWidth();
+
   }
     // Ensure the drawer stays open
+  }
+
+  closeSideBar(){
+    this.type = ''
+    this.toggleDrawer();
+    this.isDrawerOpen = false;
+    this.updateSidebarWidth();
   }
 
    //Handles various button actions.
@@ -1325,7 +1463,10 @@ handleAction(action: string): void {
                   // Adjust horizontal position (left or right)
                   let newLeft = markerPoint.x + mapContainer.offsetLeft + 20;
                   if (markerPoint.x + 300 > mapWidth) {
+                    
+                    
                     newLeft = markerPoint.x + mapContainer.offsetLeft - 300 - 20; // Move to the left
+                    console.log('markerPointmarkerPointmarkerPoint',newLeft);
                   }
           
                   // Adjust vertical position (top or bottom)
@@ -1347,12 +1488,12 @@ handleAction(action: string): void {
                     );
                   }
     
-                  console.log(newTop,'newTopnewTopnewTopnewTop');
+                  console.log(newTop,'newTopnewTopnewTopnewTop',newLeft);
                   
                   // Update dialog position dynamically
                   dialogRef.updatePosition({
-                    top: `${newTop}px`,
-                    left: `${newLeft}px`,
+                    top: `${newTop+10}px`,
+                    left: newLeft> 1300? `${newLeft-400}px`: `${newLeft}px`,
                   });
                 }
               });
@@ -1685,6 +1826,7 @@ onDateRangeChanged(event: { startDate: string, endDate: string }) {
 
   if (this.data) {
     let queryParams ={
+      ...this.filterParams,
       page_number: '1',
       page_size: '50',
       start_date:this.startDate,
@@ -1714,8 +1856,6 @@ handleLayersToggle(state:boolean){
 }
 
 closeDropdown() {
-  console.log('aaaaaaaaaa');
-  
   this.isDropdownOpen = false;
   this.showLayers = false
 }

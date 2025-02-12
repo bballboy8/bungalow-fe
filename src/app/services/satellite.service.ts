@@ -33,6 +33,11 @@ export class SatelliteService extends BaseService {
       params:data
     });
   }
+  getGroupsWithoutNesting(data: {search:any}): Observable<any> {
+    return this.get(createUrl("/get-groups-list-without-nesting"),{
+      params:data
+    });
+  }
   generateCirclePolygon(data: any): Observable<any> {
     return this.post(createUrl("/generate-circle-polygon/"), data);
   }
@@ -76,5 +81,16 @@ export class SatelliteService extends BaseService {
   }
   updateGroup(data:any): Observable<any> {
     return this.put(createUrl("/update-group"),data)
+  }
+
+  getCollectionHistory(queryParams): Observable<any> {
+    return this.get(createUrl("/get-collection-history"),{
+      params:queryParams
+    });
+  }
+  removeGroup(queryParams): Observable<any> {
+    return this.delete(createUrl("/remove-group-and-its-sites"),{
+      params:queryParams
+    });
   }
 }

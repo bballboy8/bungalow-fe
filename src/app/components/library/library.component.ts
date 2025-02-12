@@ -345,12 +345,13 @@ set zoomed_wkt(value: string) {
       } else {
         queryParams = {...queryParams,  zoomed_wkt: ''}
       }
+      if(this.isRefresh){
       this.loader = true;
       this.ngxLoader.start(); // Start the loader
       this.page_number = '1';
       this.filterParams = {...queryParams}
-      
-      this.getSatelliteCatalog(payload, queryParams);
+        this.getSatelliteCatalog(payload, queryParams);
+      }
     }, 800);
      // Debounce time: 600ms
   }
@@ -466,6 +467,7 @@ set zoomed_wkt(value: string) {
   searchSubject$ = new Subject<string>();
   filteredColumns = this.columns;
   lastMatchId:any = null
+  isRefresh: boolean = true;
   constructor(
     private dialog: MatDialog,
     private sharedService: SharedService,
@@ -1308,6 +1310,11 @@ onCheckboxChange(row: any) {
       this.selectedRow = null;
       this.vendorData = null;
     });
+  }
+}
+onRefreshCheckboxChange(e:any){
+  if(e.checked){
+    this.isRefresh = e.checked;
   }
 }
 

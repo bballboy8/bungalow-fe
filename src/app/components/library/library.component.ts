@@ -1315,6 +1315,7 @@ onCheckboxChange(row: any) {
 selectedTimeZone(zone: string){
   this.selectedZone = zone;
   this.cdr.detectChanges();
+  this.onSubmit();
 }
 
 //Get Day of Week
@@ -1553,7 +1554,12 @@ getDateTimeFormat(dateTime: string) {
       minCloud = this.min_cloud
     } 
       const datetime = this.formGroup.value.end_date;
-      const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone; 
+      let timeZone: string;
+      if(this.selectedZone === 'local'){
+        timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone; 
+      }else if(this.selectedZone === 'UTC'){
+        timeZone = 'UTC';
+      }
 
       const payload = {
         wkt_polygon: this.polygon_wkt

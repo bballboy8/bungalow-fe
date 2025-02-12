@@ -28,7 +28,7 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatSelectModule } from "@angular/material/select";
 import { MatInputModule } from "@angular/material/input";
 import { MatMenuModule, MatMenuTrigger } from "@angular/material/menu";
-import { NgxDaterangepickerMd } from "ngx-daterangepicker-material";
+import { DaterangepickerDirective, NgxDaterangepickerMd } from "ngx-daterangepicker-material";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { startWith } from "rxjs";
@@ -88,6 +88,8 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
   originalData: any[] = [];
   @ViewChild("menuFilterTrigger") menuFilterTrigger!: MatMenuTrigger;
   @Output() closeDrawer = new EventEmitter<boolean>();
+  @ViewChild('startDatePicker', { read: DaterangepickerDirective }) startDatePicker: DaterangepickerDirective;
+  @ViewChild('endDatePicker', { read: DaterangepickerDirective }) endDatePicker: DaterangepickerDirective;
   vendorsList: any[] = [
     "airbus",
     "blacksky",
@@ -419,6 +421,7 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
     }
   }
 
+  //On End Date Change function
   onEndDateChange(event) {
     console.log('End Date Changed:', event);
     
@@ -441,6 +444,7 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
     }
   }
 
+  //Filter reset Function
   resetFilter(): void {
     this.vendor.reset()
     this.start_date = ''
@@ -451,5 +455,30 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
     }
     this.filterParams = queryParams
     this.getImageryCollection(queryParams)
+  }
+
+  onStartDateFocus() {
+    if (this.endDatePicker && this.endDatePicker.opens) {
+      this.endDatePicker.hide();
+    }
+  }
+
+  onEndDateFocus() {
+    if (this.startDatePicker && this.startDatePicker.opens) {
+      this.startDatePicker.hide();
+    }
+  }
+
+  openEndDatePicker(){
+    this.endDatePicker.open();
+    if (this.startDatePicker && this.startDatePicker.opens) {
+      this.startDatePicker.hide();
+    }
+  }
+  openStartDatePicker(){
+    this.startDatePicker.open();
+    if (this.endDatePicker && this.endDatePicker.opens) {
+      this.endDatePicker.hide();
+    }
   }
 }

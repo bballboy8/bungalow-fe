@@ -20,7 +20,7 @@
                   #img
                   [src]="data?.images?.presigned_url"
                   alt="Preview"
-                  class="zoomable-image"
+                  class="zoomable-image object-contain"
                 [style.transform]="transformStyle"
                 draggable="false"
                 />
@@ -108,7 +108,7 @@
               <img
                 #img
                 [src]="data?.images?.data[currentIndex]?.presigned_url"
-                class="zoomable-image"
+                class="zoomable-image object-contain"
                 [style.transform]="transformStyle"
                 draggable="false"
               />

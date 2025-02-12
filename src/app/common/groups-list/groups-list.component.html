@@ -15,7 +15,7 @@
                 <img [src]="activeIndex?.id == group?.id ? 'assets/svg-icons/folder-icon-expanded.svg':'assets/svg-icons/folder-icon.svg'" alt="" />
                 <span >{{group.name}}</span>
             </div>
-            <span class="min-w-[102.324px]"></span>
+            <!-- <span class="min-w-[102.324px]"></span> -->
             <span class="min-w-[120px]">{{group.created_at | dateFormat}}</span>
             <span class="min-w-[127.933px]">{{roundOff(group.surface_area)}}km²</span>
             <div class="flex gap-[15px] min-w-[85px] justify-between items-center">
@@ -54,7 +54,7 @@
                                 <img class="h-[25px] w-[25px] object-cover" height="30" width="30" [src]="site.site_type == 'Rectangle'? 'assets/svg-icons/rectangle-icon.svg':'assets/svg-icons/polygon-icon.svg'" alt="" />
                                 <span >{{site.name}}</span>
                             </div>
-                            <span class="min-w-[102.324px]"></span>
+                            <!-- <span class="min-w-[102.324px]"></span> -->
                             <span class="min-w-[120px]">{{site.date | dateFormat}}</span>
                             <span class="min-w-[127.933px]">{{roundOff(site?.area)}}km²</span>
                             <div class="flex gap-[15px] min-w-[85px] justify-between items-center">

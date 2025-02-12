@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, inject, Inject, Input, OnChanges, OnInit, Optional, SimpleChanges, TemplateRef, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, inject, Inject, Input, OnChanges, OnInit, Optional, SimpleChanges, TemplateRef, ViewChild } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -78,13 +78,14 @@ export class MapControllersPopupComponent implements OnInit, OnChanges,AfterView
   private dialog: MatDialog,
   private satelliteService: SatelliteService,
   private overlayContainer: OverlayContainer,
+  private cdr: ChangeDetectorRef,
   private sharedService: SharedService) {
     // Apply debounceTime to the Subject and switch to the latest observable (API call)
     this.searchInput.pipe(
       debounceTime(1000),  // Wait for 1000ms after the last key press
       switchMap((inputValue) => {
-        const data = { search: inputValue };
-        return this.satelliteService.getGroupsWithoutNesting(data).pipe(
+        const data = { group_name: inputValue };
+        return this.satelliteService.getGroupsForAssignment(data).pipe(
           catchError((err) => {
             console.error('API error:', err);
             // Return an empty array to allow subsequent API calls to be made
@@ -95,7 +96,8 @@ export class MapControllersPopupComponent implements OnInit, OnChanges,AfterView
     ).subscribe({
       next: (resp) => {
         console.log(resp, 'API Response');
-        this.groups = resp?.data;
+        this.groups = resp;
+        this.cdr.detectChanges()
       },
       error: (err) => {
         console.error('API call failed', err);
@@ -118,6 +120,10 @@ export class MapControllersPopupComponent implements OnInit, OnChanges,AfterView
       if(this.vendorData){
         this.data = {type:this.type, vendorData:this.vendorData}
       }
+    })
+    this.sharedService.groupData$.subscribe((group)=>{
+      console.log(group,'groupgroupgroupgroupgroup');
+      this.activeGroup = group;
     })
   }
 
@@ -150,17 +156,20 @@ export class MapControllersPopupComponent implements OnInit, OnChanges,AfterView
 
   getGroups() {
     this.selectedGroupEvent(null)
+    
       const data = {
-        search: ''
+        group_name: ''
       }
-      this.satelliteService.getGroupsWithoutNesting(data).subscribe({
+      this.satelliteService.getGroupsForAssignment(data).subscribe({
         next: (resp) => {
           console.log(resp, 'respresprespresprespresprespresprespresp');
-          this.groups = resp.data
-          this.addGroup = true;
+          this.groups = resp
 
         }
       })
+    
+      
+
   }
 
   onKeyPress(event: KeyboardEvent): void {
@@ -299,27 +308,12 @@ export class MapControllersPopupComponent implements OnInit, OnChanges,AfterView
 
   selectedGroupEvent(event: any) {
     console.log(event, 'selectedeventeventeventevent');
-    this.activeGroup = event
+    this.activeGroup = event;
   }
   
 
   saveGroup() {
-    this.selectedGroup = this.activeGroup.group
-    const payload = {
-      group_id: this.selectedGroup.id,
-      site_id: this.siteData.id
-    }
-    this.satelliteService.addGroupSite(payload).subscribe({
-      next: (res) => {
-        console.log(res, 'updatedaaaaaaaaaaaaaaaaaa');
-        this.snackBar.open(res.message, 'Ok', {
-          duration: 2000  // Snackbar will disappear after 300 milliseconds
-        });
-      },
-      error: (err) => {
-
-      }
-    })
+    this.selectedGroup = this.activeGroup
     this.closeMenu()
   }
   closeMenu() {

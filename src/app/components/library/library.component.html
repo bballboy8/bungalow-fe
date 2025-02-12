@@ -357,7 +357,7 @@
                                     </div>
                                     <div class="relative flex justify-center items-center">
                                         <button
-                                            class=" flex gap-[5px] font-Barlow text-base font-medium justify-center items-center w-[70px] h-[50px] my-0 ml-[8px] rounded-[19px]"
+                                            class=" flex gap-[5px] font-Barlow text-sm font-medium justify-center items-center w-[60px] h-[40px] my-0 ml-[8px] rounded-[15px]"
                                             [ngClass]="filterCount >0 ? 'bg-yellow ':'bg-primaryBg'"
                                             (click)="setFilterClass()" [matMenuTriggerFor]="filter"
                                             #menuFilterTrigger="matMenuTrigger">
@@ -367,15 +367,15 @@
                                         </button>
                                         <mat-menu #filter="matMenu" (click)="$event.stopPropagation()" id="filter"
                                             class="bg-primaryBg" (closed)="onMenuClose()">
-                                            <div class="p-[15px]" (click)="$event.stopPropagation()">
-                                                <form class="flex flex-col font-Barlow gap-[15px] w-[330px]"
+                                            <div class="p-[10px]" (click)="$event.stopPropagation()">
+                                                <form class="flex flex-col font-Barlow gap-[10px] w-[280px]"
                                                     [formGroup]="formGroup" (ngSubmit)="onSubmit()">
                                                     <span
-                                                        class="text-sm text-secondaryText font-Barlow font-bold leading-[18px]">Apply
+                                                        class="text-sm text-secondaryText font-Barlow font-bold leading-[16px]">Apply
                                                         filters</span>
                                                     <mat-form-field appearance="outline" id="filter">
-                                                        <mat-label class="!text-secondaryText">Vendor name</mat-label>
-                                                        <mat-select class="!text-secondaryText" multiple
+                                                        <mat-label class="!text-secondaryText text-xs">Vendor name</mat-label>
+                                                        <mat-select class="!text-secondaryText text-xs" multiple
                                                             formControlName="vendor" name="vendor">
                                                             @for (vendor of vendorsList; track vendor) {
                                                             <mat-option [value]="vendor">{{vendor}}</mat-option>
@@ -383,8 +383,8 @@
                                                         </mat-select>
                                                     </mat-form-field>
                                                     <mat-form-field appearance="outline" id="filter">
-                                                        <mat-label class="!text-secondaryText">Type</mat-label>
-                                                        <mat-select class="!text-secondaryText" multiple
+                                                        <mat-label class="!text-secondaryText text-xs">Type</mat-label>
+                                                        <mat-select class="!text-secondaryText text-xs" multiple
                                                             formControlName="type" name="type">
                                                             @for (type of typesList; track type) {
                                                             <mat-option [value]="type">{{type}}</mat-option>
@@ -392,12 +392,12 @@
                                                         </mat-select>
                                                     </mat-form-field>
                                                     <mat-form-field appearance="outline" id="filter">
-                                                        <mat-label class="!text-secondaryText">Vendor ID</mat-label>
-                                                        <input class="!text-secondaryText" matInput type="text"
+                                                        <mat-label class="!text-secondaryText text-xs">Vendor ID</mat-label>
+                                                        <input class="!text-secondaryText text-xs" matInput type="text"
                                                             formControlName="vendorId">
                                                     </mat-form-field>
 
-                                                    <div class="flex-col gap-2 custom-slider pb-[15px] relative">
+                                                    <div class="flex-col gap-2 custom-slider pb-[10px] relative">
                                                         <!-- <mat-form-field class="w-1/2" appearance="outline" id="filter" (click)="$event.stopPropagation()">
                                             <mat-label class="!text-secondaryText">Min Cloud Cover</mat-label>
                                             <input class="!text-secondaryText" matInput [max]="100" type="number" formControlName="min_cloud">
@@ -406,17 +406,17 @@
                                             <mat-label class="!text-secondaryText">Max Cloud Cover</mat-label>
                                             <input class="!text-secondaryText" matInput [max]="100" type="number" formControlName="max_cloud">
                                         </mat-form-field> -->
-                                                        <mat-label class="!text-secondaryText">Cloud Cover
+                                                        <mat-label class="!text-secondaryText text-xs">Cloud Cover
                                                             (%)</mat-label>
                                                         <ngx-slider (click)="$event.stopPropagation()" class="z-20"
                                                             *ngIf="sliderShow" #sliderElement [(value)]="min_cloud"
                                                             [(highValue)]="max_cloud" [options]="options"></ngx-slider>
                                                         <span
-                                                            class="!text-secondaryText absolute -bottom-[5px] -left-[19px]">SAR</span>
+                                                            class="!text-secondaryText absolute -bottom-[5px] -left-[19px] text-xs">SAR</span>
                                                         <span
-                                                            class="!text-secondaryText absolute -bottom-[5px]  left-[45px]">0</span>
+                                                            class="!text-secondaryText absolute -bottom-[5px]  left-[45px] text-xs">0</span>
                                                         <span
-                                                            class="!text-secondaryText absolute -bottom-[5px] -right-[13px]">50+</span>
+                                                            class="!text-secondaryText absolute -bottom-[5px] -right-[13px] text-xs">50+</span>
                                                     </div>
                                                     <!-- <mat-form-field appearance="outline" id="filter" (click)="$event.stopPropagation()">
                                         <mat-label>GSD</mat-label>
@@ -432,7 +432,7 @@
                                             <mat-label class="!text-secondaryText">Max Off NADIR Angle</mat-label>
                                             <input class="!text-secondaryText" matInput [max]="360" type="number" formControlName="max_angle">
                                         </mat-form-field> -->
-                                                        <mat-label class="!text-secondaryText">Off NADIR Angle
+                                                        <mat-label class="!text-secondaryText text-xs">Off NADIR Angle
                                                             (°)</mat-label>
                                                         <ngx-slider *ngIf="sliderShow" #sliderElement
                                                             [(value)]="min_angle" [(highValue)]="max_angle"
@@ -449,7 +449,7 @@
                                             <mat-label class="!text-secondaryText">Max GSD</mat-label>
                                             <input class="!text-secondaryText" matInput [max]="100" type="number" formControlName="max_gsd">
                                         </mat-form-field> -->
-                                                        <mat-label class="!text-secondaryText">GSD (m)</mat-label>
+                                                        <mat-label class="!text-secondaryText text-xs">GSD (m)</mat-label>
 
                                                         <ngx-slider *ngIf="sliderShow"
                                                             (click)="$event.stopPropagation()" #sliderElement
@@ -465,12 +465,12 @@
                                     </mat-form-field> -->
                                                     <div class="flex gap-3 justify-center">
                                                         <button (click)="closeFilterMenu()"
-                                                            class="text-xs w-1/2 leading-[18px] py-[9px] font-semibold my-[7px] mr-[7px] rounded-[10px] px-[20px] bg-secondary-heiglight text-secondaryText"
+                                                            class="text-xs w-1/2 leading-[16px] py-[7px] font-semibold my-[5px] mr-[7px] rounded-[8px] px-[15px] bg-secondary-heiglight text-secondaryText"
                                                             type="button">
                                                             Cancel
                                                         </button>
                                                         <button
-                                                            class="text-xs w-1/2 leading-[18px] py-[9px] font-semibold my-[7px] mr-[7px] rounded-[10px] px-[20px] bg-yellow text-[#453303]"
+                                                            class="text-xs w-1/2 leading-[16px] py-[7px] font-semibold my-[5px] mr-[7px] rounded-[8px] px-[15px] bg-yellow text-[#453303]"
                                                             type="submit">
                                                             Submit
                                                         </button>

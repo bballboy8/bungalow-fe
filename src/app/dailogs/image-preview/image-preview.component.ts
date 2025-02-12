@@ -6,16 +6,20 @@ import {
   HostListener,
   Inject,
   OnInit,
+  signal,
+  viewChild,
   ViewChild,
 } from "@angular/core";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import dayjs from "dayjs";
 import { DateFormatPipe, TimeFormatPipe } from "../../pipes/date-format.pipe";
+import { PinchZoomModule } from '@meddv/ngx-pinch-zoom';
+import { NgxPanZoomModule, PanZoomComponent, PanZoomModel } from "ngx-panzoom";
 
 @Component({
   selector: "app-image-preview",
   standalone: true,
-  imports: [CommonModule,DateFormatPipe,TimeFormatPipe],
+  imports: [CommonModule,DateFormatPipe,TimeFormatPipe, NgxPanZoomModule],
   templateUrl: "./image-preview.component.html",
   styleUrl: "./image-preview.component.scss",
 })
@@ -24,6 +28,10 @@ export class ImagePreviewComponent implements OnInit,AfterViewInit {
     public dialogRef: MatDialogRef<ImagePreviewComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {}
+
+  readonly panZoom = viewChild(PanZoomComponent);
+  readonly panzoomModel = signal<PanZoomModel>(undefined!);
+
   currentIndex:any;
   // isZoomed = false;
 //  isDragging = false;
@@ -52,11 +60,13 @@ export class ImagePreviewComponent implements OnInit,AfterViewInit {
     console.log("dialog dat: ", this.data);
   }
 
+  myMethod(): void {
+    // API by viewChild
+    this.panZoom().zoomIn('lastPoint');
+  }
+  
+
   ngAfterViewInit() {
-    // this.adjustImageHeight();
-    if (!this.img) {
-      console.error("Image element not found");
-    }
     this.centerImage();
   }
 
@@ -169,13 +179,19 @@ export class ImagePreviewComponent implements OnInit,AfterViewInit {
     imgElement.style.cursor = this.zoomLevel > 1 ? "grab" : "grab";
   }
 
-  centerImage() {
+  
+ centerImage() {
     const containerRect = this.container.nativeElement.getBoundingClientRect();
     const img = this.img.nativeElement;
     img.style.width = 300+'px';
-    img.style.height = 300+'px';
-    this.translateX = (containerRect.width - img.clientWidth) / 2;
-    this.translateY = (containerRect.height - img.clientHeight) / 2;
+    img.style.height = 400+'px';
+
+    const containerWidth = containerRect.width;
+    const containerHeight = containerRect.height;
+
+    const imgWidth = img.naturalWidth;
+    const imgHeight = img.naturalHeight;
+
   }
 
   startPan(event: MouseEvent) {

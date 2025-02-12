@@ -1314,7 +1314,6 @@ onCheckboxChange(row: any) {
 }
 onRefreshCheckboxChange(e:any){
   if(e.checked){
-    console.log(e,'event');
     this.isRefresh = e.checked;
   }
 }

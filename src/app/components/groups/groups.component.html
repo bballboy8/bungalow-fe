@@ -24,7 +24,7 @@
     <div class="flex flex-col overflow-x-auto h-screen">
         <div class="py-[10px] bg-table-header px-[15px] flex font-Barlow font-medium leading-[18px] text-secondaryText text-xs">
             <span class="min-w-[355px]">Name</span>
-            <span class="min-w-[102.324px]">Updates</span>
+            <!-- <span class="min-w-[102.324px]">Updates</span> -->
             <span class="min-w-[120px]">Date saved</span>
             <span class="min-w-[127.933px]">Surface</span>
             <span class="">Objects</span>
@@ -37,7 +37,7 @@
                         <img [src]="activeIndex == index? 'assets/svg-icons/folder-icon-expanded.svg':'assets/svg-icons/folder-icon.svg'" alt="" />
                         <span >{{group.name}}</span>
                     </div>
-                    <span class="min-w-[102.324px]"></span>
+                    <!-- <span class="min-w-[102.324px]"></span> -->
                     <span class="min-w-[120px]">{{group.created_at | dateFormat}}</span>
                     <span class="min-w-[127.933px]">{{roundOff(group.surface_area)}}km²</span>
                     <div class="flex gap-[15px] min-w-[85px] justify-between items-center">
@@ -66,7 +66,7 @@
                 </div>
                 <div 
           *ngIf="activeIndex === index" 
-          class="overflow-hidden transition-all duration-300 ease-in-out pl-[15px]" 
+          class="overflow-y-scroll scroll-div scrollbar scrollbar-thumb-secondaryText scrollbar-track-gray-200 transition-all duration-300 ease-in-out pl-[15px]" 
           [ngClass]="activeIndex === index ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'"
         >
         @if (nestedGroupsData?.sites?.length > 0){
@@ -77,7 +77,7 @@
                             <img [ngClass]="{'point-site': site?.site_type == 'Point'}" class="h-[25px] w-[25px] object-cover" height="30" width="30" [src]="getSiteType(site?.site_type)" alt="" />
                             <span >{{site.name}}</span>
                         </div>
-                        <span class="min-w-[102.324px]"></span>
+                        <!-- <span class="min-w-[102.324px]"></span> -->
                         <span class="min-w-[120px]">{{site.date | dateFormat}}</span>
                         <span class="min-w-[127.933px]">{{roundOff(site?.area)}}km²</span>
                         <div class="flex gap-[15px] min-w-[85px] justify-between items-center">

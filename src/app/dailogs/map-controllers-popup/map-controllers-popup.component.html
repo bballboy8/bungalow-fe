@@ -54,17 +54,9 @@
                 </div>
                 <div class="max-h-[230px] overflow-y-scroll scrollbar scrollbar-thumb-secondaryText !scrollbar-track-gray-200">
                   @for (group of groups; track group;let index = $index) {
-                    <div class="font-Barlow" >
-                      <!-- Group Header -->
-                      <div class="group-header items-center cursor-pointer flex gap-[15px] text-sm font-medium text-secondaryText p-[15px] border-y border-y-solid border-y-custom-border" (click)="assignedGroup(group)">
-                          
-                              <span class="!w-[14px] h-[12px]">
-                                  <img src="assets/svg-icons/folder-icon.svg" alt="Search" class="w-[14px]" />
-                              </span>
-                          
-                        {{ group.name }}
-                      </div>
-                      </div>
+                    <ng-container>
+                      <app-groups-list [group]="group" [index]="index" [backgroundColor]="'#191E22'"></app-groups-list>
+                    </ng-container>
                   }
                 </div>
             
@@ -82,11 +74,11 @@
                 </span> -->
             
                 <!-- Buttons -->
-                <!-- <button (click)="saveGroup()"
+                <button (click)="saveGroup()"
                   class="flex justify-center text-[#453303] items-center text-center w-full h-[38px] py-[10px] bg-yellow rounded-[5px]"
                 >
                   Save
-                </button> -->
+                </button>
                 <button (click)="closeMenu()"
                   class="flex justify-center text-[##ABB7C0] items-center text-center w-full h-[38px] py-[10px] bg-secondary-heiglight rounded-[5px]"
                 >

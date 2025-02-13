@@ -31,7 +31,7 @@ import { MapControllersPopupComponent } from '../../dailogs/map-controllers-popu
 import { MatDialog } from '@angular/material/dialog';
 import { HttpClient } from '@angular/common/http';
 import dayjs from 'dayjs';
-import { NgxUiLoaderService } from 'ngx-ui-loader';
+import { NgxUiLoaderModule, NgxUiLoaderService } from 'ngx-ui-loader';
 import * as martinez from 'martinez-polygon-clipping';
 import interact from 'interactjs';
 import { animate, state, style, transition, trigger } from '@angular/animations';
@@ -58,6 +58,7 @@ declare module 'leaflet' {
     SidebarDrawerComponent,
     MapCalendarComponent,
     MapControllersPopupComponent,
+    NgxUiLoaderModule
   ],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
@@ -94,6 +95,7 @@ export class HomeComponent implements OnInit, AfterViewInit,OnDestroy {
   drawLayer!: L.FeatureGroup;
   extraShapesLayer!: L.FeatureGroup;
   vectorLayer!: L.LayerGroup;
+  shapeLayersData:any[]
   type: string = '';
   private zoomControlEnabled = false;
   private isDarkMode = true;
@@ -168,13 +170,15 @@ hybridLayer:L.TileLayer = L.tileLayer(
   loader: boolean = false;
   filterParams:any;
   isProgrammaticMove = false;
+  footPrintActive:boolean = true;
+  footprintLoader:boolean = false;
   constructor(@Inject(PLATFORM_ID) private platformId: Object,
    private satelliteService:SatelliteService,private dialog: MatDialog,
    private http: HttpClient,
    private sharedService:SharedService,
    private el: ElementRef, private renderer: Renderer2,
    private cdr: ChangeDetectorRef,
-   private ngxLoader: NgxUiLoaderService
+   private ngxLoader: NgxUiLoaderService,
   )
   {
     this.data = null;
@@ -1044,10 +1048,10 @@ private fallbackCopyToClipboard(text: string): void {
   getDataUsingPolygon(payload: any, queryParams: any) {
     this.satelliteService.getDataFromPolygon(payload, queryParams).subscribe({
       next: (resp) => {
-        console.log(resp, 'satelliteService response');
-        
+        this.shapeLayersData = resp.data
         this.extraShapesLayer?.clearLayers();
-        if (Array.isArray(resp?.data)) {
+        if (Array.isArray(resp?.data)&& this.footPrintActive) {
+          
           resp.data.forEach((item: any) => {
             this.addPolygonWithMetadata(item);
           });
@@ -1065,7 +1069,7 @@ private fallbackCopyToClipboard(text: string): void {
             // this.type === 'library'? this.parentZoomLevel = 5: this.parentZoomLevel=4;
             // this.onZoomLevelChange(this.parentZoomLevel)
           } else if (this.type === 'library'){
-            console.log('yyyyyyyyyyyyyy');
+          
             // this.zoomed_wkt_polygon = ''
           this.isDrawerOpen = true
           this.drawer._animationState = 'open'
@@ -1136,7 +1140,6 @@ polygon.vendorData = data; // Now TypeScript knows about this property
  polygon.on('mouseover', (e) => this.onPolygonHover(data.vendor_id));
  polygon.on('mouseout', (e) => this.onPolygonOut(null));
 
- console.log(polygon, 'Polygon added');
 polygon.on('click', (event: L.LeafletMouseEvent) => {
   if (this.currentAction === 'location') return;
 
@@ -1154,14 +1157,11 @@ polygon.on('click', (event: L.LeafletMouseEvent) => {
   if(clickedVendorData.length>1)this.sharedService.setOverlayShapeData(clickedVendorData);
   
   const vendorIds = clickedVendorData.map(v => v.vendor_id);
-     console.log(clickedVendorData,'vendorIdsvendorIdsvendorIdsvendorIds');
       const clickedPolygon = polygon; // The polygon that was clicked
       const clickedLatLngs = clickedPolygon.getLatLngs()[0] as L.LatLng[]; // Get the coordinates of the clicked polygon
   
       // Calculate the bounding box of the clicked polygon
       const clickedBoundingBox = this.getBoundingBox(clickedLatLngs);
-  
-      console.log('Clicked Polygon Bounding Box:', clickedBoundingBox);
   
       const intersectingPolygons: any[] = []; // To store all polygons within range
   
@@ -1191,7 +1191,6 @@ polygon.on('click', (event: L.LeafletMouseEvent) => {
     };
     this.satelliteService.getDataFromPolygon('', queryParams).subscribe({
         next: (resp) => {
-            console.log(resp, 'Data received');
             const vendorData = resp.data[0];
             this.vendorData = resp.data[0];
             this.sharedService.setVendorData(this.vendorData)
@@ -1216,8 +1215,7 @@ polygon.on('click', (event: L.LeafletMouseEvent) => {
     if (this.drawHandler && this.drawHandler._toolbars && this.drawHandler._toolbars.draw) {
         this.drawHandler._toolbars.draw.disable(); // Disables drawing
     }
-  
-    console.log('Drawing tools disabled');
+    
 }
 
 private flattenLatLngs(latlngs: any): L.LatLng[] {
@@ -2388,8 +2386,29 @@ wktToBounds(wkt: string): L.LatLngBounds {
   closeMarkerPopup(){
     this.vendorData = null
   }
+  handleFootprintToggle(){
+    this.footPrintActive = !this.footPrintActive
+       
+        if (Array.isArray(this.shapeLayersData)&& this.footPrintActive) {
+          this.footprintLoader = true;
+          this.ngxLoader.startLoader('buttonLoader');
+          setTimeout(() => {
+            this.shapeLayersData.forEach((item: any) => {
+              this.addPolygonWithMetadata(item);
+            });
+            this.footprintLoader = false;
+            this.ngxLoader.stopLoader('buttonLoader');
+          },300)
+         
+          
+         
+        } else {
+          this.extraShapesLayer?.clearLayers()
+        }
+  }
 
 }
+
 function onPolygonHover(e: any, LeafletMouseEvent: any) {
   throw new Error('Function not implemented.');
 }

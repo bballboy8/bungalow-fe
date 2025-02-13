@@ -111,10 +111,10 @@
                         <div
                             class="flex w-full items-center gap-[15px] self-stretch ">
                             <div class="flex flex-col items-start gap-[15px] flex-0">
-                                <div class="flex min-w-[775px] w-full items-center gap-[50px] self-stretch">
+                                <div class="flex min-w-[600px] w-full items-center gap-[30px] self-stretch">
                                     <div
                                         class="flex flex-col relative group justify-center items-start px-[8px] content-center flex-wrap
-                                        min-w-[150px] py-[15px] self-stretch gap-[5px] rounded-[5px] border border-solid border-custom-border bg-primaryBg">
+                                        min-w-[135px] py-[15px] self-stretch gap-[5px] rounded-[5px] border border-solid border-custom-border bg-primaryBg">
                                         <span class="text-secondary-heiglight group text-xs font-bold leading-[18px]">Frequency</span>
                                         <span class="text-secondaryText text-xs font-bold leading-normal">{{siteDetail?.frequency}}</span>
                                         <div
@@ -128,7 +128,7 @@
                                     </div>
                                     <div
                                         class="flex flex-col group content-center flex-wrap
-                                        relative justify-center items-start px-[8px] min-w-[150px] py-[15px] self-stretch gap-[5px] rounded-[5px] border border-solid border-custom-border bg-primaryBg">
+                                        relative justify-center items-start px-[8px] min-w-[135px] py-[15px] self-stretch gap-[5px] rounded-[5px] border border-solid border-custom-border bg-primaryBg">
                                         <span class="text-secondary-heiglight text-xs font-bold leading-[18px]">Most recent</span>
                                         <span class="text-secondaryText text-xs font-bold leading-normal">{{siteDetail?.most_recent_info?.acquisition_datetime |
                                             dateFormat}}</span>
@@ -148,7 +148,7 @@
                                     </div>
                                     <div
                                         class="flex flex-col group content-center flex-wrap
-                                        relative justify-center items-start px-[8px] min-w-[150px] py-[15px]  self-stretch gap-[5px] rounded-[5px] border border-solid border-custom-border bg-primaryBg">
+                                        relative justify-center items-start px-[8px] min-w-[135px] py-[15px]  self-stretch gap-[5px] rounded-[5px] border border-solid border-custom-border bg-primaryBg">
                                         <span class="text-secondary-heiglight text-xs font-bold leading-[18px]">Gap</span>
                                         <span
                                             class="text-secondaryText text-xs font-bold leading-normal">{{siteDetail?.gap.toFixed(3)}}</span>
@@ -162,12 +162,12 @@
                                             </div>
                                     </div>
                                     <div
-                                        class="flex flex-col group content-center flex-wrap relative justify-center items-start min-w-[150px] px-[8px] py-[15px] self-stretch gap-[5px] rounded-[5px] border border-solid border-custom-border bg-primaryBg">
+                                        class="flex flex-col group content-center flex-wrap relative justify-center items-start min-w-[135px] px-[8px] py-[15px] self-stretch gap-[5px] rounded-[5px] border border-solid border-custom-border bg-primaryBg">
                                         <span class="text-secondary-heiglight text-xs font-bold leading-[18px]">Most recent clear</span>
                                         <span class="text-yellow text-xs font-bold leading-normal">{{siteDetail?.most_recent_clear |
                                             dateFormat}}</span>
                                             <div
-                                            class="hidden absolute shadow-custom left-[0px] z-50 rounded-[10px] top-[80px] w-max text-secondaryText group-hover:flex flex-col bg-secondaryBg p-[10px] font-Barlow">
+                                            class="hidden absolute shadow-custom left-[0px] right-[30px] z-50 rounded-[10px] top-[80px] w-max text-secondaryText group-hover:flex flex-col bg-secondaryBg p-[10px] font-Barlow">
                                             <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
                                                 <span>Date time:</span>
                                                 <span>{{siteDetail?.most_recent_clear_info?.acquisition_datetime | dateFormat}}

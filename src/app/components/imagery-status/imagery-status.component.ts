@@ -35,6 +35,9 @@ import utc from "dayjs/plugin/utc";
 import { startWith } from "rxjs";
 import { error } from "console";
 import { animate, state, style, transition, trigger } from "@angular/animations";
+import {MatIconModule} from '@angular/material/icon';
+import {MatButtonModule} from '@angular/material/button';
+
 dayjs.extend(utc);
 @Component({
   selector: "app-imagery-status",
@@ -50,6 +53,8 @@ dayjs.extend(utc);
     MatInputModule,
     MatMenuModule,
     NgxDaterangepickerMd,
+    MatIconModule,
+    MatButtonModule
   ],
   templateUrl: "./imagery-status.component.html",
   styleUrl: "./imagery-status.component.scss",
@@ -82,6 +87,7 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
   get displayedColumns(): string[] {
     return [
       ...this.columns.filter((c) => c.visible).map((c) => c.id), // Keep expand column always visible
+      'expand'
     ];
   }
   total_count: any;

@@ -183,9 +183,9 @@
                         </div>
                         @if (site) {
                             <div
-                                class="flex relative flex-col h-[110px] w-[320px] p-[5px] items-center self-stretch gap-[5px] rounded-[5px] border border-solid border-custom-border bg-primaryBg">
+                                class="flex relative flex-col  w-full p-[5px] self-stretch gap-[5px] rounded-[5px] bg-primaryBg">
             
-                                @if (chartOptions?.series?.length) {
+                                @if (calendarData?.length) {
                                 <div class="flex felx-col ">
                                     <!-- <div class="flex gap-[5px] font-Barlow flex-wrap"> -->
                                     <!-- <div class="flex items-center flex-col gap-[5px]">
@@ -220,16 +220,47 @@
                                                     
                                                   </div> -->
                                     <!-- </div> -->
-            
-                                    <div id="chart" class="absolute !left-[0px]">
-                                        <apx-chart [series]="chartOptions.series" [chart]="chartOptions.chart"
-                                            [plotOptions]="chartOptions.plotOptions" [dataLabels]="chartOptions.dataLabels"
-                                            [xaxis]="chartOptions.xaxis" [yaxis]="chartOptions.yaxis" [grid]="chartOptions.grid"
-                                            [title]="chartOptions.title" [legend]="chartOptions.legend">
-                                        </apx-chart>
-            
-            
-                                    </div>
+                                     <div class="flex gap-[15px]">
+                                    <div *ngFor="let month of calendarData" class="month border border-solid border-custom-border">
+                                        <!-- <div class="flex flex-wrap gap-[10px] pb-[10px] justify-center">
+                                          <div class="flex gap-[5px]" *ngFor="let legend of legens_calendar">
+                                            <div class="flex flex-col items-center gap-[5px]">
+                                              <div class="w-[20px] h-[20px] rounded-[5px]" [ngStyle]="{'background-color':legend?.color}"></div>
+                                              <div class="text-secondaryText text-sm font-medium leading-[18px] font-Barlow">{{legend?.min}}-{{legend?.max}}</div>
+                                            </div>
+                                    
+                                          </div>
+                                        </div> -->
+                                        <div class="month-header !text-secondaryText">{{ month.name }}</div>
+                                        
+                                        <!-- Weekday Labels -->
+                                        <div class="weekday-labels">
+                                          <div *ngFor="let day of weekDays" class="weekday">
+                                            {{ day }}
+                                          </div>
+                                        </div>
+                                    
+                                        <div class="weeks">
+                                          <div *ngFor="let week of month.weeks" class="week">
+                                            <div
+                                              *ngFor="let day of week"
+                                              [style.background-color]="day?.backgroundValue"
+                                              [style.color]="day?.colorValue"
+                                              class="day group relative"
+                                              (mouseenter)="calculateTooltipPosition($event, day)"
+                                              (mouseleave)="clearTooltipPosition(day)"
+                                            >
+                                            {{ getDayFromDate(day.date) }}
+                                              <div *ngIf="day.value>0" [ngStyle]="tooltipPosition[day.date]" class="group-hover:inline-flex min-w-[160px] z-[9999999999] w-max absolute hidden font-Barlow p-[15px] flex-col items-start gap-[15px] rounded-[10px] bg-secondaryBg shadow-custom">
+                                                <span class="text-secondary-heiglight text-xs font-bold leading-[18px]">{{getDate(month.name,day)}}</span>
+                                                <span class="text-secondaryText text-sm font-medium leading-[18px]">{{day.value}} images available</span>
+                                                <!-- <span class="text-yellow pt-[15px] border-t border-t-solid border-t-custom-border text-xs font-bold leading-[18px]">Browse images</span> -->
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      </div>
                                 </div>
                                 } @else {
                                 <span class="text-secondary-heiglight text-xs font-bold leading-[18px]">No heatmap data found</span>

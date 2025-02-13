@@ -1662,7 +1662,7 @@ getDateTimeFormat(dateTime: string) {
         start_date: this.startDate,
         end_date: this.endDate
     }
-      this.filterParams = {...this.filterParams, ...queryParams}
+      this.filterParams = { ...queryParams}
 
       console.log('Selected Date and Time:', this.filterParams);
       this.parentFilter.emit(this.filterParams)

@@ -37,6 +37,7 @@ import { error } from "console";
 import { animate, state, style, transition, trigger } from "@angular/animations";
 import {MatIconModule} from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
+import { UtcDateTimePipe } from "../../pipes/date-format.pipe";
 
 dayjs.extend(utc);
 @Component({
@@ -54,7 +55,8 @@ dayjs.extend(utc);
     MatMenuModule,
     NgxDaterangepickerMd,
     MatIconModule,
-    MatButtonModule
+    MatButtonModule,
+    UtcDateTimePipe
   ],
   templateUrl: "./imagery-status.component.html",
   styleUrl: "./imagery-status.component.scss",
@@ -82,7 +84,7 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
   expandedElement: any | null;
 
 
-  innerDisplayedColumns = ['vendor_name','successful', 'failed', 'total'];
+  innerDisplayedColumns = ['date','vendor_name','successful', 'failed', 'total'];
 
   get displayedColumns(): string[] {
     return [

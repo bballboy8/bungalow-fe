@@ -113,27 +113,69 @@
                             <div class="flex flex-col items-start gap-[15px] flex-0">
                                 <div class="flex min-w-[775px] w-full items-center gap-[50px] self-stretch">
                                     <div
-                                        class="flex flex-col justify-center items-start px-[8px] py-[15px] self-stretch gap-[5px] rounded-[5px] border border-solid border-custom-border bg-primaryBg">
-                                        <span class="text-secondary-heiglight text-xs font-bold leading-[18px]">Frequency</span>
+                                        class="flex flex-col relative group justify-center items-start px-[8px] py-[15px] self-stretch gap-[5px] rounded-[5px] border border-solid border-custom-border bg-primaryBg">
+                                        <span class="text-secondary-heiglight group text-xs font-bold leading-[18px]">Frequency</span>
                                         <span class="text-secondaryText text-xs font-bold leading-normal">{{siteDetail?.frequency}}</span>
+                                        <div
+                                            class="hidden absolute shadow-custom left-[0px] z-50 rounded-[10px] top-[80px] w-max text-secondaryText group-hover:flex flex-col bg-secondaryBg p-[10px] font-Barlow">
+                                            <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                                                <span>Frequency of images:</span>
+                                                <span>{{siteDetail?.frequency}}
+                                                </span>
+                                            </div>
+                                        </div>
                                     </div>
                                     <div
-                                        class="flex flex-col justify-center items-start px-[8px] py-[15px] self-stretch gap-[5px] rounded-[5px] border border-solid border-custom-border bg-primaryBg">
+                                        class="flex flex-col group relative justify-center items-start px-[8px] py-[15px] self-stretch gap-[5px] rounded-[5px] border border-solid border-custom-border bg-primaryBg">
                                         <span class="text-secondary-heiglight text-xs font-bold leading-[18px]">Most recent</span>
-                                        <span class="text-secondaryText text-xs font-bold leading-normal">{{siteDetail?.most_recent |
+                                        <span class="text-secondaryText text-xs font-bold leading-normal">{{siteDetail?.most_recent_info?.acquisition_datetime |
                                             dateFormat}}</span>
+                                            <div
+                                                class="hidden absolute shadow-custom left-[0px] z-50 rounded-[10px] top-[80px] w-max text-secondaryText group-hover:flex flex-col bg-secondaryBg p-[10px] font-Barlow">
+                                                <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                                                    <span>Date time:</span>
+                                                    <span>{{siteDetail?.most_recent_info?.acquisition_datetime | dateFormat}}
+                                                        UTC</span>
+                                                </div>
+                                                <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                                                    <span>Vendor:</span>
+                                                    <span>{{siteDetail?.most_recent_info?.vendor_name }}</span>
+                                                </div>
+                                            
+                                            </div>
                                     </div>
                                     <div
-                                        class="flex flex-col justify-center items-start px-[8px] py-[15px] min-w-[60px] self-stretch gap-[5px] rounded-[5px] border border-solid border-custom-border bg-primaryBg">
+                                        class="flex flex-col group relative justify-center items-start px-[8px] py-[15px] min-w-[60px] self-stretch gap-[5px] rounded-[5px] border border-solid border-custom-border bg-primaryBg">
                                         <span class="text-secondary-heiglight text-xs font-bold leading-[18px]">Gap</span>
                                         <span
                                             class="text-secondaryText text-xs font-bold leading-normal">{{siteDetail?.gap.toFixed(3)}}</span>
+                                            <div
+                                                class="hidden absolute shadow-custom left-[0px] z-50 rounded-[10px] top-[80px] w-max text-secondaryText group-hover:flex flex-col bg-secondaryBg p-[10px] font-Barlow">
+                                                <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                                                    <span>Days since last image:</span>
+                                                    <span>{{siteDetail?.gap.toFixed(3)}}
+                                                        </span>
+                                                </div>
+                                            </div>
                                     </div>
                                     <div
-                                        class="flex flex-col justify-center items-start px-[8px] py-[15px] self-stretch gap-[5px] rounded-[5px] border border-solid border-custom-border bg-primaryBg">
+                                        class="flex flex-col group relative justify-center items-start px-[8px] py-[15px] self-stretch gap-[5px] rounded-[5px] border border-solid border-custom-border bg-primaryBg">
                                         <span class="text-secondary-heiglight text-xs font-bold leading-[18px]">Most recent clear</span>
                                         <span class="text-yellow text-xs font-bold leading-normal">{{siteDetail?.most_recent_clear |
                                             dateFormat}}</span>
+                                            <div
+                                            class="hidden absolute shadow-custom left-[0px] z-50 rounded-[10px] top-[80px] w-max text-secondaryText group-hover:flex flex-col bg-secondaryBg p-[10px] font-Barlow">
+                                            <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                                                <span>Date time:</span>
+                                                <span>{{siteDetail?.most_recent_clear_info?.acquisition_datetime | dateFormat}}
+                                                    UTC</span>
+                                            </div>
+                                            <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                                                <span>Vendor:</span>
+                                                <span>{{siteDetail?.most_recent_clear_info?.vendor_name }}</span>
+                                            </div>
+                                        
+                                        </div>
                                     </div>
                                    
                                 </div>

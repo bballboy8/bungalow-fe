@@ -260,6 +260,22 @@
           >
             <div class="inner-table mat-elevation-z8">
               <table  mat-table [dataSource]="element.records">
+                <ng-container matColumnDef="date">
+                  <th
+                    mat-header-cell
+                    *matHeaderCellDef
+                    class="min-w-[80px] !pl-[10px] text-secondaryText font-semibold !border-b !border-b-solid !border-b-secondaryText"
+                  >
+                    Date Time
+                  </th>
+                  <td
+                    mat-cell
+                    *matCellDef="let row"
+                    class="min-w-[80px] !pl-[10px] text-secondaryText !border-b !border-b-solid !border-b-secondaryText"
+                  >
+                    {{ row?.start_datetime | utcDateTimePipe }} UTC
+                  </td>
+                </ng-container>
                 <ng-container matColumnDef="vendor_name">
                   <th
                     mat-header-cell

@@ -146,18 +146,6 @@
             />
             }
           </div>
-          <div
-            class="p-[10px] h-[40px] min-w-[40px] w-auto flex justify-center items-center cursor-pointer"
-            [ngClass]="
-              footPrintActive ? 'bg-yellow rounded-b-[5px]' : ''
-            "
-            (click)="handleFootprintToggle()"
-          >
-            <img class="h-[20px] w-[20px]"
-              [src]="footPrintActive ? 'assets/svg-icons/footprint-active-icon.svg':'assets/svg-icons/footprint-hide-icon.svg'"
-              alt="Footprint icon"
-            />
-          </div>
           <!-- <div class="border-b border-b-solid border-custom-border p-[10px] h-[40px] min-w-[40px] w-auto flex justify-center items-center cursor-pointer" (click)="handleAction('settings')">
         <img src="assets/svg-icons/filter-icon.svg" alt="pin location icon" />
       </div>
@@ -165,6 +153,18 @@
         <img src="assets/svg-icons/layer-icon.svg" alt="pin location icon" />
       </div> -->
         </div>
+        <div
+        class="p-[10px] right-0 top-[235px] mr-[12px] absolute rounded-[5px] h-[40px] min-w-[40px] w-auto flex justify-center items-center cursor-pointer"
+        [ngClass]="
+          footPrintActive ? 'bg-yellow rounded-b-[5px]' : 'bg-secondaryBg'
+        "
+        (click)="handleFootprintToggle()"
+      >
+        <img class="h-[20px] w-[20px]"
+          [src]="footPrintActive ? 'assets/svg-icons/footprint-active-icon.svg':'assets/svg-icons/footprint-hide-icon.svg'"
+          alt="Footprint icon"
+        />
+      </div>
       </div>
       
 

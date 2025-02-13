@@ -2114,7 +2114,7 @@ ngOnDestroy(): void {
 }
 
 highLightShape(data: any): void {
-  console.log(data, 'highLightShape');
+  // console.log(data, 'highLightShape');
 
   // If data is null or invalid, remove the highlighted polygon
   if (!data || !data.coordinates_record?.coordinates) {

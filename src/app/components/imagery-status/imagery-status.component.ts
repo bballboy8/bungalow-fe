@@ -387,32 +387,52 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
 
       
       console.log(this.vendor.value,'vendorvendorvendorvendorvendorvendorvendor');
-      
-    if(this.vendor?.value?.length>0 || this.vendor.value !== null){
-      const queryParams ={
-        ...this.filterParams,
-        vendor_name: this.vendor.value?.join(','),
 
+      // Check vendor filter
+      const newVendorValue = this.vendor?.value?.length > 0 ? this.vendor.value.join(',') : null;
+      if (newVendorValue !== this.filterParams.vendor_name) {
+        this.filterParams = {
+          ...this.filterParams,
+          vendor_name: newVendorValue,
+        };
+        this.filterCount++;
       }
-      this.filterParams = {...queryParams}
-    }
-     if (this.start_date.startDate !== null) {
-      console.log('eeeeeeeeeeee');
-     const queryParams = {
-      ...this.filterParams,
-      start_date: dayjs(this.start_date).utc().format('YYYY-MM-DDTHH:mm:ss.SSSSSSZ')
-     }
-     this.filterParams = {...queryParams,...this.filterParams}
-    }
-     if (this.end_date.endDate !==null) {
-      console.log('ddddddddddddddd');
       
-      const queryParams = {
-       ...this.filterParams,
-       end_date: dayjs(this.end_date.endDate).utc().format('YYYY-MM-DDTHH:mm:ss.SSSSSSZ')
+      // Check start_date filter
+      if (this.start_date.startDate !== null) {
+        console.log('Start Date Applied');
+        
+        const formattedStartDate = dayjs(this.start_date.startDate).utc().format('YYYY-MM-DDTHH:mm:ss.SSSSSSZ');
+      
+        if (this.filterParams.start_date !== formattedStartDate) {
+          this.filterParams = {
+            ...this.filterParams,
+            start_date: formattedStartDate,
+          };
+          this.filterCount++;
+        }
       }
-      this.filterParams = {...queryParams,...this.filterParams}
-     }
+      
+      // Check end_date filter
+      if (this.end_date.endDate !== null) {
+        console.log('End Date Applied');
+        
+        const formattedEndDate = dayjs(this.end_date.endDate).utc().format('YYYY-MM-DDTHH:mm:ss.SSSSSSZ');
+      
+        if (this.filterParams.end_date !== formattedEndDate) {
+          this.filterParams = {
+            ...this.filterParams,
+            end_date: formattedEndDate,
+          };
+          this.filterCount++;
+        }
+      }
+      
+      // Add pagination params
+      
+      // Log the number of applied filters
+      console.log('Total Applied Filters:', this.filterCount);
+      
 
     const params = {
       ...this.filterParams,
@@ -480,6 +500,7 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
 
   //Filter reset Function
   resetFilter(): void {
+    this.filterCount = 0
     this.vendor.reset()
     this.start_date = ''
     this.end_date = ''

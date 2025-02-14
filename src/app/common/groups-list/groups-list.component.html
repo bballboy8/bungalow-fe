@@ -166,7 +166,7 @@
                                 class="flex relative flex-col  w-full p-[5px] self-stretch gap-[5px] rounded-[5px] bg-primaryBg">
             
                                 @if (calendarData?.length) {
-                                <div class="flex felx-col ">
+                                <div class="flex flex-col gap-[10px]">
                                     <!-- <div class="flex gap-[5px] font-Barlow flex-wrap"> -->
                                     <!-- <div class="flex items-center flex-col gap-[5px]">
                                                         <span class="w-[15px] h-[15px] bg-[#272F34] rounded-[5px]"></span>
@@ -200,6 +200,19 @@
                                                     
                                                   </div> -->
                                     <!-- </div> -->
+                                     <div class="flex  flex-wrap items-center gap-[20px] mb-[5px]">
+                                        <div *ngFor="let range of colorRanges" class="flex items-center flex-col gap-[5px]"
+                                        (mouseenter)="hoveredRange = range.name"
+                                        (mouseleave)="hoveredRange = null" >
+                                          <ng-container 
+                                                
+                                           >
+                                              <span [style.background]="range.color" class="w-[15px] h-[15px] rounded-[5px]"></span>
+                                              <span class="text-secondaryText text-[10px]">{{ range.name }}</span>
+                                          </ng-container>
+                                          
+                                        </div>
+                                        </div>
                                      <div class="flex gap-[15px]">
                                     <div *ngFor="let month of calendarData" class="month border border-solid border-custom-border">
                                         <!-- <div class="flex flex-wrap gap-[10px] pb-[10px] justify-center">
@@ -227,6 +240,7 @@
                                               [style.background-color]="day?.backgroundValue"
                                               [style.color]="day?.colorValue"
                                               class="day group relative"
+                                              [ngClass]="hoveredRange == day.rangeName? '!bg-[#93b3ce]':''"
                                               (mouseenter)="calculateTooltipPosition($event, day)"
                                               (mouseleave)="clearTooltipPosition(day)"
                                             >

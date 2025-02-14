@@ -353,6 +353,9 @@ set zoomed_wkt(value: string) {
       this.filterParams = {...queryParams}
         this.getSatelliteCatalog(payload, queryParams);
       }
+      if (this.isRefresh && this.scrollableDiv) {
+        this.scrollableDiv.nativeElement.scrollTop = 0;
+      }
     }, 800);
      // Debounce time: 600ms
   }

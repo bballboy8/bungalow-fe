@@ -616,17 +616,17 @@ export class GroupsListComponent {
          
              // Get the maximum value from apiData (minimum threshold is 200)
              const actualMax = Math.max(...Object.values(apiData));
-             const maxValue = Math.max(actualMax, 200);
+             const maxValue = Math.max(actualMax, 20);
          
              // Define function to determine range and color
              const getRangeData = (value: number): { color: string; range: string } => {
-                 if (value === 0) return { color: "", range: "No Data" }; // White for zero values
-                 if (value <= maxValue * 0.1) return { color: "#70ed8b", range: "Very Low" }; // Light Green
-                 if (value <= maxValue * 0.3) return { color: "#a3d9a5", range: "Low" }; // Medium Green
-                 if (value <= maxValue * 0.5) return { color: "#70c37e", range: "Medium" }; // Darker Green
-                 if (value <= maxValue * 0.7) return { color: "#ffcc00", range: "High" }; // Yellow
-                 if (value <= maxValue * 0.9) return { color: "#ff6600", range: "Very High" }; // Orange
-                 return { color: "#ff0000", range: "Extreme" }; // Red
+              if (value === 0) return { color: "", range: "No Data" }; // White for zero values
+              if (value <= maxValue * 0.1) return { color: "#70ed8b", range: "Very Low" }; // Light Green
+              if (value <= maxValue * 0.3) return { color: "#5bc06c", range: "Low" }; // Medium Green
+              if (value <= maxValue * 0.5) return { color: "#319a43", range: "Medium" }; // Darker Green
+              if (value <= maxValue * 0.7) return { color: "#12561d", range: "High" }; // Yellow
+              if (value <= maxValue * 0.9) return { color: "#bf4e4e", range: "Very High" }; // Orange
+              return { color: "#ff0000", range: "Extreme" }; // Red
              };
          
              while (current.isBefore(end) || current.isSame(end, "month")) {

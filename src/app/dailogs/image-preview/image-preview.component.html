@@ -98,15 +98,15 @@
         <div class="flex flex-col">
           <div class="relative 2k:!h-[900px] mac16:!h-[730px] mxl:!h-[545px] lxl:!h-[800px] w-full">
             <div
-            #container
+            
             class="2k:!h-[900px] mxl:!h-[545px] mac16:!h-[730px] lxl:!h-[800px] overflow-auto relative resizable-image bg-secondary-heiglight flex justify-center items-center"
           >
             @if (data.images.data[currentIndex].presigned_url) {
              
               <div
-              class="image-container"
+              class="cursor-grab"
               style="position: absolute; top: 0px; bottom: 0; left: 0; right: 0;"
-              #container
+              
        
             >
             <!-- <pinch-zoom [wheel]="true">
@@ -119,16 +119,16 @@
             [zoomLevels]="20"
             [initialZoomLevel]=".1" 
             [neutralZoomLevel]=".1"
-            [zoomStepDuration]=".08"
+            [zoomStepDuration]=".3"
             [freeMouseWheelFactor]=".01"
             [zoomToFitZoomLevelFactor]="1"
             [initialPanX]="400"
             [initialPanY]="100"
-            
+            [zoomButtonIncrement]="0.3"
           >
             <div class="relative">
               <img
-              #img
+              
               [src]="data?.images?.data[currentIndex]?.presigned_url"
               class="object-contain"
             />

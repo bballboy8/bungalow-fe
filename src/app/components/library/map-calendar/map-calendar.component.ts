@@ -17,6 +17,7 @@ type CalendarDay = {
   value: number | null;
   colorValue: string;
   backgroundValue: string;
+  rangeName: string 
 };
 type CalendarWeek = CalendarDay[];
 type CalendarMonth = { name: string; weeks: CalendarWeek[] };
@@ -41,7 +42,7 @@ export class MapCalendarComponent implements OnInit {
   showCalendar: boolean = true;
   @Input() endDateCal:any
   @Input() startDateCal:any;
-
+  hoveredRange: string | null = null;
   @Output() calendarEventsOpen = new EventEmitter();
   private _calendarApiData:any
   @Input()
@@ -59,7 +60,14 @@ export class MapCalendarComponent implements OnInit {
   };
 
   tooltipPosition: any = {};
-
+  colorRanges = [
+    { name: "Very Low", color: "#70ed8b" }, // Light Green
+    { name: "Low", color: "#5bc06c" }, // Medium Green
+    { name: "Medium", color: "#319a43" }, // Darker Green
+    { name: "High", color: "#12561d" }, // Yellow
+    { name: "Very High", color: "#bf4e4e" }, // Orange
+    { name: "Extreme", color: "#ff0000" } // Red
+]
   ngOnInit(): void {
   }
 
@@ -70,41 +78,65 @@ export class MapCalendarComponent implements OnInit {
   }
 
   generateCalendarData(apiData: Record<string, number>): void {
-    // Clear the existing calendarData
+    // Clear existing calendar data
     this.calendarData = [];
-  
+
     const dates = Object.keys(apiData).map((date) => dayjs(date));
+    if (dates.length === 0) return;
+
     const start = dayjs.min(dates)!;
     const end = dayjs.max(dates)!;
     const dataMap = new Map(Object.entries(apiData));
     let current = start;
-  
+
+    // Get the maximum value from apiData (minimum threshold is 200)
+    const actualMax = Math.max(...Object.values(apiData));
+    const maxValue = Math.max(actualMax, 200);
+
+    // Define function to determine range and color
+    const getRangeData = (value: number): { color: string; range: string } => {
+        if (value === 0) return { color: "", range: "No Data" }; // White for zero values
+        if (value <= maxValue * 0.1) return { color: "#70ed8b", range: "Very Low" }; // Light Green
+        if (value <= maxValue * 0.3) return { color: "#a3d9a5", range: "Low" }; // Medium Green
+        if (value <= maxValue * 0.5) return { color: "#70c37e", range: "Medium" }; // Darker Green
+        if (value <= maxValue * 0.7) return { color: "#ffcc00", range: "High" }; // Yellow
+        if (value <= maxValue * 0.9) return { color: "#ff6600", range: "Very High" }; // Orange
+        return { color: "#ff0000", range: "Extreme" }; // Red
+    };
+
     while (current.isBefore(end) || current.isSame(end, "month")) {
-      const monthDays: CalendarDay[] = [];
-      const monthStart = current.startOf("month");
-      const monthEnd = current.endOf("month");
-      let day = monthStart;
-  
-      while (day.isBefore(monthEnd) || day.isSame(monthEnd, "day")) {
-        const dateString = day.format("YYYY-MM-DD");
-        const value = dataMap.get(dateString) || null;
-        monthDays.push({
-          date: dateString,
-          value,
-          colorValue: "#ffffff",
-          backgroundValue: value && value > 0 ? this.getColor(value,  Object.values(apiData)) : "",
+        const monthDays: CalendarDay[] = [];
+        const monthStart = current.startOf("month");
+        const monthEnd = current.endOf("month");
+        let day = monthStart;
+
+        while (day.isBefore(monthEnd) || day.isSame(monthEnd, "day")) {
+            const dateString = day.format("YYYY-MM-DD");
+            const value = dataMap.get(dateString) || 0; // Default to 0 if no value
+
+            // Get background color and range category
+            const { color, range } = getRangeData(value);
+
+            monthDays.push({
+                date: dateString,
+                value,
+                colorValue: '#ffffff',
+                backgroundValue: color,
+                rangeName: range, // Store the category name
+            });
+
+            day = day.add(1, "day");
+        }
+
+        this.calendarData.push({
+            name: current.format("MMMM YYYY"), // Includes the year
+            weeks: this.generateWeeksForMonth(monthDays),
         });
-        day = day.add(1, "day");
-      }
-  
-      this.calendarData.push({
-        name: current.format("MMMM YYYY"), // Includes the year
-        weeks: this.generateWeeksForMonth(monthDays),
-      });
-  
-      current = current.add(1, "month");
+
+        current = current.add(1, "month");
     }
-  }
+}
+
   
 
   generateWeeksForMonth(monthDays: CalendarDay[]): CalendarWeek[] {

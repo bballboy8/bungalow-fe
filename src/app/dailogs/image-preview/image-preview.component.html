@@ -20,7 +20,7 @@
               [freeMouseWheelFactor]="0.01"
               [zoomToFitZoomLevelFactor]="0.5"
               [initialPanX]="400"
-              [initialPanY]="200"
+              [initialPanY]="400"
             >
               <div class="relative">
                 <img
@@ -114,23 +114,26 @@
 
           </pinch-zoom> -->
 
-          <ngx-panzoom
-          #PanZoom
-          [zoomLevels]="20"
-          [zoomStepDuration]="0.08"
-          [freeMouseWheelFactor]="0.01"
-          [zoomToFitZoomLevelFactor]="0.5"
-          [initialPanX]="400"
-          [initialPanY]="200"
-        >
-          <div class="relative">
-            <img
-            #img
-            [src]="data?.images?.data[currentIndex]?.presigned_url"
-            class="object-contain"
-          />
-          </div>
-        </ngx-panzoom>
+            <ngx-panzoom
+            #PanZoom
+            [zoomLevels]="20"
+            [initialZoomLevel]=".1" 
+            [neutralZoomLevel]=".1"
+            [zoomStepDuration]=".08"
+            [freeMouseWheelFactor]=".01"
+            [zoomToFitZoomLevelFactor]="1"
+            [initialPanX]="400"
+            [initialPanY]="100"
+            
+          >
+            <div class="relative">
+              <img
+              #img
+              [src]="data?.images?.data[currentIndex]?.presigned_url"
+              class="object-contain"
+            />
+            </div>
+          </ngx-panzoom>
      
 
             </div>

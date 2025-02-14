@@ -138,6 +138,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   @ViewChild("myTemplate", { static: true }) myTemplate!: TemplateRef<any>;
   @Output() closeDrawer = new EventEmitter<boolean>();
   @Input() polygon_wkt:any;
+  @Input() sidebarWidth:any;
   //#endregion
   @Output() rowHoveredData: EventEmitter<any> = new EventEmitter();
   //#region variables

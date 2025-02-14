@@ -39,6 +39,7 @@ type CalendarDay = {
   value: number | null;
   colorValue: string;
   backgroundValue: string;
+  rangeName:string;
 };
 type CalendarWeek = CalendarDay[];
 type CalendarMonth = { name: string; weeks: CalendarWeek[] };
@@ -65,7 +66,15 @@ export class GroupsComponent implements OnInit,AfterViewInit {
   sitesData:any;
   @ViewChild("chart") chart: ChartComponent;
   public chartOptions: Partial<ChartOptions>;
-  colorRanges: any[] = [];
+  hoveredRange: string | null = null;
+  colorRanges = [
+    { name: "Very Low", color: "#70ed8b" }, // Light Green
+    { name: "Low", color: "#5bc06c" }, // Medium Green
+    { name: "Medium", color: "#319a43" }, // Darker Green
+    { name: "High", color: "#12561d" }, // Yellow
+    { name: "Very High", color: "#bf4e4e" }, // Orange
+    { name: "Extreme", color: "#ff0000" } // Red
+]
   tooltipPosition: any = {};
   weekDays: string[] = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
   calendarData: CalendarMonth[] = [];
@@ -395,7 +404,7 @@ export class GroupsComponent implements OnInit,AfterViewInit {
          
     
          
-            this.initializeCharts();
+            // this.initializeCharts();
         
         },
         error: (err: any) => {
@@ -405,125 +414,125 @@ export class GroupsComponent implements OnInit,AfterViewInit {
     }
     
      // Initialize the ApexCharts heatmap after receiving site data.
-    initializeCharts() {
-      if (!this.siteDetail || !this.siteDetail.heatmap) {
-        return;
-      }
+//     initializeCharts() {
+//       if (!this.siteDetail || !this.siteDetail.heatmap) {
+//         return;
+//       }
     
-      const heatmapData = this.siteDetail.heatmap.map(entry => entry.count);
-      const maxValue = Math.max(...heatmapData); // No hardcoded 100
-      const minValue = Math.min(...heatmapData);
-      const rangeCount = Math.max(5, Math.floor((maxValue - minValue) / 5));
-      const rangeStep = Math.ceil((maxValue - minValue) / rangeCount); // 5 dynamic ranges
+//       const heatmapData = this.siteDetail.heatmap.map(entry => entry.count);
+//       const maxValue = Math.max(...heatmapData); // No hardcoded 100
+//       const minValue = Math.min(...heatmapData);
+//       const rangeCount = Math.max(5, Math.floor((maxValue - minValue) / 5));
+//       const rangeStep = Math.ceil((maxValue - minValue) / rangeCount); // 5 dynamic ranges
 
-  const colorStatus = ['']
-// ✅ Generate dynamic color ranges
-const colorRanges = Array.from({ length: 5 }, (_, i) => {
-  const from = minValue + i * rangeStep;
-  const to = i === 4 ? maxValue : from + rangeStep - 1; // Ensure the last range covers maxValue
-  return {
-    from,
-    to,
-    color: this.getColor(from, heatmapData), // Dynamic color using getColor
-    name: `${from} - ${to}`
-  };
-});
+//   const colorStatus = ['']
+// // ✅ Generate dynamic color ranges
+// const colorRanges = Array.from({ length: 5 }, (_, i) => {
+//   const from = minValue + i * rangeStep;
+//   const to = i === 4 ? maxValue : from + rangeStep - 1; // Ensure the last range covers maxValue
+//   return {
+//     from,
+//     to,
+//     color: this.getColor(from, heatmapData), // Dynamic color using getColor
+//     name: `${from} - ${to}`
+//   };
+// });
 
 
-this.colorRanges = colorRanges;
+// this.colorRanges = colorRanges;
     
-      const groupedData = this.groupHeatmapDataIntoRows(this.siteDetail.heatmap, 3);
-      console.log("groupedDatagroupedDatagroupedData", groupedData);
+//       const groupedData = this.groupHeatmapDataIntoRows(this.siteDetail.heatmap, 3);
+//       console.log("groupedDatagroupedDatagroupedData", groupedData);
       
     
-      this.chartOptions = {
-        series: groupedData.map((group, index) => ({
-          name: 'Site',
-          data: group.map((entry) => ({
-            x: entry.date ?? "no data", // Use "Empty" for padding values
-            y: entry.count ?? 0 // Use `null` for padding counts
-          }))
-        })),
-        chart: {
-          height: 110,
-          width: 320,
-          type: "heatmap",
-          toolbar: {
-            show: false // Hides the toolbar
-          }
-        },
-        plotOptions: {
-          heatmap: {
-            shadeIntensity: 0.5,
-            enableShades: false,
-            colorScale: {
-              // ranges: [
-              //   { from: 0, to: 0, name: "Zero", color: "#272F34" }, // Neutral gray for zero
-              //   { from: 1, to: rangeStep, name: "Very Low", color: "#2ECC71" }, // Light Green
-              //   { from: rangeStep + 1, to: rangeStep * 2, name: "Low", color: "#218838" }, // Darker Green
-              //   { from: rangeStep * 2 + 1, to: rangeStep * 3, name: "Medium", color: "#B22222" }, // Dark Red
-              //   { from: rangeStep * 3 + 1, to: rangeStep * 4, name: "High", color: "#D32F2F" }, // Stronger Red
-              //   { from: rangeStep * 4 + 1, to: rangeStep * 5, name: "Very High", color: "#C70039" }, // Deep Red
-              //   { from: rangeStep * 5 + 1, to: maxValue, name: "Extreme", color: "#8B0000" } // Darkest Red
-              // ]
-              ranges: colorRanges,
-              min: minValue,
-              max: maxValue
+//       this.chartOptions = {
+//         series: groupedData.map((group, index) => ({
+//           name: 'Site',
+//           data: group.map((entry) => ({
+//             x: entry.date ?? "no data", // Use "Empty" for padding values
+//             y: entry.count ?? 0 // Use `null` for padding counts
+//           }))
+//         })),
+//         chart: {
+//           height: 110,
+//           width: 320,
+//           type: "heatmap",
+//           toolbar: {
+//             show: false // Hides the toolbar
+//           }
+//         },
+//         plotOptions: {
+//           heatmap: {
+//             shadeIntensity: 0.5,
+//             enableShades: false,
+//             colorScale: {
+//               // ranges: [
+//               //   { from: 0, to: 0, name: "Zero", color: "#272F34" }, // Neutral gray for zero
+//               //   { from: 1, to: rangeStep, name: "Very Low", color: "#2ECC71" }, // Light Green
+//               //   { from: rangeStep + 1, to: rangeStep * 2, name: "Low", color: "#218838" }, // Darker Green
+//               //   { from: rangeStep * 2 + 1, to: rangeStep * 3, name: "Medium", color: "#B22222" }, // Dark Red
+//               //   { from: rangeStep * 3 + 1, to: rangeStep * 4, name: "High", color: "#D32F2F" }, // Stronger Red
+//               //   { from: rangeStep * 4 + 1, to: rangeStep * 5, name: "Very High", color: "#C70039" }, // Deep Red
+//               //   { from: rangeStep * 5 + 1, to: maxValue, name: "Extreme", color: "#8B0000" } // Darkest Red
+//               // ]
+//               ranges: colorRanges,
+//               min: minValue,
+//               max: maxValue
               
-            }
-          }
-        },
-        dataLabels: {
-          enabled: false // Hides data labels inside heatmap cells
-        },
-        title: {
-          text: "", // Hides the title
-          align: "left",
-          style: {
-            fontSize: "0px" // Ensures title is visually hidden
-          }
-        },
-        xaxis: {
-          labels: {
-            show: false // Hides X-axis labels completely
-          },
-          axisTicks: {
-            show: false // Hides X-axis ticks
-          },
-          axisBorder: {
-            show: false // Hides X-axis border
-          }
-        },
-        yaxis: {
-          labels: {
-            show: false // Hides Y-axis labels completely
-          },
-          axisTicks: {
-            show: false // Hides Y-axis ticks
-          },
-          axisBorder: {
-            show: false // Hides Y-axis border
-          }
-        },
-        grid: {
-          show: true, // Controls gridlines visibility
-          xaxis: {
-            lines: {
-              show: false // Hides vertical gridlines
-            }
-          },
-          yaxis: {
-            lines: {
-              show: false // Hides horizontal gridlines
-            }
-          }
+//             }
+//           }
+//         },
+//         dataLabels: {
+//           enabled: false // Hides data labels inside heatmap cells
+//         },
+//         title: {
+//           text: "", // Hides the title
+//           align: "left",
+//           style: {
+//             fontSize: "0px" // Ensures title is visually hidden
+//           }
+//         },
+//         xaxis: {
+//           labels: {
+//             show: false // Hides X-axis labels completely
+//           },
+//           axisTicks: {
+//             show: false // Hides X-axis ticks
+//           },
+//           axisBorder: {
+//             show: false // Hides X-axis border
+//           }
+//         },
+//         yaxis: {
+//           labels: {
+//             show: false // Hides Y-axis labels completely
+//           },
+//           axisTicks: {
+//             show: false // Hides Y-axis ticks
+//           },
+//           axisBorder: {
+//             show: false // Hides Y-axis border
+//           }
+//         },
+//         grid: {
+//           show: true, // Controls gridlines visibility
+//           xaxis: {
+//             lines: {
+//               show: false // Hides vertical gridlines
+//             }
+//           },
+//           yaxis: {
+//             lines: {
+//               show: false // Hides horizontal gridlines
+//             }
+//           }
           
-        },
-        legend: {
-          show: false // ✅ Hides the legend
-        }
-      };
-    }
+//         },
+//         legend: {
+//           show: false // ✅ Hides the legend
+//         }
+//       };
+//     }
     
     groupHeatmapDataIntoRows(heatmapData: any[], rows = 3) {
       // Remove the last value to ensure the length is exactly 30
@@ -620,41 +629,64 @@ this.colorRanges = colorRanges;
     }
 
      generateCalendarData(apiData: Record<string, number>): void {
-        // Clear the existing calendarData
-        this.calendarData = [];
-      
-        const dates = Object.keys(apiData).map((date) => dayjs(date));
-        const start = dayjs.min(dates)!;
-        const end = dayjs.max(dates)!;
-        const dataMap = new Map(Object.entries(apiData));
-        let current = start;
-      
-        while (current.isBefore(end) || current.isSame(end, "month")) {
-          const monthDays: CalendarDay[] = [];
-          const monthStart = current.startOf("month");
-          const monthEnd = current.endOf("month");
-          let day = monthStart;
-      
-          while (day.isBefore(monthEnd) || day.isSame(monthEnd, "day")) {
-            const dateString = day.format("YYYY-MM-DD");
-            const value = dataMap.get(dateString) || null;
-            monthDays.push({
-              date: dateString,
-              value,
-              colorValue: "#ffffff",
-              backgroundValue: value && value > 0 ? this.getColor(value,  Object.values(apiData)) : "",
-            });
-            day = day.add(1, "day");
-          }
-      
-          this.calendarData.push({
-            name: current.format("MMMM YYYY"), // Includes the year
-            weeks: this.generateWeeksForMonth(monthDays),
-          });
-      
-          current = current.add(1, "month");
-        }
-      }
+         // Clear existing calendar data
+         this.calendarData = [];
+     
+         const dates = Object.keys(apiData).map((date) => dayjs(date));
+         if (dates.length === 0) return;
+     
+         const start = dayjs.min(dates)!;
+         const end = dayjs.max(dates)!;
+         const dataMap = new Map(Object.entries(apiData));
+         let current = start;
+     
+         // Get the maximum value from apiData (minimum threshold is 200)
+         const actualMax = Math.max(...Object.values(apiData));
+         const maxValue = Math.max(actualMax, 200);
+     
+         // Define function to determine range and color
+         const getRangeData = (value: number): { color: string; range: string } => {
+             if (value === 0) return { color: "", range: "No Data" }; // White for zero values
+             if (value <= maxValue * 0.1) return { color: "#70ed8b", range: "Very Low" }; // Light Green
+             if (value <= maxValue * 0.3) return { color: "#a3d9a5", range: "Low" }; // Medium Green
+             if (value <= maxValue * 0.5) return { color: "#70c37e", range: "Medium" }; // Darker Green
+             if (value <= maxValue * 0.7) return { color: "#ffcc00", range: "High" }; // Yellow
+             if (value <= maxValue * 0.9) return { color: "#ff6600", range: "Very High" }; // Orange
+             return { color: "#ff0000", range: "Extreme" }; // Red
+         };
+     
+         while (current.isBefore(end) || current.isSame(end, "month")) {
+             const monthDays: CalendarDay[] = [];
+             const monthStart = current.startOf("month");
+             const monthEnd = current.endOf("month");
+             let day = monthStart;
+     
+             while (day.isBefore(monthEnd) || day.isSame(monthEnd, "day")) {
+                 const dateString = day.format("YYYY-MM-DD");
+                 const value = dataMap.get(dateString) || 0; // Default to 0 if no value
+     
+                 // Get background color and range category
+                 const { color, range } = getRangeData(value);
+     
+                 monthDays.push({
+                     date: dateString,
+                     value,
+                     colorValue: '#ffffff',
+                     backgroundValue: color,
+                     rangeName: range, // Store the category name
+                 });
+     
+                 day = day.add(1, "day");
+             }
+     
+             this.calendarData.push({
+                 name: current.format("MMMM YYYY"), // Includes the year
+                 weeks: this.generateWeeksForMonth(monthDays),
+             });
+     
+             current = current.add(1, "month");
+         }
+     }
       
     
       generateWeeksForMonth(monthDays: CalendarDay[]): CalendarWeek[] {

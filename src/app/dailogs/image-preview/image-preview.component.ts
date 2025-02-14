@@ -63,11 +63,12 @@ export class ImagePreviewComponent implements OnInit,AfterViewInit {
   myMethod(): void {
     // API by viewChild
     this.panZoom().zoomIn('lastPoint');
+    this.panZoom().centerContent(100)
   }
   
 
   ngAfterViewInit() {
-    this.centerImage();
+    // this.centerImage();
   }
 
   closeDialog(): void {
@@ -180,19 +181,19 @@ export class ImagePreviewComponent implements OnInit,AfterViewInit {
   }
 
   
- centerImage() {
-    const containerRect = this.container.nativeElement.getBoundingClientRect();
-    const img = this.img.nativeElement;
-    img.style.width = 300+'px';
-    img.style.height = 400+'px';
+//  centerImage() {
+//     const containerRect = this.container.nativeElement.getBoundingClientRect();
+//     const img = this.img.nativeElement;
+//     img.style.width = 300+'px';
+//     img.style.height = 400+'px';
 
-    const containerWidth = containerRect.width;
-    const containerHeight = containerRect.height;
+//     const containerWidth = containerRect.width;
+//     const containerHeight = containerRect.height;
 
-    const imgWidth = img.naturalWidth;
-    const imgHeight = img.naturalHeight;
+//     const imgWidth = img.naturalWidth;
+//     const imgHeight = img.naturalHeight;
 
-  }
+//   }
 
   startPan(event: MouseEvent) {
     this.isDragging = true;

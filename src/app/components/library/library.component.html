@@ -383,9 +383,9 @@
                                     (click)="resetSorting()">Reset</span>
                             </div>
                         </div>
-        <div class="mx-[20px]">
-            <mat-checkbox [(ngModel)]="isRefresh" (change)="onRefreshCheckboxChange($event)">Refresh List</mat-checkbox>
-        </div>
+                        <div class="mx-[20px]">
+                            <mat-checkbox [(ngModel)]="isRefresh" (change)="onRefreshCheckboxChange($event)">Refresh List</mat-checkbox>
+                        </div>
                         <div *ngIf="loader" class="z-[1000000] absolute" id="loader"> <ngx-ui-loader></ngx-ui-loader>
                         </div>
                         @if (viewType=='browse') {
@@ -654,6 +654,14 @@
                                                      <div class="flex py-2">
                                                         <span class="text-secondary-heiglight font-semibold">Constellation: </span> 
                                                         <span class="text-secondaryText">{{ element?.constellation}}</span>
+                                                    </div>
+                                                    <div class="flex py-2">
+                                                        <span class="text-secondary-heiglight font-semibold">Centroid Local: </span> 
+                                                        <span class="text-secondaryText">{{ element?.centroid_local}}</span>
+                                                    </div>
+                                                    <div class="flex py-2">
+                                                        <span class="text-secondary-heiglight font-semibold">Centroid Region: </span> 
+                                                        <span class="text-secondaryText">{{ element?.centroid_region}}</span>
                                                     </div>
                                                     <div class="flex py-2">
                                                         <span class="text-secondary-heiglight font-semibold">Platform: </span> 

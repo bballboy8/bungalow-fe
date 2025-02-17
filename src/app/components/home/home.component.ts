@@ -289,6 +289,110 @@ console.log('Initial sidebar width:', this.sidebarWidth);
        
     }
     })
+
+    this.sharedService.siteMarkerData$.subscribe((event) =>{
+      if(event.lat || event.lon ){
+        const clickLat = event.lat
+        const clickLng = event.lon
+        const newMarker = L.marker([clickLat, clickLng], {
+          icon: L.icon({
+            iconUrl: 'assets/svg-icons/pin-location-icon.svg',
+            iconSize: [21, 26],
+          }),
+        }).addTo(this.map);
+        
+        // Center the map at the marker's location
+        this.map.setView([clickLat, clickLng], this.map.getZoom());
+        
+        // Convert lat/lng to screen coordinates
+        const mapContainer = this.map.getContainer();
+        const markerPoint = this.map.latLngToContainerPoint({ lat: clickLat, lng: clickLng });
+        
+        // Default dialog position
+        let position = {
+          top: `${markerPoint.y + mapContainer.offsetTop}px`,
+          left: `${markerPoint.x + mapContainer.offsetLeft + 20}px`,
+        };
+        
+        const { normalizedLatitude, normalizedLongitude } = this.getlatlngNormalized(clickLat, clickLng);
+        
+        const payload = {
+          latitude: normalizedLatitude,
+          longitude: normalizedLongitude,
+          distance: 1
+        };
+        
+        // Fetch data and open dialog immediately
+        this.satelliteService.getPinSelectionAnalytics(payload).subscribe({
+          next: (resp) => {
+            console.log(resp, 'resprespresprespresprespresp');
+            if (resp) {
+              const markerData = resp?.data?.analytics;
+        
+              this.getAddress(clickLat, clickLng).then((address) => {
+                const dialogRef = this.dialog.open(MapControllersPopupComponent, {
+                  width: '357px',
+                  data: { type: 'marker', markerData: markerData, pointData: payload,status:'view' },
+                  position,
+                  panelClass: 'custom-dialog-class',
+                });
+        
+                // After dialog opens, measure and adjust position
+                dialogRef.afterOpened().subscribe(() => {
+                  const dialogElement = document.querySelector('.custom-dialog-class') as HTMLElement;
+        
+                  if (dialogElement) {
+                    const dialogHeight = dialogElement.offsetHeight;
+                    const mapHeight = mapContainer.offsetHeight;
+                    const mapWidth = mapContainer.offsetWidth;
+        
+                    // Adjust horizontal position (left or right)
+                    let newLeft = markerPoint.x + mapContainer.offsetLeft + 20;
+                    if (markerPoint.x + 300 > mapWidth) {
+                      newLeft = markerPoint.x + mapContainer.offsetLeft - 300 - 20; // Move to the left
+                      console.log('markerPointmarkerPointmarkerPoint', newLeft);
+                    }
+        
+                    // Adjust vertical position (top or bottom)
+                    let newTop: number;
+                    const spaceAboveMarker = markerPoint.y;
+                    const spaceBelowMarker = mapHeight - markerPoint.y;
+        
+                    if (spaceBelowMarker >= dialogHeight + 20) {
+                      newTop = markerPoint.y + mapContainer.offsetTop + 10;
+                    } else if (spaceAboveMarker >= dialogHeight + 20) {
+                      newTop = markerPoint.y + mapContainer.offsetTop - dialogHeight - 10;
+                    } else {
+                      newTop = Math.max(
+                        mapContainer.offsetTop,
+                        Math.min(markerPoint.y + mapContainer.offsetTop - dialogHeight / 2, mapHeight - dialogHeight)
+                      );
+                    }
+        
+                    console.log(newTop, 'newTopnewTopnewTopnewTop', newLeft);
+        
+                    // Update dialog position dynamically
+                    dialogRef.updatePosition({
+                      top: `${newTop + 10}px`,
+                      left: newLeft > 1300 ? `${newLeft - 400}px` : `${newLeft}px`,
+                    });
+                  }
+                });
+                dialogRef.afterClosed().subscribe(() => {
+                  this.map.removeLayer(newMarker);
+                  this.sharedService.setSiteMarkerData(null)
+                });
+              });
+            }
+          },
+          error: (err) => {
+            console.log("err getPolyGonData: ", err);
+          },
+        });
+        
+        
+      }
+    })
   }
 
   applyMargin() {

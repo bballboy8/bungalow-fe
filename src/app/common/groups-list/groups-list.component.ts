@@ -261,9 +261,18 @@ export class GroupsListComponent {
         this.activeSite = site.id;
         
       } else {
-        this.SharedService.setSiteMarkerData(null)
         this.activeSite = null
       }
+    }
+    markerData(siteDetail:any){
+      const [lon, lat] = siteDetail?.coordinates?.coordinates[0][0];
+
+      // Creating an object with lat and lon
+      const data = {
+        lat: lat,
+        lon: lon
+      };
+      this.SharedService.setSiteMarkerData(data)
     }
     //Intialize chart
         //  initializeCharts() {
@@ -406,14 +415,6 @@ export class GroupsListComponent {
         console.log(resp, 'successsuccesssuccesssuccesssuccess');
         this.sitesData = resp.data;
         this.siteDetail = resp.data[0];
-        const [lon, lat] = this.siteDetail?.coordinates?.coordinates[0][0];
-
-          // Creating an object with lat and lon
-          const data = {
-            lat: lat,
-            lon: lon
-          };
-          this.SharedService.setSiteMarkerData(data)
         this.generateCalendarData(resp.data[0].heatmap)
         // Generate unique color ranges based on heatmap values
   

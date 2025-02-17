@@ -346,6 +346,7 @@ export class GroupsComponent implements OnInit,AfterViewInit {
 
     } else {
       this.activeSite = null
+      this.sharedService.setSiteMarkerData(null)
     }
   }
   //Intialize chart
@@ -399,6 +400,14 @@ export class GroupsComponent implements OnInit,AfterViewInit {
           console.log(resp, 'successsuccesssuccesssuccesssuccess');
           this.sitesData = resp.data;
           this.siteDetail = resp.data[0];
+          const [lon, lat] = this.siteDetail?.coordinates?.coordinates[0][0];
+
+          // Creating an object with lat and lon
+          const data = {
+            lat: lat,
+            lon: lon
+          };
+          this.sharedService.setSiteMarkerData(data)
           this.generateCalendarData(resp.data[0].heatmap)
           // Generate unique color ranges based on heatmap values
          

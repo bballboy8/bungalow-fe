@@ -1707,7 +1707,7 @@ if (endDateControlValue) {
   }
   //set column selection menu class
   setColumnMenuClass(){
-    const classesToRemove = ['library-overlay-container', 'filter-overlay-container'];
+    const classesToRemove = ['library-overlay-container', 'filter-overlay-container','site-menu','site-menu','custom-menu-container','group-overlay-container','imagery-filter-container']
     const containerElement = this.overlayContainer.getContainerElement();
     containerElement.classList.remove(...classesToRemove);
     containerElement.classList.add('column-menu');

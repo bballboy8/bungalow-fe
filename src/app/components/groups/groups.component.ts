@@ -104,7 +104,7 @@ export class GroupsComponent implements OnInit,AfterViewInit {
         ).subscribe({
           next: (resp: any) => {
             
-            console.log(resp, 'API Response');
+            
             this.groups = resp;
           },
           error: (err: any) => {
@@ -122,11 +122,9 @@ export class GroupsComponent implements OnInit,AfterViewInit {
     this.sharedService.getNestedGroup$.subscribe((group:any) => {
       if(group){
         this.sharedService.updatedNestedGroup$.subscribe((state) => {
-          console.log(state,'statestatestatestatestatestate');
           const data = {group_id:state}
           this.satelliteService.getNestedGroup(data).subscribe({
           next: (resp) => {
-            console.log(resp,'getNestedGroupgetNestedGroupgetNestedGroupgetNestedGroup');
     
             this.nestedGroupsData = resp
     
@@ -146,7 +144,6 @@ export class GroupsComponent implements OnInit,AfterViewInit {
   
       this.satelliteService.getParentGroups(params).subscribe({
         next: (resp) => {
-          console.log(resp, 'respresprespresprespresprespresprespresp');
           this.groups = resp
   
         }
@@ -155,7 +152,6 @@ export class GroupsComponent implements OnInit,AfterViewInit {
   
   }
   selectedGroupEvent(event: any) {
-    console.log(event, 'selectedeventeventeventevent');
     if (event) {
       this.activeGroup = event
     }
@@ -169,7 +165,6 @@ export class GroupsComponent implements OnInit,AfterViewInit {
    //On Keypress filter groups data
    onKeyPress(event: KeyboardEvent): void {
     const inputValue = (event.target as HTMLInputElement).value;
-    console.log(inputValue, 'inputValueinputValueinputValue'); // Log the current input value to the console
 
     // this.satelliteService.getGroupsForAssignment(data).subscribe({
     //   next: (resp) => {
@@ -178,7 +173,6 @@ export class GroupsComponent implements OnInit,AfterViewInit {
     //     this.groups = resp?.data
 
     //   }})
-    console.log(this.searchInput, 'searchiiiiiiiiiiiiiiiii');
 
     this.searchInput.next(inputValue);
   }
@@ -191,7 +185,6 @@ export class GroupsComponent implements OnInit,AfterViewInit {
       this.sharedService.setUpdatedNestedGroup(this.parentGroupID)
       this.satelliteService.getNestedGroup(data).subscribe({
       next: (resp) => {
-        console.log(resp,'getNestedGroupgetNestedGroupgetNestedGroupgetNestedGroup');
 
         this.nestedGroupsData = resp
 
@@ -227,7 +220,6 @@ export class GroupsComponent implements OnInit,AfterViewInit {
       data = {type: type, parent: group.id}
     }
    
-   console.log(group,'sssssssssssssssssss');
    
    this.openDialog(data)
   }
@@ -250,7 +242,6 @@ export class GroupsComponent implements OnInit,AfterViewInit {
         panelClass: 'custom-dialog-class',
       });
       dialogRef.afterClosed().subscribe((result) => {
-        console.log('Dialog closed', result);
         if(result){
           if(data?.type=='addGroup'){
             this.getGroups();
@@ -258,12 +249,10 @@ export class GroupsComponent implements OnInit,AfterViewInit {
               duration: 2000  // Snackbar will disappear after 300 milliseconds
             });
           } else if(data.type === 'addSubgroup') {
-            console.log(data,'addSubgroupaddSubgroupaddSubgroupaddSubgroup');
             
             const payload = {group_id:data?.group?.id || data.parent}
             this.satelliteService.getNestedGroup(payload).subscribe({
               next: (resp) => {
-                console.log(resp,'getNestedGroupgetNestedGroupgetNestedGroupgetNestedGroup');
         
                 this.nestedGroupsData = resp
         
@@ -323,7 +312,6 @@ export class GroupsComponent implements OnInit,AfterViewInit {
   }
 
   UpdateGroupEvent(event:any){
-    console.log(event,'grouppppppppppppppppppppppppppppppppppppp');
     
   }
 
@@ -334,7 +322,6 @@ export class GroupsComponent implements OnInit,AfterViewInit {
 
   //Get site details
   getSitesDetail(site){
-    console.log(site,'sitesitesitesitesitesitesitesitesite');
     
     if(this.activeSite !== site.id){
       let queryParams = {
@@ -397,7 +384,7 @@ export class GroupsComponent implements OnInit,AfterViewInit {
     getSitesData(queryParams: any) {
       this.satelliteService.getSites(queryParams).subscribe({
         next: (resp) => {
-          console.log(resp, 'successsuccesssuccesssuccesssuccess');
+          
           this.sitesData = resp.data;
           this.siteDetail = resp.data[0];
           this.generateCalendarData(resp.data[0].heatmap)
@@ -561,7 +548,8 @@ export class GroupsComponent implements OnInit,AfterViewInit {
       // Creating an object with lat and lon
       const data = {
         lat: lat,
-        lon: lon
+        lon: lon,
+        id: siteDetail.id
       };
       this.sharedService.setSiteMarkerData(data)
     }
@@ -773,7 +761,7 @@ export class GroupsComponent implements OnInit,AfterViewInit {
         const fullDate = `${day.date}`;
         // Use dayjs to format the full date
         const formattedDate = dayjs(fullDate).format('MMMM DD YYYY');
-        console.log(fullDate, 'formatted date');
+       
         return fullDate;
       }
     

@@ -91,7 +91,6 @@ export class GroupsListComponent {
     
     if (group !== this.activeIndex) {
       this.activeIndex = group
-      console.log('activeIndexactiveIndexactiveIndexactiveIndex',group);
       this.selectedGroup.emit({ group });
       this.SharedService.setGroupData(group)
     
@@ -104,7 +103,6 @@ export class GroupsListComponent {
     this.backgroundColor = this.isExpanded ? '#232B32' : '#191E22';
     
     if (this.isExpanded) {
-      console.log('Togglinggggggggggggggggggggggggggggg',group);
       
       
     } 
@@ -133,7 +131,6 @@ export class GroupsListComponent {
       data = { type: type, parent: group.id}
     }
 
-    console.log(group, 'sssssssssssssssssss');
 
     this.openDialog(data)
   }
@@ -169,7 +166,6 @@ export class GroupsListComponent {
         panelClass: 'custom-dialog-class',
       });
       dialogRef.afterClosed().subscribe((result) => {
-        console.log('Dialog closed', result);
         if(result){
           if(data.type === 'addSubgroup'){
             this.SharedService.setNestedGroup(true);
@@ -235,10 +231,8 @@ export class GroupsListComponent {
 
   //Padding adjustments
   getPadding(value){
-    console.log(value,'valuevaluevaluevaluevaluevaluevaluevaluevalue');
     
     const newValue = parseInt(value) -10;
-    console.log(newValue.toString(),'valuevaluevaluevaluevaluevaluevaluevaluevalue');
     
     return newValue.toString()
   }
@@ -250,7 +244,6 @@ export class GroupsListComponent {
 
   //Get site details
     getSitesDetail(site){
-      console.log(site,'sitesitesitesitesitesitesitesitesite');
       
       if(this.activeSite !== site.id){
         let queryParams = {
@@ -270,7 +263,8 @@ export class GroupsListComponent {
       // Creating an object with lat and lon
       const data = {
         lat: lat,
-        lon: lon
+        lon: lon,
+        id: siteDetail.id
       };
       this.SharedService.setSiteMarkerData(data)
     }
@@ -412,7 +406,6 @@ export class GroupsListComponent {
   getSitesData(queryParams: any) {
     this.satelliteService.getSites(queryParams).subscribe({
       next: (resp) => {
-        console.log(resp, 'successsuccesssuccesssuccesssuccess');
         this.sitesData = resp.data;
         this.siteDetail = resp.data[0];
         this.generateCalendarData(resp.data[0].heatmap)
@@ -745,7 +738,6 @@ export class GroupsListComponent {
           const fullDate = `${day.date}`;
           // Use dayjs to format the full date
           const formattedDate = dayjs(fullDate).format('MMMM DD YYYY');
-          console.log(fullDate, 'formatted date');
           return fullDate;
         }
       

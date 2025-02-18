@@ -643,6 +643,8 @@ set zoomed_wkt(value: string) {
     })
     this.sharedService.overlayShapeData$.subscribe((overlayShapeData) => {
       if(overlayShapeData?.length>1){
+        console.log(overlayShapeData,'overlayShapeDataoverlayShapeDataoverlayShapeDataoverlayShapeData');
+        
        this.idArray = overlayShapeData.map((record) => record.id)?.join(',');
 
         let minCloud
@@ -826,6 +828,7 @@ set zoomed_wkt(value: string) {
   closeLibraryDrawer() {
     this.closeDrawer.emit(true);
     this.sharedService.setIsOpenedEventCalendar(false);
+    this.closeOverlay()
   }
 
   /** Selects all rows if they are not all selected; otherwise clear selection. */
@@ -1798,4 +1801,22 @@ getOverlapData(){
     
   }
 
+  expandRow(vendorId: any) {
+    const foundRow = this.dataSource.data.find(v => v.vendor_id === vendorId);
+  
+    if (foundRow) {
+      this.expandedElement = this.expandedElement?.vendor_id === vendorId ? null : foundRow;
+  
+      setTimeout(() => {
+        const rowElement = document.getElementById(`vendor-row-${vendorId}`);
+        if (rowElement) {
+          rowElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 100); // Small delay to ensure smooth transition
+    }
+  }
+  
+  closeOverlay(){
+    this.overlapListData = [];
+  }
 }

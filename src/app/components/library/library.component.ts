@@ -1809,12 +1809,17 @@ getOverlapData(){
   
       setTimeout(() => {
         const rowElement = document.getElementById(`vendor-row-${vendorId}`);
-        if (rowElement) {
-          rowElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        const tableContainer = document.querySelector('.mat-table-container') as HTMLElement; // Cast to HTMLElement
+  
+        if (rowElement && tableContainer) {
+          const rowPosition = rowElement.offsetTop - tableContainer.offsetTop;
+          tableContainer.scrollTo({ top: rowPosition, behavior: 'smooth' });
         }
-      }, 100); // Small delay to ensure smooth transition
+      }, 100); // Delay for smooth effect
     }
   }
+  
+  
   
   closeOverlay(){
     this.overlapListData = [];

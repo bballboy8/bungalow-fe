@@ -41,7 +41,7 @@
         }@else {
           <div class="flex relative justify-between items-center gap-[15px] self-stretch w-full">
             
-            <span [ngClass]="data?.status ==='view'? 'cursor-default':'cursor-pointer'" class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-yellow" (click)="data?.status !== 'view' && getGroups();setClass()"
+            <span [ngClass]="data?.status ==='view'? 'cursor-default':'cursor-pointer'" class="flex-0 font-Barlow text-sm font-medium leading-[18px] text-yellow" (click)="data?.status !== 'view' && getGroups();setClass()"
             [matMenuTriggerFor]="data?.status !== 'view' ? assign : null">Assign to a group</span> 
             <mat-menu class="bg-primaryBg absolute" #assign="matMenu" id="assign">
               <div class="p-[15px] flex flex-col gap-[10px]" (click)="$event.stopPropagation()">
@@ -183,8 +183,8 @@
                 </span>
             </div>
             <div class="flex items-center gap-[5px] self-stretch">
-                <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-yellow w-full">{{activeTimeDate?.current_count}} Images</span>
-                <span class="flex-0 font-Barlow font-sm font-medium leading-[18px]" [ngClass]="activeTimeDate?.current_count < activeTimeDate?.previous_count? 'text-custom-red':'text-custom-green'">{{roundOff(activeTimeDate?.percentage_change)}}%</span>
+                <span class="flex-0 font-Barlow text-sm font-medium leading-[18px] text-yellow w-full">{{activeTimeDate?.current_count}} Images</span>
+                <span class="flex-0 font-Barlow text-sm font-medium leading-[18px]" [ngClass]="activeTimeDate?.current_count < activeTimeDate?.previous_count? 'text-custom-red':'text-custom-green'">{{roundOff(activeTimeDate?.percentage_change)}}%</span>
                 <span class="flex w-[15px] h-[15px] flex-col justify-center items-center gap-[10px]">
                     @if (activeTimeDate?.current_count >activeTimeDate?.previous_count) {<img src="/assets/svg-icons/increase-icon.svg" alt="" />}
                     @else if (activeTimeDate?.current_count < activeTimeDate?.previous_count) {
@@ -195,8 +195,8 @@
             <div class="flex flex-col items-start gap-[5px] self-stretch">
                 <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Most recent</span>
             <div class="flex items-center gap-[5px] self-stretch">
-                <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-yellow w-full">{{getTimeIfWithin24Hours(data?.markerData?.newest_info?.acquisition_datetime)}}</span>
-                <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText">{{ data?.markerData?.newest_info?.vendor_name !== 'capella' && data?.markerData?.newest_info?.vendor_name !== 'skyfi-umbra' ? roundOff(data?.markerData?.newest_info?.cloud_cover) + '%' : 'SAR' }}</span>
+                <span class="flex-0 font-Barlow text-sm font-medium leading-[18px] text-yellow w-full">{{getTimeIfWithin24Hours(data?.markerData?.newest_info?.acquisition_datetime)}}</span>
+                <span class="flex-0 font-Barlow text-sm font-medium leading-[18px] text-secondaryText">{{ data?.markerData?.newest_info?.vendor_name !== 'capella' && data?.markerData?.newest_info?.vendor_name !== 'skyfi-umbra' ? roundOff(data?.markerData?.newest_info?.cloud_cover) + '%' : 'SAR' }}</span>
                 <span class="flex w-[15px] h-[15px] flex-col justify-center items-center gap-[10px]">
                     <img src="/assets/svg-icons/cloud-icon.svg" alt="" />
                 </span>
@@ -230,7 +230,7 @@
       <div class="flex flex-col items-start gap-[5px] self-stretch">
         <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Date of Image</span>
         <div class="flex items-center gap-[15px] self-stretch w-full">
-            <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{getDateTimeFormat(data?.vendorData?.acquisition_datetime, data?.vendorData?.centroid)}}</span>
+            <span class="flex-0 font-Barlow text-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{getDateTimeFormat(data?.vendorData?.acquisition_datetime, data?.vendorData?.centroid)}}</span>
             <span class="h-[17px] w-[16px] cursor-pointer" matTooltip="Coppy Address">
                 <img src="/assets/svg-icons/calender-icon.svg" alt="" />
             </span>          
@@ -239,7 +239,7 @@
       <div *ngIf="data.vendorData.nearest_site" class="flex flex-col items-start gap-[5px] self-stretch">
         <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Day of Week</span>
         <div class="flex items-center gap-[15px] self-stretch w-full">
-            <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{getDayOfWeek(data?.vendorData?.acquisition_datetime, data?.vendorData?.centroid)}}</span>
+            <span class="flex-0 font-Barlow text-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{getDayOfWeek(data?.vendorData?.acquisition_datetime, data?.vendorData?.centroid)}}</span>
             <span class="h-[17px] w-[16px] cursor-pointer" matTooltip="Coppy Address">
                 <img src="/assets/svg-icons/poi-icon.svg" alt="" />
             </span>          
@@ -257,7 +257,7 @@
       <div class="flex flex-col items-start gap-[5px] self-stretch">
         <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Latitude and Longitude</span>
         <div class="flex items-center gap-[15px] self-stretch w-full">
-            <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{getPolygonCenter(data?.vendorData?.coordinates_record?.coordinates[0])?.lat?.toFixed(4)}},  {{getPolygonCenter(data?.vendorData?.coordinates_record?.coordinates[0])?.lon?.toFixed(4)}}</span>
+            <span class="flex-0 font-Barlow text-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{getPolygonCenter(data?.vendorData?.coordinates_record?.coordinates[0])?.lat?.toFixed(4)}},  {{getPolygonCenter(data?.vendorData?.coordinates_record?.coordinates[0])?.lon?.toFixed(4)}}</span>
             <span class="h-[17px] w-[16px] cursor-pointer" matTooltip="Coppy Address" (click)="copyToClipboard(data?.vendorData?.coordinates_record?.coordinates[0])">
                 <img src="/assets/svg-icons/copy-icon.svg" alt="" />
             </span>          
@@ -267,7 +267,7 @@
       <div class="flex w-2/4 p-[8px] gap-[10px] flex-0 rounded-[3px] bg-primaryBg items-center justify-center">
         <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">GSD</span>
         <div class="flex items-center gap-[15px] self-stretch w-full">
-            <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{roundOff(data?.vendorData?.gsd)}}</span>         
+            <span class="flex-0 font-Barlow text-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{roundOff(data?.vendorData?.gsd)}}</span>         
         </div> 
       </div>    
       <div class="flex w-2/4 p-[8px] gap-[10px] flex-0 rounded-[3px] bg-primaryBg items-center justify-center">
@@ -283,26 +283,26 @@
     <div class="flex flex-col w-2/4 p-[8px] gap-[5px] flex-0 rounded-[3px] bg-primaryBg justify-center">
       <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Constellation</span>
       <div class="flex items-center gap-[15px] self-stretch w-full">
-          <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{data?.vendorData?.constellation}}</span>         
+          <span class="flex-0 font-Barlow text-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{data?.vendorData?.constellation}}</span>         
       </div> 
     </div>
     <div class="flex flex-col w-2/4 p-[8px] gap-[5px] flex-0 rounded-[3px] bg-primaryBg justify-center">
       <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Azimuth Angle</span>
       <div class="flex items-center gap-[15px] self-stretch w-full">
-          <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{data?.vendorData?.azimuth_angle}}</span>         
+          <span class="flex-0 font-Barlow text-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{data?.vendorData?.azimuth_angle}}</span>         
       </div> 
     </div>      
 </div><div class="flex items-center gap-[5px] self-stretch w-full font-Barlow">
   <div class="flex flex-col w-2/4 p-[8px] gap-[5px] flex-0 rounded-[3px] bg-primaryBg justify-center">
     <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Centroid Local</span>
     <div class="flex items-center gap-[15px] self-stretch w-full">
-        <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{data?.vendorData?.centroid_local}}</span>         
+        <span class="flex-0 font-Barlow text-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{data?.vendorData?.centroid_local}}</span>         
     </div> 
   </div>
   <div class="flex flex-col w-2/4 p-[8px] gap-[5px] flex-0 rounded-[3px] bg-primaryBg justify-center">
     <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Centroid Region</span>
     <div class="flex items-center gap-[15px] self-stretch w-full">
-        <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{data?.vendorData?.centroid_region}}</span>         
+        <span class="flex-0 font-Barlow text-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{data?.vendorData?.centroid_region}}</span>         
     </div> 
   </div>      
 </div>
@@ -310,7 +310,7 @@
   <div class="flex flex-col w-2/4 p-[8px] gap-[5px] flex-0 rounded-[3px] bg-primaryBg justify-center">
     <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Illumination Angle</span>
     <div class="flex items-center gap-[15px] self-stretch w-full">
-        <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{data?.vendorData?.illumination_azimuth_angle}}</span>         
+        <span class="flex-0 font-Barlow text-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{data?.vendorData?.illumination_azimuth_angle}}</span>         
     </div> 
   </div>    
   <div class="flex flex-col w-2/4 p-[8px] gap-[5px] flex-0 rounded-[3px] bg-primaryBg justify-center">
@@ -339,37 +339,51 @@
       </div>
     <!-- </div> -->
   </div> 
-</div>
-        
-
-    
-    <div class="flex items-center gap-[5px] self-stretch w-full font-Barlow">
-      <div class="flex w-2/4 p-[8px] gap-[10px] group relative flex-0 rounded-[3px] bg-primaryBg items-center justify-center">
-        <span class="text-secondaryText text-center text-sm font-medium leading-[18px]">{{getTimePeriod(data?.vendorData?.acquisition_datetime)}}</span>
-        <span class="h-[15px] w-[15px] cursor-pointer">
-         @if (data?.vendorData?.type ==='Night') {
-          <img src="/assets/svg-icons/sunny-icon.svg" alt="" />
-         } @else {
-          <img src="/assets/svg-icons/sunny-icon.svg" alt="" />
-         }
-      </span>  
-      <div class="bg-primaryBg absolute top-[30px] font-Barlow text-xs font-medium p-[10px] gap-[10px] hidden group-hover:flex rounded-[5px] flex-col">
+  </div>    
+  <div class="flex items-center gap-[5px] self-stretch w-full font-Barlow">
+    <div
+      class="flex w-2/4 p-[8px] gap-[10px] group relative flex-0 rounded-[3px] bg-primaryBg items-center justify-center">
+      <span
+        class="text-secondaryText text-center text-sm font-medium leading-[18px]">{{getTimePeriod(data?.vendorData?.acquisition_datetime)}}</span>
+      <span class="h-[15px] w-[15px] cursor-pointer">
+        @if (data?.vendorData?.type ==='Night') {
+        <img src="/assets/svg-icons/sunny-icon.svg" alt="" />
+        } @else {
+        <img src="/assets/svg-icons/sunny-icon.svg" alt="" />
+        }
+      </span>
+      <div
+        class="bg-primaryBg absolute top-[30px] font-Barlow text-xs font-medium p-[10px] gap-[10px] hidden group-hover:flex rounded-[5px] flex-col">
         <div class="flex flex-col gap-[5px]">
           <span class="text-secondary-heiglight">UTC time:</span>
           <span class="text-secondaryText">{{getTime(data?.vendorData?.acquisition_datetime,'utc')}}</span>
         </div>
         <div class="flex flex-col gap-[5px]">
           <span class="text-secondary-heiglight">Local time:</span>
-          <span class="text-secondaryText">{{getTime(data?.vendorData?.acquisition_datetime,'local', data?.vendorData?.centroid)}}</span>
+          <span class="text-secondaryText">{{getTime(data?.vendorData?.acquisition_datetime,'local',
+            data?.vendorData?.centroid)}}</span>
         </div>
       </div>
-      </div>    
-      <div class="flex w-2/4 p-[8px] gap-[10px] flex-0 rounded-[3px] bg-primaryBg items-center justify-center">
-        <span class="text-secondaryText text-center text-sm font-medium leading-[18px]">{{ data?.vendorData?.vendor_name !== 'capella' && data?.vendorData?.vendor_name !== 'skyfi-umbra' ? roundOff(data?.vendorData?.cloud_cover) + '%' : 'SAR' }}</span>
-        <span class="h-[15px] flex w-[15px] cursor-pointer">
-          <img src="/assets/svg-icons/cloud-icon.svg" alt="" />
-      </span>  
-      </div>         
+    </div>
+    <div class="flex w-2/4 p-[8px] gap-[10px] flex-0 rounded-[3px] bg-primaryBg items-center justify-center">
+      <span class="text-secondaryText text-center text-sm font-medium leading-[18px]">{{ data?.vendorData?.vendor_name !==
+        'capella' && data?.vendorData?.vendor_name !== 'skyfi-umbra' ? roundOff(data?.vendorData?.cloud_cover) + '%' :
+        'SAR' }}</span>
+      <span class="h-[15px] flex w-[15px] cursor-pointer">
+        <img src="/assets/svg-icons/cloud-icon.svg" alt="" />
+      </span>
+    </div>
+  </div>
+  <div class="flex items-center gap-[5px] self-stretch w-full font-Barlow">   
+    <div class="flex flex-col w-2/4 p-[8px] gap-[5px] flex-0 rounded-[3px] bg-primaryBg justify-center">
+      <!-- <div class="flex flex-col items-start gap-[5px] self-stretch"> -->
+      <span class="text-secondary-heiglight text-sm font-semibold">Centroid Lat:
+      </span>
+      <div class="flex gap-2" *ngFor="let center of data?.vendorData?.centroid">
+        <span class="text-secondaryText">{{center.toFixed(5)}}</span>
+      </div>
+      <!-- </div> -->
+    </div>
   </div>
   <div *ngIf="data.vendorData.nearest_site" class="flex flex-col items-start gap-[5px] self-stretch">
     <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Nearest POI</span>

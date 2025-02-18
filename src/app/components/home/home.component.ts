@@ -558,7 +558,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
       const { lat, lng } = event.latlng;
 
       const {normalizedLatitude, normalizedLongitude} =  this.getlatlngNormalized(lat, lng)
-      const coords = `${normalizedLatitude.toFixed(6)}, ${normalizedLongitude.toFixed(6)}`;
+      const coords = `${normalizedLatitude.toFixed(4)}, ${normalizedLongitude.toFixed(4)}`;
           
       // Create a context menu if it doesn't exist
        this.contextMenu = document.getElementById('context-menu');
@@ -629,8 +629,8 @@ hybridLayer:L.TileLayer = L.tileLayer(
       const clampedLat = Math.max(-90, Math.min(90, coords.lat));
       const clampedLng = ((coords.lng + 180) % 360 + 360) % 360 - 180; // Wrap longitude to [-180, 180]
     
-      this.longitude = parseFloat(clampedLng.toFixed(6));
-      this.latitude = parseFloat(clampedLat.toFixed(6));
+      this.longitude = parseFloat(clampedLng.toFixed(4));
+      this.latitude = parseFloat(clampedLat.toFixed(4));
     });
   
     // Adjust view to clamp latitude if necessary

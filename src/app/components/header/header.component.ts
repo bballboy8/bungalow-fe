@@ -70,7 +70,6 @@ export class HeaderComponent implements OnInit,OnChanges {
   // If the drawer is already open and the same type is clicked, do nothing
   
   if(this.toggleType !== type){
-    console.log('typetypetypetypetypetypetype: ' , type);
     this.sharedService.setIsOpenedEventCalendar(false);
     this.toggleType = type;
     this.isDrawerOpen = true;
@@ -91,7 +90,6 @@ export class HeaderComponent implements OnInit,OnChanges {
 }
 
 private initializeAutocomplete() {
-  console.log('Initializing autocomplete');
 
   const input = this.searchInput.nativeElement;
 
@@ -109,7 +107,6 @@ private initializeAutocomplete() {
         // If a valid place is selected
         const lat = place.geometry.location?.lat();
         const lng = place.geometry.location?.lng();
-        console.log("Selected place:", place, lat, lng);
 
         this.searchEvent.emit(place);
       } else {
@@ -145,7 +142,6 @@ private handleCoordinateInput(input: string) {
   }
 
   if (latitude !== undefined && longitude !== undefined) {
-    console.log("Parsed coordinates:", latitude, longitude);
 
     // Construct a minimal PlaceResult object
     const place: google.maps.places.PlaceResult = {

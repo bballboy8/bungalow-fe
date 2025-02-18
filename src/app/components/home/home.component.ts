@@ -192,7 +192,6 @@ hybridLayer:L.TileLayer = L.tileLayer(
 
   ngAfterViewInit(): void {
     if (isPlatformBrowser(this.platformId)) {
-      console.log('Platform');
         this.initMap();
         
     }
@@ -249,7 +248,6 @@ hybridLayer:L.TileLayer = L.tileLayer(
     //   this.marginleft=413
     // }, 3200);
     const sidebarElement = this.draggableContainer.nativeElement;
-     console.log(sidebarElement,'sidebarElement');
      interact(sidebarElement)
      .resizable({
       edges: { left: true, right: true, bottom: true, top: false },
@@ -263,7 +261,6 @@ hybridLayer:L.TileLayer = L.tileLayer(
           if(event.rect.width > 454 && event.rect.width < 1086){
             this.sidebarWidth = event.rect.width;
             target.style.width = `${this.sidebarWidth}px`;
-            console.log(this.sidebarWidth,'this.sidebarWidth');
             
             // this.leftMargin2
             // console.log( `${event.rect.width}px`,' `${event.rect.width}px`');
@@ -278,7 +275,6 @@ hybridLayer:L.TileLayer = L.tileLayer(
       },
     });
    this.sidebarWidth = sidebarElement.offsetWidth;
-console.log('Initial sidebar width:', this.sidebarWidth);
 
     this.sharedService.rightMenuHide$.subscribe((event) =>{
       if(event === false){
@@ -327,7 +323,8 @@ console.log('Initial sidebar width:', this.sidebarWidth);
           const payload = {
             latitude: normalizedLatitude,
             longitude: normalizedLongitude,
-            distance: 1
+            distance: 1,
+            site_id: event.id
           };
       
           this.satelliteService.getPinSelectionAnalytics(payload).subscribe({
@@ -402,13 +399,10 @@ console.log('Initial sidebar width:', this.sidebarWidth);
     const contentElement = document.getElementById('mapContainer');
     if (contentElement) {
       contentElement.style.marginLeft = `${this.sidebarWidth}px`;
-      console.log('Margin applied:', this.sidebarWidth);
     }
   }
 
   updateSidebarWidth(): void {
-    console.log('hiiiiiii');
-    console.log(this.sidebarWidth,'this.sidebarWidth');
     
     // this.sidebarWidth=820;
     // this.applyMargin()
@@ -416,16 +410,10 @@ console.log('Initial sidebar width:', this.sidebarWidth);
     const container = this.draggableContainer?.nativeElement as HTMLElement;
     const sidebar = document.getElementById('draggableContainer');
     const dragBtn = document.getElementById('dragBtn');
-
-    console.log(container,'container');
-    console.log(sidebar,'sidebar');
-    console.log(this.isDrawerOpen,'this.isDrawerOpen========');
     
     if (this.isDrawerOpen) {
       if(sidebar.style.width!='0px'){
-        console.log(sidebar.style.width,'sidebar.style.width========================');
         this.sidebarWidth=this.sidebarWidth+1
-        console.log(this.sidebarWidth,'this.sidebarWidth');
         setTimeout(() => {
           this.sidebarWidth=this.sidebarWidth
           
@@ -435,13 +423,10 @@ console.log('Initial sidebar width:', this.sidebarWidth);
           this.sidebarWidth=820
           // this.marginleft = 413
 
-        console.log(this.sidebarWidth,'this.sidebarWidth settimeout');
-
         }, 1000);
       dragBtn.style.display='block'
         sidebar.style.width = '820px'; // Default sidebar width
         sidebar.style.height = '682.575px';
-        console.log(this.sidebarWidth,'this.sidebarWidth');
         
         // this.applyMargin()
         // Default sidebar width
@@ -544,8 +529,6 @@ console.log('Initial sidebar width:', this.sidebarWidth);
   
     // Debugging: Log GeoJSON and bounds of the polygon
     const geoJSON = this.polygon.toGeoJSON();
-    console.log('Polygon GeoJSON:', geoJSON);
-    console.log('Polygon Bounds:', polygonBounds);
   
     // Pass the GeoJSON and bounds to your custom function
     this.getPolygonFromCoordinates({ geometry: geoJSON.geometry }, polygonBounds,true);
@@ -667,7 +650,6 @@ console.log('Initial sidebar width:', this.sidebarWidth);
   
     // Add click event listener
     this.map.on('click', (event: L.LeafletMouseEvent) => {
-      console.log('Map clicked at:', event.latlng);
       // Custom click functionality can go here
     });
   
@@ -688,10 +670,8 @@ console.log('Initial sidebar width:', this.sidebarWidth);
   
       // Debugging: Log GeoJSON of the created feature
       const geoJSON = layer.toGeoJSON();
-      console.log('GeoJSON of created feature:', geoJSON);
     });
     this.map.on('zoomend', () => {
-      console.log('Zoom changed:', this.map.getZoom());
       this.zoomLevel = this.map.getZoom();
       if (this.map.getZoom() < 4) {
         this.map.setZoom(4); // Prevent zooming out below the minimum level
@@ -707,7 +687,6 @@ console.log('Initial sidebar width:', this.sidebarWidth);
     });
 
     this.map.on('dragend', () => {
-      console.log('Drag changed:', this.map.getZoom());
 
       
         // Get the bounds of the drawn shape
@@ -768,7 +747,6 @@ private fallbackCopyToClipboard(text: string): void {
       this._snackBar.open("Latitude and Longitude copied to clipboard!", "Ok", {
         duration: 2000, // Snackbar will disappear after 300 milliseconds
       });
-      console.log(`Copied coordinates (fallback): ${text}`);
     } else {
       console.error('Fallback copy failed');
     }
@@ -788,7 +766,6 @@ private fallbackCopyToClipboard(text: string): void {
    
     this.map.setView(adjustedCenter, this.zoomLevel);
 
-    console.log(`Map center adjusted dynamically based on width: ${containerWidth}px`);
   }
 
   // private addPin(coords: [number, number], iconUrl: string): void {
@@ -830,18 +807,14 @@ private fallbackCopyToClipboard(text: string): void {
   //Map zoom level setting through slider
   onZoomLevelChange(newZoomLevel: number): void {
     this.parentZoomLevel = newZoomLevel;
-    console.log('Zoom level updated in parent:', this.parentZoomLevel);
     this.map.setZoom(this.parentZoomLevel);
     if (this.drawLayer) {
       // Get the bounds of the drawn shape
       const bounds = this.drawLayer.getBounds();
       
       // Log the coordinates of the zoomed area (bounds)
-      console.log('Bounds of the drawn shape:', bounds);
       
       // Optionally, log the north-east and south-west coordinates
-      console.log('South-West corner:', bounds.getSouthWest());
-      console.log('North-East corner:', bounds.getNorthEast());
   }
   }
 
@@ -849,7 +822,6 @@ private fallbackCopyToClipboard(text: string): void {
   toggleDrawer(): void {
     if (this.drawer && this.type) {
       
-      console.log(this.drawer,'drawerdrawerdrawerdrawerdrawerdrawer');
       this.drawer.toggle();
       this.handleDropdownToggle(this.isDrawerOpen)
       this.drawer._animationState = 'open';
@@ -878,7 +850,6 @@ private fallbackCopyToClipboard(text: string): void {
 
   //map shape drawing function
   setDrawType(type: any): void {
-    console.log("Selected Draw Type:", type);
     this.currentAction = null;
    this.shapeType = type
    this.sharedService.setOverlayShapeData(null)
@@ -899,7 +870,6 @@ private fallbackCopyToClipboard(text: string): void {
     // Disable any active draw handler
     if (this.drawHandler) {
         this.drawHandler.disable();
-        console.log("Previous draw handler disabled.");
     }
 
     // Clear existing layers
@@ -912,7 +882,6 @@ private fallbackCopyToClipboard(text: string): void {
     let drawHandler: any;
 
     if (type === 'Polygon') {
-        console.log('Starting Polygon drawing...');
         drawHandler = new L.Draw.Polygon(this.map as L.DrawMap, {
             showArea: true,
             shapeOptions: {
@@ -923,7 +892,6 @@ private fallbackCopyToClipboard(text: string): void {
             },
         });
     } else if (type === 'Circle') {
-        console.log('Starting Circle drawing...');
         drawHandler = new L.Draw.Circle(this.map as L.DrawMap, {
             shapeOptions: {
                 color: '#3399ff',
@@ -932,7 +900,6 @@ private fallbackCopyToClipboard(text: string): void {
             },
         });
     } else if (type === 'Box') {
-        console.log('Starting Rectangle (Box) drawing...');
         drawHandler = new L.Draw.Rectangle(this.map as L.DrawMap, {
             shapeOptions: {
                 color: '#66cc66',
@@ -954,11 +921,9 @@ private fallbackCopyToClipboard(text: string): void {
             const layer = event.layer; // The drawn layer
             this.drawLayer.addLayer(layer); // Add to the feature group
 
-            console.log("Drawn Layer Type:", event.layerType);
 
             if (event.layerType === 'polygon' && type === 'Polygon') {
               const bounds = (layer as L.Polygon).getBounds();
-              console.log('Polygon Bounds:', bounds);
               const geoJSON = layer.toGeoJSON();
               //  this.zoomed_wkt_polygon = ''
               //  this.closeDrawer()
@@ -980,12 +945,10 @@ private fallbackCopyToClipboard(text: string): void {
              
           } else if (event.layerType === 'circle' && type === 'Circle') {
               const bounds = (layer as L.Circle).getBounds();
-              console.log('Circle Bounds:', bounds);
               const geoJSON = layer.toGeoJSON();
                
               //  this.closeDrawer()
               this.sharedService.setDrawShape(true);
-              console.log(this.drawer,'drawerdrawerdrawerdrawerdrawerdrawer');
               this.drawer.toggle();
               this.handleDropdownToggle(this.isDrawerOpen)
               this.drawer._animationState = 'open';
@@ -1001,12 +964,10 @@ private fallbackCopyToClipboard(text: string): void {
              
           } else if (event.layerType === 'rectangle' && type === 'Box') {
               const bounds = (layer as L.Rectangle).getBounds();
-              console.log('Rectangle Bounds:', bounds);
               const geoJSON = layer.toGeoJSON();
               //  this.zoomed_wkt_polygon = ''
               //  this.closeDrawer()
               this.sharedService.setDrawShape(true);
-              console.log(this.drawer,'drawerdrawerdrawerdrawerdrawerdrawer');
               this.drawer.toggle();
               this.handleDropdownToggle(this.isDrawerOpen)
               this.drawer._animationState = 'open';
@@ -1031,11 +992,9 @@ private fallbackCopyToClipboard(text: string): void {
             this.map.off(L.Draw.Event.CREATED); // Remove the event listener
             type = null;
 
-            console.log("Drawing disabled after shape creation.");
         });
         
          this.map.on('zoomend', () => {
-          console.log('Zoom changed:', this.map.getZoom());
           this.zoomLevel = this.map.getZoom();
           if (this.map.getZoom() < 4) {
             this.map.setZoom(4); // Prevent zooming out below the minimum level
@@ -1049,7 +1008,6 @@ private fallbackCopyToClipboard(text: string): void {
         });
     
         this.map.on('dragend', () => {
-          console.log('Drag changed:', this.map.getZoom());
           if (!this.isProgrammaticMove) {
             // Only call API if the movement is user-triggered
             this.layercalculateVisibleWKT();
@@ -1060,10 +1018,8 @@ private fallbackCopyToClipboard(text: string): void {
 
         // Add event listener to remove tooltip when drawing starts/stops
         this.map.on('draw:drawstart', () => {
-            console.log("Drawing started...");
         });
         this.map.on('draw:drawstop', () => {
-            console.log("Drawing stopped...");
         });
     } else {
         console.error("Invalid draw type specified.");
@@ -1079,7 +1035,6 @@ private fallbackCopyToClipboard(text: string): void {
         if (isLoadFirstTime) {
           this.zoomed_wkt_polygon = this.polygon_wkt;
         }
-        console.log("resp:resp:resp:resp:resp: ", resp?.data);
         if(resp?.data?.area>=100000000){
           this.openSnackbar("Select a smaller polygon");
           
@@ -1092,7 +1047,6 @@ private fallbackCopyToClipboard(text: string): void {
             // End of the previous day
             this.endDate = dayjs().utc().subtract(1, 'day').endOf('day').format('YYYY-MM-DDTHH:mm:ss.SSSSSSZ');
             
-            console.log(this.endDate, 'Previous day end date and time');
           }
           let queryParams ={
             ...this.filterParams,
@@ -1326,7 +1280,6 @@ polygon.on('click', (event: L.LeafletMouseEvent) => {
 }
 
 private flattenLatLngs(latlngs: any): L.LatLng[] {
-  console.log(latlngs,'latlngslatlngslatlngslatlngslatlngslatlngs');
   
   const flattened: L.LatLng[] = [];
   latlngs.forEach((latlng: any) => {
@@ -1336,13 +1289,10 @@ private flattenLatLngs(latlngs: any): L.LatLng[] {
           flattened.push(latlng);
       }
   });
-  console.log(flattened,'flattenedflattenedflattenedflattenedflattenedflattened');
   
   return flattened;
 }
 private isPointInPolygon(point: L.LatLng, latlngs: L.LatLng[]): boolean {
-  console.log(point, 'Clicked Point');
-  console.log(latlngs, 'Polygon LatLngs');
 
   const x = point.lng, y = point.lat; // Longitude is X, Latitude is Y
   let inside = false;
@@ -1351,16 +1301,12 @@ private isPointInPolygon(point: L.LatLng, latlngs: L.LatLng[]): boolean {
       const xi = latlngs[i].lng, yi = latlngs[i].lat; // Longitude as X, Latitude as Y
       const xj = latlngs[j].lng, yj = latlngs[j].lat;
 
-      console.log(`Edge (${xi}, ${yi}) to (${xj}, ${yj}) - Point (${x}, ${y})`);
-
       const intersect = ((yi > y) !== (yj > y)) ||
                         (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
       if (intersect) {
-          console.log("Ray intersects edge");
           inside = true;
       }
   }
-  console.log(inside,'insideinsideinsideinsideinside');
   
   return inside;
 }
@@ -1412,19 +1358,15 @@ onFilterset(data) {
 
    //handle toggle events
    handleToggleEvent(data: string): void {
-    console.log('Received data from child:', data);
-    console.log('Received data from child:', typeof(data));
   
     // if (this.type === data && this.isDrawerOpen) {
     //   // If the clicked type is the same as the current one and the drawer is already open, do nothing
     //   return;
     // }
     // Update the type to switch the drawer's content
-    console.log(this.type,'switch');
     if(data!=''){
       if(this.type !== data){
         this.type = data;
-        console.log(this.type,'typetypetypetypetype');
         
         this.isDrawerOpen = true;
         
@@ -1433,7 +1375,6 @@ onFilterset(data) {
     
       }else{
         this.type = data;
-        console.log(this.type,'typetypetypetypetype22222');
         
         this.isDrawerOpen = true;
         
@@ -1543,7 +1484,6 @@ handleAction(action: string): void {
     
       this.satelliteService.getPinSelectionAnalytics(payload).subscribe({
         next: (resp) => {
-          console.log(resp,'resprespresprespresprespresp');
           if(resp){
            
             
@@ -1571,7 +1511,6 @@ handleAction(action: string): void {
                     
                     
                     newLeft = markerPoint.x + mapContainer.offsetLeft - 300 - 20; // Move to the left
-                    console.log('markerPointmarkerPointmarkerPoint',newLeft);
                   }
           
                   // Adjust vertical position (top or bottom)
@@ -1592,8 +1531,6 @@ handleAction(action: string): void {
                       Math.min(markerPoint.y + mapContainer.offsetTop - dialogHeight / 2, mapHeight - dialogHeight)
                     );
                   }
-    
-                  console.log(newTop,'newTopnewTopnewTopnewTop',newLeft);
                   
                   // Update dialog position dynamically
                   dialogRef.updatePosition({
@@ -1686,7 +1623,6 @@ handleAction(action: string): void {
       const layer = event.layer;
   
       // Log to check how many times the event is being triggered
-      console.log('Event triggered: ', shape, new Date().toISOString());
   
       if (shape === 'line' && layer instanceof L.Polyline) {
         const latlngs = layer.getLatLngs();
@@ -1715,14 +1651,12 @@ handleAction(action: string): void {
         
         this.satelliteService.getPolyGonData(this.normalizePayloadCoordinates(payload)).subscribe({
           next: (resp) => {
-            console.log(resp, 'Polygon Data Response');
             this.polygon_wkt = resp?.data?.wkt_polygon
             const data = { polygon_wkt: resp.data.wkt_polygon };
             if (resp.data) {
               // API call for polygon selection analytics
               this.satelliteService.getPolygonSelectionAnalytics(data).subscribe({
                 next: (res) => {
-                  console.log(res, 'Polygon Selection Analytics Response');
                   if (res.data) {
                     // No need for layer.once() here, just use layer.on('click', ...)
                     layer.on('click', async (e: L.LeafletEvent) => {
@@ -1805,7 +1739,6 @@ handleAction(action: string): void {
   
   // Toggle zoom controls on the map
   private toggleZoomControl(): void {
-    console.log(this.zoomControlEnabled,'zoomControlEnabledzoomControlEnabledzoomControlEnabled');
     
     if (this.zoomControlEnabled) {
       this.map.removeControl(this.map.zoomControl);
@@ -1854,7 +1787,6 @@ handleAction(action: string): void {
   
   //Disable map drawings control
   private disableDrawing(): void {
-    console.log(this.activeDrawTool, 'Disabling drawing tool');
 
     // Check if a drawing tool is currently active
     if (this.activeDrawTool) {
@@ -1926,8 +1858,6 @@ onDateRangeChanged(event: { startDate: string, endDate: string }) {
   const formattedENdDate = dayjs(event.endDate).utc().format('YYYY-MM-DDTHH:mm:ss.SSSSSSZ');
   this.startDate = formattedStartDate;
   this.endDate = formattedENdDate;
-  console.log('Start Date:', this.startDate);
-  console.log('End Date:', this.endDate);
 
   if (this.data) {
     let queryParams ={
@@ -1938,7 +1868,6 @@ onDateRangeChanged(event: { startDate: string, endDate: string }) {
       end_date: this.endDate
     }
     // this.closeDrawer()
-    console.log(this.drawer,'drawerdrawerdrawerdrawerdrawerdrawer');
     this.sharedService.setDrawShape(true);
       this.drawer.toggle();
       this.handleDropdownToggle(this.isDrawerOpen)
@@ -2009,7 +1938,6 @@ private openDialogAtPosition(polygon: any, metadata: any): void {
       top: `-100px`,
       left: `${polygonPoint.x + mapContainer.offsetLeft + 20}px`,
     };
-    console.log(polygonPoint.y,'polygonPointpolygonPointpolygonPointpolygonPointpolygonPoint',mapContainer.offsetTop);
     
   }
 
@@ -2047,15 +1975,12 @@ private openDialogAtPosition(polygon: any, metadata: any): void {
         const spaceBelow = mapHeight - polygonPoint.y;
 
         if (spaceBelow >= dialogHeight + 20) {
-          console.log(polygonPoint.y,'kkkkkkkkkkk',mapContainer.offsetTop);
           
           newTop = polygonPoint.y + mapContainer.offsetTop ;
         } else if (spaceAbove >= dialogHeight + 20) {
-          console.log('bbbbbbbbbbbb');
           
           newTop = polygonPoint.y + mapContainer.offsetTop - dialogHeight - 40;
         } else {
-          console.log('ttttttttttttt');
           
           newTop = Math.max(
             mapContainer.offsetTop,
@@ -2072,13 +1997,11 @@ private openDialogAtPosition(polygon: any, metadata: any): void {
   }
 
   dialogRef.afterClosed().subscribe((result) => {
-    console.log('Dialog closed', result);
     this.popUpData = null
   });
 }
 
 receiveData(dataArray: any[]) {
-  console.log(dataArray, 'parentparentparentparentparentparentparent');
 
   // Initialize the imageOverlays map if it doesn't exist
   if (!this.imageOverlays) {
@@ -2121,13 +2044,11 @@ receiveData(dataArray: any[]) {
 
           // Add mouseover and mouseout event listeners
           imageOverlay.on('mouseover', (event) => {
-            console.log(`Mouse entered image: ${data.vendor_id}`);
             this.onPolygonHover(data?.vendor_id)
             // Change opacity on hover
           });
 
           imageOverlay.on('mouseout', (event) => {
-            console.log(`Mouse left image: ${data.presigned_url}`);
             this.onPolygonOut(null)
              // Restore original opacity
           });
@@ -2152,7 +2073,6 @@ receiveData(dataArray: any[]) {
 
 
 handleMakerData(data: any) {
-  console.log(data, 'handling marker data');
 
   // Check if the data object is valid and has coordinates
   if (data?.coordinates_record?.coordinates) {
@@ -2185,7 +2105,6 @@ handleMakerData(data: any) {
     });
   } else {
     // Handle case where there are no valid coordinates
-    console.log('No valid coordinates to highlight.');
   }
 }
 
@@ -2305,36 +2224,26 @@ layercalculateVisibleWKT(): void {
   const drawPolygon = this.boundsToPolygon(drawLayerBounds);
   const visiblePolygon = this.boundsToPolygon(visibleBounds);
 
-  console.log('Draw Polygon:', drawPolygon);
-  console.log('Visible Polygon:', visiblePolygon);
 
   try {
     // Calculate the intersection using martinez-polygon-clipping
     const intersection = martinez.intersection(drawPolygon.coordinates, visiblePolygon.coordinates);
 
     if (intersection && intersection.length > 0) {
-      console.log('Intersection Found:', intersection);
 
       // Convert the intersection to WKT
       const intersectionWKT = this.polygonToWKT(intersection);
 
-      console.log('Intersection WKT:', intersectionWKT);
 
       if (this.isWktGreater(intersectionWKT, this.polygon_wkt)) {
-        console.log('Intersection is not greater than the existing WKT.',this.zoomed_status)
         this.zoomed_wkt_polygon = intersectionWKT; // Reset value if not greater
       } else if(this.zoomed_status) {
-        console.log('Intersection is valid and greater. Updating WKT.',this.zoomed_status);
         this.zoomed_wkt_polygon = intersectionWKT; // Store the new WKT;
-       
-        console.log('Decoded WKT:',  this.zoomed_wkt_polygon);
       } else {
-        console.log('Decoded WKT:qqqqqqqqqqqq');
         
         this.zoomed_wkt_polygon = this.polygon_wkt;
       }
     } else {
-      console.log('No intersection detected.');
       this.zoomed_wkt_polygon = ''; // Reset if no intersection
     }
 
@@ -2414,7 +2323,6 @@ isWktGreater(wkt1: string, wkt2: string): boolean {
   // Compare areas of the bounds
   const area1 = this.calculateArea(bounds1);
   const area2 = this.calculateArea(bounds2);
-  console.log(area1.toFixed(1), area2.toFixed(1),'area1area1area1area1area1area1area1', +area1.toFixed(1) < +area2.toFixed(1));
   this.zoomed_status = +area1.toFixed(1) < +area2.toFixed(1)
   return +area1.toFixed(1) < +area2.toFixed(1);
 }

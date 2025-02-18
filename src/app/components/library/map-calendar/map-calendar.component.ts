@@ -49,7 +49,6 @@ export class MapCalendarComponent implements OnInit {
   set calendarApiData(value: any) {
     if (value !== this._calendarApiData) {
       this._calendarApiData = value;
-      console.log('_calendarApiData _calendarApiData _calendarApiData:', this._calendarApiData);
       this.generateCalendarData(this._calendarApiData);
       // Add logic to handle the updated value, e.g., validate the date range
     }
@@ -74,7 +73,6 @@ export class MapCalendarComponent implements OnInit {
   closeEventCalendar(): void {
     this.showCalendar = false;
     this.calendarEventsOpen.emit()
-    console.log("Calendar closed.");
   }
 
   generateCalendarData(apiData: Record<string, number>): void {
@@ -230,7 +228,6 @@ export class MapCalendarComponent implements OnInit {
     const fullDate = `${day.date}`;
     // Use dayjs to format the full date
     const formattedDate = dayjs(fullDate).format('MMMM DD YYYY');
-    console.log(fullDate, 'formatted date');
     return fullDate;
   }
 

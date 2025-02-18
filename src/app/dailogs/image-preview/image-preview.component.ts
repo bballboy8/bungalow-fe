@@ -57,7 +57,6 @@ export class ImagePreviewComponent implements OnInit,AfterViewInit {
   // @ViewChild('img') 'img': ElementRef;
   ngOnInit(): void {
     this.currentIndex = this.data?.currentIndex;
-    console.log("dialog dat: ", this.data);
   }
 
   myMethod(): void {
@@ -240,7 +239,6 @@ export class ImagePreviewComponent implements OnInit,AfterViewInit {
   
     // Adjust the translate values to keep the image centered
     this.scale = newScale;
-    console.log(containerCenterX,'containerCenterXcontainerCenterXcontainerCenterXcontainerCenterX',newScale);
     
     this.translateX = containerCenterX -200 ;
     this.translateY = containerCenterY-150;
@@ -249,7 +247,6 @@ export class ImagePreviewComponent implements OnInit,AfterViewInit {
 
   get transformStyle() {
     if (this.scale <= 1.4) {
-      console.log('ssssssssssssssssssss');
       
       return `translate(365.517px, 260.9985px) scale(1)`;
     }

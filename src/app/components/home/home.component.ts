@@ -172,6 +172,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
   isProgrammaticMove = false;
   footPrintActive:boolean = true;
   footprintLoader:boolean = false;
+  isCalenderOpen:boolean = false;
   constructor(@Inject(PLATFORM_ID) private platformId: Object,
    private satelliteService:SatelliteService,private dialog: MatDialog,
    private http: HttpClient,
@@ -257,10 +258,21 @@ hybridLayer:L.TileLayer = L.tileLayer(
           // target.style.width = `${event.rect.width}px`;
           const target = event.target as HTMLElement;
         
+          let minWidth = this.isCalenderOpen ? 730 : 454;
+
           // Store updated width in the global variable
-          if(event.rect.width > 454 && event.rect.width < 1086){
+          if(event.rect.width > minWidth && event.rect.width < 1086){
             this.sidebarWidth = event.rect.width;
             target.style.width = `${this.sidebarWidth}px`;
+            
+            this.sharedService.isOpenedEventCalendar$.subscribe((state) => {
+              this.isCalenderOpen = state;
+              if(this.sidebarWidth >= 454 && this.sidebarWidth <= 730 && this.isCalenderOpen){
+                target.style.width = this.sidebarWidth + 280 + 'px';
+              }else {
+                target.style.width = `${this.sidebarWidth}px`;
+              }
+            })
             
             // this.leftMargin2
             // console.log( `${event.rect.width}px`,' `${event.rect.width}px`');

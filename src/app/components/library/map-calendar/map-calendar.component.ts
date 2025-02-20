@@ -49,7 +49,6 @@ export class MapCalendarComponent implements OnInit {
   set calendarApiData(value: any) {
     if (value !== this._calendarApiData) {
       this._calendarApiData = value;
-      console.log('_calendarApiData _calendarApiData _calendarApiData:', this._calendarApiData);
       this.generateCalendarData(this._calendarApiData);
       // Add logic to handle the updated value, e.g., validate the date range
     }
@@ -74,7 +73,6 @@ export class MapCalendarComponent implements OnInit {
   closeEventCalendar(): void {
     this.showCalendar = false;
     this.calendarEventsOpen.emit()
-    console.log("Calendar closed.");
   }
 
   generateCalendarData(apiData: Record<string, number>): void {
@@ -97,10 +95,10 @@ export class MapCalendarComponent implements OnInit {
     const getRangeData = (value: number): { color: string; range: string } => {
         if (value === 0) return { color: "", range: "No Data" }; // White for zero values
         if (value <= maxValue * 0.1) return { color: "#70ed8b", range: "Very Low" }; // Light Green
-        if (value <= maxValue * 0.3) return { color: "#a3d9a5", range: "Low" }; // Medium Green
-        if (value <= maxValue * 0.5) return { color: "#70c37e", range: "Medium" }; // Darker Green
-        if (value <= maxValue * 0.7) return { color: "#ffcc00", range: "High" }; // Yellow
-        if (value <= maxValue * 0.9) return { color: "#ff6600", range: "Very High" }; // Orange
+        if (value <= maxValue * 0.3) return { color: "#5bc06c", range: "Low" }; // Medium Green
+        if (value <= maxValue * 0.5) return { color: "#319a43", range: "Medium" }; // Darker Green
+        if (value <= maxValue * 0.7) return { color: "#12561d", range: "High" }; // Yellow
+        if (value <= maxValue * 0.9) return { color: "#bf4e4e", range: "Very High" }; // Orange
         return { color: "#ff0000", range: "Extreme" }; // Red
     };
 
@@ -230,7 +228,6 @@ export class MapCalendarComponent implements OnInit {
     const fullDate = `${day.date}`;
     // Use dayjs to format the full date
     const formattedDate = dayjs(fullDate).format('MMMM DD YYYY');
-    console.log(fullDate, 'formatted date');
     return fullDate;
   }
 

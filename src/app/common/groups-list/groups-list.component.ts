@@ -91,7 +91,6 @@ export class GroupsListComponent {
     
     if (group !== this.activeIndex) {
       this.activeIndex = group
-      console.log('activeIndexactiveIndexactiveIndexactiveIndex',group);
       this.selectedGroup.emit({ group });
       this.SharedService.setGroupData(group)
     
@@ -104,7 +103,6 @@ export class GroupsListComponent {
     this.backgroundColor = this.isExpanded ? '#232B32' : '#191E22';
     
     if (this.isExpanded) {
-      console.log('Togglinggggggggggggggggggggggggggggg',group);
       
       
     } 
@@ -133,7 +131,6 @@ export class GroupsListComponent {
       data = { type: type, parent: group.id}
     }
 
-    console.log(group, 'sssssssssssssssssss');
 
     this.openDialog(data)
   }
@@ -169,7 +166,6 @@ export class GroupsListComponent {
         panelClass: 'custom-dialog-class',
       });
       dialogRef.afterClosed().subscribe((result) => {
-        console.log('Dialog closed', result);
         if(result){
           if(data.type === 'addSubgroup'){
             this.SharedService.setNestedGroup(true);
@@ -235,10 +231,8 @@ export class GroupsListComponent {
 
   //Padding adjustments
   getPadding(value){
-    console.log(value,'valuevaluevaluevaluevaluevaluevaluevaluevalue');
     
     const newValue = parseInt(value) -10;
-    console.log(newValue.toString(),'valuevaluevaluevaluevaluevaluevaluevaluevalue');
     
     return newValue.toString()
   }
@@ -250,7 +244,6 @@ export class GroupsListComponent {
 
   //Get site details
     getSitesDetail(site){
-      console.log(site,'sitesitesitesitesitesitesitesitesite');
       
       if(this.activeSite !== site.id){
         let queryParams = {
@@ -263,6 +256,17 @@ export class GroupsListComponent {
       } else {
         this.activeSite = null
       }
+    }
+    markerData(siteDetail:any){
+      const [lon, lat] = siteDetail?.coordinates?.coordinates[0][0];
+
+      // Creating an object with lat and lon
+      const data = {
+        lat: lat,
+        lon: lon,
+        id: siteDetail.id
+      };
+      this.SharedService.setSiteMarkerData(data)
     }
     //Intialize chart
         //  initializeCharts() {
@@ -402,7 +406,6 @@ export class GroupsListComponent {
   getSitesData(queryParams: any) {
     this.satelliteService.getSites(queryParams).subscribe({
       next: (resp) => {
-        console.log(resp, 'successsuccesssuccesssuccesssuccess');
         this.sitesData = resp.data;
         this.siteDetail = resp.data[0];
         this.generateCalendarData(resp.data[0].heatmap)
@@ -616,17 +619,17 @@ export class GroupsListComponent {
          
              // Get the maximum value from apiData (minimum threshold is 200)
              const actualMax = Math.max(...Object.values(apiData));
-             const maxValue = Math.max(actualMax, 200);
+             const maxValue = Math.max(actualMax, 20);
          
              // Define function to determine range and color
              const getRangeData = (value: number): { color: string; range: string } => {
-                 if (value === 0) return { color: "", range: "No Data" }; // White for zero values
-                 if (value <= maxValue * 0.1) return { color: "#70ed8b", range: "Very Low" }; // Light Green
-                 if (value <= maxValue * 0.3) return { color: "#a3d9a5", range: "Low" }; // Medium Green
-                 if (value <= maxValue * 0.5) return { color: "#70c37e", range: "Medium" }; // Darker Green
-                 if (value <= maxValue * 0.7) return { color: "#ffcc00", range: "High" }; // Yellow
-                 if (value <= maxValue * 0.9) return { color: "#ff6600", range: "Very High" }; // Orange
-                 return { color: "#ff0000", range: "Extreme" }; // Red
+              if (value === 0) return { color: "", range: "No Data" }; // White for zero values
+              if (value <= maxValue * 0.1) return { color: "#70ed8b", range: "Very Low" }; // Light Green
+              if (value <= maxValue * 0.3) return { color: "#5bc06c", range: "Low" }; // Medium Green
+              if (value <= maxValue * 0.5) return { color: "#319a43", range: "Medium" }; // Darker Green
+              if (value <= maxValue * 0.7) return { color: "#12561d", range: "High" }; // Yellow
+              if (value <= maxValue * 0.9) return { color: "#bf4e4e", range: "Very High" }; // Orange
+              return { color: "#ff0000", range: "Extreme" }; // Red
              };
          
              while (current.isBefore(end) || current.isSame(end, "month")) {
@@ -735,7 +738,6 @@ export class GroupsListComponent {
           const fullDate = `${day.date}`;
           // Use dayjs to format the full date
           const formattedDate = dayjs(fullDate).format('MMMM DD YYYY');
-          console.log(fullDate, 'formatted date');
           return fullDate;
         }
       

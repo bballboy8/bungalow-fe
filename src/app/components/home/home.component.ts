@@ -973,11 +973,11 @@ private fallbackCopyToClipboard(text: string): void {
           this.zoomed_wkt_polygon = this.polygon_wkt;
         }
         console.log("resp:resp:resp:resp:resp: ", resp?.data);
-        if(resp?.data?.area>=100000000){
-          this.openSnackbar("Select a smaller polygon");
+        // if(resp?.data?.area>=100000000){
+        //   this.openSnackbar("Select a smaller polygon");
           
           
-        }else {
+        // }else {
           if (this.startDate === '' && this.endDate === '') {
             // Start of the previous day
             this.startDate = dayjs().utc().subtract(1, 'day').startOf('day').format('YYYY-MM-DDTHH:mm:ss.SSSSSSZ');
@@ -995,7 +995,7 @@ private fallbackCopyToClipboard(text: string): void {
             end_date: this.endDate
           }
           this.data = resp?.data;
-          this.getDataUsingPolygon(resp?.data,queryParams)};
+          this.getDataUsingPolygon(resp?.data,queryParams);
       },
       error: (err) => {
         console.log("err: ", err);

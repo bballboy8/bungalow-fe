@@ -173,6 +173,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
   footPrintActive:boolean = true;
   footprintLoader:boolean = false;
   isCalenderOpen:boolean = false;
+  shapeLoader:boolean = false;
   constructor(@Inject(PLATFORM_ID) private platformId: Object,
    private satelliteService:SatelliteService,private dialog: MatDialog,
    private http: HttpClient,
@@ -1068,8 +1069,8 @@ private fallbackCopyToClipboard(text: string): void {
             end_date: this.endDate
           }
           this.data = resp?.data;
-          this.footprintLoader = true;
-          this.ngxLoader.startLoader('buttonLoader');
+          this.shapeLoader = true;
+          this.ngxLoader.startLoader('shapesLoader');
           this.getDataUsingPolygon(resp?.data,queryParams);
       },
       error: (err) => {
@@ -1169,8 +1170,8 @@ private fallbackCopyToClipboard(text: string): void {
             }
           }, 600);
         }
-        this.footprintLoader = false;
-          this.ngxLoader.stopLoader('buttonLoader');
+        this.shapeLoader = false;
+        this.ngxLoader.startLoader('shapesLoader');
       },
       error: (err) => {
         console.log('Error in getDataUsingPolygon:', err);

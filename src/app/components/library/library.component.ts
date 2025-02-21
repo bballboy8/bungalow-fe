@@ -2,6 +2,7 @@ import {
   AfterViewInit,
   ChangeDetectorRef,
   Component,
+  effect,
   ElementRef,
   EventEmitter,
   inject,
@@ -137,7 +138,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   //#region Decorators
   @ViewChild("myTemplate", { static: true }) myTemplate!: TemplateRef<any>;
   @Output() closeDrawer = new EventEmitter<boolean>();
-  @Input() polygon_wkt:any;
+  @Input() polygon_wkt:any=null;
   @Input() sidebarWidth:any;
   //#endregion
   @Output() rowHoveredData: EventEmitter<any> = new EventEmitter();
@@ -591,6 +592,18 @@ set zoomed_wkt(value: string) {
         ).subscribe(query => {
           this.filterColumns(query);
         });
+
+        effect(()=>{
+          if(this.sharedService.shapeType()!==null && this.polygon_wkt!==null){
+            const payload = {
+              wkt_polygon: this.polygon_wkt
+            };
+            this.loader = true;
+            this.ngxLoader.start();
+            this.getSatelliteCatalog(payload, this.filterParams);
+          }
+        },this.polygon_wkt)
+        
   }
 
   ngOnInit() {

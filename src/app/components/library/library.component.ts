@@ -61,7 +61,8 @@ import { Options,NgxSliderModule, LabelType } from '@angular-slider/ngx-slider';
 import momentZone from 'moment-timezone';
 import tzLookup from 'tz-lookup';
 import { CommonDailogsComponent } from "../../dailogs/common-dailogs/common-dailogs.component";
-
+import * as turf from '@turf/turf';
+import { parse, convert } from 'terraformer-wkt-parser';
 export class Group {
   name?: string;
   icon?: string; // icon name for Angular Material icons
@@ -613,7 +614,18 @@ set zoomed_wkt(value: string) {
     this.renderGroup = this.myTemplate;
     // this.sharedService.isOpenedEventCalendar$.subscribe(resp=>this.isEventsOpened=resp)
     if(this.polygon_wkt){
-      const data = { polygon_wkt: this.polygon_wkt };
+      const geoJsonPolygon = parse(this.polygon_wkt) as { type: "Polygon"; coordinates: number[][][] };
+
+      // Normalize longitudes to fit within -180 to 180
+      geoJsonPolygon.coordinates[0] = geoJsonPolygon.coordinates[0].map(([lng, lat]) => {
+        return [(lng + 180) % 360 - 180, lat]; // Wrap longitude within [-180, 180]
+      });
+      
+      // Convert back to WKT
+      const normalizedWkt = convert(geoJsonPolygon);
+console.log(normalizedWkt,'normalizedWktnormalizedWktnormalizedWkt');
+
+      const data = { polygon_wkt: normalizedWkt };
       this.satelliteService.getPolygonSelectionAnalytics(data).subscribe({
         next: (res) => {
           this.analyticsData = res?.data?.analytics

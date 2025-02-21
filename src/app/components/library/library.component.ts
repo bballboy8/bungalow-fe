@@ -597,11 +597,12 @@ set zoomed_wkt(value: string) {
    
     this.renderGroup = this.myTemplate;
     // this.sharedService.isOpenedEventCalendar$.subscribe(resp=>this.isEventsOpened=resp)
-    if(this.polygon_wkt){
+    if(this.polygon_wkt && this.sharedService.analyticsData() == null) {
       const data = { polygon_wkt: this.polygon_wkt };
       this.satelliteService.getPolygonSelectionAnalytics(data).subscribe({
         next: (res) => {
           this.analyticsData = res?.data?.analytics
+          this.sharedService.analyticsData.set(res?.data?.analytics)
           this.percentageArray = Object.entries(this.analyticsData?.percentages).map(([key, value]) => ({
             key,
             ...(value as object),

@@ -1,4 +1,4 @@
-import { Injectable } from "@angular/core";
+import { Injectable, signal } from "@angular/core";
 import { BehaviorSubject } from "rxjs";
 
 @Injectable({
@@ -26,7 +26,12 @@ export class SharedService {
   private groupData = new BehaviorSubject<any>(null);
   groupData$ = this.groupData.asObservable()
   private siteMarkerData = new BehaviorSubject<any>(null);
-  siteMarkerData$ = this.siteMarkerData.asObservable()
+  siteMarkerData$ = this.siteMarkerData.asObservable();
+  imageryData= signal<any>(null);
+  imageryFilter = signal<any>(null);
+  groupsData = signal<any>(null);
+  libraryData = signal<any>(null);
+  analyticsData = signal<any>(null);
   constructor() {}
 
   setIsOpenedEventCalendar(isOpened: boolean): void {
@@ -68,4 +73,6 @@ setGroupData(data: any): void {
 setSiteMarkerData(data: any): void {
   this.siteMarkerData.next(data);
 }
+
+
 }

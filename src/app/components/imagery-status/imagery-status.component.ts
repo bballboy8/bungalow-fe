@@ -2,6 +2,7 @@ import {
   AfterViewInit,
   ChangeDetectorRef,
   Component,
+  effect,
   ElementRef,
   EventEmitter,
   Input,
@@ -140,6 +141,24 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
     private cd: ChangeDetectorRef
    
   ) {
+    effect(() => {
+      const imageryData = this.sharedService.imageryData();
+      const imagertFilter = this.sharedService.imageryFilter();
+      if (imageryData.length !== null) {
+        this.dataSource.data = imageryData;
+        this.originalData = [...this.dataSource.data];
+        console.log(imageryData, 'Shared Service Data Updated');
+        console.log(this.sharedService.imageryFilter(),'imageryFilterimageryFilterimageryFilterimageryFilter');
+        
+      }
+      if(imagertFilter.filterParams!== null){
+        this.filterParams = imagertFilter.filterParams;
+        this.filterCount  = imagertFilter.filterCount;
+        this.start_date = imagertFilter.filterParams.start_date;
+        this.end_date = imagertFilter.filterParams.end_date;
+        this.vendor.patchValue(imagertFilter.filterParams.vendor_name.split(',')) 
+      }
+    });
   }
 
   initializeDates() {
@@ -161,16 +180,26 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
+    this.filterParams = { ...this.defaultFilter() };
+    if(this.sharedService.imageryData() == null) {
+    //   this.dataSource.data = this.sharedService.imageryData();
+    //   this.originalData = [...this.dataSource.data]
+    // console.log(this.sharedService.imageryData(),'sharedServicesharedServicesharedService');
+
+    
+      let queryParams = {
+        ...this.filterParams,
+        page_number: 1,
+        page_size: this.page_size,
+      };
+      this.getImageryCollection(queryParams);
+    }
     console.log(this.maxDate, "sssssssssssssssss");
     this.maxDate = this.maxDate.format("YYYY-MM-DD HH:mm [UTC]");
     this.minDate = this.minDate.format("YYYY-MM-DD HH:mm [UTC]");
-    this.filterParams = { ...this.defaultFilter() };
-    let queryParams = {
-      ...this.filterParams,
-      page_number: 1,
-      page_size: this.page_size,
-    };
-    this.getImageryCollection(queryParams);
+    
+    
+    
   }
 
   ngAfterViewInit(): void {
@@ -201,6 +230,7 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
         //   index: idx,
         // }));
         this.originalData = [...this.dataSource.data];
+        this.sharedService.imageryData.set(resp.data.records)
         this.total_count = resp.data.total_records;
       },
     });
@@ -441,6 +471,7 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
     };
 
     this.filterParams = { ...params };
+    this.sharedService.imageryFilter.set({filterParams:this.filterParams,filterCount:this.filterCount}, )
     if(this.filterParams.start_date || this.filterParams.end_date || this.filterParams.vendor_name){
     setTimeout(() => {
       this.loader = true;
@@ -509,6 +540,7 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
       page_size : 50
     }
     this.filterParams = queryParams
+    this.sharedService.imageryFilter.set({filterParams:this.filterParams,filterCount:this.filterCount}, )
     this.getImageryCollection(queryParams)
   }
 

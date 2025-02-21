@@ -107,7 +107,7 @@ vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra']
       } else if (value === 840) {
         return '840+';
       }
-      return `${value}°`; // Default for other values
+      return `${value}`; // Default for other values
     },
   };
   illuminationAzimuthOptions: Options = {

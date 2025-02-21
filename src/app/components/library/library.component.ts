@@ -406,7 +406,7 @@ set zoomed_wkt(value: string) {
   defaultMinAzimuthAngle = 0;
   defaultMaxAzimuthAngle = 365;
   defaultMinholdbackSecond = -1;
-  defaultMaxHoldbackSecond = 5100000;
+  defaultMaxHoldbackSecond = 840;
   defaultMinIlluminationAzimuthAngle = 0;
   defaultMaxIlluminationAzimuthAngle = 365;
   defaultMinIlluminationElevationAngle = 0;
@@ -470,15 +470,15 @@ set zoomed_wkt(value: string) {
     },
   };
   holdbackOptions: Options = {
-    step: 150000,
+    step: 60,
     showTicks: true,
     floor: -1,
-    ceil: 5100000,
+    ceil: 840,
     translate: (value: number, label: LabelType): string => {
       if (value === 0) {
         return '0';
-      } else if (value === 5100000) {
-        return '5000000+';
+      } else if (value === 840) {
+        return '840+';
       }
       return `${value}°`; // Default for other values
     },
@@ -595,12 +595,14 @@ set zoomed_wkt(value: string) {
 
         effect(()=>{
           if(this.sharedService.shapeType()!==null && this.polygon_wkt!==null){
+           const queryParams = {...this.filterParams,  zoomed_wkt: this._zoomed_wkt}
             const payload = {
               wkt_polygon: this.polygon_wkt
             };
             this.loader = true;
             this.ngxLoader.start();
-            this.getSatelliteCatalog(payload, this.filterParams);
+            this.getSatelliteCatalog(payload, queryParams);
+            this.sharedService.shapeType.set(null)
           }
         },this.polygon_wkt)
         
@@ -704,20 +706,20 @@ set zoomed_wkt(value: string) {
       
       
     })
-   this.sharedService.drawShape$.subscribe((shape) => {
-    if(shape){
-      const payload = {
-        wkt_polygon: this.polygon_wkt
-      }
-     setTimeout(() => {
-      this.loader = true
-      this.ngxLoader.start(); // Start the loader
-      this.getSatelliteCatalog(payload,this.filterParams);
+  //  this.sharedService.drawShape$.subscribe((shape) => {
+  //   if(shape){
+  //     const payload = {
+  //       wkt_polygon: this.polygon_wkt
+  //     }
+  //    setTimeout(() => {
+  //     this.loader = true
+  //     this.ngxLoader.start(); // Start the loader
+  //     this.getSatelliteCatalog(payload,this.filterParams);
      
-     },300)
-    }
+  //    },300)
+  //   }
     
-   })
+  //  })
     
     // Add mouse events
   }
@@ -761,7 +763,7 @@ set zoomed_wkt(value: string) {
         }));
         this.originalData = [...this.dataSource.data];
         this.total_count = resp.total_records
-        this.zoomed_captures_count = resp.zoomed_captures_count;
+        this.zoomed_captures_count = resp.zoomed_captures_count>0 ? resp.zoomed_captures_count: resp.total_records;
         this.focused_captures_count = resp?.focused_captures_count
         this.loader = false
         this.ngxLoader.stop();
@@ -1809,6 +1811,10 @@ getOverlapData(){
     if (this.min_gsd !== this.defaultMinGsd || this.max_gsd !== this.defaultMaxGsd) count++;
     this.filterCount = count;
     
+  }
+
+  holdbackDecimal(value:number){
+    return parseFloat(value.toFixed(2));
   }
 
 }

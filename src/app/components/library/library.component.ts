@@ -61,7 +61,7 @@ import { Options,NgxSliderModule, LabelType } from '@angular-slider/ngx-slider';
 import momentZone from 'moment-timezone';
 import tzLookup from 'tz-lookup';
 import { CommonDailogsComponent } from "../../dailogs/common-dailogs/common-dailogs.component";
-
+import { wktToGeoJSON, geojsonToWKT } from '@terraformer/wkt';
 export class Group {
   name?: string;
   icon?: string; // icon name for Angular Material icons
@@ -613,7 +613,29 @@ set zoomed_wkt(value: string) {
     this.renderGroup = this.myTemplate;
     // this.sharedService.isOpenedEventCalendar$.subscribe(resp=>this.isEventsOpened=resp)
     if(this.polygon_wkt){
-      const data = { polygon_wkt: this.polygon_wkt };
+      let geoJSON: any = wktToGeoJSON(this.polygon_wkt);
+
+// 🔹 Step 1: Get the min/max longitude of the polygon
+const longitudes = geoJSON.coordinates[0].map(([lng]) => lng);
+const minLng = Math.min(...longitudes);
+const maxLng = Math.max(...longitudes);
+
+// 🔹 Step 2: If the polygon crosses 180°, shift it westward
+if (maxLng > 180) {
+  geoJSON.coordinates = geoJSON.coordinates.map((ring: number[][]) =>
+    ring.map(([lng, lat]) => {
+      return [lng - 360, lat]; // Shift entire polygon left
+    })
+  );
+}
+
+// Convert back to WKT
+const normalizedWKT = geojsonToWKT(geoJSON);
+
+console.log("✅ Correctly Normalized WKT:", normalizedWKT);
+console.log(normalizedWKT,'normalizedWktnormalizedWktnormalizedWkt');
+
+      const data = { polygon_wkt: normalizedWKT };
       this.satelliteService.getPolygonSelectionAnalytics(data).subscribe({
         next: (res) => {
           this.analyticsData = res?.data?.analytics

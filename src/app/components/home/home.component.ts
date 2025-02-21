@@ -158,7 +158,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
   private highlightedPolygon: L.Polygon | null = null;
   calendarApiData:any;
   zoomed_wkt_polygon:any = '';
-  shapeType:string='';
+  shapeType:string = null;
   zoomed_status:boolean = false;
   popUpData:any;
   shapeHoverData:any;
@@ -1068,6 +1068,8 @@ private fallbackCopyToClipboard(text: string): void {
             end_date: this.endDate
           }
           this.data = resp?.data;
+          this.footprintLoader = true;
+          this.ngxLoader.startLoader('buttonLoader');
           this.getDataUsingPolygon(resp?.data,queryParams);
       },
       error: (err) => {
@@ -1133,8 +1135,11 @@ private fallbackCopyToClipboard(text: string): void {
             this.updateSidebarWidth();
 
              this.type = 'library'
-            this.toggleDrawer()
-           
+            this.toggleDrawer();
+            setTimeout(()=>{
+              this.sharedService.shapeType.set(this.shapeType)
+            },300)
+            
             
 
   // Find the .leaflet-interactive element
@@ -1164,6 +1169,8 @@ private fallbackCopyToClipboard(text: string): void {
             }
           }, 600);
         }
+        this.footprintLoader = false;
+          this.ngxLoader.stopLoader('buttonLoader');
       },
       error: (err) => {
         console.log('Error in getDataUsingPolygon:', err);

@@ -697,6 +697,10 @@
                                                         <span class="text-secondary-heiglight font-semibold">Publication Date Time: </span> 
                                                         <span class="text-secondaryText">{{element?.publication_datetime? getFormattedDate(element?.publication_datetime):null}}</span>
                                                     </div>
+                                                    <div class="flex py-2">
+                                                        <span class="text-secondary-heiglight font-semibold">Holdback: </span> 
+                                                        <span class="text-secondaryText">{{element?.holdback_seconds? roundOff(element?.holdback_seconds/86400):null}}</span>
+                                                    </div>
                                                     <div class="flex py-2"> <span
                                                             class="text-secondary-heiglight font-semibold">Day of Week:
                                                         </span><span

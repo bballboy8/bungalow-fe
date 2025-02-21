@@ -1118,7 +1118,13 @@ private fallbackCopyToClipboard(text: string): void {
       coordinateSet.map(([longitude, latitude]: [number, number]) => {
         let lng = longitude;
         if (lng < 0) {
-          lng += 360;
+          const { normalizedLatitude, normalizedLongitude } = this.getlatlngNormalized(latitude, longitude);
+          lng = normalizedLongitude;
+          latitude = normalizedLatitude
+        } else {
+          // const { normalizedLatitude, normalizedLongitude } = this.getlatlngNormalized(latitude, longitude);
+          // lng = normalizedLongitude;
+          // latitude = normalizedLatitude
         }
         // this.mapFormula = (360*(Math.floor((Math.floor((longitude + 180)  / 360)+1) -1)))
         return [lng, latitude];

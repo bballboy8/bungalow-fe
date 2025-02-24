@@ -7,6 +7,10 @@
     <div class="!z-[1000000000000] top-0 absolute  !bg-[rgba(32,39,45,0.2)]
     h-screen w-full" ><ngx-ui-loader loaderId="buttonLoader"></ngx-ui-loader></div>
 }
+@if (shapeLoader) {
+  <div class="!z-[1000000000000] top-0 absolute  !bg-[rgba(32,39,45,0.2)]
+  h-screen w-full" ><ngx-ui-loader loaderId="shapesLoader"></ngx-ui-loader></div>
+}
     <div
       class="cursor-default"
       [ngClass]="isGoogleLayerActive === 'OpenStreetMapDark' ||  isGoogleLayerActive === 'GoogleStreetMapDark' ? 'bg-[#131f07]  z-30 h-full' : ' z-30 h-full'"
@@ -66,9 +70,9 @@
          [ngStyle]="{ 'margin-left.px': sidebarWidth -marginleft}"             
       ></div>
       <div
-        class="flex justify-start  end-0 gap-3 pr-[12px] absolute bottom-[12px]"
+        class="flex justify-start  end-0 gap-3 absolute bottom-[12px] "
       >
-        <div class="relative z-50 " [ngClass]="drawer._animationState === 'open'? 'ml-[820px] !w-fill-available':'w-full'">
+        <div class="relative z-10 " [ngClass]="drawer._animationState === 'open'? 'ml-[820px] !w-fill-available':'w-full'">
           <app-footer #childComponent
             (toggleLayer)="toggleMapLayer($event)"
             (drawTypeSelected)="setDrawType($event)"

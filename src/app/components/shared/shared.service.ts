@@ -32,6 +32,7 @@ export class SharedService {
   groupsData = signal<any>(null);
   libraryData = signal<any>(null);
   analyticsData = signal<any>(null);
+  shapeType = signal<string>(null)
   constructor() {}
 
   setIsOpenedEventCalendar(isOpened: boolean): void {

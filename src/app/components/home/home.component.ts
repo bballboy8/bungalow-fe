@@ -2400,11 +2400,44 @@ highLightShape(data: any): void {
   if (this.highlightedPolygon) {
     this.map.removeLayer(this.highlightedPolygon);
   }
+  
+
+  const LatLngs: L.LatLngExpression[] = [];
+
+  this.bbox = this.getBoundingBox(this.map);
+  this.minMap = this.getMapNumber(this.bbox.minLon);
+  this.maxMap = this.getMapNumber(this.bbox.maxLon);
+
+  const originalCoordinates  = data.coordinates_record.coordinates[0]; // Access the first array of coordinates
+// if (this.minMap == 0) {
+//   this.minMap = 1;
+//   this.maxMap = 2;
+// }
+  // Convert [lng, lat] to [lat, lng] (Leaflet requires [lat, lng] format)
+ for (let mapNum = this.minMap; mapNum <= this.maxMap; mapNum++) {
+  // Adjust each coordinate in the polygon.
+  const adjustedLatLngs = originalCoordinates.map((coord: [number, number]) => {
+    // Convert [lng, lat] to [lat, lng] and adjust longitude using mapFormula and mapNum offset.
+    return [
+      coord[1],
+      // coord[0] + this.mapFormula + (mapNum - 1) * 360,
+      coord[0] + (mapNum - 1) * 360 ,
+    ];
+  });
+  // Check if at least one adjusted coordinate is within the bounding box.
+  // const visible = adjustedLatLngs.some(([lat, lng]) =>
+  //   lng >= this.bbox.minLon && lng <= this.bbox.maxLon &&
+  //   lat >= this.bbox.minLat && lat <= this.bbox.maxLat
+  // );
+  // if (visible) {
+    LatLngs.push(adjustedLatLngs);
+  // }
+}
 
   // Extract the coordinates and map them to Leaflet's LatLng format
-  const coordinates = data.coordinates_record.coordinates[0].map((coord: number[]) =>
-    new L.LatLng(coord[1], coord[0]+this.mapFormula) // Convert [lon, lat] to [lat, lon]
-  );
+  // const coordinates = data.coordinates_record.coordinates[0].map((coord: number[]) =>
+  //   new L.LatLng(coord[1], coord[0]+this.mapFormula) // Convert [lon, lat] to [lat, lon]
+  // );
 
   // Determine the color based on the vendor name
   let color = '#eff24d'; // Default color
@@ -2430,7 +2463,7 @@ highLightShape(data: any): void {
   }
 
   // Create a new polygon
-  this.highlightedPolygon = L.polygon(coordinates, {
+  this.highlightedPolygon = L.polygon(LatLngs, {
     color: color, // Outline color
     fillColor: color, // Fill color
     fillOpacity: 0.5, // Adjust opacity as needed

@@ -175,6 +175,9 @@ hybridLayer:L.TileLayer = L.tileLayer(
   isCalenderOpen:boolean = false;
   shapeLoader:boolean = false;
   originalPolygon:any = null;
+  bbox : any;
+  minMap: any;
+  maxMap: any;
   constructor(@Inject(PLATFORM_ID) private platformId: Object,
    private satelliteService:SatelliteService,private dialog: MatDialog,
    private http: HttpClient,
@@ -1137,37 +1140,37 @@ getMapNumber(lon) {
           direction= -1;  
         }
         
-      //  this.mapFormula = (360*(Math.floor((Math.floor((longitude + 180)  / 360)+1) -1)))
+       this.mapFormula = (360*(Math.floor((Math.floor((longitude + 180)  / 360)+1) -1)))
       return [normalizedLongitude, normalizedLatitude];
         })
       );
     }
-    let crossesDateline = false;
-    for (let i = 1; i < payload.geometry.coordinates.length; i++) {
-      if (Math.abs(payload.geometry.coordinates[i].lng - payload.geometry.coordinates[i - 1].lng) > 180) {
-        crossesDateline = true;
-        break;
-      }
-    }
+    // let crossesDateline = false;
+    // for (let i = 1; i < payload.geometry.coordinates.length; i++) {
+    //   if (Math.abs(payload.geometry.coordinates[i].lng - payload.geometry.coordinates[i - 1].lng) > 180) {
+    //     crossesDateline = true;
+    //     break;
+    //   }
+    // }
 
-    console.log("crossesDatelinecrossesDateline", crossesDateline);
+    // console.log("crossesDatelinecrossesDateline", crossesDateline);
     
-    // If it does not cross the dateline, return normalized coordinates.
-    if (!crossesDateline) {
-      return payload;
-    }
+    // // If it does not cross the dateline, return normalized coordinates.
+    // if (!crossesDateline) {
+    //   return payload;
+    // }
 
-    payload.geometry.coordinates=  payload.geometry.coordinates.map(coordinateSet => 
-      coordinateSet.map(([longitude, latitude]: [number, number]) => {
-        let lng = longitude;
-        if (lng < 0) {
-          lng += 360;
-        }
-        return { lat: latitude, lng };
+    // payload.geometry.coordinates=  payload.geometry.coordinates.map(coordinateSet => 
+    //   coordinateSet.map(([longitude, latitude]: [number, number]) => {
+    //     let lng = longitude;
+    //     if (lng < 0) {
+    //       lng += 360;
+    //     }
+    //     return { lat: latitude, lng };
 
-      })
+    //   })
 
-    );
+    // );
   
     return payload; // Return the updated payload
   }
@@ -1199,6 +1202,9 @@ getMapNumber(lon) {
         this.shapeLayersData = resp.data
         this.extraShapesLayer?.clearLayers();
         if (Array.isArray(resp?.data)&& this.footPrintActive) {
+          this.bbox = this.getBoundingBox(this.map);
+          this.minMap = this.getMapNumber(this.bbox.minLon);
+          this.maxMap = this.getMapNumber(this.bbox.maxLon);
           
           resp.data.forEach((item: any) => {
             this.addPolygonWithMetadata(item);
@@ -1254,9 +1260,6 @@ getMapNumber(lon) {
   private addPolygonWithMetadata(data: any): void {
     console.log("this.mapFormulathis.mapFormulathis.mapFormula", this.mapFormula);
     
-    const bbox = this.getBoundingBox(this.map);
-    const minMap = this.getMapNumber(bbox.minLon);
-    const maxMap = this.getMapNumber(bbox.maxLon);
   
     // For each coordinate in the polygon, adjust the longitude based on viewport
     // Here we generate a dynamic set of polygons if necessary so that they appear in the viewport.
@@ -1266,7 +1269,7 @@ getMapNumber(lon) {
     const originalCoordinates  = data.coordinates_record.coordinates[0]; // Access the first array of coordinates
   
     // Convert [lng, lat] to [lat, lng] (Leaflet requires [lat, lng] format)
-   for (let mapNum = minMap; mapNum <= maxMap; mapNum++) {
+   for (let mapNum = this.minMap; mapNum <= this.maxMap; mapNum++) {
     // Adjust each coordinate in the polygon.
     const adjustedLatLngs = originalCoordinates.map((coord: [number, number]) => {
       // Convert [lng, lat] to [lat, lng] and adjust longitude using mapFormula and mapNum offset.
@@ -1278,8 +1281,8 @@ getMapNumber(lon) {
     });
     // Check if at least one adjusted coordinate is within the bounding box.
     const visible = adjustedLatLngs.some(([lat, lng]) =>
-      lng >= bbox.minLon && lng <= bbox.maxLon &&
-      lat >= bbox.minLat && lat <= bbox.maxLat
+      lng >= this.bbox.minLon && lng <= this.bbox.maxLon &&
+      lat >= this.bbox.minLat && lat <= this.bbox.maxLat
     );
     if (visible) {
       dynamicPolygons.push(adjustedLatLngs);
@@ -2581,7 +2584,9 @@ wktToBounds(wkt: string): L.LatLngBounds {
   }
   handleFootprintToggle(){
     this.footPrintActive = !this.footPrintActive
-       
+     this.bbox = this.getBoundingBox(this.map);
+    this.minMap = this.getMapNumber(this.bbox.minLon);
+    this.maxMap = this.getMapNumber(this.bbox.maxLon);
         if (Array.isArray(this.shapeLayersData)&& this.footPrintActive) {
           this.footprintLoader = true;
           this.ngxLoader.startLoader('buttonLoader');

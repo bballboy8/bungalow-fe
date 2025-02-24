@@ -2037,11 +2037,13 @@ toggleMapLayer(type:string) {
 }
 
 onDateRangeChanged(event: { startDate: string, endDate: string }) {
+
   const formattedStartDate = dayjs(event.startDate).utc().format('YYYY-MM-DDTHH:mm:ss.SSSSSSZ');
   const formattedENdDate = dayjs(event.endDate).utc().format('YYYY-MM-DDTHH:mm:ss.SSSSSSZ');
   this.startDate = formattedStartDate;
   this.endDate = formattedENdDate;
 
+  
   if (this.data) {
     let queryParams ={
       ...this.filterParams,
@@ -2056,9 +2058,10 @@ onDateRangeChanged(event: { startDate: string, endDate: string }) {
       this.handleDropdownToggle(this.isDrawerOpen)
       this.drawer._animationState = 'open';
       const payload = {
-        wkt_polygon:this.data.polygon_wkt,
+        ...this.data,
         original_polygon:this.originalPolygon
        }
+       
   this.getDataUsingPolygon(payload,queryParams);
   }
   this.cdr.detectChanges();
@@ -2672,9 +2675,10 @@ wktToBounds(wkt: string): L.LatLngBounds {
   //Map data filtering functionality
   filterData(queryParams:any){
     const payload = {
-      wkt_polygon:this.data.polygon_wkt,
+      ...this.data,
       original_polygon:this.originalPolygon
      }
+
     this.getDataUsingPolygon(payload,queryParams);
   }
   // Define hover functions

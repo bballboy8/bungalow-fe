@@ -1079,102 +1079,60 @@ private fallbackCopyToClipboard(text: string): void {
     });
   }
 
+
+getMapNumber(lon) {
+    return Math.floor((lon + 180) / 360) + 1;
+}
+
+ 
+  
   normalizePayloadCoordinates(payload: any): any {
     if (payload.geometry && Array.isArray(payload.geometry.coordinates)) {
-      // First, normalize all coordinates using getlatlngNormalized
-      payload.geometry.coordinates = payload.geometry.coordinates.map((coordinateSet: any[]) =>
+      payload.geometry.coordinates = payload.geometry.coordinates.map(coordinateSet =>
         coordinateSet.map(([longitude, latitude]: [number, number]) => {
-          const { normalizedLatitude, normalizedLongitude } = this.getlatlngNormalized(latitude, longitude);
-          this.mapFormula = (360*(Math.floor((Math.floor((longitude + 180)  / 360)+1) -1)))
-          return [normalizedLongitude, normalizedLatitude];
+
+         const {normalizedLatitude, normalizedLongitude} =  this.getlatlngNormalized(latitude, longitude)
+          let direction =  1;
+        if (longitude >=0) {
+          direction = 1;       
+        } else {      
+          direction= -1;  
+        }
+        
+      //  this.mapFormula = (360*(Math.floor((Math.floor((longitude + 180)  / 360)+1) -1)))
+      return [normalizedLongitude, normalizedLatitude];
         })
       );
     }
-  
-    // Check if the polygon crosses the dateline.
-    // Here we assume we are checking the first linear ring (or coordinate set).
     let crossesDateline = false;
-    if (payload.geometry.coordinates.length > 0) {
-      const coords = payload.geometry.coordinates[0];
-      for (let i = 1; i < coords.length; i++) {
-        // coords[i] and coords[i - 1] are arrays [lng, lat]
-        if (Math.abs(coords[i][0] - coords[i - 1][0]) > 180) {
-          crossesDateline = true;
-          break;
-        }
+    for (let i = 1; i < payload.geometry.coordinates.length; i++) {
+      if (Math.abs(payload.geometry.coordinates[i].lng - payload.geometry.coordinates[i - 1].lng) > 180) {
+        crossesDateline = true;
+        break;
       }
     }
-  
-    console.log("crossesDateline", crossesDateline);
-  
-    // If it does not cross the dateline, return the normalized payload.
+
+    console.log("crossesDatelinecrossesDateline", crossesDateline);
+    
+    // If it does not cross the dateline, return normalized coordinates.
     if (!crossesDateline) {
       return payload;
     }
-  
-    // If the polygon crosses the dateline, adjust the coordinates:
-    // For example, shift negative longitudes into the [0, 360) range.
-    payload.geometry.coordinates = payload.geometry.coordinates.map((coordinateSet: any[]) =>
+
+    payload.geometry.coordinates=  payload.geometry.coordinates.map(coordinateSet => 
       coordinateSet.map(([longitude, latitude]: [number, number]) => {
         let lng = longitude;
         if (lng < 0) {
           lng += 360;
         }
-        // this.mapFormula = (360*(Math.floor((Math.floor((longitude + 180)  / 360)+1) -1)))
-        return [lng, latitude];
+        return { lat: latitude, lng };
+
       })
+
     );
   
-    return payload;
+    return payload; // Return the updated payload
   }
-  
-  // normalizePayloadCoordinates(payload: any): any {
-  //   if (payload.geometry && Array.isArray(payload.geometry.coordinates)) {
-  //     payload.geometry.coordinates = payload.geometry.coordinates.map(coordinateSet =>
-  //       coordinateSet.map(([longitude, latitude]: [number, number]) => {
-
-  //        const {normalizedLatitude, normalizedLongitude} =  this.getlatlngNormalized(latitude, longitude)
-  //         let direction =  1;
-  //       if (longitude >=0) {
-  //         direction = 1;       
-  //       } else {      
-  //         direction= -1;  
-  //       }
-        
-  //      this.mapFormula = (360*(Math.floor((Math.floor((longitude + 180)  / 360)+1) -1)))
-  //     return [normalizedLongitude, normalizedLatitude];
-  //       })
-  //     );
-  //   }
-  //   let crossesDateline = false;
-  //   for (let i = 1; i < payload.geometry.coordinates.length; i++) {
-  //     if (Math.abs(payload.geometry.coordinates[i].lng - payload.geometry.coordinates[i - 1].lng) > 180) {
-  //       crossesDateline = true;
-  //       break;
-  //     }
-  //   }
-
-  //   console.log("crossesDatelinecrossesDateline", crossesDateline);
-    
-  //   // If it does not cross the dateline, return normalized coordinates.
-  //   if (!crossesDateline) {
-  //     return payload;
-  //   }
-
-  //   payload.geometry.coordinates=  payload.geometry.coordinates.map(coordinateSet => 
-  //     coordinateSet.map(([longitude, latitude]: [number, number]) => {
-  //       let lng = longitude;
-  //       if (lng < 0) {
-  //         lng += 360;
-  //       }
-  //       return { lat: latitude, lng };
-
-  //     })
-
-  //   );
-  
-  //   return payload; // Return the updated payload
-  // }
 
   normalizePayloadZoomCoordinates(coordinates: any): any {
     if (coordinates && Array.isArray(coordinates)) {
@@ -1258,13 +1216,37 @@ private fallbackCopyToClipboard(text: string): void {
   private addPolygonWithMetadata(data: any): void {
     console.log("this.mapFormulathis.mapFormulathis.mapFormula", this.mapFormula);
     
-    const polygonCoordinates = data.coordinates_record.coordinates[0]; // Access the first array of coordinates
+    const bbox = this.getBoundingBox(this.map);
+    const minMap = this.getMapNumber(bbox.minLon);
+    const maxMap = this.getMapNumber(bbox.maxLon);
+  
+    // For each coordinate in the polygon, adjust the longitude based on viewport
+    // Here we generate a dynamic set of polygons if necessary so that they appear in the viewport.
+    // In this example, we assume the polygon should be shifted if its corrected coordinates fall within the bounding box.
+    const dynamicPolygons: L.LatLngExpression[][] = [];
+
+    const originalCoordinates  = data.coordinates_record.coordinates[0]; // Access the first array of coordinates
   
     // Convert [lng, lat] to [lat, lng] (Leaflet requires [lat, lng] format)
-    const latLngs = polygonCoordinates.map((coord: [number, number]) => [
+   for (let mapNum = minMap; mapNum <= maxMap; mapNum++) {
+    // Adjust each coordinate in the polygon.
+    const adjustedLatLngs = originalCoordinates.map((coord: [number, number]) => {
+      // Convert [lng, lat] to [lat, lng] and adjust longitude using mapFormula and mapNum offset.
+      return [
         coord[1],
-        coord[0] + this.mapFormula,
-    ]);
+        // coord[0] + this.mapFormula + (mapNum - 1) * 360,
+        coord[0] + this.mapFormula ,
+      ];
+    });
+    // Check if at least one adjusted coordinate is within the bounding box.
+    const visible = adjustedLatLngs.some(([lat, lng]) =>
+      lng >= bbox.minLon && lng <= bbox.maxLon &&
+      lat >= bbox.minLat && lat <= bbox.maxLat
+    );
+    if (visible) {
+      dynamicPolygons.push(adjustedLatLngs);
+    }
+  }
   
     let color = 'rgba(239, 242, 77, 0.8)'; // Default color with 50% opacity
 if (data.vendor_name === 'planet') {
@@ -1285,6 +1267,7 @@ if (data.vendor_name === 'planet') {
   
     // Add the polygon to the map
    // When creating the polygon
+   dynamicPolygons.forEach(latLngs => {
 const polygon = L.polygon(latLngs, {
   color: color,
   fillColor: color,
@@ -1328,7 +1311,7 @@ polygon.on('click', (event: L.LeafletMouseEvent) => {
       this.extraShapesLayer.eachLayer((layer) => {
           if (layer instanceof L.Polygon) {
               const layerLatLngs = layer.getLatLngs()[0] as L.LatLng[]; // Get the coordinates of this polygon
-              const layerBoundingBox = this.getBoundingBox(layerLatLngs); // Get its bounding box
+              const layerBoundingBox = this.getBoundingBox(layerLatLngs) as any; // Get its bounding box
               // Check if the bounding boxes intersect
               if (this.isBoundingBoxIntersecting(clickedBoundingBox, layerBoundingBox)) {
                   const polygonData = (layer as any).options.data; // Assuming metadata is stored in options.data
@@ -1364,11 +1347,12 @@ polygon.on('click', (event: L.LeafletMouseEvent) => {
     });
     
 });
-  
-  
-  
-    // Add the polygon to the extra shapes layer
+// Add the polygon to the extra shapes layer
     this.extraShapesLayer?.addLayer(polygon);
+});
+  
+  
+    
   
     // Explicitly disable the draw handler
     if (this.drawHandler && this.drawHandler._toolbars && this.drawHandler._toolbars.draw) {
@@ -1409,29 +1393,66 @@ private isPointInPolygon(point: L.LatLng, latlngs: L.LatLng[]): boolean {
   return inside;
 }
 
-isBoundingBoxIntersecting(
-  box1: { minLat: number; maxLat: number; minLng: number; maxLng: number },
-  box2: { minLat: number; maxLat: number; minLng: number; maxLng: number }
-): boolean {
-  return (
-      box1.minLat <= box2.maxLat || // Latitude overlap (box1's minLat is below or equal to box2's maxLat)
-      box1.maxLat >= box2.minLat || // Latitude overlap (box1's maxLat is above or equal to box2's minLat)
-      box1.minLng <= box2.maxLng || // Longitude overlap (box1's minLng is left or equal to box2's maxLng)
-      box1.maxLng >= box2.minLng    // Longitude overlap (box1's maxLng is right or equal to box2's minLng)
-  );
+private isBoundingBoxIntersecting(bbox1: { minLon: number, maxLon: number, minLat: number, maxLat: number },
+                                  bbox2: { minLon: number, maxLon: number, minLat: number, maxLat: number }): boolean {
+  return !(bbox2.minLon > bbox1.maxLon ||
+           bbox2.maxLon < bbox1.minLon ||
+           bbox2.minLat > bbox1.maxLat ||
+           bbox2.maxLat < bbox1.minLat);
 }
 
-private getBoundingBox(latlngs: L.LatLng[]): { minLat: number; maxLat: number; minLng: number; maxLng: number } {
-  let minLat = Infinity, maxLat = -Infinity, minLng = Infinity, maxLng = -Infinity;
+/**
+ * Helper: Get bounding box from an array of LatLng points or from the map instance.
+ * Overloaded: if an array is provided, compute from those points; otherwise, use the map bounds.
+ */
+private getBoundingBox(input: any): { minLon: number, maxLon: number, minLat: number, maxLat: number } {
+  if (input instanceof L.Map) {
+    const bounds = input.getBounds();
+    return {
+      minLon: bounds.getWest(),
+      maxLon: bounds.getEast(),
+      minLat: bounds.getSouth(),
+      maxLat: bounds.getNorth()
+    };
+  } else if (Array.isArray(input)) {
+    const lats = input.map((pt: L.LatLng) => pt.lat);
+    const lngs = input.map((pt: L.LatLng) => pt.lng);
+    return {
+      minLon: Math.min(...lngs),
+      maxLon: Math.max(...lngs),
+      minLat: Math.min(...lats),
+      maxLat: Math.max(...lats)
+    };
+  }
+  throw new Error('Invalid input for getBoundingBox');
+}
 
-  latlngs.forEach((latlng) => {
-      minLat = Math.min(minLat, latlng.lat);
-      maxLat = Math.max(maxLat, latlng.lat);
-      minLng = Math.min(minLng, latlng.lng);
-      maxLng = Math.max(maxLng, latlng.lng);
+
+getBoundingBoxCorner() {
+  let bounds = this.map.getBounds();
+  return {
+      minLon: bounds.getWest(),  // Leftmost longitude
+      maxLon: bounds.getEast(),  // Rightmost longitude
+      minLat: bounds.getSouth(), // Bottommost latitude
+      maxLat: bounds.getNorth()  // Topmost latitude
+  };
+}
+
+renderFootprints(footprints) {
+  let bbox = this.getBoundingBoxCorner();
+  let minMap = this.getMapNumber(bbox.minLon);
+  let maxMap = this.getMapNumber(bbox.maxLon);
+
+  footprints.forEach((footprint) => {
+      for (let mapNum = minMap; mapNum <= maxMap; mapNum++) {
+          let correctedLon = footprint.lng + (mapNum - 1) * 360;
+
+          // Ensure footprint is only rendered inside the bounding box
+          if (correctedLon >= bbox.minLon && correctedLon <= bbox.maxLon) {
+              L.marker([footprint.lat, correctedLon]).addTo(this.map);
+          }
+      }
   });
-
-  return { minLat, maxLat, minLng, maxLng };
 }
 
 onFilterset(data) {

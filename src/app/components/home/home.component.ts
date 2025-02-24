@@ -174,6 +174,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
   footprintLoader:boolean = false;
   isCalenderOpen:boolean = false;
   shapeLoader:boolean = false;
+  originalPolygon:any = null;
   constructor(@Inject(PLATFORM_ID) private platformId: Object,
    private satelliteService:SatelliteService,private dialog: MatDialog,
    private http: HttpClient,
@@ -206,7 +207,8 @@ hybridLayer:L.TileLayer = L.tileLayer(
         const payload = {
           polygon_wkt: this.polygon_wkt,
           start_date: this.startDate,
-          end_date: this.endDate
+          end_date: this.endDate,
+          original_polygon:this.originalPolygon
         }
         
         // Start the loader
@@ -542,9 +544,9 @@ hybridLayer:L.TileLayer = L.tileLayer(
   
     // Debugging: Log GeoJSON and bounds of the polygon
     const geoJSON = this.polygon.toGeoJSON();
-  
+    const orginalCords = this.latLngBoundsToPolygon(polygonBounds)
     // Pass the GeoJSON and bounds to your custom function
-    this.getPolygonFromCoordinates({ geometry: geoJSON.geometry }, polygonBounds,true);
+    this.getPolygonFromCoordinates({ geometry: geoJSON.geometry }, orginalCords,true);
   
     // Add zoom change listener
     // this.map.on('zoomend', () => {
@@ -941,8 +943,9 @@ private fallbackCopyToClipboard(text: string): void {
               //  this.zoomed_wkt_polygon = ''
               //  this.closeDrawer()
               this.sharedService.setDrawShape(true);
-               this.removeAllImageOverlays()
-              this.getPolygonFromCoordinates({ geometry: geoJSON?.geometry }, bounds);
+               this.removeAllImageOverlays();
+               const orginalCords = this.latLngBoundsToPolygon(bounds)
+              this.getPolygonFromCoordinates({ geometry: geoJSON?.geometry }, orginalCords);
              
               setTimeout(() => {
                  this.sharedService.setDrawShape(false)
@@ -966,7 +969,8 @@ private fallbackCopyToClipboard(text: string): void {
               this.handleDropdownToggle(this.isDrawerOpen)
               this.drawer._animationState = 'open';
                this.removeAllImageOverlays()
-              this.getPolygonFromCoordinates({ geometry: geoJSON?.geometry }, bounds);
+               const orginalCords = this.latLngBoundsToPolygon(bounds)
+              this.getPolygonFromCoordinates({ geometry: geoJSON?.geometry }, orginalCords);
               setTimeout(() => {
                 this.sharedService.setDrawShape(false)
                 this.map.fitBounds(bounds, {
@@ -984,8 +988,11 @@ private fallbackCopyToClipboard(text: string): void {
               this.drawer.toggle();
               this.handleDropdownToggle(this.isDrawerOpen)
               this.drawer._animationState = 'open';
-               this.removeAllImageOverlays()
-              this.getPolygonFromCoordinates({ geometry: geoJSON?.geometry }, bounds);
+               this.removeAllImageOverlays();
+               const orginalCords = this.latLngBoundsToPolygon(bounds)
+               console.log(geoJSON.geometry,'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',orginalCords);
+               
+              this.getPolygonFromCoordinates({ geometry: geoJSON?.geometry }, orginalCords);
              
               setTimeout(() => {
                 this.sharedService.setDrawShape(false)
@@ -1042,6 +1049,17 @@ private fallbackCopyToClipboard(text: string): void {
   //Getting the polygon from cordinates functionality
   getPolygonFromCoordinates(payload:{geometry:{type:string,coordinates:any[]}},bound:any,  isLoadFirstTime = false) {
     const  updatedPayload = this.normalizePayloadCoordinates(payload);
+    const customPayload = {
+      geometry:bound,
+    }
+    this.satelliteService.getPolyGonData(customPayload).subscribe({
+      next: (resp) => {
+        this.originalPolygon = resp?.data?.wkt_polygon;
+      },
+      error: (err) => {
+        console.log(err);
+      }
+    })
     this.satelliteService.getPolyGonData(updatedPayload).subscribe({
       next: (resp) => {
         this.polygon_wkt = resp?.data?.wkt_polygon;
@@ -1071,7 +1089,11 @@ private fallbackCopyToClipboard(text: string): void {
           this.data = resp?.data;
           this.shapeLoader = true;
           this.ngxLoader.startLoader('shapesLoader');
-          this.getDataUsingPolygon(resp?.data,queryParams);
+         const payload = {
+          wkt_polygon:this.polygon_wkt,
+          original_polygon:this.originalPolygon
+         }
+          this.getDataUsingPolygon(payload,queryParams);
       },
       error: (err) => {
         console.log("err: ", err);
@@ -1084,7 +1106,23 @@ getMapNumber(lon) {
     return Math.floor((lon + 180) / 360) + 1;
 }
 
- 
+  //Get original coordinates function
+  latLngBoundsToPolygon(bounds) {
+    const { _southWest, _northEast } = bounds;
+
+    const coordinates = [
+        [_northEast.lng, _southWest.lat], // Bottom-right
+        [_northEast.lng, _northEast.lat], // Top-right
+        [_southWest.lng, _northEast.lat], // Top-left
+        [_southWest.lng, _southWest.lat], // Bottom-left
+        [_northEast.lng, _southWest.lat]  // Closing the polygon
+    ];
+
+    return {
+        type: "Polygon",
+        coordinates: [coordinates]
+    };
+  }
   
   normalizePayloadCoordinates(payload: any): any {
     if (payload.geometry && Array.isArray(payload.geometry.coordinates)) {
@@ -1768,12 +1806,23 @@ handleAction(action: string): void {
             type: 'Polygon',
           };
         }
+        const orginalCords = this.latLngBoundsToPolygon(bounds)
+        const customPayload = {
+          geometry:orginalCords
+        }
         // API call to get polygon data
-        
+        this.satelliteService.getPolyGonData(customPayload).subscribe({
+          next: (resp) => {
+            this.originalPolygon = resp?.data?.wkt_polygon;
+          },
+          error: (err) => {
+            console.log(err);
+          }
+        })
         this.satelliteService.getPolyGonData(this.normalizePayloadCoordinates(payload)).subscribe({
           next: (resp) => {
             this.polygon_wkt = resp?.data?.wkt_polygon
-            const data = { polygon_wkt: resp.data.wkt_polygon };
+            const data = { polygon_wkt: resp.data.wkt_polygon,original_polygon:this.originalPolygon };
             if (resp.data) {
               // API call for polygon selection analytics
               this.satelliteService.getPolygonSelectionAnalytics(data).subscribe({
@@ -1993,7 +2042,11 @@ onDateRangeChanged(event: { startDate: string, endDate: string }) {
       this.drawer.toggle();
       this.handleDropdownToggle(this.isDrawerOpen)
       this.drawer._animationState = 'open';
-  this.getDataUsingPolygon(this.data,queryParams);
+      const payload = {
+        wkt_polygon:this.data.polygon_wkt,
+        original_polygon:this.originalPolygon
+       }
+  this.getDataUsingPolygon(payload,queryParams);
   }
   this.cdr.detectChanges();
 
@@ -2508,7 +2561,11 @@ wktToBounds(wkt: string): L.LatLngBounds {
 
   //Map data filtering functionality
   filterData(queryParams:any){
-    this.getDataUsingPolygon(this.data,queryParams);
+    const payload = {
+      wkt_polygon:this.data.polygon_wkt,
+      original_polygon:this.originalPolygon
+     }
+    this.getDataUsingPolygon(payload,queryParams);
   }
   // Define hover functions
   onPolygonHover(data) {

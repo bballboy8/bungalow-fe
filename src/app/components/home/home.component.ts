@@ -250,6 +250,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
     window.addEventListener('resize', this.setDynamicHeight.bind(this))
     this.updateSidebarWidth();
     let sidebar = document.getElementById('draggableContainer');
+    let mapContainer = document.getElementById('mapContainer');
     // this.leftMargin2
     // setTimeout(() => {
     //   this.marginleft=413
@@ -275,8 +276,10 @@ hybridLayer:L.TileLayer = L.tileLayer(
               this.isCalenderOpen = state;
               if(this.sidebarWidth >= 454 && this.sidebarWidth <= 730 && this.isCalenderOpen){
                 target.style.width = this.sidebarWidth + 280 + 'px';
+                mapContainer.style.marginLeft = this.sidebarWidth + 280 + 'px';
               }else {
                 target.style.width = `${this.sidebarWidth}px`;
+                mapContainer.style.marginLeft = `${this.sidebarWidth}px`;
               }
             })
             
@@ -428,12 +431,13 @@ hybridLayer:L.TileLayer = L.tileLayer(
     const container = this.draggableContainer?.nativeElement as HTMLElement;
     const sidebar = document.getElementById('draggableContainer');
     const dragBtn = document.getElementById('dragBtn');
-    
+    const mapContainer = document.getElementById('mapContainer');
     if (this.isDrawerOpen) {
       if(sidebar.style.width!='0px'){
         this.sidebarWidth=this.sidebarWidth+1
         setTimeout(() => {
           this.sidebarWidth=this.sidebarWidth
+          
           
         }, 1000);
       }else{
@@ -445,7 +449,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
       dragBtn.style.display='block'
         sidebar.style.width = '820px'; // Default sidebar width
         sidebar.style.height = '682.575px';
-        
+        mapContainer.style.marginLeft = '820px'
         // this.applyMargin()
         // Default sidebar width
       }
@@ -1569,11 +1573,11 @@ onFilterset(data) {
 
 // Handle user actions with toggle and cleanup
 handleAction(action: string): void {
-  this.drawLayer.clearLayers();
+  // this.drawLayer.clearLayers();
   if (this.drawHandler && this.drawHandler.enabled()) {
     this.drawHandler.disable(); // Disable the drawing tool
     if (this.drawLayer) {
-      this.drawLayer.clearLayers(); // Clear any drawn shapes
+      // this.drawLayer.clearLayers(); // Clear any drawn shapes
       this.clearExtraShapes();
     }
   }

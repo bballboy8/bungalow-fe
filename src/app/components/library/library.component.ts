@@ -1323,7 +1323,7 @@ setDynamicHeight(): void {
     // Get the height of the viewport
     const viewportHeight = window.innerHeight;
     // Calculate the remaining height for the target div
-    const remainingHeight = viewportHeight - totalHeight-126-78;
+    const remainingHeight = viewportHeight - totalHeight-140;
   
     // Get the content div and apply the calculated height
     const contentDiv = this.el.nativeElement.querySelector('.content');

@@ -160,7 +160,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
 
   expandedElement: PeriodicElement | null = null;
   dataSource = new MatTableDataSource<any>(/* your data source */);
-  columns = [
+  columns:any = [
     { id: 'acquisition_datetime', displayName: 'Date', visible: true },
     { id: 'sensor', displayName: 'Sensor', visible: true },
     { id: 'vendor_name', displayName: 'Vendor', visible: true },
@@ -170,11 +170,21 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
     { id: 'vendor_id', displayName: 'ID', visible: true },
   ];
   
-  get displayedColumns(): string[] {
-    return [
-      ...this.columns.filter(c => c.visible).map(c => c.id),
-      'expand' // Keep expand column always visible
-    ];
+  get displayedColumns(): any {
+    
+      if(this.sharedService.libraryColumns()!==null){
+        this.columns = this.sharedService.libraryColumns();
+        this.filteredColumns = this.columns
+        return [...this.columns.filter(c => c.visible).map(c => c.id),
+          'expand' // Keep expand column always visible
+        ];
+        
+      } else {
+        return [...this.columns.filter(c => c.visible).map(c => c.id),
+          'expand' // Keep expand column always visible
+        ];
+      }
+      
   }
   total_count:any
   selection = new SelectionModel<PeriodicElement>(true, []);
@@ -356,6 +366,8 @@ set zoomed_wkt(value: string) {
         this.loader = true;
         this.ngxLoader.start(); 
         this.selectedZone = this.sharedService.selectedTimeZone()
+        console.log(this.sharedService.libraryColumns(),'libraryColumnslibraryColumnslibraryColumnslibraryColumnslibraryColumns');
+        
         this.getSignalValues()
         this.loader = false;
         this.ngxLoader.stop(); 
@@ -620,6 +632,12 @@ set zoomed_wkt(value: string) {
             this.sharedService.shapeType.set(null)
           }
         },this.polygon_wkt)
+
+        effect(()=>{
+          console.log('qqqqqqqqqqqqqqqq');
+          
+          this.sharedService.libraryColumns.set(this.displayedColumns)
+        },this.displayedColumns)
         
   }
 
@@ -1800,7 +1818,7 @@ if (endDateControlValue) {
     this.filteredColumns = this.columns.filter(col => 
       col.displayName.toLowerCase().includes(query.toLowerCase())
     );
-    this.sharedService.libraryColumns.set(this.filteredColumns)
+   
   }
 
   //Reset columns to default values
@@ -1812,7 +1830,7 @@ if (endDateControlValue) {
     this.filterColumns('');
     // If you need to reset any other filtering states
     this.filteredColumns = [...this.columns];
-    this.sharedService.libraryColumns.set(this.filteredColumns)
+    this.sharedService.libraryColumns.set(this.columns)
   }
 
   //Getting in view list data funtionality
@@ -1899,5 +1917,11 @@ getOverlapData(){
     this.sharedService.libraryZoomedCount.set(this.zoomed_captures_count);
     this.sharedService.libraryFocusCount.set(this.focused_captures_count);
     this.sharedService.libraryData.set(this.dataSource.data);
+  }
+
+  checkColumn(){
+    console.log(this.columns,'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
+    
+    this.sharedService.libraryColumns.set(this.columns)
   }
 }

@@ -246,7 +246,7 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
     // Detect if at the bottom
     const isAtBottom =
       div.scrollTop + div.clientHeight + 150 >= div.scrollHeight;
-    console.log(isAtBottom, "isAtBottomisAtBottomisAtBottom");
+    console.log(isAtBottom, "isAtBottomisAtBottomisAtBottom",event.deltaY);
 
     // Only trigger if at the bottom and trying to scroll down
     if (isAtBottom && event.deltaY > 0 && this.canTriggerAction) {
@@ -254,7 +254,7 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
         this.isAtBottom = true; // Lock the event trigger
         let num = this.page_number;
         this.page_number = num + 1;
-        if (this.dataSource.data.length < this.total_count) {
+        
           let queryParams = {
             ...this.filterParams,
             page_number: this.page_number,
@@ -272,7 +272,7 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
           });
           this.loader = true;
           // this.ngxLoader.start(); // Start the loader
-        }
+        
         setTimeout(() => {
           this.setDynamicHeight();
           window.addEventListener("resize", this.setDynamicHeight.bind(this));
@@ -415,6 +415,7 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
     );
      
 
+      console.log(this.filterParams,'this.start_date.startDatethis.start_date.startDate');
       
       console.log(this.vendor.value,'vendorvendorvendorvendorvendorvendorvendor');
 
@@ -434,14 +435,18 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
       if (this.start_date.startDate !== null) {
         console.log('Start Date Applied');
         
-        const formattedStartDate = dayjs(this.start_date.startDate).utc().format('YYYY-MM-DDTHH:mm:ss.SSSSSSZ');
+        const formattedStartDate = dayjs(this.start_date ?this.start_date:this.start_date.startDate)
+        .startOf('day') // Sets time to 00:00:00.000
+        .utc()
+        .format('YYYY-MM-DDTHH:mm:ss.SSSSSS');
       
         if (this.filterParams.start_date !== formattedStartDate) {
+          !this.filterParams.start_date ? this.filterCount++: '';
           this.filterParams = {
             ...this.filterParams,
             start_date: formattedStartDate,
           };
-          this.filterCount++;
+          
         }
       }
       
@@ -449,14 +454,18 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
       if (this.end_date.endDate !== null) {
         console.log('End Date Applied');
         
-        const formattedEndDate = dayjs(this.end_date.endDate).utc().format('YYYY-MM-DDTHH:mm:ss.SSSSSSZ');
+        const formattedEndDate = dayjs(this.end_date?this.end_date:this.end_date.endDate)
+        .endOf('day') // Sets time to 23:59:59.999
+        .utc()
+        .format('YYYY-MM-DDTHH:mm:ss.SSSSSS');
       
         if (this.filterParams.end_date !== formattedEndDate) {
+          !this.filterParams.end_date ? this.filterCount++: '';
           this.filterParams = {
             ...this.filterParams,
             end_date: formattedEndDate,
           };
-          this.filterCount++;
+         
         }
       }
       

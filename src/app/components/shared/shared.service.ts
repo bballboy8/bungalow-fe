@@ -32,7 +32,15 @@ export class SharedService {
   groupsData = signal<any>(null);
   libraryData = signal<any>(null);
   analyticsData = signal<any>(null);
-  shapeType = signal<string>(null)
+  shapeType = signal<string>(null);
+  zoomed_wkt = signal<string>(null);
+  libraryFilters = signal<any>(null);
+  libraryColumns = signal<any>(null);
+  libraryTotalCount = signal<any>(0);
+  libraryZoomedCount = signal<any>(0);
+  libraryFocusCount = signal<any>(0);
+  libraryFilterCount = signal<any>(0);
+  selectedTimeZone = signal<string>('UTC')
   constructor() {}
 
   setIsOpenedEventCalendar(isOpened: boolean): void {

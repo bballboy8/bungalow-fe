@@ -336,9 +336,12 @@ set zoomed_wkt(value: string) {
       const payload = {
         wkt_polygon: this.polygon_wkt
       };
+      if(this._zoomed_wkt !== this.sharedService.zoomed_wkt()){
       if (this._zoomed_wkt !== '') {
+        this.sharedService.zoomed_wkt.set(this._zoomed_wkt)
         queryParams = {...queryParams,  zoomed_wkt: this._zoomed_wkt}
       } else {
+        this.sharedService.zoomed_wkt.set('')
         queryParams = {...queryParams,  zoomed_wkt: ''}
       }
       if(this.isRefresh){
@@ -348,20 +351,32 @@ set zoomed_wkt(value: string) {
       this.filterParams = {...queryParams}
         this.getSatelliteCatalog(payload, queryParams);
       }
+    } else {
+      if(this.isRefresh){
+        this.loader = true;
+        this.ngxLoader.start(); 
+        this.selectedZone = this.sharedService.selectedTimeZone()
+        this.getSignalValues()
+        this.loader = false;
+        this.ngxLoader.stop(); 
+      }
+    }
       if (this.isRefresh && this.scrollableDiv) {
         this.scrollableDiv.nativeElement.scrollTop = 0;
       }
     }, 800);
      // Debounce time: 600ms
-  }
+  
   this.setDynamicHeight();
   window.addEventListener('resize', this.setDynamicHeight.bind(this))
   const div = this.scrollableDiv?.nativeElement;
   this.canTriggerAction = true
+  console.log('lllllllllllll');
+  
   if (div) {
     div.addEventListener('wheel', this.handleWheelEvent);
   }
- 
+}
 }
   
   get zoomed_wkt(): string {
@@ -654,6 +669,12 @@ set zoomed_wkt(value: string) {
         wkt_polygon: this.polygon_wkt
       }
       
+    } else {
+      this.analyticsData = this.sharedService.analyticsData()
+      this.percentageArray = Object.entries(this.analyticsData?.percentages).map(([key, value]) => ({
+        key,
+        ...(value as object),
+      }));
     }
     
   }
@@ -778,7 +799,6 @@ set zoomed_wkt(value: string) {
   }
 
   getSatelliteCatalog(payload:any,queryParams:any){
-    
     this.satelliteService.getDataFromPolygon(payload,queryParams).subscribe({
       next: (resp) => {
         
@@ -788,9 +808,11 @@ set zoomed_wkt(value: string) {
           index: idx
         }));
         this.originalData = [...this.dataSource.data];
+       
         this.total_count = resp.total_records
         this.zoomed_captures_count = resp.zoomed_captures_count>0 ? resp.zoomed_captures_count: resp.total_records;
         this.focused_captures_count = resp?.focused_captures_count
+        this.setSignalValues()
         this.loader = false
         this.ngxLoader.stop();
         setTimeout(() => {
@@ -823,6 +845,7 @@ set zoomed_wkt(value: string) {
       
     }
     this.filterParams = queryParams
+    
     this.formGroup.reset();
     const payload = {
       wkt_polygon: this.polygon_wkt
@@ -849,6 +872,8 @@ set zoomed_wkt(value: string) {
     this.zoomed_wkt = this.polygon_wkt
     this.loader = true
       this.ngxLoader.start(); // Start the loader
+      this.sharedService.libraryFilters.set(queryParams);
+      this.sharedService.libraryFilterCount.set(0)
     this.getSatelliteCatalog(payload,{...queryParams, zoomed_wkt: this._zoomed_wkt})
     this.onFilterset.emit({params: {...queryParams, zoomed_wkt: this._zoomed_wkt}, payload});
     if(this.isEventsOpened){
@@ -1400,6 +1425,7 @@ onRefreshCheckboxChange(e:any){
 //Time Zone Change
 selectedTimeZone(zone: string){
   this.selectedZone = zone;
+  this.sharedService.selectedTimeZone.set(zone)
   this.cdr.detectChanges();
   this.onSubmit();
 }
@@ -1428,14 +1454,20 @@ private isAtBottom = false;
 //Scroll to bottom event 
 private handleWheelEvent = (event: WheelEvent): void => {
   const div = this.scrollableDiv?.nativeElement;
+console.log('ffffffffffffffff',event.deltaY);
 
 
   // Detect if at the bottom
   const isAtBottom = div.scrollTop + div.clientHeight+150 >= div.scrollHeight;
+  console.log(isAtBottom,'isAtBottomisAtBottomisAtBottom',this.canTriggerAction);
   
   // Only trigger if at the bottom and trying to scroll down
   if (isAtBottom && event.deltaY > 0 && this.canTriggerAction) {
+    console.log('iiiiiiiiiiiiiiii');
+    
     if (!this.isAtBottom) {
+      console.log('aaaaaaaaaaaa');
+      
       this.isAtBottom = true; // Lock the event trigger
       //  this.customAction('Scroll beyond bottom');
       let num = parseInt(this.page_number, 10)
@@ -1462,6 +1494,7 @@ private handleWheelEvent = (event: WheelEvent): void => {
       }
      this.loader = true
       this.ngxLoader.start(); // Start the loader
+console.log('kkkkkkkkkkkkkkkkkkk');
 
   this.satelliteService.getDataFromPolygon(payload, queryParams).subscribe({
     next: (resp) => {
@@ -1472,6 +1505,7 @@ private handleWheelEvent = (event: WheelEvent): void => {
       }));
       this.dataSource.data = this.dataSource.data.concat(data);
       this.originalData = [...this.dataSource.data];
+      this.setSignalValues()
       
       setTimeout(() => {
         this.setDynamicHeight();
@@ -1691,6 +1725,8 @@ getDateTimeFormat(dateTime: string) {
           dialogRef.afterClosed().subscribe((result) => {
             if(result.queryParams){
               this.onSubmit(result.queryParams)
+              this.sharedService.libraryFilters.set(result.queryParams)
+              this.sharedService.libraryFilterCount.set(result?.filterCount)
               this.filterCount = result.filterCount
             }
           })
@@ -1764,6 +1800,7 @@ if (endDateControlValue) {
     this.filteredColumns = this.columns.filter(col => 
       col.displayName.toLowerCase().includes(query.toLowerCase())
     );
+    this.sharedService.libraryColumns.set(this.filteredColumns)
   }
 
   //Reset columns to default values
@@ -1775,6 +1812,7 @@ if (endDateControlValue) {
     this.filterColumns('');
     // If you need to reset any other filtering states
     this.filteredColumns = [...this.columns];
+    this.sharedService.libraryColumns.set(this.filteredColumns)
   }
 
   //Getting in view list data funtionality
@@ -1843,4 +1881,23 @@ getOverlapData(){
     return parseFloat(value.toFixed(2));
   }
 
+  //Get signal values
+  getSignalValues(){
+    this.zoomed_captures_count = this.sharedService.libraryZoomedCount();
+    this.focused_captures_count = this.sharedService.libraryFocusCount();
+    this.total_count = this.sharedService.libraryTotalCount();
+    const data = this.sharedService.libraryData()
+    this.dataSource.data = data
+    this.page_number = '1';
+    this.filterParams = this.sharedService.libraryFilters();
+    this.filterCount = this.sharedService.libraryFilterCount();
+  }
+
+  //Set signal values
+  setSignalValues(){
+    this.sharedService.libraryTotalCount.set(this.total_count);
+    this.sharedService.libraryZoomedCount.set(this.zoomed_captures_count);
+    this.sharedService.libraryFocusCount.set(this.focused_captures_count);
+    this.sharedService.libraryData.set(this.dataSource.data);
+  }
 }

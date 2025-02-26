@@ -151,7 +151,7 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
         console.log(this.sharedService.imageryFilter(),'imageryFilterimageryFilterimageryFilterimageryFilter');
         
       }
-      if(imagertFilter.filterParams!== null){
+      if(imagertFilter!==null&& imagertFilter.filterParams!== null){
         this.filterParams = imagertFilter.filterParams;
         this.filterCount  = imagertFilter.filterCount;
         this.start_date = imagertFilter.filterParams.start_date;
@@ -421,11 +421,13 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
       // Check vendor filter
       const newVendorValue = this.vendor?.value?.length > 0 ? this.vendor.value.join(',') : null;
       if (newVendorValue !== this.filterParams.vendor_name) {
+        console.log(newVendorValue,'newVendorValuenewVendorValuenewVendorValuenewVendorValue');
+        
         this.filterParams = {
           ...this.filterParams,
-          vendor_name: newVendorValue,
+          vendor_name: newVendorValue == null? '' : newVendorValue,
         };
-        this.filterCount++;
+       newVendorValue !==null? this.filterCount++:this.filterCount--;
       }
       
       // Check start_date filter
@@ -472,7 +474,7 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
 
     this.filterParams = { ...params };
     this.sharedService.imageryFilter.set({filterParams:this.filterParams,filterCount:this.filterCount}, )
-    if(this.filterParams.start_date || this.filterParams.end_date || this.filterParams.vendor_name){
+    if(this.filterParams.start_date || this.filterParams.end_date || this.filterParams.vendor_name || newVendorValue==null) {
     setTimeout(() => {
       this.loader = true;
       // this.ngxLoader.start(); // Start the loader

@@ -47,9 +47,6 @@ export class AnalysisComponent {
         zoom: {
           enabled: true,
           type: 'xy'
-        },
-        toolbar: {
-          show: false 
         }
       },
       xaxis: {

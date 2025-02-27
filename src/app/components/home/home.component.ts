@@ -174,6 +174,10 @@ hybridLayer:L.TileLayer = L.tileLayer(
   footprintLoader:boolean = false;
   isCalenderOpen:boolean = false;
   shapeLoader:boolean = false;
+  originalPolygon:any = null;
+  bbox : any;
+  minMap: any;
+  maxMap: any;
   constructor(@Inject(PLATFORM_ID) private platformId: Object,
    private satelliteService:SatelliteService,private dialog: MatDialog,
    private http: HttpClient,
@@ -206,7 +210,8 @@ hybridLayer:L.TileLayer = L.tileLayer(
         const payload = {
           polygon_wkt: this.polygon_wkt,
           start_date: this.startDate,
-          end_date: this.endDate
+          end_date: this.endDate,
+          original_polygon:this.originalPolygon
         }
         
         // Start the loader
@@ -245,6 +250,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
     window.addEventListener('resize', this.setDynamicHeight.bind(this))
     this.updateSidebarWidth();
     let sidebar = document.getElementById('draggableContainer');
+    let mapContainer = document.getElementById('mapContainer');
     // this.leftMargin2
     // setTimeout(() => {
     //   this.marginleft=413
@@ -270,8 +276,10 @@ hybridLayer:L.TileLayer = L.tileLayer(
               this.isCalenderOpen = state;
               if(this.sidebarWidth >= 454 && this.sidebarWidth <= 730 && this.isCalenderOpen){
                 target.style.width = this.sidebarWidth + 280 + 'px';
+                mapContainer.style.marginLeft = this.sidebarWidth + 280 + 'px';
               }else {
                 target.style.width = `${this.sidebarWidth}px`;
+                mapContainer.style.marginLeft = `${this.sidebarWidth}px`;
               }
             })
             
@@ -423,12 +431,13 @@ hybridLayer:L.TileLayer = L.tileLayer(
     const container = this.draggableContainer?.nativeElement as HTMLElement;
     const sidebar = document.getElementById('draggableContainer');
     const dragBtn = document.getElementById('dragBtn');
-    
+    const mapContainer = document.getElementById('mapContainer');
     if (this.isDrawerOpen) {
       if(sidebar.style.width!='0px'){
         this.sidebarWidth=this.sidebarWidth+1
         setTimeout(() => {
           this.sidebarWidth=this.sidebarWidth
+          
           
         }, 1000);
       }else{
@@ -440,7 +449,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
       dragBtn.style.display='block'
         sidebar.style.width = '820px'; // Default sidebar width
         sidebar.style.height = '682.575px';
-        
+        mapContainer.style.marginLeft = '820px'
         // this.applyMargin()
         // Default sidebar width
       }
@@ -542,9 +551,9 @@ hybridLayer:L.TileLayer = L.tileLayer(
   
     // Debugging: Log GeoJSON and bounds of the polygon
     const geoJSON = this.polygon.toGeoJSON();
-  
+    const orginalCords = this.latLngBoundsToPolygon(polygonBounds)
     // Pass the GeoJSON and bounds to your custom function
-    this.getPolygonFromCoordinates({ geometry: geoJSON.geometry }, polygonBounds,true);
+    this.getPolygonFromCoordinates({ geometry: geoJSON.geometry }, orginalCords,true);
   
     // Add zoom change listener
     // this.map.on('zoomend', () => {
@@ -941,8 +950,9 @@ private fallbackCopyToClipboard(text: string): void {
               //  this.zoomed_wkt_polygon = ''
               //  this.closeDrawer()
               this.sharedService.setDrawShape(true);
-               this.removeAllImageOverlays()
-              this.getPolygonFromCoordinates({ geometry: geoJSON?.geometry }, bounds);
+               this.removeAllImageOverlays();
+               const orginalCords = this.latLngBoundsToPolygon(bounds)
+              this.getPolygonFromCoordinates({ geometry: geoJSON?.geometry }, orginalCords);
              
               setTimeout(() => {
                  this.sharedService.setDrawShape(false)
@@ -966,7 +976,8 @@ private fallbackCopyToClipboard(text: string): void {
               this.handleDropdownToggle(this.isDrawerOpen)
               this.drawer._animationState = 'open';
                this.removeAllImageOverlays()
-              this.getPolygonFromCoordinates({ geometry: geoJSON?.geometry }, bounds);
+               const orginalCords = this.latLngBoundsToPolygon(bounds)
+              this.getPolygonFromCoordinates({ geometry: geoJSON?.geometry }, orginalCords);
               setTimeout(() => {
                 this.sharedService.setDrawShape(false)
                 this.map.fitBounds(bounds, {
@@ -984,8 +995,11 @@ private fallbackCopyToClipboard(text: string): void {
               this.drawer.toggle();
               this.handleDropdownToggle(this.isDrawerOpen)
               this.drawer._animationState = 'open';
-               this.removeAllImageOverlays()
-              this.getPolygonFromCoordinates({ geometry: geoJSON?.geometry }, bounds);
+               this.removeAllImageOverlays();
+               const orginalCords = this.latLngBoundsToPolygon(bounds)
+               console.log(geoJSON.geometry,'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',orginalCords);
+               
+              this.getPolygonFromCoordinates({ geometry: geoJSON?.geometry }, orginalCords);
              
               setTimeout(() => {
                 this.sharedService.setDrawShape(false)
@@ -1042,6 +1056,17 @@ private fallbackCopyToClipboard(text: string): void {
   //Getting the polygon from cordinates functionality
   getPolygonFromCoordinates(payload:{geometry:{type:string,coordinates:any[]}},bound:any,  isLoadFirstTime = false) {
     const  updatedPayload = this.normalizePayloadCoordinates(payload);
+    const customPayload = {
+      geometry:bound,
+    }
+    this.satelliteService.getPolyGonData(customPayload).subscribe({
+      next: (resp) => {
+        this.originalPolygon = resp?.data?.wkt_polygon;
+      },
+      error: (err) => {
+        console.log(err);
+      }
+    })
     this.satelliteService.getPolyGonData(updatedPayload).subscribe({
       next: (resp) => {
         this.polygon_wkt = resp?.data?.wkt_polygon;
@@ -1071,7 +1096,11 @@ private fallbackCopyToClipboard(text: string): void {
           this.data = resp?.data;
           this.shapeLoader = true;
           this.ngxLoader.startLoader('shapesLoader');
-          this.getDataUsingPolygon(resp?.data,queryParams);
+         const payload = {
+          wkt_polygon:this.polygon_wkt,
+          original_polygon:this.originalPolygon
+         }
+          this.getDataUsingPolygon(payload,queryParams);
       },
       error: (err) => {
         console.log("err: ", err);
@@ -1084,7 +1113,23 @@ getMapNumber(lon) {
     return Math.floor((lon + 180) / 360) + 1;
 }
 
- 
+  //Get original coordinates function
+  latLngBoundsToPolygon(bounds) {
+    const { _southWest, _northEast } = bounds;
+
+    const coordinates = [
+        [_northEast.lng, _southWest.lat], // Bottom-right
+        [_northEast.lng, _northEast.lat], // Top-right
+        [_southWest.lng, _northEast.lat], // Top-left
+        [_southWest.lng, _southWest.lat], // Bottom-left
+        [_northEast.lng, _southWest.lat]  // Closing the polygon
+    ];
+
+    return {
+        type: "Polygon",
+        coordinates: [coordinates]
+    };
+  }
   
   normalizePayloadCoordinates(payload: any): any {
     if (payload.geometry && Array.isArray(payload.geometry.coordinates)) {
@@ -1099,37 +1144,37 @@ getMapNumber(lon) {
           direction= -1;  
         }
         
-      //  this.mapFormula = (360*(Math.floor((Math.floor((longitude + 180)  / 360)+1) -1)))
+       this.mapFormula = (360*(Math.floor((Math.floor((longitude + 180)  / 360)+1) -1)))
       return [normalizedLongitude, normalizedLatitude];
         })
       );
     }
-    let crossesDateline = false;
-    for (let i = 1; i < payload.geometry.coordinates.length; i++) {
-      if (Math.abs(payload.geometry.coordinates[i].lng - payload.geometry.coordinates[i - 1].lng) > 180) {
-        crossesDateline = true;
-        break;
-      }
-    }
+    // let crossesDateline = false;
+    // for (let i = 1; i < payload.geometry.coordinates.length; i++) {
+    //   if (Math.abs(payload.geometry.coordinates[i].lng - payload.geometry.coordinates[i - 1].lng) > 180) {
+    //     crossesDateline = true;
+    //     break;
+    //   }
+    // }
 
-    console.log("crossesDatelinecrossesDateline", crossesDateline);
+    // console.log("crossesDatelinecrossesDateline", crossesDateline);
     
-    // If it does not cross the dateline, return normalized coordinates.
-    if (!crossesDateline) {
-      return payload;
-    }
+    // // If it does not cross the dateline, return normalized coordinates.
+    // if (!crossesDateline) {
+    //   return payload;
+    // }
 
-    payload.geometry.coordinates=  payload.geometry.coordinates.map(coordinateSet => 
-      coordinateSet.map(([longitude, latitude]: [number, number]) => {
-        let lng = longitude;
-        if (lng < 0) {
-          lng += 360;
-        }
-        return { lat: latitude, lng };
+    // payload.geometry.coordinates=  payload.geometry.coordinates.map(coordinateSet => 
+    //   coordinateSet.map(([longitude, latitude]: [number, number]) => {
+    //     let lng = longitude;
+    //     if (lng < 0) {
+    //       lng += 360;
+    //     }
+    //     return { lat: latitude, lng };
 
-      })
+    //   })
 
-    );
+    // );
   
     return payload; // Return the updated payload
   }
@@ -1161,6 +1206,12 @@ getMapNumber(lon) {
         this.shapeLayersData = resp.data
         this.extraShapesLayer?.clearLayers();
         if (Array.isArray(resp?.data)&& this.footPrintActive) {
+          this.bbox = this.getBoundingBox(this.map);
+          this.minMap = this.getMapNumber(this.bbox.minLon);
+          this.maxMap = this.getMapNumber(this.bbox.maxLon);
+
+          console.log("minMap maxMap",this.minMap,  this.maxMap  );
+          
           
           resp.data.forEach((item: any) => {
             this.addPolygonWithMetadata(item);
@@ -1216,9 +1267,6 @@ getMapNumber(lon) {
   private addPolygonWithMetadata(data: any): void {
     console.log("this.mapFormulathis.mapFormulathis.mapFormula", this.mapFormula);
     
-    const bbox = this.getBoundingBox(this.map);
-    const minMap = this.getMapNumber(bbox.minLon);
-    const maxMap = this.getMapNumber(bbox.maxLon);
   
     // For each coordinate in the polygon, adjust the longitude based on viewport
     // Here we generate a dynamic set of polygons if necessary so that they appear in the viewport.
@@ -1226,22 +1274,25 @@ getMapNumber(lon) {
     const dynamicPolygons: L.LatLngExpression[][] = [];
 
     const originalCoordinates  = data.coordinates_record.coordinates[0]; // Access the first array of coordinates
-  
+  // if (this.minMap == 0) {
+  //   this.minMap = 1;
+  //   this.maxMap = 2;
+  // }
     // Convert [lng, lat] to [lat, lng] (Leaflet requires [lat, lng] format)
-   for (let mapNum = minMap; mapNum <= maxMap; mapNum++) {
+   for (let mapNum = this.minMap; mapNum <= this.maxMap; mapNum++) {
     // Adjust each coordinate in the polygon.
     const adjustedLatLngs = originalCoordinates.map((coord: [number, number]) => {
       // Convert [lng, lat] to [lat, lng] and adjust longitude using mapFormula and mapNum offset.
       return [
         coord[1],
         // coord[0] + this.mapFormula + (mapNum - 1) * 360,
-        coord[0] + this.mapFormula ,
+        coord[0] + (mapNum - 1) * 360 ,
       ];
     });
     // Check if at least one adjusted coordinate is within the bounding box.
     const visible = adjustedLatLngs.some(([lat, lng]) =>
-      lng >= bbox.minLon && lng <= bbox.maxLon &&
-      lat >= bbox.minLat && lat <= bbox.maxLat
+      lng >= this.bbox.minLon && lng <= this.bbox.maxLon &&
+      lat >= this.bbox.minLat && lat <= this.bbox.maxLat
     );
     if (visible) {
       dynamicPolygons.push(adjustedLatLngs);
@@ -1522,11 +1573,11 @@ onFilterset(data) {
 
 // Handle user actions with toggle and cleanup
 handleAction(action: string): void {
-  this.drawLayer.clearLayers();
+  // this.drawLayer.clearLayers();
   if (this.drawHandler && this.drawHandler.enabled()) {
     this.drawHandler.disable(); // Disable the drawing tool
     if (this.drawLayer) {
-      this.drawLayer.clearLayers(); // Clear any drawn shapes
+      // this.drawLayer.clearLayers(); // Clear any drawn shapes
       this.clearExtraShapes();
     }
   }
@@ -1768,12 +1819,23 @@ handleAction(action: string): void {
             type: 'Polygon',
           };
         }
+        const orginalCords = this.latLngBoundsToPolygon(bounds)
+        const customPayload = {
+          geometry:orginalCords
+        }
         // API call to get polygon data
-        
+        this.satelliteService.getPolyGonData(customPayload).subscribe({
+          next: (resp) => {
+            this.originalPolygon = resp?.data?.wkt_polygon;
+          },
+          error: (err) => {
+            console.log(err);
+          }
+        })
         this.satelliteService.getPolyGonData(this.normalizePayloadCoordinates(payload)).subscribe({
           next: (resp) => {
             this.polygon_wkt = resp?.data?.wkt_polygon
-            const data = { polygon_wkt: resp.data.wkt_polygon };
+            const data = { polygon_wkt: resp.data.wkt_polygon,original_polygon:this.originalPolygon };
             if (resp.data) {
               // API call for polygon selection analytics
               this.satelliteService.getPolygonSelectionAnalytics(data).subscribe({
@@ -1975,11 +2037,13 @@ toggleMapLayer(type:string) {
 }
 
 onDateRangeChanged(event: { startDate: string, endDate: string }) {
+
   const formattedStartDate = dayjs(event.startDate).utc().format('YYYY-MM-DDTHH:mm:ss.SSSSSSZ');
   const formattedENdDate = dayjs(event.endDate).utc().format('YYYY-MM-DDTHH:mm:ss.SSSSSSZ');
   this.startDate = formattedStartDate;
   this.endDate = formattedENdDate;
 
+  
   if (this.data) {
     let queryParams ={
       ...this.filterParams,
@@ -1993,7 +2057,12 @@ onDateRangeChanged(event: { startDate: string, endDate: string }) {
       this.drawer.toggle();
       this.handleDropdownToggle(this.isDrawerOpen)
       this.drawer._animationState = 'open';
-  this.getDataUsingPolygon(this.data,queryParams);
+      const payload = {
+        ...this.data,
+        original_polygon:this.originalPolygon
+       }
+       
+  this.getDataUsingPolygon(payload,queryParams);
   }
   this.cdr.detectChanges();
 
@@ -2146,13 +2215,45 @@ receiveData(dataArray: any[]) {
 
     dataArray.forEach((data) => {
       if (data?.coordinates_record?.coordinates) {
+
+        const LatLngs: L.LatLngExpression[] = [];
+
+        this.bbox = this.getBoundingBox(this.map);
+        this.minMap = this.getMapNumber(this.bbox.minLon);
+        this.maxMap = this.getMapNumber(this.bbox.maxLon);
+
+        const originalCoordinates  = data.coordinates_record.coordinates[0]; // Access the first array of coordinates
+      // if (this.minMap == 0) {
+      //   this.minMap = 1;
+      //   this.maxMap = 2;
+      // }
+        // Convert [lng, lat] to [lat, lng] (Leaflet requires [lat, lng] format)
+       for (let mapNum = this.minMap; mapNum <= this.maxMap; mapNum++) {
+        // Adjust each coordinate in the polygon.
+        const adjustedLatLngs = originalCoordinates.map((coord: [number, number]) => {
+          // Convert [lng, lat] to [lat, lng] and adjust longitude using mapFormula and mapNum offset.
+          return [
+            coord[1],
+            // coord[0] + this.mapFormula + (mapNum - 1) * 360,
+            coord[0] + (mapNum - 1) * 360 ,
+          ];
+        });
+        // Check if at least one adjusted coordinate is within the bounding box.
+        // const visible = adjustedLatLngs.some(([lat, lng]) =>
+        //   lng >= this.bbox.minLon && lng <= this.bbox.maxLon &&
+        //   lat >= this.bbox.minLat && lat <= this.bbox.maxLat
+        // );
+        // if (visible) {
+          LatLngs.push(adjustedLatLngs);
+        // }
+      }
         // Extract the coordinates and map them to Leaflet's LatLng format
-        const coordinates = data.coordinates_record.coordinates[0].map((coord: number[]) =>
-          new L.LatLng(coord[1], coord[0]+ this.mapFormula) // Convert [lon, lat] to [lat, lon]
-        );
+        // const coordinates = data.coordinates_record.coordinates[0].map((coord: number[]) =>
+        //   new L.LatLng(coord[1], coord[0]+ this.mapFormula) // Convert [lon, lat] to [lat, lon]
+        // );
 
         // Create bounds for the current image
-        const bounds = L.latLngBounds(coordinates);
+        const bounds = L.latLngBounds(LatLngs);
         allBounds.push(bounds);
 
         // Check if the image overlay already exists
@@ -2197,16 +2298,48 @@ handleMakerData(data: any) {
 
   // Check if the data object is valid and has coordinates
   if (data?.coordinates_record?.coordinates) {
+
+    const LatLngs: L.LatLngExpression[] = [];
+
+    this.bbox = this.getBoundingBox(this.map);
+    this.minMap = this.getMapNumber(this.bbox.minLon);
+    this.maxMap = this.getMapNumber(this.bbox.maxLon);
+
+    const originalCoordinates  = data.coordinates_record.coordinates[0]; // Access the first array of coordinates
+  // if (this.minMap == 0) {
+  //   this.minMap = 1;
+  //   this.maxMap = 2;
+  // }
+    // Convert [lng, lat] to [lat, lng] (Leaflet requires [lat, lng] format)
+   for (let mapNum = this.minMap; mapNum <= this.maxMap; mapNum++) {
+    // Adjust each coordinate in the polygon.
+    const adjustedLatLngs = originalCoordinates.map((coord: [number, number]) => {
+      // Convert [lng, lat] to [lat, lng] and adjust longitude using mapFormula and mapNum offset.
+      return [
+        coord[1],
+        // coord[0] + this.mapFormula + (mapNum - 1) * 360,
+        coord[0] + (mapNum - 1) * 360 ,
+      ];
+    });
+    // Check if at least one adjusted coordinate is within the bounding box.
+    // const visible = adjustedLatLngs.some(([lat, lng]) =>
+    //   lng >= this.bbox.minLon && lng <= this.bbox.maxLon &&
+    //   lat >= this.bbox.minLat && lat <= this.bbox.maxLat
+    // );
+    // if (visible) {
+      LatLngs.push(adjustedLatLngs);
+    // }
+  }
     // Extract the coordinates and map them to Leaflet's LatLng format
-    const coordinates = data.coordinates_record.coordinates[0].map((coord: number[]) =>
-      new L.LatLng(coord[1], coord[0]+ this.mapFormula) // Convert [lon, lat] to [lat, lon]
-    );
+    // const coordinates = data.coordinates_record.coordinates[0].map((coord: number[]) =>
+    //   new L.LatLng(coord[1], coord[0]+ this.mapFormula) // Convert [lon, lat] to [lat, lon]
+    // );
 
     // Create bounds for the current shape
-    const bounds = L.latLngBounds(coordinates);
+    const bounds = L.latLngBounds(LatLngs);
 
     // Highlight the coordinates with a green border (polygon)
-    const polygon = L.polygon(coordinates, {
+    const polygon = L.polygon(LatLngs, {
       color: 'green', // Set border color to green
       weight: 3,
     }) as L.Polygon & { vendorData: any };
@@ -2274,11 +2407,44 @@ highLightShape(data: any): void {
   if (this.highlightedPolygon) {
     this.map.removeLayer(this.highlightedPolygon);
   }
+  
+
+  const LatLngs: L.LatLngExpression[] = [];
+
+  this.bbox = this.getBoundingBox(this.map);
+  this.minMap = this.getMapNumber(this.bbox.minLon);
+  this.maxMap = this.getMapNumber(this.bbox.maxLon);
+
+  const originalCoordinates  = data.coordinates_record.coordinates[0]; // Access the first array of coordinates
+// if (this.minMap == 0) {
+//   this.minMap = 1;
+//   this.maxMap = 2;
+// }
+  // Convert [lng, lat] to [lat, lng] (Leaflet requires [lat, lng] format)
+ for (let mapNum = this.minMap; mapNum <= this.maxMap; mapNum++) {
+  // Adjust each coordinate in the polygon.
+  const adjustedLatLngs = originalCoordinates.map((coord: [number, number]) => {
+    // Convert [lng, lat] to [lat, lng] and adjust longitude using mapFormula and mapNum offset.
+    return [
+      coord[1],
+      // coord[0] + this.mapFormula + (mapNum - 1) * 360,
+      coord[0] + (mapNum - 1) * 360 ,
+    ];
+  });
+  // Check if at least one adjusted coordinate is within the bounding box.
+  // const visible = adjustedLatLngs.some(([lat, lng]) =>
+  //   lng >= this.bbox.minLon && lng <= this.bbox.maxLon &&
+  //   lat >= this.bbox.minLat && lat <= this.bbox.maxLat
+  // );
+  // if (visible) {
+    LatLngs.push(adjustedLatLngs);
+  // }
+}
 
   // Extract the coordinates and map them to Leaflet's LatLng format
-  const coordinates = data.coordinates_record.coordinates[0].map((coord: number[]) =>
-    new L.LatLng(coord[1], coord[0]+this.mapFormula) // Convert [lon, lat] to [lat, lon]
-  );
+  // const coordinates = data.coordinates_record.coordinates[0].map((coord: number[]) =>
+  //   new L.LatLng(coord[1], coord[0]+this.mapFormula) // Convert [lon, lat] to [lat, lon]
+  // );
 
   // Determine the color based on the vendor name
   let color = '#eff24d'; // Default color
@@ -2304,7 +2470,7 @@ highLightShape(data: any): void {
   }
 
   // Create a new polygon
-  this.highlightedPolygon = L.polygon(coordinates, {
+  this.highlightedPolygon = L.polygon(LatLngs, {
     color: color, // Outline color
     fillColor: color, // Fill color
     fillOpacity: 0.5, // Adjust opacity as needed
@@ -2508,7 +2674,12 @@ wktToBounds(wkt: string): L.LatLngBounds {
 
   //Map data filtering functionality
   filterData(queryParams:any){
-    this.getDataUsingPolygon(this.data,queryParams);
+    const payload = {
+      ...this.data,
+      original_polygon:this.originalPolygon
+     }
+
+    this.getDataUsingPolygon(payload,queryParams);
   }
   // Define hover functions
   onPolygonHover(data) {
@@ -2524,7 +2695,9 @@ wktToBounds(wkt: string): L.LatLngBounds {
   }
   handleFootprintToggle(){
     this.footPrintActive = !this.footPrintActive
-       
+     this.bbox = this.getBoundingBox(this.map);
+    this.minMap = this.getMapNumber(this.bbox.minLon);
+    this.maxMap = this.getMapNumber(this.bbox.maxLon);
         if (Array.isArray(this.shapeLayersData)&& this.footPrintActive) {
           this.footprintLoader = true;
           this.ngxLoader.startLoader('buttonLoader');

@@ -139,6 +139,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   @ViewChild("myTemplate", { static: true }) myTemplate!: TemplateRef<any>;
   @Output() closeDrawer = new EventEmitter<boolean>();
   @Input() polygon_wkt:any=null;
+  @Input() original_wkt:any=null;
   @Input() sidebarWidth:any;
   //#endregion
   @Output() rowHoveredData: EventEmitter<any> = new EventEmitter();
@@ -232,8 +233,10 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
       this._startDate = value;
       let queryParams = this.filterParams;
       const payload = {
-        wkt_polygon: this.polygon_wkt
+        wkt_polygon: this.polygon_wkt,
+        original_polygon:this.original_wkt
       }
+      
       if (this.polygon_wkt) {
         setTimeout(() => {
         if(this.isEventsOpened){
@@ -241,7 +244,8 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
           const payload = {
             polygon_wkt: this.polygon_wkt,
             start_date: this.startDate,
-            end_date: this.endDate
+            end_date: this.endDate,
+            original_polygon:this.original_wkt
           }
           
           // Start the loader
@@ -344,7 +348,8 @@ set zoomed_wkt(value: string) {
         focused_records_ids: this.idArray
       };
       const payload = {
-        wkt_polygon: this.polygon_wkt
+        wkt_polygon: this.polygon_wkt,
+        original_polygon:this.original_wkt
       };
       if(this._zoomed_wkt !== this.sharedService.zoomed_wkt()){
       if (this._zoomed_wkt !== '') {
@@ -624,7 +629,8 @@ set zoomed_wkt(value: string) {
           if(this.sharedService.shapeType()!==null && this.polygon_wkt!==null){
            const queryParams = {...this.filterParams,  zoomed_wkt: this._zoomed_wkt}
             const payload = {
-              wkt_polygon: this.polygon_wkt
+              wkt_polygon: this.polygon_wkt,
+              original_polygon:this.original_wkt
             };
             this.loader = true;
             this.ngxLoader.start();
@@ -743,7 +749,8 @@ set zoomed_wkt(value: string) {
           queryParams = {...queryParams,  focused_records_ids: this.idArray}
           this.filterParams = {...queryParams}
           const payload = {
-            wkt_polygon: this.polygon_wkt
+            wkt_polygon: this.polygon_wkt,
+            original_polygon:this.original_wkt
           };
         this.loader = true;
         this.ngxLoader.start(); // Start the loader
@@ -800,7 +807,8 @@ set zoomed_wkt(value: string) {
     
     let queryParams: any = this.filterParams;
     const payload = {
-      wkt_polygon: this.polygon_wkt
+      wkt_polygon: this.polygon_wkt,
+      original_polygon:this.original_wkt
     }
 
       if (activeColumn) {
@@ -866,13 +874,15 @@ set zoomed_wkt(value: string) {
     
     this.formGroup.reset();
     const payload = {
-      wkt_polygon: this.polygon_wkt
+      wkt_polygon: this.polygon_wkt,
+      original_polygon:this.original_wkt
     }
 
     const calendarPayload ={
         polygon_wkt: this.polygon_wkt,
         start_date: this.startDate,
-        end_date: this.endDate
+        end_date: this.endDate,
+        original_polygon:this.original_wkt
     }
     this.filterCount = 0;
     this.defaultMinCloud = -10;
@@ -959,7 +969,8 @@ set zoomed_wkt(value: string) {
           const payload = {
             polygon_wkt: this.polygon_wkt,
             start_date: this.startDate,
-            end_date: this.endDate
+            end_date: this.endDate,
+            original_polygon:this.original_wkt
           }
           
           // Start the loader
@@ -1356,7 +1367,7 @@ setDynamicHeight(): void {
     // Get the height of the viewport
     const viewportHeight = window.innerHeight;
     // Calculate the remaining height for the target div
-    const remainingHeight = viewportHeight - totalHeight-126;
+    const remainingHeight = viewportHeight - totalHeight-146;
   
     // Get the content div and apply the calculated height
     const contentDiv = this.el.nativeElement.querySelector('.content');
@@ -1508,7 +1519,8 @@ console.log('ffffffffffffffff',event.deltaY);
         zoomed_wkt:this._zoomed_wkt,
       }
       const payload = {
-        wkt_polygon: this.polygon_wkt
+        wkt_polygon: this.polygon_wkt,
+        original_polygon:this.original_wkt
       }
      this.loader = true
       this.ngxLoader.start(); // Start the loader
@@ -1681,7 +1693,8 @@ getDateTimeFormat(dateTime: string) {
       }
 
       const payload = {
-        wkt_polygon: this.polygon_wkt
+        wkt_polygon: this.polygon_wkt,
+        original_polygon:this.original_wkt
       }
       let queryParams: any = {
         ...filters,
@@ -1714,7 +1727,8 @@ getDateTimeFormat(dateTime: string) {
       const calendarPayload ={
         polygon_wkt: this.polygon_wkt,
         start_date: this.startDate,
-        end_date: this.endDate
+        end_date: this.endDate,
+        original_polygon:this.original_wkt
     }
       this.filterParams = { ...queryParams}
 

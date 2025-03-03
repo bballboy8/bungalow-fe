@@ -1081,9 +1081,9 @@ private fallbackCopyToClipboard(text: string): void {
           if (this.startDate === '' && this.endDate === '') {
             // Start of the previous day
             this.startDate = dayjs().utc().subtract(1, 'day').startOf('day').format('YYYY-MM-DDTHH:mm:ss.SSSSSSZ');
-            
+                        
             // End of the previous day
-            this.endDate = dayjs().utc().subtract(1, 'day').endOf('day').format('YYYY-MM-DDTHH:mm:ss.SSSSSSZ');
+            this.endDate = dayjs().utc().endOf('day').format('YYYY-MM-DDTHH:mm:ss.SSSSSSZ');
             
           }
           let queryParams ={

@@ -218,8 +218,8 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
     }
   }
   @Input()
-  set startDate(value: any) {
-    if (value !== this._startDate) {
+  set startDate(value: any) {    
+    if (!(value !== this._startDate && this.endDate !== this._endDate)) {
       this._startDate = value;
       let queryParams = this.filterParams;
       const payload = {
@@ -229,14 +229,15 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
       
       if (this.polygon_wkt) {
         setTimeout(() => {
-        if(this.isEventsOpened){
-          
           const payload = {
             polygon_wkt: this.polygon_wkt,
             start_date: this.startDate,
             end_date: this.endDate,
             original_polygon:this.original_wkt
           }
+        if(this.isEventsOpened){
+          
+    
           
           // Start the loader
          
@@ -258,7 +259,10 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
             
           });
      
-          }   
+          } else {
+            this.getSatelliteCatalog(payload,queryParams)
+
+          }  
         },300)
       }
 

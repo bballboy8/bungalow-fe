@@ -413,8 +413,8 @@ set zoomed_wkt(value: string) {
   defaultMaxGsd = 4;
   defaultMinAzimuthAngle = 0;
   defaultMaxAzimuthAngle = 365;
-  defaultMinholdbackSecond = -1;
-  defaultMaxHoldbackSecond = 840;
+  defaultMinholdbackSecond = -73;
+  defaultMaxHoldbackSecond = 438;
   defaultMinIlluminationAzimuthAngle = 0;
   defaultMaxIlluminationAzimuthAngle = 365;
   defaultMinIlluminationElevationAngle = 0;
@@ -481,12 +481,12 @@ set zoomed_wkt(value: string) {
     step: 60,
     showTicks: true,
     floor: -1,
-    ceil: 840,
+    ceil: 365,
     translate: (value: number, label: LabelType): string => {
       if (value === 0) {
         return '0';
-      } else if (value === 840) {
-        return '840+';
+      } else if (value === 438) {
+        return '365+';
       }
       return `${value}°`; // Default for other values
     },

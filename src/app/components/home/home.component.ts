@@ -197,10 +197,10 @@ hybridLayer:L.TileLayer = L.tileLayer(
   }
 
   ngAfterViewInit(): void {
-    if (isPlatformBrowser(this.platformId)) {
+    // if (isPlatformBrowser(this.platformId)) {
         this.initMap();
         
-    }
+    // }
     
     
     this.sharedService.isOpenedEventCalendar$.subscribe((state) => {

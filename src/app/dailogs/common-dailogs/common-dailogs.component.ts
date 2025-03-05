@@ -32,8 +32,8 @@ vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra']
   defaultMaxGsd = 4;
   defaultMinAzimuthAngle = 0;
   defaultMaxAzimuthAngle = 365;
-  defaultMinholdbackSecond = -73;
-  defaultMaxHoldbackSecond = 438;
+  defaultMinholdbackSecond = 0;
+  defaultMaxHoldbackSecond = 42;
   defaultMinIlluminationAzimuthAngle = 0;
   defaultMaxIlluminationAzimuthAngle = 370;
   defaultMinIlluminationElevationAngle = 0;
@@ -97,15 +97,13 @@ vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra']
     },
   };
   holdbackOptions: Options = {
-    step: 73,
+    step: 7,
     showTicks: true,
-    floor: -73,
-    ceil: 438,
+    floor: 0,
+    ceil: 42,
     translate: (value: number, label: LabelType): string => {
-      if (value === -73) {
-        return '-1';
-      } else if (value === 438) {
-        return '365+';
+    if (value === 42) {
+        return '35+';
       }
       return `${value}`; // Default for other values
     },

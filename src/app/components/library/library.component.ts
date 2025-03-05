@@ -61,7 +61,6 @@ import { Options,NgxSliderModule, LabelType } from '@angular-slider/ngx-slider';
 import momentZone from 'moment-timezone';
 import tzLookup from 'tz-lookup';
 import { CommonDailogsComponent } from "../../dailogs/common-dailogs/common-dailogs.component";
-import { wktToGeoJSON, geojsonToWKT } from '@terraformer/wkt';
 export class Group {
   name?: string;
   icon?: string; // icon name for Angular Material icons

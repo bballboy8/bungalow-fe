@@ -166,6 +166,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
     { id: 'vendor_name', displayName: 'Vendor', visible: true },
     { id: 'cloud_cover', displayName: 'Clouds', visible: true },
     { id: 'gsd', displayName: 'Resolution', visible: true },
+    { id: 'holdback_seconds', displayName: 'Holdback', visible: true },
     { id: 'type', displayName: 'Type', visible: true },
     { id: 'vendor_id', displayName: 'ID', visible: true },
   ];
@@ -1855,8 +1856,8 @@ getOverlapData(){
     
   }
 
-  holdbackDecimal(value:number){
-    return parseFloat(value.toFixed(2));
+  holdbackRoundOf(value:number){
+    return Math.floor(value);
   }
 
 }

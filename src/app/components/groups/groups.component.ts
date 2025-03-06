@@ -683,9 +683,9 @@ export class GroupsComponent implements OnInit,AfterViewInit {
           const stepSize = formatNumber((maxValue - minValue) / 3);
   
           this.colorRanges = [
-              { name: "Minimum", color: "#70ed8b", start: formatNumber(minValue), end: formatNumber(minValue + stepSize) },
-              { name: "Medium", color: "#319a43", start: formatNumber(minValue + stepSize), end: formatNumber(minValue + 2 * stepSize) },
-              { name: "Maximum", color: "#ff0000", start: formatNumber(minValue + 2 * stepSize), end: formatNumber(maxValue) },
+              { name: "Minimum", color: "#70ed8b", start: Math.round(formatNumber(minValue)), end: Math.round(formatNumber(minValue + stepSize)) },
+              { name: "Medium", color: "#319a43", start: Math.round(formatNumber(minValue + stepSize)), end: Math.round(formatNumber(minValue + 2 * stepSize)) },
+              { name: "Maximum", color: "#ff0000", start: Math.round(formatNumber(minValue + 2 * stepSize)), end: formatNumber(maxValue) },
           ];
       }
   

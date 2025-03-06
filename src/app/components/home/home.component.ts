@@ -1206,13 +1206,9 @@ getMapNumber(lon) {
         this.shapeLayersData = resp.data
         this.extraShapesLayer?.clearLayers();
         if (Array.isArray(resp?.data)&& this.footPrintActive) {
-          this.bbox = this.getBoundingBox(this.map);
-          this.minMap = this.getMapNumber(this.bbox.minLon);
-          this.maxMap = this.getMapNumber(this.bbox.maxLon);
-
-          console.log("minMap maxMap",this.minMap,  this.maxMap  );
-          
-          
+          // this.bbox = this.getBoundingBox(this.map);
+          // this.minMap = this.getMapNumber(this.bbox.minLon);
+          // this.maxMap = this.getMapNumber(this.bbox.maxLon);          
           resp.data.forEach((item: any) => {
             this.addPolygonWithMetadata(item);
           });
@@ -1264,40 +1260,45 @@ getMapNumber(lon) {
     });
   }
   // Function to add the polygon and its metadata
-  private addPolygonWithMetadata(data: any): void {
-    console.log("this.mapFormulathis.mapFormulathis.mapFormula", this.mapFormula);
-    
-  
+  private addPolygonWithMetadata(data: any): void {    
     // For each coordinate in the polygon, adjust the longitude based on viewport
     // Here we generate a dynamic set of polygons if necessary so that they appear in the viewport.
     // In this example, we assume the polygon should be shifted if its corrected coordinates fall within the bounding box.
-    const dynamicPolygons: L.LatLngExpression[][] = [];
+    // const dynamicPolygons: L.LatLngExpression[][] = [];
 
-    const originalCoordinates  = data.coordinates_record.coordinates[0]; // Access the first array of coordinates
+    const polygonCoordinates  = data.coordinates_record.coordinates[0]; // Access the first array of coordinates
   // if (this.minMap == 0) {
   //   this.minMap = 1;
   //   this.maxMap = 2;
   // }
     // Convert [lng, lat] to [lat, lng] (Leaflet requires [lat, lng] format)
-   for (let mapNum = this.minMap; mapNum <= this.maxMap; mapNum++) {
-    // Adjust each coordinate in the polygon.
-    const adjustedLatLngs = originalCoordinates.map((coord: [number, number]) => {
-      // Convert [lng, lat] to [lat, lng] and adjust longitude using mapFormula and mapNum offset.
-      return [
-        coord[1],
-        // coord[0] + this.mapFormula + (mapNum - 1) * 360,
-        coord[0] + (mapNum - 1) * 360 ,
-      ];
-    });
-    // Check if at least one adjusted coordinate is within the bounding box.
-    const visible = adjustedLatLngs.some(([lat, lng]) =>
-      lng >= this.bbox.minLon && lng <= this.bbox.maxLon &&
-      lat >= this.bbox.minLat && lat <= this.bbox.maxLat
-    );
-    if (visible) {
-      dynamicPolygons.push(adjustedLatLngs);
-    }
-  }
+  //  for (let mapNum = this.minMap; mapNum <= this.maxMap; mapNum++) {
+  //   // Adjust each coordinate in the polygon.
+  //   const adjustedLatLngs = originalCoordinates.map((coord: [number, number]) => {
+  //     // Convert [lng, lat] to [lat, lng] and adjust longitude using mapFormula and mapNum offset.
+  //     return [
+  //       coord[1],
+  //       // coord[0] + this.mapFormula + (mapNum - 1) * 360,
+  //       coord[0] + (mapNum - 1) * 360 ,
+  //     ];
+  //   });
+  //   // Check if at least one adjusted coordinate is within the bounding box.
+  //   const visible = adjustedLatLngs.some(([lat, lng]) =>
+  //     lng >= this.bbox.minLon && lng <= this.bbox.maxLon &&
+  //     lat >= this.bbox.minLat && lat <= this.bbox.maxLat
+  //   );
+  //   if (visible) {
+  //     dynamicPolygons.push(adjustedLatLngs);
+  //   }
+  // }
+  const latLngs = polygonCoordinates.map((coord: [number, number]) => [
+
+
+
+
+    coord[1],
+    coord[0] + this.mapFormula,
+]);
   
     let color = 'rgba(239, 242, 77, 0.8)'; // Default color with 50% opacity
 if (data.vendor_name === 'planet') {
@@ -1318,7 +1319,7 @@ if (data.vendor_name === 'planet') {
   
     // Add the polygon to the map
    // When creating the polygon
-   dynamicPolygons.forEach(latLngs => {
+  //  dynamicPolygons.forEach(latLngs => {
 const polygon = L.polygon(latLngs, {
   color: color,
   fillColor: color,
@@ -1400,7 +1401,7 @@ polygon.on('click', (event: L.LeafletMouseEvent) => {
 });
 // Add the polygon to the extra shapes layer
     this.extraShapesLayer?.addLayer(polygon);
-});
+// });
   
   
     
@@ -1508,6 +1509,7 @@ renderFootprints(footprints) {
 
 onFilterset(data) {
   this.filterParams = data.params;
+  this.footPrintActive = true;
   data.params = {...data.params, source: 'home',  page_number: '1', page_size: '50'}
   this.getDataUsingPolygon(data.payload,  data.params);
   this.cdr.detectChanges();
@@ -2216,44 +2218,44 @@ receiveData(dataArray: any[]) {
     dataArray.forEach((data) => {
       if (data?.coordinates_record?.coordinates) {
 
-        const LatLngs: L.LatLngExpression[] = [];
+        // const LatLngs: L.LatLngExpression[] = [];
 
-        this.bbox = this.getBoundingBox(this.map);
-        this.minMap = this.getMapNumber(this.bbox.minLon);
-        this.maxMap = this.getMapNumber(this.bbox.maxLon);
+      //   this.bbox = this.getBoundingBox(this.map);
+      //   this.minMap = this.getMapNumber(this.bbox.minLon);
+      //   this.maxMap = this.getMapNumber(this.bbox.maxLon);
 
-        const originalCoordinates  = data.coordinates_record.coordinates[0]; // Access the first array of coordinates
-      // if (this.minMap == 0) {
-      //   this.minMap = 1;
-      //   this.maxMap = 2;
+      //   const originalCoordinates  = data.coordinates_record.coordinates[0]; // Access the first array of coordinates
+      // // if (this.minMap == 0) {
+      // //   this.minMap = 1;
+      // //   this.maxMap = 2;
+      // // }
+      //   // Convert [lng, lat] to [lat, lng] (Leaflet requires [lat, lng] format)
+      //  for (let mapNum = this.minMap; mapNum <= this.maxMap; mapNum++) {
+      //   // Adjust each coordinate in the polygon.
+      //   const adjustedLatLngs = originalCoordinates.map((coord: [number, number]) => {
+      //     // Convert [lng, lat] to [lat, lng] and adjust longitude using mapFormula and mapNum offset.
+      //     return [
+      //       coord[1],
+      //       // coord[0] + this.mapFormula + (mapNum - 1) * 360,
+      //       coord[0] + (mapNum - 1) * 360 ,
+      //     ];
+      //   });
+      //   // Check if at least one adjusted coordinate is within the bounding box.
+      //   // const visible = adjustedLatLngs.some(([lat, lng]) =>
+      //   //   lng >= this.bbox.minLon && lng <= this.bbox.maxLon &&
+      //   //   lat >= this.bbox.minLat && lat <= this.bbox.maxLat
+      //   // );
+      //   // if (visible) {
+      //     LatLngs.push(adjustedLatLngs);
+      //   // }
       // }
-        // Convert [lng, lat] to [lat, lng] (Leaflet requires [lat, lng] format)
-       for (let mapNum = this.minMap; mapNum <= this.maxMap; mapNum++) {
-        // Adjust each coordinate in the polygon.
-        const adjustedLatLngs = originalCoordinates.map((coord: [number, number]) => {
-          // Convert [lng, lat] to [lat, lng] and adjust longitude using mapFormula and mapNum offset.
-          return [
-            coord[1],
-            // coord[0] + this.mapFormula + (mapNum - 1) * 360,
-            coord[0] + (mapNum - 1) * 360 ,
-          ];
-        });
-        // Check if at least one adjusted coordinate is within the bounding box.
-        // const visible = adjustedLatLngs.some(([lat, lng]) =>
-        //   lng >= this.bbox.minLon && lng <= this.bbox.maxLon &&
-        //   lat >= this.bbox.minLat && lat <= this.bbox.maxLat
-        // );
-        // if (visible) {
-          LatLngs.push(adjustedLatLngs);
-        // }
-      }
         // Extract the coordinates and map them to Leaflet's LatLng format
-        // const coordinates = data.coordinates_record.coordinates[0].map((coord: number[]) =>
-        //   new L.LatLng(coord[1], coord[0]+ this.mapFormula) // Convert [lon, lat] to [lat, lon]
-        // );
+        const coordinates = data.coordinates_record.coordinates[0].map((coord: number[]) =>
+          new L.LatLng(coord[1], coord[0]+ this.mapFormula) // Convert [lon, lat] to [lat, lon]
+        );
 
         // Create bounds for the current image
-        const bounds = L.latLngBounds(LatLngs);
+        const bounds = L.latLngBounds(coordinates);
         allBounds.push(bounds);
 
         // Check if the image overlay already exists
@@ -2299,47 +2301,47 @@ handleMakerData(data: any) {
   // Check if the data object is valid and has coordinates
   if (data?.coordinates_record?.coordinates) {
 
-    const LatLngs: L.LatLngExpression[] = [];
+  //   const LatLngs: L.LatLngExpression[] = [];
 
-    this.bbox = this.getBoundingBox(this.map);
-    this.minMap = this.getMapNumber(this.bbox.minLon);
-    this.maxMap = this.getMapNumber(this.bbox.maxLon);
+  //   this.bbox = this.getBoundingBox(this.map);
+  //   this.minMap = this.getMapNumber(this.bbox.minLon);
+  //   this.maxMap = this.getMapNumber(this.bbox.maxLon);
 
-    const originalCoordinates  = data.coordinates_record.coordinates[0]; // Access the first array of coordinates
-  // if (this.minMap == 0) {
-  //   this.minMap = 1;
-  //   this.maxMap = 2;
+  //   const originalCoordinates  = data.coordinates_record.coordinates[0]; // Access the first array of coordinates
+  // // if (this.minMap == 0) {
+  // //   this.minMap = 1;
+  // //   this.maxMap = 2;
+  // // }
+  //   // Convert [lng, lat] to [lat, lng] (Leaflet requires [lat, lng] format)
+  //  for (let mapNum = this.minMap; mapNum <= this.maxMap; mapNum++) {
+  //   // Adjust each coordinate in the polygon.
+  //   const adjustedLatLngs = originalCoordinates.map((coord: [number, number]) => {
+  //     // Convert [lng, lat] to [lat, lng] and adjust longitude using mapFormula and mapNum offset.
+  //     return [
+  //       coord[1],
+  //       // coord[0] + this.mapFormula + (mapNum - 1) * 360,
+  //       coord[0] + (mapNum - 1) * 360 ,
+  //     ];
+  //   });
+  //   // Check if at least one adjusted coordinate is within the bounding box.
+  //   // const visible = adjustedLatLngs.some(([lat, lng]) =>
+  //   //   lng >= this.bbox.minLon && lng <= this.bbox.maxLon &&
+  //   //   lat >= this.bbox.minLat && lat <= this.bbox.maxLat
+  //   // );
+  //   // if (visible) {
+  //     LatLngs.push(adjustedLatLngs);
+  //   // }
   // }
-    // Convert [lng, lat] to [lat, lng] (Leaflet requires [lat, lng] format)
-   for (let mapNum = this.minMap; mapNum <= this.maxMap; mapNum++) {
-    // Adjust each coordinate in the polygon.
-    const adjustedLatLngs = originalCoordinates.map((coord: [number, number]) => {
-      // Convert [lng, lat] to [lat, lng] and adjust longitude using mapFormula and mapNum offset.
-      return [
-        coord[1],
-        // coord[0] + this.mapFormula + (mapNum - 1) * 360,
-        coord[0] + (mapNum - 1) * 360 ,
-      ];
-    });
-    // Check if at least one adjusted coordinate is within the bounding box.
-    // const visible = adjustedLatLngs.some(([lat, lng]) =>
-    //   lng >= this.bbox.minLon && lng <= this.bbox.maxLon &&
-    //   lat >= this.bbox.minLat && lat <= this.bbox.maxLat
-    // );
-    // if (visible) {
-      LatLngs.push(adjustedLatLngs);
-    // }
-  }
     // Extract the coordinates and map them to Leaflet's LatLng format
-    // const coordinates = data.coordinates_record.coordinates[0].map((coord: number[]) =>
-    //   new L.LatLng(coord[1], coord[0]+ this.mapFormula) // Convert [lon, lat] to [lat, lon]
-    // );
+    const coordinates = data.coordinates_record.coordinates[0].map((coord: number[]) =>
+      new L.LatLng(coord[1], coord[0]+ this.mapFormula) // Convert [lon, lat] to [lat, lon]
+    );
 
     // Create bounds for the current shape
-    const bounds = L.latLngBounds(LatLngs);
+    const bounds = L.latLngBounds(coordinates);
 
     // Highlight the coordinates with a green border (polygon)
-    const polygon = L.polygon(LatLngs, {
+    const polygon = L.polygon(coordinates, {
       color: 'green', // Set border color to green
       weight: 3,
     }) as L.Polygon & { vendorData: any };
@@ -2409,42 +2411,42 @@ highLightShape(data: any): void {
   }
   
 
-  const LatLngs: L.LatLngExpression[] = [];
+  // const LatLngs: L.LatLngExpression[] = [];
 
-  this.bbox = this.getBoundingBox(this.map);
-  this.minMap = this.getMapNumber(this.bbox.minLon);
-  this.maxMap = this.getMapNumber(this.bbox.maxLon);
+//   this.bbox = this.getBoundingBox(this.map);
+//   this.minMap = this.getMapNumber(this.bbox.minLon);
+//   this.maxMap = this.getMapNumber(this.bbox.maxLon);
 
-  const originalCoordinates  = data.coordinates_record.coordinates[0]; // Access the first array of coordinates
-// if (this.minMap == 0) {
-//   this.minMap = 1;
-//   this.maxMap = 2;
+//   const originalCoordinates  = data.coordinates_record.coordinates[0]; // Access the first array of coordinates
+// // if (this.minMap == 0) {
+// //   this.minMap = 1;
+// //   this.maxMap = 2;
+// // }
+//   // Convert [lng, lat] to [lat, lng] (Leaflet requires [lat, lng] format)
+//  for (let mapNum = this.minMap; mapNum <= this.maxMap; mapNum++) {
+//   // Adjust each coordinate in the polygon.
+//   const adjustedLatLngs = originalCoordinates.map((coord: [number, number]) => {
+//     // Convert [lng, lat] to [lat, lng] and adjust longitude using mapFormula and mapNum offset.
+//     return [
+//       coord[1],
+//       // coord[0] + this.mapFormula + (mapNum - 1) * 360,
+//       coord[0] + (mapNum - 1) * 360 ,
+//     ];
+//   });
+//   // Check if at least one adjusted coordinate is within the bounding box.
+//   // const visible = adjustedLatLngs.some(([lat, lng]) =>
+//   //   lng >= this.bbox.minLon && lng <= this.bbox.maxLon &&
+//   //   lat >= this.bbox.minLat && lat <= this.bbox.maxLat
+//   // );
+//   // if (visible) {
+//     LatLngs.push(adjustedLatLngs);
+//   // }
 // }
-  // Convert [lng, lat] to [lat, lng] (Leaflet requires [lat, lng] format)
- for (let mapNum = this.minMap; mapNum <= this.maxMap; mapNum++) {
-  // Adjust each coordinate in the polygon.
-  const adjustedLatLngs = originalCoordinates.map((coord: [number, number]) => {
-    // Convert [lng, lat] to [lat, lng] and adjust longitude using mapFormula and mapNum offset.
-    return [
-      coord[1],
-      // coord[0] + this.mapFormula + (mapNum - 1) * 360,
-      coord[0] + (mapNum - 1) * 360 ,
-    ];
-  });
-  // Check if at least one adjusted coordinate is within the bounding box.
-  // const visible = adjustedLatLngs.some(([lat, lng]) =>
-  //   lng >= this.bbox.minLon && lng <= this.bbox.maxLon &&
-  //   lat >= this.bbox.minLat && lat <= this.bbox.maxLat
-  // );
-  // if (visible) {
-    LatLngs.push(adjustedLatLngs);
-  // }
-}
 
   // Extract the coordinates and map them to Leaflet's LatLng format
-  // const coordinates = data.coordinates_record.coordinates[0].map((coord: number[]) =>
-  //   new L.LatLng(coord[1], coord[0]+this.mapFormula) // Convert [lon, lat] to [lat, lon]
-  // );
+  const coordinates = data.coordinates_record.coordinates[0].map((coord: number[]) =>
+    new L.LatLng(coord[1], coord[0]+this.mapFormula) // Convert [lon, lat] to [lat, lon]
+  );
 
   // Determine the color based on the vendor name
   let color = '#eff24d'; // Default color
@@ -2470,7 +2472,7 @@ highLightShape(data: any): void {
   }
 
   // Create a new polygon
-  this.highlightedPolygon = L.polygon(LatLngs, {
+  this.highlightedPolygon = L.polygon(coordinates, {
     color: color, // Outline color
     fillColor: color, // Fill color
     fillOpacity: 0.5, // Adjust opacity as needed
@@ -2695,9 +2697,9 @@ wktToBounds(wkt: string): L.LatLngBounds {
   }
   handleFootprintToggle(){
     this.footPrintActive = !this.footPrintActive
-     this.bbox = this.getBoundingBox(this.map);
-    this.minMap = this.getMapNumber(this.bbox.minLon);
-    this.maxMap = this.getMapNumber(this.bbox.maxLon);
+    //  this.bbox = this.getBoundingBox(this.map);
+    // this.minMap = this.getMapNumber(this.bbox.minLon);
+    // this.maxMap = this.getMapNumber(this.bbox.maxLon);
         if (Array.isArray(this.shapeLayersData)&& this.footPrintActive) {
           this.footprintLoader = true;
           this.ngxLoader.startLoader('buttonLoader');

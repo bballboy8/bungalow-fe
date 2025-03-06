@@ -375,7 +375,7 @@ export class MapControllersPopupComponent implements OnInit, OnChanges,AfterView
   toDecimal(value:number){
     return parseFloat(value.toFixed(4));
   }
-  holdbackDecimal(value:number){
+  holdbackRoundOf(value:number){
     return Math.floor(value);
   }
   getPolygonCenter(coordinates: number[][]): { lat: number; lon: number } | null {

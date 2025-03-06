@@ -1857,7 +1857,7 @@ getOverlapData(){
   }
 
   holdbackDecimal(value:number){
-    return parseFloat(value.toFixed(2));
+    return Math.floor(value);
   }
 
 }

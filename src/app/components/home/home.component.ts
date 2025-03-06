@@ -1507,6 +1507,11 @@ renderFootprints(footprints) {
 }
 
 onFilterset(data) {
+  this.removeAllImageOverlays()
+  this.sharedService.setOverlayShapeData(null)
+  if(this.map){
+    this.map.setZoom(4)
+  }
   this.filterParams = data.params;
   data.params = {...data.params, source: 'home',  page_number: '1', page_size: '50'}
   this.getDataUsingPolygon(data.payload,  data.params);

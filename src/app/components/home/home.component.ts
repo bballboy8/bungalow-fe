@@ -284,9 +284,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
             })
             
             // this.leftMargin2
-            // console.log( `${event.rect.width}px`,' `${event.rect.width}px`');
             
-            // console.log(this.leftMargin2,'this.leftMargin2');
             // this.updateMapMargin();
             // target.style.height = `${event.rect.height}px`;
             target.style.height = `682.575px`;
@@ -557,7 +555,6 @@ hybridLayer:L.TileLayer = L.tileLayer(
   
     // Add zoom change listener
     // this.map.on('zoomend', () => {
-    //   console.log('Zoom changed:', this.map.getZoom());
     //   this.zoomLevel = this.map.getZoom();
     //   if (this.map.getZoom() < 4) {
     //     this.map.setZoom(4); // Prevent zooming out below the minimum level
@@ -571,7 +568,6 @@ hybridLayer:L.TileLayer = L.tileLayer(
     //      const wkt = this.boundsToWKT(bounds);
  
     //      // Log the WKT string of the zoomed polygon
-    //      console.log('WKT of the zoomed polygon:', wkt);
     // }
     // });
 
@@ -997,7 +993,6 @@ private fallbackCopyToClipboard(text: string): void {
               this.drawer._animationState = 'open';
                this.removeAllImageOverlays();
                const orginalCords = this.latLngBoundsToPolygon(bounds)
-               console.log(geoJSON.geometry,'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',orginalCords);
                
               this.getPolygonFromCoordinates({ geometry: geoJSON?.geometry }, orginalCords);
              
@@ -1209,8 +1204,6 @@ getMapNumber(lon) {
           this.bbox = this.getBoundingBox(this.map);
           this.minMap = this.getMapNumber(this.bbox.minLon);
           this.maxMap = this.getMapNumber(this.bbox.maxLon);
-
-          console.log("minMap maxMap",this.minMap,  this.maxMap  );
           
           
           resp.data.forEach((item: any) => {
@@ -1265,7 +1258,6 @@ getMapNumber(lon) {
   }
   // Function to add the polygon and its metadata
   private addPolygonWithMetadata(data: any): void {
-    console.log("this.mapFormulathis.mapFormulathis.mapFormula", this.mapFormula);
     
   
     // For each coordinate in the polygon, adjust the longitude based on viewport
@@ -1745,9 +1737,7 @@ handleAction(action: string): void {
 
   private getlatlngNormalized(lat: number, lng: number) {
     // Normalize longitude to [-180, 180]
-    console.log("Original lng:", lng);
     const normalizedLongitude = ((lng + 180) % 360 + 360) % 360 - 180;
-    console.log("Normalized lng:", normalizedLongitude);
   
     // Clamp latitude to [-90, 90]
     const normalizedLatitude = Math.max(-90, Math.min(90, lat));
@@ -2500,7 +2490,6 @@ layercalculateVisibleWKT(): void {
   let drawLayerBounds: L.LatLngBounds | null = this.drawLayer.getBounds();
 
   if (!drawLayerBounds || !drawLayerBounds.isValid()) {
-    console.warn('Draw layer bounds are invalid. Falling back to polygon bounds.');
     drawLayerBounds = this.polygon.getBounds();
   }
 

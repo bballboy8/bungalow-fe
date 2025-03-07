@@ -134,7 +134,6 @@ export class MapCalendarComponent implements OnInit {
             ];
         }
     
-        console.log(this.colorRanges, "colorRanges");
     
         // Function to get range data
         const getRangeData = (value: number): { color: string; range: string } => {

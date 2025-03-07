@@ -204,7 +204,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   overlapListData:any=[];
   idArray:string[]=[""]
   filterParams:any;
-
+  filter:boolean = false
   defaultFilter() {
     return {
       page_number: '1',
@@ -318,7 +318,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   focused_captures_count:any;
   @Input()
 set zoomed_wkt(value: string) {
-  if (value !== this._zoomed_wkt) {
+  if (value !== this._zoomed_wkt && !this.filter) {
     this._zoomed_wkt = value;
 
     if (this.debounceTimeout) {
@@ -363,6 +363,7 @@ set zoomed_wkt(value: string) {
     }, 800);
      // Debounce time: 600ms
   }
+  this.filter = false
   this.setDynamicHeight();
   window.addEventListener('resize', this.setDynamicHeight.bind(this))
   const div = this.scrollableDiv?.nativeElement;
@@ -833,6 +834,7 @@ set zoomed_wkt(value: string) {
      
       
     }
+    this.filter = true
     this.filterParams = queryParams
     this.formGroup.reset();
     const payload = {
@@ -867,7 +869,6 @@ set zoomed_wkt(value: string) {
     if(this.isEventsOpened){
       this.getCalendarData(calendarPayload,queryParams)
     }
-   
   }
 
   /** Whether the number of selected elements matches the total number of rows. */
@@ -919,6 +920,7 @@ set zoomed_wkt(value: string) {
   }
 
   calendarEventsOpen() {
+    this.filter = true
     this.isEventsOpened = !this.isEventsOpened;
     this.sharedService.setIsOpenedEventCalendar(this.isEventsOpened);
    
@@ -953,6 +955,7 @@ set zoomed_wkt(value: string) {
       }
       }
     },300)
+    
 
   }
 
@@ -1707,8 +1710,11 @@ getDateTimeFormat(dateTime: string) {
           });
           dialogRef.afterClosed().subscribe((result) => {
             if(result.queryParams){
+              this.filter = true
               this.onSubmit(result.queryParams)
               this.filterCount = result.filterCount
+            } else {
+              this.filter = false
             }
           })
   }

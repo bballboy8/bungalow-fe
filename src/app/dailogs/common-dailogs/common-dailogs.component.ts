@@ -173,7 +173,6 @@ vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra']
     if(this.data.type === 'rename'){
       this.name = this.data?.group?.name || this.data?.site?.name
     }
-    console.log(this.data,'datadatadatadatadatadatadatadata');
     if(this.data.type ==='filters'){
       this.min_cloud = this.data?.filterParams?.min_cloud_cover !== undefined
   ? this.data.filterParams.min_cloud_cover === -1 
@@ -219,7 +218,6 @@ vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra']
     
   }
   addGroup(){
-    console.log(this.data,'aaaaaaaaaaaaaaaaaaaa');
     if(this.name !==''){
     let payload
     if(this.data.type === 'addSubgroup'){
@@ -237,7 +235,6 @@ vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra']
      
     this.satelliteService.addGroup(payload).subscribe({
       next: (resp) => {
-        console.log(resp, 'respresprespresprespresprespresprespresp');
         this.dialogRef.close(resp)
 
       }
@@ -272,7 +269,6 @@ vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra']
         }
         this.satelliteService.removeGroup(payload).subscribe({
           next: (resp)=>{
-            console.log(resp,'wwwwwwwwwwwwwwwwwwww');
             this.dialogRef.close(resp);
             
           },

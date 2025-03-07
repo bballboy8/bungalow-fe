@@ -666,8 +666,6 @@ export class GroupsListComponent {
                ];
            }
        
-           console.log(this.colorRanges, "colorRanges");
-       
            // Function to get range data
            const getRangeData = (value: number): { color: string; range: string } => {
                if (value === 0) return { color: "", range: "No Data" };

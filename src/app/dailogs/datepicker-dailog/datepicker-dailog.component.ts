@@ -1,12 +1,11 @@
 import { AfterViewInit, Component, ElementRef, Inject, Input, OnInit, ViewChild } from '@angular/core';
-import { MatDatepickerModule, MatDateRangePicker } from '@angular/material/datepicker';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { DateAdapter, MatNativeDateModule, provideNativeDateAdapter } from '@angular/material/core';
-import { CustomDateAdapter } from '../../customFIles/cutom-adaptor';
+import { MatNativeDateModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
 import dayjs from 'dayjs';

@@ -4,7 +4,6 @@ import { routes } from './app.routes';
 import { BrowserModule, provideClientHydration } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
-import { provideHttpClient } from '@angular/common/http';
 import { provideAuth } from './interceptors/auth.provider';
 import { provideLoading } from './interceptors/loading/loading.provider';
 import { NgxUiLoaderModule, NgxUiLoaderConfig } from 'ngx-ui-loader';

@@ -1,5 +1,6 @@
 import { AfterViewInit, Component, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { RouterOutlet } from '@angular/router';
+import { HomeComponent } from './components/home/home.component';
 import { NgxUiLoaderModule } from 'ngx-ui-loader';
 import { LoadingService } from './services/loading.service';
 
@@ -8,7 +9,7 @@ import { LoadingService } from './services/loading.service';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [NgxUiLoaderModule, RouterModule],
+  imports: [HomeComponent,NgxUiLoaderModule],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })

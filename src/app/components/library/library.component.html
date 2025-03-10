@@ -305,19 +305,18 @@
                             <div class="rounded-[25px] bg-primaryBg flex items-center justify-between">
                                 <button (click)="selectPreviewMethod('table')"
                                     class="text-xs leading-[18px] py-[9px] font-semibold my-[7px] mr-[10px] ml-[7px] rounded-[19px] px-[20px]"
-                                    [ngClass]="viewType ==='table'?'text-[#453303] bg-yellow':'text-secondary-heiglight'">Image
-                                    Library
+                                    [ngClass]="viewType ==='table'?'text-[#453303] bg-yellow':'text-secondary-heiglight'">Archive
                                     {{viewType ==='table'? zoomed_captures_count + ' / ':''}}{{viewType ==='table'?
                                     formatNumber(total_count):''}}</button>
                                 <button (click)="selectPreviewMethod('browse')"
                                     class="text-xs leading-[18px] py-[9px] font-semibold my-[7px] mr-[7px] rounded-[19px] px-[20px] "
-                                    [ngClass]="viewType ==='browse'?'text-[#453303] bg-yellow':'text-secondary-heiglight'">Browse
+                                    [ngClass]="viewType ==='browse'?'text-[#453303] bg-yellow':'text-secondary-heiglight'">Images
                                     {{viewType ==='browse'? zoomed_captures_count + ' / ':''}}{{viewType ==='browse'?
                                     formatNumber(total_count):''}}</button>
                             </div>
                             <div>
                                 <div [matMenuTriggerFor]="columnsMenu" (click)="setColumnMenuClass()"
-                                    class="p-[10px] cursor-pointer flex justify-center items-center rounded-[5px] border border-solid border-yellow">
+                                    class="p-[10px] cursor-pointer flex justify-center w-[42px] h-[42px] items-center rounded-[5px] border border-solid border-yellow">
                                     <img src="assets/svg-icons/toggle-column-icon.svg" alt="" width="20" height="20" />
                                 </div>
                                 <mat-menu class="bg-primaryBg p-[15px]" #columnsMenu="matMenu">
@@ -345,7 +344,7 @@
                                 </mat-menu>
                             </div>
                             <div class="Menu">
-                                <div class="flex">
+                                <div class="flex items-center">
                                     <div class="rounded-[25px] bg-primaryBg flex items-center justify-between">
                                         <button (click)="selectedTimeZone('UTC')"
                                             class="text-xs leading-[18px] py-[9px] font-semibold my-[6px] mr-[10px] ml-[8px]  rounded-[19px] px-[20px] "
@@ -353,11 +352,11 @@
                                         <button (click)="selectedTimeZone('local')"
                                             class="text-xs leading-[18px] py-[9px] font-semibold my-[6px] mr-[7px]  rounded-[19px] px-[20px]"
                                             [ngClass]="selectedZone ==='local'?' bg-yellow text-[#453303]':'text-secondary-heiglight'">Local
-                                            time</button>
+                                            </button>
                                     </div>
                                     <div class="relative flex justify-center items-center">
                                         <button
-                                            class=" flex gap-[5px] font-Barlow text-sm font-medium justify-center items-center w-[60px] h-[40px] my-0 ml-[8px] rounded-[15px]"
+                                            class=" flex gap-[5px] font-Barlow text-sm font-medium justify-center items-center min-w-[42px] h-[42px] my-0 ml-[8px] rounded-[5px]"
                                             [ngClass]="filterCount >0 ? 'bg-yellow ':'bg-primaryBg'"
                                             (click)="openFilterDialog()" 
                                             >
@@ -368,7 +367,7 @@
                                         
                                     </div>
                                     <button (click)="calendarEventsOpen()"
-                                        class="py-[9px] px-[20px] my-0 mx-[8px] rounded-[19px]"
+                                        class="my-0 mx-[8px] w-[42px] h-[42px] flex justify-center items-center rounded-[5px]"
                                         [ngClass]="isEventsOpened ?'text-[#453303] bg-yellow':'bg-primaryBg'">
                                         @if (isEventsOpened) {
                                         <img src="assets/svg-icons/calendar-icon-black.svg" alt="">

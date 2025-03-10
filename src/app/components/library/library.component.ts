@@ -345,7 +345,7 @@ set zoomed_wkt(value: string) {
         wkt_polygon: this.polygon_wkt,
         original_polygon:this.original_wkt
       };
-      if (this._zoomed_wkt !== '') {
+      if (this._zoomed_wkt !== ''&& this.isRefresh) {
         queryParams = {...queryParams,  zoomed_wkt: this._zoomed_wkt}
       } else {
         queryParams = {...queryParams,  zoomed_wkt: ''}
@@ -356,6 +356,8 @@ set zoomed_wkt(value: string) {
       this.page_number = '1';
       this.filterParams = {...queryParams}
         this.getSatelliteCatalog(payload, queryParams);
+      } else {
+       
       }
       if (this.isRefresh && this.scrollableDiv) {
         this.scrollableDiv.nativeElement.scrollTop = 0;
@@ -542,7 +544,7 @@ set zoomed_wkt(value: string) {
   searchSubject$ = new Subject<string>();
   filteredColumns = this.columns;
   lastMatchId:any = null
-  isRefresh: boolean = true;
+  isRefresh: boolean = false;
   constructor(
     private dialog: MatDialog,
     private sharedService: SharedService,
@@ -665,6 +667,26 @@ set zoomed_wkt(value: string) {
       
     }
     
+    if(!this.isRefresh){
+      const payload = {
+        wkt_polygon: this.polygon_wkt,
+        original_polygon:this.original_wkt
+      };
+      let queryParams: any = {
+        ...this.filterParams,
+        page_number: '1',
+        page_size: this.page_size,
+        start_date: this.startDate,
+        end_date: this.endDate,
+        source: 'library',
+        focused_records_ids: this.idArray
+      };
+      this.loader = true;
+    this.ngxLoader.start(); // Start the loader
+    this.page_number = '1';
+    this.filterParams = {...queryParams}
+      this.getSatelliteCatalog(payload, queryParams);
+    }
   }
 
   onSortChange(event: { active: string; direction: string }) {
@@ -1355,7 +1377,7 @@ setDynamicHeight(): void {
   ].reduce((acc, el) => acc + (el ? el.offsetHeight : 0), 0);
 
   // Get the height of the viewport
-  const viewportHeight = window.innerHeight;
+  const viewportHeight = window.innerHeight + 50;
 
   // Calculate the remaining height for the target div
   const remainingHeight = viewportHeight - totalHeight -126 ;
@@ -1408,6 +1430,7 @@ onCheckboxChange(row: any) {
 onRefreshCheckboxChange(e:any){
   if(e.checked){
     this.isRefresh = e.checked;
+    this.snackBar.open(`Refresh library is  ${this.isRefresh ? 'active':'disabled'}`, 'Ok', { duration: 2000 });
   }
 }
 

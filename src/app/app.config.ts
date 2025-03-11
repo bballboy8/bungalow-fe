@@ -11,6 +11,12 @@ import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
 import { environment } from '../environments/environment';
 
 const config: SocketIoConfig = { url: environment.SOCKET_URL,   options: {
+
+  query: {
+    Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoyMDQ4NzM3NDA3LCJpYXQiOjE3MzMzNzc0MDcsImp0aSI6ImFiM2NlZDZlNTI4MzRlMTdhMjcyOGIzZjY2ZDU4ZjJlIiwidXNlcl9pZCI6MX0.SbZhv67nD5T68FvsercJOrWPje98fppXK22AozfKitc'
+
+  },
+  transports: ['', 'polling'],
   reconnection: true, // Enable automatic reconnection
   reconnectionAttempts: 10, // Maximum reconnection attempts
   reconnectionDelay: 5000, // Delay between attempts (in ms)
@@ -24,5 +30,5 @@ const ngxUiLoaderConfig: NgxUiLoaderConfig = {
 };
 export const appConfig: ApplicationConfig = {
   providers: [provideRouter(routes), provideClientHydration(),provideAuth(),provideLoading(), importProvidersFrom([ BrowserAnimationsModule,BrowserModule,
-        NgxDaterangepickerMd.forRoot(),NgxUiLoaderModule.forRoot(ngxUiLoaderConfig) , SocketIoModule.forRoot(config)])]
+        NgxDaterangepickerMd.forRoot(),NgxUiLoaderModule.forRoot(ngxUiLoaderConfig)])]
 };

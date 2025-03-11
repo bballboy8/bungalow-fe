@@ -745,20 +745,20 @@ set zoomed_wkt(value: string) {
       
       
     })
-   this.sharedService.drawShape$.subscribe((shape) => {
-    if(shape){
-      const payload = {
-        wkt_polygon: this.polygon_wkt
-      }
-     setTimeout(() => {
-      this.loader = true
-      this.ngxLoader.start(); // Start the loader
-      this.getSatelliteCatalog(payload,this.filterParams);
+  //  this.sharedService.drawShape$.subscribe((shape) => {
+  //   if(shape){
+  //     const payload = {
+  //       wkt_polygon: this.polygon_wkt
+  //     }
+  //    setTimeout(() => {
+  //     this.loader = true
+  //     this.ngxLoader.start(); // Start the loader
+  //     this.getSatelliteCatalog(payload,this.filterParams);
      
-     },300)
-    }
+  //    },300)
+  //   }
     
-   })
+  //  })
     
     // Add mouse events
   }

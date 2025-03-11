@@ -415,7 +415,6 @@ hybridLayer:L.TileLayer = L.tileLayer(
       }
       
     })
-    this.cdr.detectChanges();
   }
 
   applyMargin() {

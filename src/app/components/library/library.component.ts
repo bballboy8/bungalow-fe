@@ -759,7 +759,6 @@ set zoomed_wkt(value: string) {
   //  })
     
     // Add mouse events
-    this.cdr.detectChanges();
   }
 
   sortData() {
@@ -1618,6 +1617,7 @@ getDateTimeFormat(dateTime: string) {
         if (resp?.data && resp.data.length > 0) {
           vendorData = resp.data[0];
           this.sharedService.setVendorData(vendorData);
+          this.isDialogOpen = false;
           // Open the dialog after setting vendorData
           // const dialogRef = this.dialog.open(MapControllersPopupComponent, {
           //   width: `300px`,

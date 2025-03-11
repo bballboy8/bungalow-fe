@@ -140,7 +140,7 @@ export class GroupsComponent implements OnInit,AfterViewInit {
       this.satelliteService.getParentGroups(params).subscribe({
         next: (resp) => {
           this.groups = resp
-  
+          
         }
       })
     
@@ -293,8 +293,13 @@ export class GroupsComponent implements OnInit,AfterViewInit {
     }
     this.satelliteService.updateGroup(payload).subscribe({
       next: (resp) =>{
+        const index = this.groups.findIndex(x => x.id == group.id);
+        this.groups[index].notification = status
         // this.getUpdateGroup(resp)
         this.getGroups()
+        this._snackBar.open(`Notification status apdated to ${status ? 'on':'off'}`, 'Ok', {
+          duration: 2000  // Snackbar will disappear after 300 milliseconds
+        });
       }
     })
   }

@@ -148,7 +148,11 @@ export class GroupsListComponent {
     }
     this.satelliteService.updateGroup(payload).subscribe({
       next: (resp) =>{
+        this.group.notification = status
         this.SharedService.setNestedGroup(true);
+        this._snackBar.open(`Notification status apdated to ${status ? 'on':'off'}`, 'Ok', {
+          duration: 2000  // Snackbar will disappear after 300 milliseconds
+        });
       }
     })
   }

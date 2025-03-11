@@ -1066,6 +1066,8 @@ private fallbackCopyToClipboard(text: string): void {
       next: (resp) => {
         this.polygon_wkt = resp?.data?.wkt_polygon;
         if (isLoadFirstTime) {
+          console.log('wwwwwwwwwwwwwww');
+          
           this.zoomed_wkt_polygon = this.polygon_wkt;
         }
         // if(resp?.data?.area>=100000000){

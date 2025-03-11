@@ -260,6 +260,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
           });
      
           } else {
+            this.loader = true;
             this.ngxLoader.start();
             this.getSatelliteCatalog(payload,queryParams)
 

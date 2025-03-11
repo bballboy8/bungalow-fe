@@ -194,6 +194,9 @@ hybridLayer:L.TileLayer = L.tileLayer(
   ngOnInit(): void {
     this.setDynamicHeight();
     window.addEventListener('resize', this.setDynamicHeight.bind(this))
+    this.sharedService.vendorData$.subscribe((data) => {
+      this.vendorData = data;
+    });
   }
 
   ngAfterViewInit(): void {
@@ -412,6 +415,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
       }
       
     })
+    this.cdr.detectChanges();
   }
 
   applyMargin() {

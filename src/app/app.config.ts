@@ -20,6 +20,5 @@ const ngxUiLoaderConfig: NgxUiLoaderConfig = {
 };
 export const appConfig: ApplicationConfig = {
   providers: [provideRouter(routes), provideClientHydration(),provideAuth(),provideLoading(), importProvidersFrom([ BrowserAnimationsModule,BrowserModule,
-        NgxDaterangepickerMd.forRoot(),NgxUiLoaderModule.forRoot(ngxUiLoaderConfig)])]
-        // , SocketIoModule.forRoot(config)
+        NgxDaterangepickerMd.forRoot(),NgxUiLoaderModule.forRoot(ngxUiLoaderConfig) , SocketIoModule.forRoot(config)])]
 };

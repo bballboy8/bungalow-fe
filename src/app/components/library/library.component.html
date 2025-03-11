@@ -584,7 +584,7 @@
                                         class="min-w-[110px] !pl-[10px] text-secondaryText font-semibold">
                                         Holdback (d)</th>
                                     <td mat-cell *matCellDef="let row"
-                                        class="min-w-[90px] !pl-[10px] text-secondaryText">{{row?.holdback_seconds? holdbackRoundOf(row?.holdback_seconds/86400):null}}
+                                        class="min-w-[90px] !pl-[10px] text-secondaryText">{{row?.holdback_seconds && holdbackRoundOf(row?.holdback_seconds/86400)  > 40 ?  'N/A' : (holdbackRoundOf(row?.holdback_seconds/86400) || 'N/A') }} 
                                     </td>
                                 </ng-container>
 
@@ -707,7 +707,7 @@
                                                     </div>
                                                     <div class="flex py-2">
                                                         <span class="text-secondary-heiglight font-semibold">Holdback (d): </span> 
-                                                        <span class="text-secondaryText">{{element?.holdback_seconds? holdbackRoundOf(element?.holdback_seconds/86400):null}}</span>
+                                                        <span class="text-secondaryText">{{element?.holdback_seconds && holdbackRoundOf(element?.holdback_seconds/86400) > 40?   'N/A' : (holdbackRoundOf(element?.holdback_seconds/86400) || 'N/A')}}</span>
                                                     </div>
                                                     <div class="flex py-2"> <span
                                                             class="text-secondary-heiglight font-semibold">Day of Week:

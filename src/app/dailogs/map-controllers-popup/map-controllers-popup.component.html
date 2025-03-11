@@ -212,9 +212,13 @@
         <div class="flex p-[15px] flex-col items-start gap-[15px] self-stretch rounded-[10px] border border-solid border-custom-border">
             <div class="flex flex-wrap justify-center items-center gap-[5px] self-stretch">
               @for (vendor of getVendors(data?.markerData?.vendor_count || {}); track vendor;let index = $index) {
-                <div class="flex h-[60px] min-w-[70.25px] p-[8px] bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
+                <div class="flex group h-[60px] relative overflow-visible min-w-[70.25px] p-[8px] bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
                     <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px] capitalize">{{vendor}}</span>
                     <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px]">{{data?.markerData?.vendor_count?.[vendor]}}</span>
+                    <div class="group-hover:flex absolute top-[50px] w-max gap-[5px] hidden bg-primaryBg shadow-custom-light p-[5px] rounded-sm">
+                      <span class="text-secondaryText font-Barlow text-xs ">All time count:</span>
+                      <span class="text-secondaryText font-Barlow text-xs ">{{data?.markerData?.vendor_count?.[vendor]}}</span>
+                    </div>
                 </div>
               }
             </div>

@@ -219,21 +219,21 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   }
   @Input()
   set startDate(value: any) {    
-    if (!(value !== this._startDate && this.endDate !== this._endDate)) {
+    if (!(value !== this._startDate && this.endDate !== this._endDate) || (value !== this._startDate)) {
+            
       this._startDate = value;
-      let queryParams = this.filterParams;
+      let queryParams = {...this.filterParams, 
+        start_date: this._startDate,
+        end_date: this._endDate};
       const payload = {
         wkt_polygon: this.polygon_wkt,
-        original_polygon:this.original_wkt
+        // original_polygon:this.original_wkt
       }
       
       if (this.polygon_wkt) {
         setTimeout(() => {
           const payload = {
             polygon_wkt: this.polygon_wkt,
-            start_date: this.startDate,
-            end_date: this.endDate,
-            original_polygon:this.original_wkt
           }
         if(this.isEventsOpened){
           
@@ -260,6 +260,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
           });
      
           } else {
+            this.ngxLoader.start();
             this.getSatelliteCatalog(payload,queryParams)
 
           }  
@@ -318,8 +319,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   focused_captures_count:any;
   @Input()
 set zoomed_wkt(value: string) {
-  console.log(this._zoomed_wkt);
-  console.log("vvvvv");
+  console.log("vvvvv", this._zoomed_wkt, value);
   
   if (value !== this._zoomed_wkt) {
     this._zoomed_wkt = value;

@@ -15,9 +15,12 @@ const config: SocketIoConfig = {
   options: {
     transports: ['websocket','polling'], // Force WebSocket (disable polling)
     path: '/ws/messaging/global/', // WebSocket path
-    extraHeaders: {
-      "Authorization": `Bearer ${environment.authToken}`
-    }
+    query: {
+      Authorization: `Bearer ${environment.authToken}`
+    },
+  reconnection: true, // Enable automatic reconnection
+  reconnectionAttempts: 10, // Maximum reconnection attempts
+  reconnectionDelay: 5000, // Delay between attempts (in ms)
 
   },
 };

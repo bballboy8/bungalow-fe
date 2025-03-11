@@ -1050,6 +1050,9 @@ private fallbackCopyToClipboard(text: string): void {
 
   //Getting the polygon from cordinates functionality
   getPolygonFromCoordinates(payload:{geometry:{type:string,coordinates:any[]}},bound:any,  isLoadFirstTime = false) {
+    if(this.map) {
+      this.map.setZoom(4)
+    }
     const  updatedPayload = this.normalizePayloadCoordinates(payload);
     const customPayload = {
       geometry:bound,

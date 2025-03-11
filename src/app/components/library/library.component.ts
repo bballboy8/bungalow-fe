@@ -318,6 +318,9 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   focused_captures_count:any;
   @Input()
 set zoomed_wkt(value: string) {
+  console.log(this._zoomed_wkt);
+  console.log("vvvvv");
+  
   if (value !== this._zoomed_wkt) {
     this._zoomed_wkt = value;
 
@@ -1857,7 +1860,11 @@ getOverlapData(){
   }
 
   holdbackRoundOf(value:number){
-    return Math.floor(value);
+    const holdback = Math.floor(value/86400);
+    if (holdback > 40 || !value) {
+      return 'N/A'
+    } 
+    return holdback || 0
   }
 
 }

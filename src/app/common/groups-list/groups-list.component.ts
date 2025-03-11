@@ -245,6 +245,7 @@ export class GroupsListComponent {
           
           site_id: site.id,
         }
+        this.updateSitesCount(site.id)
         this.getSitesData(queryParams)
         this.activeSite = site.id;
         
@@ -838,4 +839,16 @@ export class GroupsListComponent {
       clearTooltipPosition(day: any): void {
         delete this.tooltipPosition[day.date];
       }
+
+      //Update sites count api call
+      updateSitesCount(siteId:any){
+        const payload ={
+         site_id:siteId
+        }
+        this.satelliteService.updateSitesCount(payload).subscribe({
+         next:(resp)=>{
+   
+         }
+        })
+       }
 }

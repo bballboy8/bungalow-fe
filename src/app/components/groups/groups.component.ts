@@ -323,6 +323,7 @@ export class GroupsComponent implements OnInit,AfterViewInit {
        
         site_id: site.id,
       }
+      this.updateSitesCount(site.id)
       this.getSitesData(queryParams)
       this.activeSite = site.id;
 
@@ -585,6 +586,17 @@ export class GroupsComponent implements OnInit,AfterViewInit {
   
         }
       })
+    }
+
+    updateSitesCount(siteId:any){
+     const payload ={
+      site_id:siteId
+     }
+     this.satelliteService.updateSitesCount(payload).subscribe({
+      next:(resp)=>{
+
+      }
+     })
     }
     // getColor(value, data) {
     //   const min = Math.min(...data);

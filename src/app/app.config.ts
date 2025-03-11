@@ -10,7 +10,11 @@ import { NgxUiLoaderModule, NgxUiLoaderConfig } from 'ngx-ui-loader';
 import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
 import { environment } from '../environments/environment';
 
-const config: SocketIoConfig = { url: environment.SOCKET_URL, options: {} };
+const config: SocketIoConfig = { url: environment.SOCKET_URL,   options: {
+  reconnection: true, // Enable automatic reconnection
+  reconnectionAttempts: 10, // Maximum reconnection attempts
+  reconnectionDelay: 5000, // Delay between attempts (in ms)
+}, };
 const ngxUiLoaderConfig: NgxUiLoaderConfig = {
   fgsType: 'three-strings',
   fgsColor: '#FCCA40', // Change the loader color

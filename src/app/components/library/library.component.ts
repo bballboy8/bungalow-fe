@@ -615,6 +615,83 @@ set zoomed_wkt(value: string) {
             this.sharedService.shapeType.set(null)
           }
         },this.polygon_wkt)
+
+        effect(() => {
+          const refreshInfo =  this.sharedService.refreshList()
+       console.log(refreshInfo,'refreshInforefreshInforefreshInforefreshInfo');
+       
+       if(refreshInfo){
+        this.sharedService.isOpenedEventCalendar$.subscribe((state) => {
+    
+          if(state){
+            if(this.polygon_wkt ){
+              this.filterParams = queryParams
+              this.formGroup.reset();
+              const payload = {
+                wkt_polygon: this.polygon_wkt,
+                original_polygon:this.original_wkt
+              }
+          
+              const calendarPayload ={
+                  polygon_wkt: this.polygon_wkt,
+                  start_date: this.startDate,
+                  end_date: this.endDate,
+                  original_polygon:this.original_wkt
+              }
+             if(this.isEventsOpened){
+              this.getCalendarData(calendarPayload,this.filterParams)
+            }
+            // if(state){
+            //    const payload = {
+            //   polygon_wkt: this.polygon_wkt
+            // }
+            //   this.satelliteService.getPolygonCalenderDays(payload).subscribe({
+            //     next: (resp) => {
+            //       console.log(resp,'getPolygonCalenderDaysgetPolygonCalenderDaysgetPolygonCalenderDays');
+                  
+            //     }})
+            // }
+          }
+          }
+        });
+        let queryParams: any = {
+          ...this.filterParams,
+          page_number: '1',
+          page_size: this.page_size,
+          start_date: this.startDate,
+          end_date: this.endDate,
+          source: 'library',
+          focused_records_ids: this.idArray
+        };
+        const payload = {
+          wkt_polygon: this.polygon_wkt,
+          original_polygon:this.original_wkt
+        };
+        if (this._zoomed_wkt !== '') {
+          queryParams = {...queryParams,  zoomed_wkt: this._zoomed_wkt}
+        } else {
+          queryParams = {...queryParams,  zoomed_wkt: ''}
+        }
+      
+        this.loader = true;
+        this.ngxLoader.start(); // Start the loader
+        this.page_number = '1';
+        this.filterParams = {...queryParams}
+          this.getSatelliteCatalog(payload, queryParams);
+          const data = { polygon_wkt: this.polygon_wkt };
+          this.satelliteService.getPolygonSelectionAnalytics(data).subscribe({
+            next: (res) => {
+              this.analyticsData = res?.data?.analytics
+              this.percentageArray = Object.entries(this.analyticsData?.percentages).map(([key, value]) => ({
+                key,
+                ...(value as object),
+              }));
+            }
+          })
+       }
+       
+       this.sharedService.refreshList.set(false)
+        });
         
   }
 

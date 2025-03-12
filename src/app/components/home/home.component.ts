@@ -11,6 +11,7 @@ import {
   Renderer2,
   ChangeDetectorRef,
   HostListener,
+  effect,
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -188,6 +189,28 @@ hybridLayer:L.TileLayer = L.tileLayer(
   )
   {
     this.data = null;
+    effect(() => {
+      const refreshInfo =  this.sharedService.refreshList()
+   console.log(refreshInfo,'refreshInforefreshInforefreshInforefreshInfo');
+   
+   if(refreshInfo){
+       let queryParams ={
+        ...this.filterParams,
+        page_number: '1',
+        page_size: '50',
+        start_date:this.startDate,
+        end_date: this.endDate
+      }
+       this.shapeLoader = true;
+       this.ngxLoader.startLoader('shapesLoader');
+      const payload = {
+       wkt_polygon:this.polygon_wkt,
+       original_polygon:this.originalPolygon
+      }
+       this.getDataUsingPolygon(payload,queryParams);
+   }
+    });
+   
   }
 
 
@@ -2708,6 +2731,23 @@ wktToBounds(wkt: string): L.LatLngBounds {
         } else {
           this.extraShapesLayer?.clearLayers()
         }
+  }
+
+  calendarData(payload,queryParams,state){
+    this.satelliteService.getPolygonCalenderDays(payload,queryParams).subscribe({
+      next: (resp) => {
+        this.ngxLoader.stop()
+        this.calendarApiData = resp.data;
+        this.OpenEventCalendar = state
+      },
+      error: (err) => {
+        this.ngxLoader.stop()
+        console.error('Error fetching calendar data', err);
+        // Hide loader on error
+         
+      },
+      
+    });
   }
 
 }

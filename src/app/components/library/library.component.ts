@@ -233,7 +233,8 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
       if (this.polygon_wkt) {
         setTimeout(() => {
           const payload = {
-            polygon_wkt: this.polygon_wkt,
+            wkt_polygon: this.polygon_wkt,
+            original_polygon:this.original_wkt
           }
         if(this.isEventsOpened){
           
@@ -353,6 +354,23 @@ set zoomed_wkt(value: string) {
         queryParams = {...queryParams,  zoomed_wkt: this._zoomed_wkt}
       } else {
         queryParams = {...queryParams,  zoomed_wkt: ''}
+      }
+      if(this.polygon_wkt && this.sharedService.shapeDrawStatus()){
+        const data = { polygon_wkt: this.polygon_wkt };
+        this.satelliteService.getPolygonSelectionAnalytics(data).subscribe({
+          next: (res) => {
+            this.analyticsData = res?.data?.analytics
+            this.percentageArray = Object.entries(this.analyticsData?.percentages).map(([key, value]) => ({
+              key,
+              ...(value as object),
+            }));
+          }
+        })
+         this.filterParams = this.defaultFilter();
+        const payload = {
+          wkt_polygon: this.polygon_wkt
+        }
+        this.sharedService.shapeDrawStatus.set(false)
       }
       if(this.isRefresh){
       this.loader = true;

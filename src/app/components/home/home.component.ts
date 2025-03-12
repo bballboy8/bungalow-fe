@@ -933,7 +933,6 @@ private fallbackCopyToClipboard(text: string): void {
         this.isProgrammaticMove = true;  // Set the flag before programmatic move
         drawHandler.enable();
         this.drawHandler = drawHandler; // Store the handler for later use
-
         // Add an event listener for when the shape is created
         this.map.on(L.Draw.Event.CREATED, (event: any) => {
             const layer = event.layer; // The drawn layer
@@ -946,6 +945,7 @@ private fallbackCopyToClipboard(text: string): void {
               //  this.zoomed_wkt_polygon = ''
               //  this.closeDrawer()
               this.sharedService.setDrawShape(true);
+              this.sharedService.shapeDrawStatus.set(true)
                this.removeAllImageOverlays();
                const orginalCords = this.latLngBoundsToPolygon(bounds)
               this.getPolygonFromCoordinates({ geometry: geoJSON?.geometry }, orginalCords);
@@ -972,9 +972,11 @@ private fallbackCopyToClipboard(text: string): void {
               this.handleDropdownToggle(this.isDrawerOpen)
               this.drawer._animationState = 'open';
                this.removeAllImageOverlays()
-               const orginalCords = this.latLngBoundsToPolygon(bounds)
+               const orginalCords = this.latLngBoundsToPolygon(bounds);
+               
               this.getPolygonFromCoordinates({ geometry: geoJSON?.geometry }, orginalCords);
               setTimeout(() => {
+                this.sharedService.shapeDrawStatus.set(true)
                 this.sharedService.setDrawShape(false)
                 this.map.fitBounds(bounds, {
                     padding: [10, 10], // Adds padding around the bounds
@@ -992,12 +994,14 @@ private fallbackCopyToClipboard(text: string): void {
               this.handleDropdownToggle(this.isDrawerOpen)
               this.drawer._animationState = 'open';
                this.removeAllImageOverlays();
+               this.sharedService.shapeDrawStatus.set(true)
                const orginalCords = this.latLngBoundsToPolygon(bounds)
                
               this.getPolygonFromCoordinates({ geometry: geoJSON?.geometry }, orginalCords);
              
               setTimeout(() => {
                 this.sharedService.setDrawShape(false)
+                
                 this.map.fitBounds(bounds, {
                     padding: [50, 50], // Adds padding around the bounds
                     maxZoom: 16        // Caps the zoom level

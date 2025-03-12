@@ -3,9 +3,7 @@ import { Socket } from 'ngx-socket-io';
 import { Observable, Subject, interval, merge } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export class SocketService {
  
   constructor(private socket: Socket) {

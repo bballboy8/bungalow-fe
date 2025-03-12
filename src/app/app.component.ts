@@ -12,7 +12,7 @@ import { Subscription } from 'rxjs';
   selector: 'app-root',
   standalone: true,
   imports: [HomeComponent,NgxUiLoaderModule],
-  providers: [],
+  providers: [SocketService],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
@@ -26,7 +26,7 @@ export class AppComponent implements OnInit, OnChanges, AfterViewInit {
   }
   ngOnInit(): void {
     
-    
+    this.sendMessage()
   }
 
   sendMessage() {
@@ -49,15 +49,12 @@ export class AppComponent implements OnInit, OnChanges, AfterViewInit {
         this.isLoading = value;
       });
     })
-    setTimeout(()=>{
-      console.log(this.socketService.getMessages().subscribe((msg)=>{return msg}),'ddddddddddddd');
     
       this.socketService.getMessages().subscribe((msg) => {
        console.log(msg,'ooooooooooooooo');
        
       });
-      this.socketService.getRawMessages()
-    },5000)
+
     
 
   }

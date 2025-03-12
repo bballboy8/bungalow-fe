@@ -26,10 +26,21 @@ export class AppComponent implements OnInit, OnChanges, AfterViewInit {
   }
   ngOnInit(): void {
     
-    this.socketService.getMessage().subscribe((msg: string) => {
-      console.log('Message received from socket:', msg);
-      this.message = msg; // Assign the received message to a variable
-    });
+    
+  }
+
+  sendMessage() {
+    
+      this.message = {
+        "type": "site_update",
+        "site_name": "nmb",
+        "site_id": 5,
+        "new_updates": "",
+        "time": ""
+      }
+      this.socketService.sendMessage(this.message);
+      this.message = ''; // Clear input after sending
+    
   }
 
   ngAfterViewInit(): void {
@@ -38,6 +49,16 @@ export class AppComponent implements OnInit, OnChanges, AfterViewInit {
         this.isLoading = value;
       });
     })
+    setTimeout(()=>{
+      console.log(this.socketService.getMessages().subscribe((msg)=>{return msg}),'ddddddddddddd');
+    
+      this.socketService.getMessages().subscribe((msg) => {
+       console.log(msg,'ooooooooooooooo');
+       
+      });
+      this.socketService.getRawMessages()
+    },5000)
+    
 
   }
   

@@ -12,7 +12,7 @@ import { Subscription } from 'rxjs';
   selector: 'app-root',
   standalone: true,
   imports: [HomeComponent,NgxUiLoaderModule],
-  providers: [SocketService],
+  providers: [],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
@@ -46,5 +46,9 @@ export class AppComponent implements OnInit, OnChanges, AfterViewInit {
       this.isLoading = value;
     });
 
+  }
+
+  ngOnDestroy() {
+    this.socketService.disconnect(); // Close the WebSocket connection
   }
 }

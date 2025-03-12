@@ -5,6 +5,7 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build --configuration=production",
+    "build:staging": "ng build --configuration=staging",
     "test": "ng test"
   },
   "private": true,

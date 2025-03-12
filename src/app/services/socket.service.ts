@@ -15,13 +15,13 @@ export class SocketService {
     this.socket.emit('message', msg);
   }
   getMessage() {
-    console.log('getMessagegetMessage',this.socket.fromEvent('site_update'));
-    
     return this.socket.fromEvent('site_update');
   }
 
-  // ✅ Listen for real-time notifications from WebSocket
 
+  disconnect() {
+    this.socket.disconnect();
+  }
  
 }
 

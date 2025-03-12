@@ -14,9 +14,9 @@ const config: SocketIoConfig = {
   url: environment.SOCKET_URL, // Your Django WebSocket URL
   options: {
     transports: ['websocket','polling'], // Force WebSocket (disable polling)
-    path: '/ws/messaging/global/', // WebSocket path
+    path: '/ws/messaging/global', // WebSocket path
     query: {
-      Authorization: `Bearer ${environment.authToken}`
+      token: `${environment.authToken}`
     },
   reconnection: true, // Enable automatic reconnection
   reconnectionAttempts: 10, // Maximum reconnection attempts

@@ -86,8 +86,11 @@ jobs:
             )
 
             echo "Installing dependencies for frontend..."
+            echo "GITHUB_REF before npm install: $GITHUB_REF"
+            echo "Branch Reference: ${{ github.ref }}"
             npm i
             echo "GITHUB_REF is: $GITHUB_REF"
+            echo "Branch Reference: ${{ github.ref }}"
             echo "Building frontend application..."
             if [[ "$GITHUB_REF" == "refs/heads/env-setup" ]]; then
               echo "Building frontend application for $BRANCH production..."

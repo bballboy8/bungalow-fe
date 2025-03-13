@@ -238,12 +238,17 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
           }
         if(this.isEventsOpened){
           
-    
+          const calendarPayload ={
+            polygon_wkt: this.polygon_wkt,
+            start_date: this.startDate,
+            end_date: this.endDate,
+            original_polygon:this.original_wkt
+        }
           
           // Start the loader
          
         
-          this.satelliteService.getPolygonCalenderDays(payload,queryParams).subscribe({
+          this.satelliteService.getPolygonCalenderDays(calendarPayload,queryParams).subscribe({
             next: (resp) => {
             
               this.calendarApiData = resp.data;
@@ -645,8 +650,17 @@ set zoomed_wkt(value: string) {
        if(refreshInfo){
         this.sharedService.isOpenedEventCalendar$.subscribe((state) => {
     
-          if(state){
+         
             if(this.polygon_wkt ){
+              let queryParams: any = {
+                ...this.filterParams,
+                page_number: '1',
+                page_size: this.page_size,
+                start_date: this.startDate,
+                end_date: this.endDate,
+                source: 'library',
+                focused_records_ids: this.idArray
+              };
               this.filterParams = queryParams
               this.formGroup.reset();
               const payload = {
@@ -674,7 +688,7 @@ set zoomed_wkt(value: string) {
             //     }})
             // }
           }
-          }
+          
         });
         let queryParams: any = {
           ...this.filterParams,
@@ -892,7 +906,7 @@ set zoomed_wkt(value: string) {
     
     this.satelliteService.getDataFromPolygon(payload,queryParams).subscribe({
       next: (resp) => {
-        
+        this.sharedService.refreshList.set(false)
         // console.log(resp,'queryParamsqueryParamsqueryParamsqueryParams');
         this.dataSource.data = resp.data.map((item, idx) => ({
           ...item,
@@ -910,7 +924,7 @@ set zoomed_wkt(value: string) {
           const div = this.scrollableDiv?.nativeElement;
           div.addEventListener('wheel', this.handleWheelEvent);
       }, 800); 
-      this.sharedService.refreshList.set(false)
+      
       },
       error: (err) => {
         this.loader = false

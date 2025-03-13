@@ -197,10 +197,10 @@ export class MapControllersPopupComponent implements OnInit, OnChanges,AfterView
     const twentyFourHoursInMs = 24 * 60 * 60 * 1000;
 
     // Check if the acquisition date is within the last 24 hours
-    if (timeDifference <= twentyFourHoursInMs) {
+    // if (timeDifference <= twentyFourHoursInMs) {
       // If it's within 24 hours, return the time portion of the date (formatted as needed)
       return acquisitionDate.toLocaleTimeString(); // You can adjust the format if needed
-    }
+    // }
 
     // Return null if the acquisition date is not within the last 24 hours
     return dayjs(acquisition_datetime).format('DD.MM.YY');;

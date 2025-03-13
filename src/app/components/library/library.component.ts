@@ -219,20 +219,21 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   }
   @Input()
   set startDate(value: any) {    
-    if (!(value !== this._startDate && this.endDate !== this._endDate)) {
+    if (!(value !== this._startDate && this.endDate !== this._endDate) || (value !== this._startDate)) {
+            
       this._startDate = value;
-      let queryParams = this.filterParams;
+      let queryParams = {...this.filterParams, 
+        start_date: this._startDate,
+        end_date: this._endDate};
       const payload = {
         wkt_polygon: this.polygon_wkt,
-        original_polygon:this.original_wkt
+        // original_polygon:this.original_wkt
       }
       
       if (this.polygon_wkt) {
         setTimeout(() => {
           const payload = {
-            polygon_wkt: this.polygon_wkt,
-            start_date: this.startDate,
-            end_date: this.endDate,
+            wkt_polygon: this.polygon_wkt,
             original_polygon:this.original_wkt
           }
         if(this.isEventsOpened){
@@ -260,6 +261,8 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
           });
      
           } else {
+            this.loader = true;
+            this.ngxLoader.start();
             this.getSatelliteCatalog(payload,queryParams)
 
           }  
@@ -318,6 +321,8 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   focused_captures_count:any;
   @Input()
 set zoomed_wkt(value: string) {
+  console.log("vvvvv", this._zoomed_wkt, value);
+  
   if (value !== this._zoomed_wkt) {
     this._zoomed_wkt = value;
 
@@ -349,6 +354,23 @@ set zoomed_wkt(value: string) {
         queryParams = {...queryParams,  zoomed_wkt: this._zoomed_wkt}
       } else {
         queryParams = {...queryParams,  zoomed_wkt: ''}
+      }
+      if(this.polygon_wkt && this.sharedService.shapeDrawStatus()){
+        const data = { polygon_wkt: this.polygon_wkt };
+        this.satelliteService.getPolygonSelectionAnalytics(data).subscribe({
+          next: (res) => {
+            this.analyticsData = res?.data?.analytics
+            this.percentageArray = Object.entries(this.analyticsData?.percentages).map(([key, value]) => ({
+              key,
+              ...(value as object),
+            }));
+          }
+        })
+         this.filterParams = this.defaultFilter();
+        const payload = {
+          wkt_polygon: this.polygon_wkt
+        }
+        this.sharedService.shapeDrawStatus.set(false)
       }
       if(this.isRefresh){
       this.loader = true;
@@ -1936,7 +1958,11 @@ getOverlapData(){
   }
 
   holdbackRoundOf(value:number){
-    return Math.floor(value);
+    const holdback = Math.floor(value/86400);
+    if (holdback > 40 || !value) {
+      return 'N/A'
+    } 
+    return holdback || 0
   }
 
 }

@@ -25,11 +25,14 @@ export class AppComponent implements OnInit, OnChanges, AfterViewInit {
 
   }
   ngOnInit(): void {
+    this.socketService.getMessages().subscribe((msg)=>{
+      console.log("jkdsnkjsdvds", msg)
+    })
+
+
+
+    console.log("this.socketServicethis.socketService", this.socketService);
     
-    this.socketService.getMessage().subscribe((msg: string) => {
-      console.log('Message received from socket:', msg);
-      this.message = msg; // Assign the received message to a variable
-    });
   }
 
   ngAfterViewInit(): void {
@@ -38,7 +41,6 @@ export class AppComponent implements OnInit, OnChanges, AfterViewInit {
         this.isLoading = value;
       });
     })
-
   }
   
   ngOnChanges(changes: SimpleChanges): void {

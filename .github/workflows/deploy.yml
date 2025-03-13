@@ -62,7 +62,7 @@ jobs:
         uses: webfactory/ssh-agent@v0.5.3
         with:
           ssh-private-key: |
-            ${{ (github.ref == 'refs/heads/production' && secrets.PROD_SSH_KEY) || 
+            ${{ (github.ref == 'refs/heads/env-setup' && secrets.PROD_SSH_KEY) || 
                 (github.ref == 'refs/heads/staging' && secrets.STAGING_SSH_KEY) }}
       
       - name: Deploy Application

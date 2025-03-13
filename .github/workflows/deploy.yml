@@ -87,7 +87,7 @@ jobs:
 
             echo "Installing dependencies for frontend..."
             npm i
-
+            echo "GITHUB_REF is: $GITHUB_REF"
             echo "Building frontend application..."
             if [[ "$GITHUB_REF" == "refs/heads/env-setup" ]]; then
               echo "Building frontend application for $BRANCH production..."

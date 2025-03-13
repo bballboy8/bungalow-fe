@@ -25,7 +25,7 @@
     <div class="flex flex-col overflow-x-auto h-screen">
         <div class="py-[10px] bg-table-header px-[15px] flex font-Barlow font-medium leading-[18px] text-secondaryText text-xs">
             <span class="min-w-[355px]">Name</span>
-            <!-- <span class="min-w-[102.324px]">Updates</span> -->
+            <span class="min-w-[102.324px]">Updates</span>
             <span class="min-w-[120px]">Date saved</span>
             <span class="min-w-[127.933px]">Surface</span>
             <span class="">Objects</span>
@@ -38,7 +38,7 @@
                         <img [src]="activeIndex == index? 'assets/svg-icons/folder-icon-expanded.svg':'assets/svg-icons/folder-icon.svg'" alt="" />
                         <span >{{group.name}}</span>
                     </div>
-                    <!-- <span class="min-w-[102.324px]"></span> -->
+                    <span class="min-w-[102.324px]">{{group.new_updates_count}}</span>
                     <span class="min-w-[120px]">{{group.created_at | dateFormat}}</span>
                     <span class="min-w-[127.933px]">{{roundOff(group.surface_area)}}km²</span>
                     <div class="flex gap-[15px] min-w-[85px] justify-between items-center">
@@ -50,11 +50,11 @@
                             <div class="inline-flex p-[15px] font-Barlow flex-col items-start gap-[15px]">
                                 <span class="text-secondary-heiglight text-xs font-bold leading-[18px]">Notifications</span>
                                 <div class="rounded-[25px] bg-primaryBg flex items-center justify-between">
-                                    <button (click)="setNotifications(true,group)"
+                                    <button (click)="$event.stopPropagation();setNotifications(true,group)"
                                         class="text-xs leading-[18px] py-[9px] font-semibold my-[7px] mr-[10px] ml-[7px] rounded-[19px] px-[20px]"
                                         [ngClass]="group?.notification ?'text-[#453303] bg-yellow':'text-secondary-heiglight'">On
                                        </button>
-                                    <button (click)="setNotifications(false,group)"
+                                    <button (click)="$event.stopPropagation();setNotifications(false,group)"
                                         class="text-xs leading-[18px] py-[9px] font-semibold my-[7px] mr-[7px] rounded-[19px] px-[20px] "
                                         [ngClass]="!group?.notification?'text-[#453303] bg-yellow':'text-secondary-heiglight'">Off</button>
                                 </div>

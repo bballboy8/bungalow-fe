@@ -27,7 +27,8 @@ export class SharedService {
   groupData$ = this.groupData.asObservable()
   private siteMarkerData = new BehaviorSubject<any>(null);
   siteMarkerData$ = this.siteMarkerData.asObservable();
-  shapeType = signal<string>(null)
+  shapeType = signal<string>(null);
+  shapeDrawStatus = signal<boolean>(false)
   constructor() {}
 
   setIsOpenedEventCalendar(isOpened: boolean): void {

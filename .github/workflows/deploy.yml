@@ -5,7 +5,6 @@ on:
     branches:
       - production
       - staging
-      - env-setup
 
 jobs:
   deploy:
@@ -38,7 +37,7 @@ jobs:
 
       - name: Set environment variables based on branch
         run: |
-          if [[ "$GITHUB_REF" == "refs/heads/env-setup" ]]; then
+          if [[ "$GITHUB_REF" == "refs/heads/production" ]]; then
             echo "Setting production environment"
             echo "USERNAME=${{ secrets.PROD_USERNAME }}" >> $GITHUB_ENV
             echo "HOST=${{ secrets.PROD_FE_HOST }}" >> $GITHUB_ENV
@@ -62,7 +61,7 @@ jobs:
         uses: webfactory/ssh-agent@v0.5.3
         with:
           ssh-private-key: |
-            ${{ (github.ref == 'refs/heads/env-setup' && secrets.PROD_SSH_KEY) || 
+            ${{ (github.ref == 'refs/heads/production' && secrets.PROD_SSH_KEY) || 
                 (github.ref == 'refs/heads/staging' && secrets.STAGING_SSH_KEY) }}
       
       - name: Deploy Application
@@ -93,7 +92,7 @@ jobs:
 
             echo "Current branch reference: ${{ github.ref }}"
     
-            if [[ "${{ github.ref }}" == "refs/heads/env-setup" ]]; then
+            if [[ "${{ github.ref }}" == "refs/heads/production" ]]; then
               echo "Building frontend application for production..."
               npm run build
               echo "Copying build package (dist/) to web server directory"

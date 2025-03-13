@@ -17,7 +17,7 @@ import { SharedService } from './components/shared/shared.service';
 export class AppComponent implements OnInit, OnChanges, AfterViewInit {
   title = 'bungalow-app';
   isLoading = false;
-  siteNotification:boolean = true;
+  siteNotification:boolean = false;
   showRefreshInfo:boolean = false
   constructor(private LoadingService:LoadingService,private sharedService:SharedService,private cdr:ChangeDetectorRef){
 

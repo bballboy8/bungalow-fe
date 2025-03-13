@@ -677,7 +677,7 @@ set zoomed_wkt(value: string) {
         this.ngxLoader.start(); // Start the loader
         this.page_number = '1';
         this.filterParams = {...queryParams}
-          this.getSatelliteCatalog(payload, queryParams);
+         
           const data = { polygon_wkt: this.polygon_wkt };
           this.satelliteService.getPolygonSelectionAnalytics(data).subscribe({
             next: (res) => {
@@ -688,9 +688,10 @@ set zoomed_wkt(value: string) {
               }));
             }
           })
+          this.getSatelliteCatalog(payload, queryParams);
        }
        
-       this.sharedService.refreshList.set(false)
+      
         });
         
   }
@@ -887,6 +888,7 @@ set zoomed_wkt(value: string) {
           const div = this.scrollableDiv?.nativeElement;
           div.addEventListener('wheel', this.handleWheelEvent);
       }, 800); 
+      this.sharedService.refreshList.set(false)
       },
       error: (err) => {
         this.loader = false

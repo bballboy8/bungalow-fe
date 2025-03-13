@@ -142,6 +142,8 @@ export class MapControllersPopupComponent implements OnInit, OnChanges,AfterView
   }
 
   activeTimeFrame(time: any) {
+    console.log(time,'timetimetimetimetimetimetimetime');
+    
     this.selectedTimeFrame = time;
     this.activeTimeDate = this.data?.markerData?.percentages[time]
   }
@@ -566,4 +568,34 @@ openDialog(data:any){
       
   })
 }
+
+getValue(value:any,total:any){
+  return value *100 / total
+}
+//Double Day value function
+  getDouble(data){
+    return parseFloat(data) + parseFloat(data);
+    
+  }
+
+  //Total Number formatting in human-readable format with suffixes like k (thousands), m (millions), b (billions), etc.
+  formatNumber(totalCount: number): string {
+    if (totalCount >= 1_000_000_000) {
+      return `${parseFloat((totalCount / 1_000_000_000)?.toFixed(1))}b`; // Billions
+    } else if (totalCount >= 1_000_000) {
+      return `${parseFloat((totalCount / 1_000_000)?.toFixed(1))}m`; // Millions
+    } else if (totalCount >= 1_000) {
+      return `${parseFloat((totalCount / 1_000)?.toFixed(1))}k`; // Thousands
+    } else {
+      return totalCount?.toString(); // Less than 1,000
+    }
+  }
+
+  getPercentageArray(values): { key: string; current_count?: number; previous_count?: number; percentage_change?: number }[] {
+  return Object.entries(values).map(([key, value]) => ({
+    key,
+    ...(value as any), // Ensure additional properties exist
+  }));
+}
+
 }

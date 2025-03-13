@@ -12,7 +12,7 @@ import { Subscription } from 'rxjs';
   selector: 'app-root',
   standalone: true,
   imports: [HomeComponent,NgxUiLoaderModule],
-  providers: [SocketService],
+  providers: [],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
@@ -25,21 +25,13 @@ export class AppComponent implements OnInit, OnChanges, AfterViewInit {
 
   }
   ngOnInit(): void {
-    
-    this.sendMessage()
-  }
+    this.socketService.getMessages().subscribe((msg)=>{
+      console.log("jkdsnkjsdvds", msg)
+    })
 
-  sendMessage() {
-    
-      this.message = {
-        "type": "site_update",
-        "site_name": "nmb",
-        "site_id": 5,
-        "new_updates": "",
-        "time": ""
-      }
-      this.socketService.sendMessage(this.message);
-      this.message = ''; // Clear input after sending
+
+
+    console.log("this.socketServicethis.socketService", this.socketService);
     
   }
 
@@ -49,14 +41,6 @@ export class AppComponent implements OnInit, OnChanges, AfterViewInit {
         this.isLoading = value;
       });
     })
-    
-      this.socketService.getMessages().subscribe((msg) => {
-       console.log(msg,'ooooooooooooooo');
-       
-      });
-
-    
-
   }
   
   ngOnChanges(changes: SimpleChanges): void {

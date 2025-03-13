@@ -86,27 +86,29 @@ jobs:
             )
 
             echo "Installing dependencies for frontend..."
-            echo "GITHUB_REF before npm install: $GITHUB_REF"
-            echo "Branch Reference: ${{ github.ref }}"
+            
             npm i
-            echo "GITHUB_REF is: $GITHUB_REF"
-            echo "Branch Reference: ${{ github.ref }}"
-            echo "Building frontend application..."
-            if [[ "$GITHUB_REF" == "refs/heads/env-setup" ]]; then
-              echo "Building frontend application for $BRANCH production..."
+            
+            echo "Building new bungalow frontend application..."
+
+            echo "Current branch reference: ${{ github.ref }}"
+    
+            if [[ "${{ github.ref }}" == "refs/heads/env-setup" ]]; then
+              echo "Building frontend application for production..."
               npm run build
-              echo "Copy build packages directory dist/ to web server directory"
-              sudo cp -r /var/www/html
-            elif [[ "$GITHUB_REF" == "refs/heads/staging" ]]; then
+              echo "Copying build package (dist/) to web server directory"
+              sudo cp -r dist/ /var/www/html
+
+            elif [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
               echo "Building frontend application for staging..."
               npm run build:staging
-              echo "Copy build packages directory dist/ to web server directory"
-              sudo cp -r /var/www/html
+              echo "Copying build package (dist/) to web server directory"
+              sudo cp -r dist/ /var/www/html
+
             else
-              echo "Unknown branch $BRANCH. Skipping build process."
+              echo "Unknown branch: ${{ github.ref }}. Skipping build process."
               exit 1
             fi
-
             echo "Deployment of branch $BRANCH completed successfully!"
           EOF
 

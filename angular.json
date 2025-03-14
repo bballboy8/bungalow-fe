@@ -60,8 +60,8 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "3mb",
-                  "maximumError": "3mb"
+                  "maximumWarning": "500kb",
+                  "maximumError": "1mb"
                 }
               ],
               "fileReplacements": [
@@ -71,7 +71,31 @@
                 }
               ],
               "outputHashing": "all"
+
             },
+            "staging": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "4mb",
+                  "maximumError": "4mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "500kb",
+                  "maximumError": "1mb"
+                }
+              ],
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.staging.ts"
+                }
+              ],
+              "outputHashing": "all"
+
+            },
+
             "development": {
               "optimization": false,
               "extractLicenses": false,

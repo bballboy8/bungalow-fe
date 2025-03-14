@@ -5,7 +5,9 @@
 <div class="z-[9999999999] w-max absolute flex flex-col top-[47px] right-[10px] gap-[15px]">
 @if (siteNotification) {
     <div class=" min-w-[160px] w-max flex font-Barlow py-[15px] flex-col items-center gap-[15px] rounded-[10px] bg-secondaryBg shadow-custom">
-        <span  class="flex w-full px-[15px] justify-end">
+       
+        <span  class="flex w-full px-[15px] justify-between">
+            <span class="text-yellow text-sm font-bold leading-[18px] ">Site update</span>
             <img class="w-[20px] cursor-pointer h-[20px]" src="assets/svg-icons/close-icon.svg" (click)="closeSiteInfo()" alt=""  />
         </span>
         <div class="flex gap-2 px-[15px] items-center font-Barlow w-full text-secondaryText">
@@ -30,7 +32,8 @@
 }
 @if (showRefreshInfo) {
     <div class=" min-w-[160px] w-max flex font-Barlow py-[15px] flex-col items-center gap-[15px] rounded-[10px] bg-secondaryBg shadow-custom">
-        <span  class="flex w-full px-[15px] justify-end">
+        <span  class="flex w-full px-[15px] justify-between">
+            <span class="text-yellow text-sm font-bold leading-[18px] ">Library update</span>
             <img class="w-[20px] cursor-pointer h-[20px]" src="assets/svg-icons/close-icon.svg" (click)="closeRefreshInfo()" alt=""  />
         </span>
         <div class="flex px-[15px] gap-2 items-center font-Barlow w-full">

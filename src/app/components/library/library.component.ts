@@ -239,12 +239,17 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
           }
         if(this.isEventsOpened){
           
-    
+          const calendarPayload ={
+            polygon_wkt: this.polygon_wkt,
+            start_date: this.startDate,
+            end_date: this.endDate,
+            original_polygon:this.original_wkt
+        }
           
           // Start the loader
          
         
-          this.satelliteService.getPolygonCalenderDays(payload,queryParams).subscribe({
+          this.satelliteService.getPolygonCalenderDays(calendarPayload,queryParams).subscribe({
             next: (resp) => {
             
               this.calendarApiData = resp.data;
@@ -638,6 +643,93 @@ set zoomed_wkt(value: string) {
             this.sharedService.shapeType.set(null)
           }
         },this.polygon_wkt)
+
+        effect(() => {
+          const refreshInfo =  this.sharedService.refreshList()
+       console.log(refreshInfo,'refreshInforefreshInforefreshInforefreshInfo');
+       
+       if(refreshInfo){
+        this.sharedService.isOpenedEventCalendar$.subscribe((state) => {
+    
+         
+            if(this.polygon_wkt ){
+              let queryParams: any = {
+                ...this.filterParams,
+                page_number: '1',
+                page_size: this.page_size,
+                start_date: this.startDate,
+                end_date: this.endDate,
+                source: 'library',
+                focused_records_ids: this.idArray
+              };
+              this.filterParams = queryParams
+              this.formGroup.reset();
+              const payload = {
+                wkt_polygon: this.polygon_wkt,
+                original_polygon:this.original_wkt
+              }
+          
+              const calendarPayload ={
+                  polygon_wkt: this.polygon_wkt,
+                  start_date: this.startDate,
+                  end_date: this.endDate,
+                  original_polygon:this.original_wkt
+              }
+             if(this.isEventsOpened){
+              this.getCalendarData(calendarPayload,this.filterParams)
+            }
+            // if(state){
+            //    const payload = {
+            //   polygon_wkt: this.polygon_wkt
+            // }
+            //   this.satelliteService.getPolygonCalenderDays(payload).subscribe({
+            //     next: (resp) => {
+            //       console.log(resp,'getPolygonCalenderDaysgetPolygonCalenderDaysgetPolygonCalenderDays');
+                  
+            //     }})
+            // }
+          }
+          
+        });
+        let queryParams: any = {
+          ...this.filterParams,
+          page_number: '1',
+          page_size: this.page_size,
+          start_date: this.startDate,
+          end_date: this.endDate,
+          source: 'library',
+          focused_records_ids: this.idArray
+        };
+        const payload = {
+          wkt_polygon: this.polygon_wkt,
+          original_polygon:this.original_wkt
+        };
+        if (this._zoomed_wkt !== '') {
+          queryParams = {...queryParams,  zoomed_wkt: this._zoomed_wkt}
+        } else {
+          queryParams = {...queryParams,  zoomed_wkt: ''}
+        }
+      
+        this.loader = true;
+        this.ngxLoader.start(); // Start the loader
+        this.page_number = '1';
+        this.filterParams = {...queryParams}
+         
+          const data = { polygon_wkt: this.polygon_wkt };
+          this.satelliteService.getPolygonSelectionAnalytics(data).subscribe({
+            next: (res) => {
+              this.analyticsData = res?.data?.analytics
+              this.percentageArray = Object.entries(this.analyticsData?.percentages).map(([key, value]) => ({
+                key,
+                ...(value as object),
+              }));
+            }
+          })
+          this.getSatelliteCatalog(payload, queryParams);
+       }
+       
+      
+        });
         
   }
 
@@ -815,7 +907,7 @@ set zoomed_wkt(value: string) {
     
     this.satelliteService.getDataFromPolygon(payload,queryParams).subscribe({
       next: (resp) => {
-        
+        this.sharedService.refreshList.set(false)
         // console.log(resp,'queryParamsqueryParamsqueryParamsqueryParams');
         this.dataSource.data = resp.data.map((item, idx) => ({
           ...item,
@@ -833,6 +925,7 @@ set zoomed_wkt(value: string) {
           const div = this.scrollableDiv?.nativeElement;
           div.addEventListener('wheel', this.handleWheelEvent);
       }, 800); 
+      
       },
       error: (err) => {
         this.loader = false

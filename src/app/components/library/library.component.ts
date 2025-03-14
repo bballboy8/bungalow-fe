@@ -809,6 +809,8 @@ set zoomed_wkt(value: string) {
     })
     this.sharedService.overlayShapeData$.subscribe((overlayShapeData) => {
       if(overlayShapeData?.length>1){
+        console.log(overlayShapeData,'overlayShapeDataoverlayShapeDataoverlayShapeDataoverlayShapeData');
+        
        this.idArray = overlayShapeData.map((record) => record.id)?.join(',');
 
         let minCloud
@@ -997,6 +999,7 @@ set zoomed_wkt(value: string) {
   closeLibraryDrawer() {
     this.closeDrawer.emit(true);
     this.sharedService.setIsOpenedEventCalendar(false);
+    this.closeOverlay()
   }
 
   /** Selects all rows if they are not all selected; otherwise clear selection. */
@@ -1981,6 +1984,29 @@ getOverlapData(){
     
   }
 
+  expandRow(vendorId: any) {
+    const foundRow = this.dataSource.data.find(v => v.vendor_id === vendorId);
+  
+    if (foundRow) {
+      this.expandedElement = this.expandedElement?.vendor_id === vendorId ? null : foundRow;
+  
+      setTimeout(() => {
+        const rowElement = document.getElementById(`vendor-row-${vendorId}`);
+        const tableContainer = document.querySelector('.mat-table-container') as HTMLElement; // Cast to HTMLElement
+  
+        if (rowElement && tableContainer) {
+          const rowPosition = rowElement.offsetTop - tableContainer.offsetTop;
+          tableContainer.scrollTo({ top: rowPosition, behavior: 'smooth' });
+        }
+      }, 100); // Delay for smooth effect
+    }
+  }
+  
+  
+  
+  closeOverlay(){
+    this.overlapListData = [];
+  }
   holdbackRoundOf(value:number){
     const holdback = Math.floor(value/86400);
     if (holdback > 40 || !value) {

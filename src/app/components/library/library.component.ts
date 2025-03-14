@@ -61,7 +61,6 @@ import { Options,NgxSliderModule, LabelType } from '@angular-slider/ngx-slider';
 import momentZone from 'moment-timezone';
 import tzLookup from 'tz-lookup';
 import { CommonDailogsComponent } from "../../dailogs/common-dailogs/common-dailogs.component";
-import { wktToGeoJSON, geojsonToWKT } from '@terraformer/wkt';
 export class Group {
   name?: string;
   icon?: string; // icon name for Angular Material icons
@@ -167,6 +166,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
     { id: 'vendor_name', displayName: 'Vendor', visible: true },
     { id: 'cloud_cover', displayName: 'Clouds', visible: true },
     { id: 'gsd', displayName: 'Resolution', visible: true },
+    { id: 'holdback_seconds', displayName: 'Holdback', visible: true },
     { id: 'type', displayName: 'Type', visible: true },
     { id: 'vendor_id', displayName: 'ID', visible: true },
   ];
@@ -218,30 +218,37 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
     }
   }
   @Input()
-  set startDate(value: any) {
-    if (value !== this._startDate) {
+  set startDate(value: any) {    
+    if (!(value !== this._startDate && this.endDate !== this._endDate) || (value !== this._startDate)) {
+            
       this._startDate = value;
-      let queryParams = this.filterParams;
+      let queryParams = {...this.filterParams, 
+        start_date: this._startDate,
+        end_date: this._endDate};
       const payload = {
         wkt_polygon: this.polygon_wkt,
-        original_polygon:this.original_wkt
+        // original_polygon:this.original_wkt
       }
       
       if (this.polygon_wkt) {
         setTimeout(() => {
+          const payload = {
+            wkt_polygon: this.polygon_wkt,
+            original_polygon:this.original_wkt
+          }
         if(this.isEventsOpened){
           
-          const payload = {
+          const calendarPayload ={
             polygon_wkt: this.polygon_wkt,
             start_date: this.startDate,
             end_date: this.endDate,
             original_polygon:this.original_wkt
-          }
+        }
           
           // Start the loader
          
         
-          this.satelliteService.getPolygonCalenderDays(payload,queryParams).subscribe({
+          this.satelliteService.getPolygonCalenderDays(calendarPayload,queryParams).subscribe({
             next: (resp) => {
             
               this.calendarApiData = resp.data;
@@ -258,7 +265,12 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
             
           });
      
-          }   
+          } else {
+            this.loader = true;
+            this.ngxLoader.start();
+            this.getSatelliteCatalog(payload,queryParams)
+
+          }  
         },300)
       }
 
@@ -314,6 +326,8 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   focused_captures_count:any;
   @Input()
 set zoomed_wkt(value: string) {
+  console.log("vvvvv", this._zoomed_wkt, value);
+  
   if (value !== this._zoomed_wkt) {
     this._zoomed_wkt = value;
 
@@ -345,6 +359,23 @@ set zoomed_wkt(value: string) {
         queryParams = {...queryParams,  zoomed_wkt: this._zoomed_wkt}
       } else {
         queryParams = {...queryParams,  zoomed_wkt: ''}
+      }
+      if(this.polygon_wkt && this.sharedService.shapeDrawStatus()){
+        const data = { polygon_wkt: this.polygon_wkt };
+        this.satelliteService.getPolygonSelectionAnalytics(data).subscribe({
+          next: (res) => {
+            this.analyticsData = res?.data?.analytics
+            this.percentageArray = Object.entries(this.analyticsData?.percentages).map(([key, value]) => ({
+              key,
+              ...(value as object),
+            }));
+          }
+        })
+         this.filterParams = this.defaultFilter();
+        const payload = {
+          wkt_polygon: this.polygon_wkt
+        }
+        this.sharedService.shapeDrawStatus.set(false)
       }
       if(this.isRefresh){
       this.loader = true;
@@ -410,8 +441,8 @@ set zoomed_wkt(value: string) {
   defaultMaxGsd = 4;
   defaultMinAzimuthAngle = 0;
   defaultMaxAzimuthAngle = 365;
-  defaultMinholdbackSecond = -1;
-  defaultMaxHoldbackSecond = 840;
+  defaultMinholdbackSecond = -73;
+  defaultMaxHoldbackSecond = 438;
   defaultMinIlluminationAzimuthAngle = 0;
   defaultMaxIlluminationAzimuthAngle = 365;
   defaultMinIlluminationElevationAngle = 0;
@@ -478,12 +509,12 @@ set zoomed_wkt(value: string) {
     step: 60,
     showTicks: true,
     floor: -1,
-    ceil: 840,
+    ceil: 365,
     translate: (value: number, label: LabelType): string => {
       if (value === 0) {
         return '0';
-      } else if (value === 840) {
-        return '840+';
+      } else if (value === 438) {
+        return '365+';
       }
       return `${value}°`; // Default for other values
     },
@@ -611,6 +642,93 @@ set zoomed_wkt(value: string) {
             this.sharedService.shapeType.set(null)
           }
         },this.polygon_wkt)
+
+        effect(() => {
+          const refreshInfo =  this.sharedService.refreshList()
+       console.log(refreshInfo,'refreshInforefreshInforefreshInforefreshInfo');
+       
+       if(refreshInfo){
+        this.sharedService.isOpenedEventCalendar$.subscribe((state) => {
+    
+         
+            if(this.polygon_wkt ){
+              let queryParams: any = {
+                ...this.filterParams,
+                page_number: '1',
+                page_size: this.page_size,
+                start_date: this.startDate,
+                end_date: this.endDate,
+                source: 'library',
+                focused_records_ids: this.idArray
+              };
+              this.filterParams = queryParams
+              this.formGroup.reset();
+              const payload = {
+                wkt_polygon: this.polygon_wkt,
+                original_polygon:this.original_wkt
+              }
+          
+              const calendarPayload ={
+                  polygon_wkt: this.polygon_wkt,
+                  start_date: this.startDate,
+                  end_date: this.endDate,
+                  original_polygon:this.original_wkt
+              }
+             if(this.isEventsOpened){
+              this.getCalendarData(calendarPayload,this.filterParams)
+            }
+            // if(state){
+            //    const payload = {
+            //   polygon_wkt: this.polygon_wkt
+            // }
+            //   this.satelliteService.getPolygonCalenderDays(payload).subscribe({
+            //     next: (resp) => {
+            //       console.log(resp,'getPolygonCalenderDaysgetPolygonCalenderDaysgetPolygonCalenderDays');
+                  
+            //     }})
+            // }
+          }
+          
+        });
+        let queryParams: any = {
+          ...this.filterParams,
+          page_number: '1',
+          page_size: this.page_size,
+          start_date: this.startDate,
+          end_date: this.endDate,
+          source: 'library',
+          focused_records_ids: this.idArray
+        };
+        const payload = {
+          wkt_polygon: this.polygon_wkt,
+          original_polygon:this.original_wkt
+        };
+        if (this._zoomed_wkt !== '') {
+          queryParams = {...queryParams,  zoomed_wkt: this._zoomed_wkt}
+        } else {
+          queryParams = {...queryParams,  zoomed_wkt: ''}
+        }
+      
+        this.loader = true;
+        this.ngxLoader.start(); // Start the loader
+        this.page_number = '1';
+        this.filterParams = {...queryParams}
+         
+          const data = { polygon_wkt: this.polygon_wkt };
+          this.satelliteService.getPolygonSelectionAnalytics(data).subscribe({
+            next: (res) => {
+              this.analyticsData = res?.data?.analytics
+              this.percentageArray = Object.entries(this.analyticsData?.percentages).map(([key, value]) => ({
+                key,
+                ...(value as object),
+              }));
+            }
+          })
+          this.getSatelliteCatalog(payload, queryParams);
+       }
+       
+      
+        });
         
   }
 
@@ -790,7 +908,7 @@ set zoomed_wkt(value: string) {
     
     this.satelliteService.getDataFromPolygon(payload,queryParams).subscribe({
       next: (resp) => {
-        
+        this.sharedService.refreshList.set(false)
         // console.log(resp,'queryParamsqueryParamsqueryParamsqueryParams');
         this.dataSource.data = resp.data.map((item, idx) => ({
           ...item,
@@ -808,6 +926,7 @@ set zoomed_wkt(value: string) {
           const div = this.scrollableDiv?.nativeElement;
           div.addEventListener('wheel', this.handleWheelEvent);
       }, 800); 
+      
       },
       error: (err) => {
         this.loader = false
@@ -1878,8 +1997,12 @@ getOverlapData(){
   closeOverlay(){
     this.overlapListData = [];
   }
-  holdbackDecimal(value:number){
-    return parseFloat(value.toFixed(2));
+  holdbackRoundOf(value:number){
+    const holdback = Math.floor(value/86400);
+    if (holdback > 40 || !value) {
+      return 'N/A'
+    } 
+    return holdback || 0
   }
 
 }

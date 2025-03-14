@@ -168,6 +168,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
     { id: 'gsd', displayName: 'Resolution', visible: true },
     { id: 'holdback_seconds', displayName: 'Holdback', visible: true },
     { id: 'type', displayName: 'Type', visible: true },
+    { id: 'is_purchased', displayName: 'Purchase', visible: true },
     { id: 'vendor_id', displayName: 'ID', visible: true },
   ];
   

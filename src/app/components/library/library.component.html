@@ -601,7 +601,7 @@
                                         class="min-w-[80px] !pl-[10px] text-secondaryText font-semibold">
                                         Purchase</th>
                                     <td mat-cell *matCellDef="let row"
-                                        class="min-w-[80px] !pl-[10px] text-secondaryText">{{ row?.is_purchased}}
+                                        class="min-w-[80px] !pl-[10px] text-secondaryText">{{ row?.is_purchased ? 'Yes'  : 'No'}}
                                     </td>
                                 </ng-container>
 

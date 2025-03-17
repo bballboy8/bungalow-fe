@@ -23,8 +23,8 @@ export class NotificationsComponent implements OnInit, OnDestroy {
   ngOnInit() {
     // ✅ Listen to both real & fake notifications using `merge()`
     this.socketSubscription = merge(
-      this.socketService.listenForNotifications(), // Real WebSocket data
-      this.socketService.fakeNotifications$ // Fake notifications every 5 sec
+      // this.socketService.listenForNotifications(), // Real WebSocket data
+      // this.socketService.fakeNotifications$ // Fake notifications every 5 sec
     ).subscribe((newNotification) => {
       console.log("📩 Received Notification:", newNotification);
       this.notificationsList.unshift(newNotification);
@@ -45,7 +45,7 @@ export class NotificationsComponent implements OnInit, OnDestroy {
   }
 
   sendTestNotification() {
-    this.socketService.sendTestNotification();
+    // this.socketService.sendTestNotification();
   }
 
   markAllRead() {

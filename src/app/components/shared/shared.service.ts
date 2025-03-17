@@ -33,6 +33,8 @@ export class SharedService {
   libraryData = signal<any>(null);
   analyticsData = signal<any>(null);
   shapeType = signal<string>(null);
+  refreshList = signal<boolean>(false);
+  shapeDrawStatus = signal<boolean>(false);
   zoomed_wkt = signal<string>(null);
   libraryFilters = signal<any>(null);
   libraryColumns = signal<any>(null);
@@ -82,6 +84,5 @@ setGroupData(data: any): void {
 setSiteMarkerData(data: any): void {
   this.siteMarkerData.next(data);
 }
-
 
 }

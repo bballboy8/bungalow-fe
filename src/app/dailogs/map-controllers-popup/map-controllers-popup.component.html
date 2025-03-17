@@ -103,7 +103,7 @@
         <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Image acquisition</span>
         
         <div class="flex p-[15px] flex-col items-start gap-[15px] self-stretch rounded-[10px] border border-solid border-custom-border">
-            <div class="flex items-center gap-[5px] self-stretch">
+            <!-- <div class="flex items-center gap-[5px] self-stretch">
                 <div class="flex h-[60px] min-w-[70.25px] group p-[8px] bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
                     <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px]">Oldest</span>
                     <span class="text-secondary-heiglight text-[10px] font-bold font-Barlow leading-[18px]">{{data?.markerData?.oldest_date | dateFormat}}</span>
@@ -181,7 +181,120 @@
                 [ngClass]="selectedTimeFrame === 90 ? 'bg-primaryBg rounded-[50px] text-secondaryText':'text-secondary-heiglight'" (click)="activeTimeFrame(90)">
                     90 days
                 </span>
-            </div>
+            </div> -->
+            <div class="bg-secondaryBg rounded-[5px] font-Barlow">
+              <div class="mx-[5px] gap-[5px] flex font-Barlow">
+                  <div
+                      class="w-[71px] group flex flex-col p-[5px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">
+                      <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">
+                          Oldest
+                      </span>
+                      <span class="text-xs font-semibold leading-[18px] text-secondaryText">
+                          {{data?.markerData?.oldest_date  | dateFormat}}
+                      </span>
+
+                      <div
+                          class="hidden absolute shadow-custom left-[20px] z-10 rounded-[10px] top-[300px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                          <div class="flex gap-[5px] text-xs font-semibold leading-[18px]">
+                              <span>Date time:</span>
+                              <span>{{data?.markerData?.oldest_info?.acquisition_datetime | utcDateTimePipe}}
+                                  UTC</span>
+                          </div>
+                          <div class="flex gap-[5px] text-xs font-semibold leading-[18px]">
+                              <span>Vendor:</span>
+                              <span>{{data?.markerData?.oldest_info?.vendor_name }}</span>
+                          </div>
+
+                      </div>
+                  </div>
+                  <div
+                      class="w-[63px] group flex flex-col p-[5px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">
+                      <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">
+                          Total
+                      </span>
+                      <span class="text-xs font-semibold leading-[18px] text-secondaryText">
+                          {{formatNumber(data?.markerData?.total_count)}}
+                      </span>
+
+                      <div
+                          class="hidden absolute shadow-custom rounded-[10px] z-10 top-[300px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                          <div class="flex gap-[5px] text-xs font-semibold leading-[18px]">
+                              <span>Total count in last 90 days</span>
+                          </div>
+
+                      </div>
+                  </div>
+                  <div
+                      class="w-[63px] group flex flex-col p-[5px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">
+                      <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">
+                          Avg
+                      </span>
+                      <span class="text-xs font-semibold leading-[18px] text-secondaryText">
+                          {{data?.markerData?.average_per_day.toFixed(2)}}
+                      </span>
+
+                      <div
+                          class="hidden absolute shadow-custom rounded-[10px] z-10 top-[300px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                          <div class="flex gap-[5px] text-xs font-semibold leading-[18px]">
+                              <span>{{formatNumber(data?.markerData?.total_count)}} ÷ 90</span>
+                          </div>
+                      </div>
+                  </div>
+                  <div
+                      class="w-[73px] group flex flex-col p-[5px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">
+                      <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">
+                          Most recent
+                      </span>
+                      <span class="text-xs font-semibold leading-[18px] text-yellow">
+                          {{data?.markerData?.newest_info?.acquisition_datetime | dateFormat}}
+                      </span>
+                      <div
+                          class="hidden absolute shadow-custom rounded-[10px] z-10 top-[300px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                          <div class="flex gap-[5px] text-xs font-semibold leading-[18px]">
+                              <span>Date time:</span>
+                              <span>{{data?.markerData?.newest_info?.acquisition_datetime | utcDateTimePipe}}
+                                  UTC</span>
+                          </div>
+                          <div class="flex gap-[5px] text-xs font-semibold leading-[18px]">
+                              <span>Vendor:</span>
+                              <span>{{data?.markerData?.newest_info?.vendor_name }}</span>
+                          </div>
+
+                      </div>
+                  </div>
+              </div>
+
+              <div class="mx-[5px] flex font-Barlow">
+                  <div *ngFor="let level of getPercentageArray(data?.markerData?.percentages);let isLast = last" (click)="activeTimeFrame(level.key)"
+                      class="w-[57px] group cursor-pointer flex p-[5px] flex-col gap-1 my-3 text-center items-center justify-center font-Barlow"
+                      [ngClass]="{ 'border-r-[2px] border-[#2D343D]': !isLast }" >
+
+                      <div class="custom-progress-container" >
+                          <div class="custom-progress-bar"
+                              [ngStyle]="{ height: getValue(level?.current_count,data?.markerData?.total_count) + '%', background: '#ABB7C0' }">
+                          </div>
+                      </div>
+                      <span class="text-xs leading-[18px] font-semibold text-secondaryText">{{ level?.key }}
+                          Days</span>
+                      <span class="flex text-xs font-semibold leading-[18px]"
+                          [ngStyle]="{ color: level?.current_count >=level?.previous_count ?'#22F57A':'#F52222' }">
+                          {{roundOff(level?.percentage_change)}}%
+                          <img [src]="level?.current_count >=level?.previous_count?'assets/svg-icons/up-icon.svg' :'assets/svg-icons/down-icon.svg'"
+                              alt="up_icon" class="ml-1" />
+                      </span>
+                      <div
+                          class="absolute z-10 top-[380px] max-w-[200px] font-Barlow text-secondaryText group-hover:block hidden bg-primaryBg p-[10px]">
+                          <div class="flex flex-col gap-[5px]">
+                              <span
+                                  class="text-xs font-semibold leading-[18px] flex-wrap">{{roundOff(level?.current_count)}}
+                                  ({{level.key}} days) ÷ {{roundOff(level?.previous_count)}}
+                                  ({{getDouble(level.key)}} days)</span>
+                          </div>
+                      </div>
+                  </div>
+
+              </div>
+          </div>
             <div class="flex items-center gap-[5px] self-stretch">
                 <span class="flex-0 font-Barlow text-sm font-medium leading-[18px] text-yellow w-full">{{activeTimeDate?.current_count}} Images</span>
                 <span class="flex-0 font-Barlow text-sm font-medium leading-[18px]" [ngClass]="activeTimeDate?.current_count < activeTimeDate?.previous_count? 'text-custom-red':'text-custom-green'">{{roundOff(activeTimeDate?.percentage_change)}}%</span>
@@ -212,9 +325,13 @@
         <div class="flex p-[15px] flex-col items-start gap-[15px] self-stretch rounded-[10px] border border-solid border-custom-border">
             <div class="flex flex-wrap justify-center items-center gap-[5px] self-stretch">
               @for (vendor of getVendors(data?.markerData?.vendor_count || {}); track vendor;let index = $index) {
-                <div class="flex h-[60px] min-w-[70.25px] p-[8px] bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
+                <div class="flex group h-[60px] relative overflow-visible min-w-[70.25px] p-[8px] bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
                     <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px] capitalize">{{vendor}}</span>
                     <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px]">{{data?.markerData?.vendor_count?.[vendor]}}</span>
+                    <div class="group-hover:flex absolute z-[999999] top-[50px] w-max gap-[5px] hidden bg-primaryBg shadow-custom-light p-[5px] rounded-sm">
+                      <span class="text-secondaryText font-Barlow text-xs ">All time count:</span>
+                      <span class="text-secondaryText font-Barlow text-xs ">{{data?.markerData?.vendor_count?.[vendor]}}</span>
+                    </div>
                 </div>
               }
             </div>
@@ -386,10 +503,10 @@
     </div>
     <div class="flex flex-col w-2/4 p-[8px] gap-[5px] flex-0 rounded-[3px] bg-primaryBg justify-center">
       <!-- <div class="flex flex-col items-start gap-[5px] self-stretch"> -->
-      <span class="text-secondary-heiglight text-sm font-semibold">Holdback (h):
+      <span class="text-secondary-heiglight text-sm font-semibold">Holdback (d):
       </span>
       <div class="flex gap-2">
-        <span class="text-secondaryText">{{data?.vendorData.holdback_seconds ? holdbackDecimal(data?.vendorData.holdback_seconds/86400):null}}</span>
+        <span class="text-secondaryText">{{data?.vendorData.holdback_seconds ? holdbackRoundOf(data?.vendorData.holdback_seconds/86400):null}}</span>
       </div>
       <!-- </div> -->
     </div>

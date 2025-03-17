@@ -8,12 +8,13 @@ import { SatelliteService } from '../../services/satellite.service';
 import { LabelType, NgxSliderModule, Options } from '@angular-slider/ngx-slider';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSliderModule } from '@angular/material/slider';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @Component({
   selector: 'app-common-dailogs',
   standalone: true,
   imports: [CommonModule,FormsModule,MatFormFieldModule,ReactiveFormsModule,MatInputModule,MatSelectModule,
-      MatSliderModule,
+      MatSliderModule,MatCheckboxModule,
       NgxSliderModule,],
   templateUrl: './common-dailogs.component.html',
   styleUrl: './common-dailogs.component.scss'
@@ -32,14 +33,15 @@ vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra']
   defaultMaxGsd = 4;
   defaultMinAzimuthAngle = 0;
   defaultMaxAzimuthAngle = 365;
-  defaultMinholdbackSecond = -1;
-  defaultMaxHoldbackSecond = 840;
+  defaultMinholdbackSecond = 0;
+  defaultMaxHoldbackSecond = 36;
   defaultMinIlluminationAzimuthAngle = 0;
   defaultMaxIlluminationAzimuthAngle = 370;
   defaultMinIlluminationElevationAngle = 0;
   defaultMaxIlluminationElevationAngle = 370;
   max_cloud:number = this.defaultMaxCloud
   min_cloud: number = this.defaultMinCloud;
+  defaultIsPurchased = false
   options: Options = {
     step: 10,
     showTicks: true,
@@ -68,6 +70,7 @@ vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra']
   max_illumination_azimuth_angle:number = this.defaultMaxIlluminationAzimuthAngle;
   min_illumination_elevation_angle:number = this.defaultMinIlluminationElevationAngle;
   max_illumination_elevation_angle:number = this.defaultMaxIlluminationElevationAngle;
+  isPurchased = this.defaultIsPurchased
   angleOptions: Options = {
     step: 5,
     showTicks: true,
@@ -97,15 +100,13 @@ vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra']
     },
   };
   holdbackOptions: Options = {
-    step: 65,
+    step: 1,
     showTicks: true,
-    floor: -1,
-    ceil: 840,
+    floor: 0,
+    ceil: 36,
     translate: (value: number, label: LabelType): string => {
-      if (value === -1) {
-        return '-1';
-      } else if (value === 840) {
-        return '840+';
+    if (value === 36) {
+        return '35+';
       }
       return `${value}`; // Default for other values
     },
@@ -175,7 +176,6 @@ vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra']
     if(this.data.type === 'rename'){
       this.name = this.data?.group?.name || this.data?.site?.name
     }
-    console.log(this.data,'datadatadatadatadatadatadatadata');
     if(this.data.type ==='filters'){
       this.min_cloud = this.data?.filterParams?.min_cloud_cover !== undefined
   ? this.data.filterParams.min_cloud_cover === -1 
@@ -208,6 +208,7 @@ vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra']
           ? this.data?.filterParams?.user_duration_type.split(',') 
           : []
       });
+      this.isPurchased = this.data?.filterParams?.is_purchased ? this.data?.filterParams?.is_purchased: this.defaultIsPurchased
       setTimeout(()=>{
         this.sliderShow = true;
         // Apply styles to each slider element
@@ -221,7 +222,6 @@ vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra']
     
   }
   addGroup(){
-    console.log(this.data,'aaaaaaaaaaaaaaaaaaaa');
     if(this.name !==''){
     let payload
     if(this.data.type === 'addSubgroup'){
@@ -239,7 +239,6 @@ vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra']
      
     this.satelliteService.addGroup(payload).subscribe({
       next: (resp) => {
-        console.log(resp, 'respresprespresprespresprespresprespresp');
         this.dialogRef.close(resp)
 
       }
@@ -274,7 +273,6 @@ vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra']
         }
         this.satelliteService.removeGroup(payload).subscribe({
           next: (resp)=>{
-            console.log(resp,'wwwwwwwwwwwwwwwwwwww');
             this.dialogRef.close(resp);
             
           },
@@ -345,7 +343,8 @@ vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra']
         minIlluminationAzimuthAngle:this.data?.filterParams?.minIlluminationAzimuthAngle? this.data?.filterParams?.minIlluminationAzimuthAngle: this.defaultMinIlluminationAzimuthAngle,
         maxIlluminationAzimuthAngle:this.data?.filterParams?.maxIlluminationAzimuthAngle? this.data?.filterParams?.maxIlluminationAzimuthAngle: this.defaultMaxIlluminationAzimuthAngle,
         minIlluminationElevationAngle:this.data?.filterParams?.minIlluminationElevationAngle? this.data?.filterParams?.minIlluminationElevationAngle: this.defaultMinIlluminationElevationAngle,
-        maxIlluminationElevationAngle:this.data?.filterParams?.maxIlluminationElevationAngle? this.data?.filterParams?.maxIlluminationElevationAngle: this.defaultMaxIlluminationElevationAngle
+        maxIlluminationElevationAngle:this.data?.filterParams?.maxIlluminationElevationAngle? this.data?.filterParams?.maxIlluminationElevationAngle: this.defaultMaxIlluminationElevationAngle,
+        is_purchased: this.data?.filterParams?.is_purchased ? this.data?.filterParams?.is_purchased: this.defaultIsPurchased
       };
     
       // Function to add a filter and increment counter
@@ -438,6 +437,7 @@ vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra']
         this.max_illumination_elevation_angle,
         defaultValues.maxIlluminationElevationAngle
       );
+      console.log(this.isPurchased,'isPurchasedisPurchasedisPurchased');
       
       let vendorId
       // Get vendor-related values from the form
@@ -452,6 +452,11 @@ vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra']
       if (vendorId && vendorId !== this.data?.filterParams?.vendor_id) {
         queryParams.vendor_id = vendorId;
         filterCount++;
+    }
+
+    if(this.isPurchased !== this.data?.filterParams?.is_purchased && this.isPurchased !== this.defaultIsPurchased){
+      queryParams.is_purchased = this.isPurchased
+      filterCount++;
     }
     
     if (vendorName && vendorName !== this.data?.filterParams?.vendor_name) {

@@ -357,7 +357,7 @@
                                     <div class="relative flex justify-center items-center">
                                         <button
                                             class=" flex gap-[5px] font-Barlow text-sm font-medium justify-center items-center min-w-[42px] h-[42px] my-0 ml-[8px] rounded-[5px]"
-                                            [ngClass]="filterCount >0 ? 'bg-yellow ':'bg-primaryBg'"
+                                            [ngClass]="filterCount >0 ? 'bg-yellow ':'bg-primaryBg border border-solid border-yellow rounded-[5px]'"
                                             (click)="openFilterDialog()" 
                                             >
                                             <img [src]="filterCount>0 ? 'assets/svg-icons/filter-icon-active.svg':'assets/svg-icons/filter-icon.svg'"
@@ -368,7 +368,7 @@
                                     </div>
                                     <button (click)="calendarEventsOpen()"
                                         class="my-0 mx-[8px] w-[42px] h-[42px] flex justify-center items-center rounded-[5px]"
-                                        [ngClass]="isEventsOpened ?'text-[#453303] bg-yellow':'bg-primaryBg'">
+                                        [ngClass]="isEventsOpened ?'text-[#453303] bg-yellow':'bg-primaryBg border border-solid border-yellow rounded-[5px]'">
                                         @if (isEventsOpened) {
                                         <img src="assets/svg-icons/calendar-icon-black.svg" alt="">
                                         } @else {
@@ -385,7 +385,7 @@
                         <div class="mx-[20px]">
                             <mat-checkbox [(ngModel)]="isRefresh" (change)="onRefreshCheckboxChange($event)">Refresh List</mat-checkbox>
                         </div>
-                        <div *ngIf="loader" class="z-[1000000] absolute" id="loader"> <ngx-ui-loader></ngx-ui-loader>
+                        <div *ngIf="loader" class="z-[100000000] bottom-[80px] absolute" id="loader"> <ngx-ui-loader></ngx-ui-loader>
                         </div>
                         @if (viewType=='browse') {
                             <div class="flex flex-col  overflow-scroll" [ngStyle]="{'width': 'calc(100vh - {{{sidebarWidth}}}px)'}">

@@ -1550,8 +1550,9 @@ onCheckboxChange(row: any) {
 onRefreshCheckboxChange(e:any){
   if(e.checked){
     this.isRefresh = e.checked;
-    this.snackBar.open(`Refresh library is  ${this.isRefresh ? 'active':'disabled'}`, 'Ok', { duration: 2000 });
+    
   }
+  this.snackBar.open(`Refresh library is  ${e.checked ? 'active':'disabled'}`, 'Ok', { duration: 2000 });
 }
 
 //Time Zone Change
@@ -2029,6 +2030,16 @@ getOverlapData(){
   
   closeOverlay(){
     this.overlapListData = [];
+    setTimeout(() => {
+      this.setDynamicHeight();
+    window.addEventListener('resize', this.setDynamicHeight.bind(this))
+    const div = this.scrollableDiv?.nativeElement;
+    this.canTriggerAction = true
+    if (div) {
+      div.addEventListener('wheel', this.handleWheelEvent);
+    }
+    }, 0);
+    
   }
   holdbackRoundOf(value:number){
     const holdback = Math.floor(value/86400);

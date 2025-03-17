@@ -1467,7 +1467,7 @@ setDynamicHeight(): void {
     ].reduce((acc, el) => acc + (el ? el.offsetHeight : 0), 0);
   
     // Get the height of the viewport
-    const viewportHeight = window.innerHeight;
+    const viewportHeight = window.innerHeight-50;
     // Calculate the remaining height for the target div
     const remainingHeight = viewportHeight - totalHeight-146;
   

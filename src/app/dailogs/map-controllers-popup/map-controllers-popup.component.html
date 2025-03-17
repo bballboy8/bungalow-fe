@@ -363,9 +363,9 @@
         </div>
       </div>
       
-      <span class="w-[240px] relative group cursor-pointer max-h-[300px] flex justify-center items-center" (click)="imagePreview(data?.vendorData,'vendor')"
+      <span class="w-full relative group cursor-pointer max-h-[300px] flex justify-center items-center" (click)="imagePreview(data?.vendorData,'vendor')"
       >
-        <img class="max-h-[300px] w-full object-cover" [src]="data?.vendorData?.presigned_url"  />
+        <img class="max-h-[300px] w-full object-contain" [src]="data?.vendorData?.presigned_url"  />
         <div
             class="absolute inset-0 bg-black/70 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             <img src="assets/svg-icons/magnifying-icon.svg" alt="" srcset="">
@@ -382,7 +382,7 @@
      </div>
     <div class="flex items-center gap-[5px] self-stretch w-full font-Barlow">
       <div class="flex flex-col w-2/4 p-[8px] gap-[5px] flex-0 rounded-[3px] bg-primaryBg justify-center">
-        <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">GSD</span>
+        <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">GSD (m)</span>
         <div class="flex items-center gap-[15px] self-stretch w-full">
             <span class="flex-0 font-Barlow text-xs font-medium leading-[18px] text-secondaryText w-full break-words">{{roundOff(data?.vendorData?.gsd)}}m</span>         
         </div> 
@@ -414,7 +414,7 @@
     <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Centroid Local</span>
     <div class="flex items-center gap-[15px] self-stretch w-full">
         <span class="flex-0 group font-Barlow text-xs font-medium leading-[18px] line-clamp-1 text-secondaryText w-full break-words">{{data?.vendorData?.centroid_local}}
-          <span class="hidden group-hover:flex shadow-custom-light absolute p-[5px] bg-secondary-heiglight rounded-sm">{{data?.vendorData?.centroid_local}}</span>
+          <span class="hidden group-hover:flex shadow-custom-light absolute p-[5px] bg-primaryBg rounded-sm">{{data?.vendorData?.centroid_local}}</span>
         </span>         
     </div> 
   </div>
@@ -459,6 +459,29 @@
     <!-- </div> -->
   </div> 
   </div>    
+ 
+  <div class="flex items-center gap-[5px] self-stretch w-full font-Barlow">   
+    <div class="flex flex-col w-2/4 p-[8px] gap-[5px] flex-0 rounded-[3px] bg-primaryBg justify-center">
+      <!-- <div class="flex flex-col items-start gap-[5px] self-stretch"> -->
+      <span class="text-secondary-heiglight text-xs font-semibold">Centroid Lat:
+      </span>
+      <div class="flex gap-2">
+        <div class="flex gap-2" *ngFor="let center of data?.vendorData?.centroid">
+          <span class="text-secondaryText text-xs">{{center.toFixed(4)}}</span>
+        </div>
+      </div>
+      <!-- </div> -->
+    </div>
+    <div class="flex flex-col w-2/4 p-[8px] gap-[5px] flex-0 rounded-[3px] bg-primaryBg justify-center">
+      <!-- <div class="flex flex-col items-start gap-[5px] self-stretch"> -->
+      <span class="text-secondary-heiglight text-xs font-semibold">Holdback (d):
+      </span>
+      <div class="flex gap-2">
+        <span class="text-secondaryText text-xs">{{data?.vendorData.holdback_seconds ? holdbackRoundOf(data?.vendorData.holdback_seconds/86400):null}}</span>
+      </div>
+      <!-- </div> -->
+    </div>
+  </div>
   <div class="flex items-center gap-[5px] self-stretch w-full font-Barlow">
     <div
       class="flex w-2/4 p-[8px] gap-[10px] group relative flex-0 rounded-[3px] bg-primaryBg items-center justify-center">
@@ -491,28 +514,6 @@
       <span class="h-[15px] flex w-[15px] cursor-pointer">
         <img src="/assets/svg-icons/cloud-icon.svg" alt="" />
       </span>
-    </div>
-  </div>
-  <div class="flex items-center gap-[5px] self-stretch w-full font-Barlow">   
-    <div class="flex flex-col w-2/4 p-[8px] gap-[5px] flex-0 rounded-[3px] bg-primaryBg justify-center">
-      <!-- <div class="flex flex-col items-start gap-[5px] self-stretch"> -->
-      <span class="text-secondary-heiglight text-xs font-semibold">Centroid Lat:
-      </span>
-      <div class="flex gap-2">
-        <div class="flex gap-2" *ngFor="let center of data?.vendorData?.centroid">
-          <span class="text-secondaryText text-xs">{{center.toFixed(4)}}</span>
-        </div>
-      </div>
-      <!-- </div> -->
-    </div>
-    <div class="flex flex-col w-2/4 p-[8px] gap-[5px] flex-0 rounded-[3px] bg-primaryBg justify-center">
-      <!-- <div class="flex flex-col items-start gap-[5px] self-stretch"> -->
-      <span class="text-secondary-heiglight text-xs font-semibold">Holdback (d):
-      </span>
-      <div class="flex gap-2">
-        <span class="text-secondaryText text-xs">{{data?.vendorData.holdback_seconds ? holdbackRoundOf(data?.vendorData.holdback_seconds/86400):null}}</span>
-      </div>
-      <!-- </div> -->
     </div>
   </div>
   <div *ngIf="data.vendorData.nearest_site" class="flex flex-col items-start gap-[5px] self-stretch">

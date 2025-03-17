@@ -32,14 +32,14 @@ export class AppComponent implements OnInit, OnChanges, AfterViewInit {
   ngOnInit(): void {
     this.socketService.getMessages().subscribe((msg)=>{
       console.log("jkdsnkjsdvds", msg)
-      if(msg.type === "new_records"){
+      if(msg.type === "new_records" && msg.new_updates>0){
         this.showRefreshInfo = true;
         this.message = msg
         setTimeout(()=>{
           this.showRefreshInfo = false;
           this.message = null
         },60000)
-      } else if(msg.type === "site_update") {
+      } else if(msg.type === "site_update" && msg.new_updates>0) {
         this.siteNotification = true;
         this.siteUpdateInfo = msg
         setTimeout(()=>{

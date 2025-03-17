@@ -168,6 +168,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
     { id: 'gsd', displayName: 'Resolution', visible: true },
     { id: 'holdback_seconds', displayName: 'Holdback', visible: true },
     { id: 'type', displayName: 'Type', visible: true },
+    { id: 'is_purchased', displayName: 'Purchase', visible: true },
     { id: 'vendor_id', displayName: 'ID', visible: true },
   ];
   
@@ -204,6 +205,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   overlapListData:any=[];
   idArray:string[]=[""]
   filterParams:any;
+  isDialogOpen: boolean = false;
 
   defaultFilter() {
     return {
@@ -807,6 +809,8 @@ set zoomed_wkt(value: string) {
     })
     this.sharedService.overlayShapeData$.subscribe((overlayShapeData) => {
       if(overlayShapeData?.length>1){
+        console.log(overlayShapeData,'overlayShapeDataoverlayShapeDataoverlayShapeDataoverlayShapeData');
+        
        this.idArray = overlayShapeData.map((record) => record.id)?.join(',');
 
         let minCloud
@@ -995,6 +999,7 @@ set zoomed_wkt(value: string) {
   closeLibraryDrawer() {
     this.closeDrawer.emit(true);
     this.sharedService.setIsOpenedEventCalendar(false);
+    this.closeOverlay()
   }
 
   /** Selects all rows if they are not all selected; otherwise clear selection. */
@@ -1714,6 +1719,8 @@ getDateTimeFormat(dateTime: string) {
 
   //Open Map Controller Popup
   openDialog(vendorId:any){
+    if (this.isDialogOpen) return;
+    this.isDialogOpen = true;
     //calling API by vendorID
     let vendorData:any [] = [];
     let queryParams ={
@@ -1728,23 +1735,29 @@ getDateTimeFormat(dateTime: string) {
       next: (resp) => {
         if (resp?.data && resp.data.length > 0) {
           vendorData = resp.data[0];
+          this.sharedService.setVendorData(vendorData);
+          this.isDialogOpen = false;
           // Open the dialog after setting vendorData
-          const dialogRef = this.dialog.open(MapControllersPopupComponent, {
-            width: `280px`,
-            height: 'auto',
-            data: { type: 'vendor', vendorData: vendorData },
-            panelClass: 'custom-dialog-class',
-          });
+          // const dialogRef = this.dialog.open(MapControllersPopupComponent, {
+          //   width: `300px`,
+          //   height: 'auto',
+          //   data: { type: 'vendor', vendorData: vendorData },
+          //   panelClass: 'custom-dialog-class',
+          //   position: { top: '50px', right: '0px' }
+          // });
   
-          dialogRef.afterClosed().subscribe((result) => {
-            this.popUpData = null;
-          });
+          // dialogRef.afterClosed().subscribe((result) => {
+          //   this.popUpData = null;
+          //   this.isDialogOpen = false;
+          // });
         } else {
           console.log('No data found for the given vendor ID');
+          this.isDialogOpen = false;
         }
       },
       error: (err) => {
         console.error('API call failed', err);
+        this.isDialogOpen = false;
       }
     });
     
@@ -1971,6 +1984,29 @@ getOverlapData(){
     
   }
 
+  expandRow(vendorId: any) {
+    const foundRow = this.dataSource.data.find(v => v.vendor_id === vendorId);
+  
+    if (foundRow) {
+      this.expandedElement = this.expandedElement?.vendor_id === vendorId ? null : foundRow;
+  
+      setTimeout(() => {
+        const rowElement = document.getElementById(`vendor-row-${vendorId}`);
+        const tableContainer = document.querySelector('.mat-table-container') as HTMLElement; // Cast to HTMLElement
+  
+        if (rowElement && tableContainer) {
+          const rowPosition = rowElement.offsetTop - tableContainer.offsetTop;
+          tableContainer.scrollTo({ top: rowPosition, behavior: 'smooth' });
+        }
+      }, 100); // Delay for smooth effect
+    }
+  }
+  
+  
+  
+  closeOverlay(){
+    this.overlapListData = [];
+  }
   holdbackRoundOf(value:number){
     const holdback = Math.floor(value/86400);
     if (holdback > 40 || !value) {

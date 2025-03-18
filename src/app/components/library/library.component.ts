@@ -226,6 +226,8 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
       this._startDate = value;
       let queryParams = {...this.filterParams, 
         start_date: this._startDate,
+        source: 'library',
+        focused_records_ids: this.idArray,
         end_date: this._endDate};
       const payload = {
         wkt_polygon: this.polygon_wkt,

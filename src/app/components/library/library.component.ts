@@ -239,6 +239,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
         page_size: '100',
         start_date: this._startDate,
         source: 'library',
+        focused_records_ids: this.idArray,
         end_date: this._endDate};
         
       const payload = {

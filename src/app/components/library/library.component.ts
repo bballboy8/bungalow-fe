@@ -827,7 +827,7 @@ set zoomed_wkt(value: string) {
       }));
     }
     
-    if(!this.isRefresh){
+    if(!this.isRefresh && !this.sharedService.libraryData()){
       const payload = {
         wkt_polygon: this.polygon_wkt,
         original_polygon:this.original_wkt
@@ -846,6 +846,15 @@ set zoomed_wkt(value: string) {
     this.page_number = '1';
     this.filterParams = {...queryParams}
       this.getSatelliteCatalog(payload, queryParams);
+    } else {
+      this.loader = true;
+      this.ngxLoader.start(); 
+      this.selectedZone = this.sharedService.selectedTimeZone()
+      console.log(this.sharedService.libraryColumns(),'libraryColumnslibraryColumnslibraryColumnslibraryColumnslibraryColumns');
+      
+      this.getSignalValues()
+      this.loader = false;
+      this.ngxLoader.stop();
     }
   }
 

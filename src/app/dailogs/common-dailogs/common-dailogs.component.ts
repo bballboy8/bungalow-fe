@@ -515,4 +515,18 @@ vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra']
     this.snackBar.open(`File successfully removed`, 'Ok', { duration: 2000 });
     
   }
+
+  uploadFile(){
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = reader.result as string;
+      console.log(text,'filefilefilefilefilefile');
+      // this.processCsvData(text);
+    };
+    
+    
+
+    reader.readAsText(this.file);
+    console.log(reader.readAsText(this.file),'filefilefilefilefilefile');
+  }
 }

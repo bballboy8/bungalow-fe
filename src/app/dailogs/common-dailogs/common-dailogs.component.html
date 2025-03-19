@@ -164,7 +164,7 @@
 
         <div class="flex justify-between">
             <span class="text-base text-secondaryText font-semibold">Upload CSV Sites</span>
-            <img class="h-[20px] w-[20px]" (click)="closeDialog()" src="assets/svg-icons/close-icon.svg" />
+            <img class="h-[20px] w-[20px] cursor-pointer" (click)="closeDialog()" src="assets/svg-icons/close-icon.svg" />
         </div>
         @if (file !==null){
             <div class="flex items-center flex-col gap-[10px] cursor-pointer">
@@ -192,8 +192,8 @@
             
         }
         <div class="flex justify-center gap-[10px]">
-            <span class="text-sm text-yellow px-[25px] py-[10px] border border-solid border-yellow rounded-md" (click)="closeDialog()">Close</span>
-            <span class="text-sm text-secondary-heiglight bg-yellow px-[25px] py-[10px] rounded-md">Save</span>
+            <span class="text-sm cursor-pointer text-yellow px-[25px] py-[10px] border border-solid border-yellow rounded-md" (click)="closeDialog()">Close</span>
+            <span class="text-sm cursor-pointer text-secondary-heiglight bg-yellow px-[25px] py-[10px] rounded-md" (click)="uploadFile()">Save</span>
         </div>
         
     </div>

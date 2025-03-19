@@ -882,4 +882,10 @@ export class GroupsComponent implements OnInit,AfterViewInit {
     clearTooltipPosition(day: any): void {
       delete this.tooltipPosition[day.date];
     }
+
+    //CSV sites upload functionality
+    siteUpload(type,group){
+      const data = {type:type, group:group}
+      this.openDialog(data)
+    }
 }

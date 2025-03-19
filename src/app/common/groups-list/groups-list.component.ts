@@ -855,4 +855,9 @@ export class GroupsListComponent {
          }
         })
        }
+
+       siteUpload(type,group){
+        const data = {type:type, group:group}
+        this.openDialog(data)
+      }
 }

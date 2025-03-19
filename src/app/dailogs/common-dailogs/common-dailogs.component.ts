@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, Inject, OnInit, QueryList, Renderer2, ViewChildren } from '@angular/core';
+import { Component, ElementRef, inject, Inject, OnInit, QueryList, Renderer2, ViewChildren } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -9,6 +9,7 @@ import { LabelType, NgxSliderModule, Options } from '@angular-slider/ngx-slider'
 import { MatSelectModule } from '@angular/material/select';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-common-dailogs',
@@ -158,6 +159,8 @@ vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra']
   };
   @ViewChildren('sliderElement') sliderElements!: QueryList<ElementRef>;
   sliderShow:boolean = false;
+  file:any =null;
+  private snackBar = inject(MatSnackBar);
   constructor(@Inject(MAT_DIALOG_DATA) public data: any,
    private satelliteService:SatelliteService,
    private fb: FormBuilder,
@@ -481,5 +484,35 @@ vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra']
 
   closeDialog(){
     this.dialogRef.close()
+  }
+  onFileChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+       this.file = input.files[0];
+      const reader = new FileReader();
+
+      reader.onload = (e) => {
+        const text = reader.result as string;
+        // this.processCsvData(text);
+      };
+      console.log(this.file,'filefilefilefilefilefile');
+      
+
+      reader.readAsText(this.file);
+    }
+  }
+
+  convertSize(bytes: number): string {
+    const kb = bytes / 1024;
+    if (kb < 1024) {
+      return `${kb.toFixed(2)} KB`;
+    }
+    return `${(kb / 1024).toFixed(2)} MB`;
+  }
+
+  removeFile(){
+    this.file = null;
+    this.snackBar.open(`File successfully removed`, 'Ok', { duration: 2000 });
+    
   }
 }

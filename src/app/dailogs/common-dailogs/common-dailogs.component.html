@@ -159,6 +159,44 @@
             </div>
         </form>
     </div>
+} @else if (data?.type == "uploadSite") {
+    <div class="bg-primaryBg font-Barlow flex flex-col gap-[25px] p-5">
+
+        <div class="flex justify-between">
+            <span class="text-base text-secondaryText font-semibold">Upload CSV Sites</span>
+            <img class="h-[20px] w-[20px]" (click)="closeDialog()" src="assets/svg-icons/close-icon.svg" />
+        </div>
+        @if (file !==null){
+            <div class="flex items-center flex-col gap-[10px] cursor-pointer">
+                <span class="flex justify-center relative">
+                    <img class="h-[20px] w-[20px] absolute -right-[6px] -top-[6px]" (click)="removeFile()" src="assets/svg-icons/close-icon.svg" />
+                    <img class="w-[50px] h-[50px]" src="assets/svg-icons/csv-file-icon.svg" alt="" />
+                </span>
+                <div class="flex gap-[10px] items-center w-4/5">
+                <span class="text-sm text-secondaryText font-medium">File Name:</span>
+                <span class="text-sm text-secondaryText font-medium line-clamp-1 w-[155px]">{{file?.name}}</span>
+                </div>
+                <div class="flex gap-[10px] items-center w-4/5">
+                <span class="text-sm text-secondaryText font-medium w-[66px]">File Size:</span>
+                <span class="text-sm text-secondaryText font-medium">{{convertSize(file.size)}}</span>
+                </div>
+            </div>
+        } @else {
+            <input type="file" #fileInput (change)="onFileChange($event)" accept=".csv" hidden />
+            <div class="flex items-center flex-col cursor-pointer" (click)="fileInput.click()">
+                <span class="flex justify-center">
+                    <img class="w-[50px] h-[50px]" src="assets/svg-icons/file-upload-icon.svg" alt="" />
+                </span>
+                <span class="text-sm text-yellow font-medium">Upload CSV File</span>
+            </div>
+            
+        }
+        <div class="flex justify-center gap-[10px]">
+            <span class="text-sm text-yellow px-[25px] py-[10px] border border-solid border-yellow rounded-md" (click)="closeDialog()">Close</span>
+            <span class="text-sm text-secondary-heiglight bg-yellow px-[25px] py-[10px] rounded-md">Save</span>
+        </div>
+        
+    </div>
 } @else {
     <div class="bg-primaryBg"  id="delete">
         <div class="p-[15px] flex flex-col gap-[15px]">

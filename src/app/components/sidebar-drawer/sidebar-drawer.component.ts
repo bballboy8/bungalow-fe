@@ -30,7 +30,6 @@ export class SidebarDrawerComponent implements OnInit {
   set popUpData(value: any) {
     if (value !== this._popUpData) {
       this._popUpData = value;
-      console.log('_popUpData _popUpData _popUpData:', this._popUpData);
       // Add logic to handle the updated value, e.g., update calculations or UI
     }
   }
@@ -38,7 +37,6 @@ export class SidebarDrawerComponent implements OnInit {
   set shapeHoverData(value: any) {
     if (value !== this._popUpData) {
       this._shapeHoverData = value;
-      console.log('_popUpData _popUpData _popUpData:', this._popUpData);
       // Add logic to handle the updated value, e.g., update calculations or UI
     }
   }
@@ -56,7 +54,6 @@ export class SidebarDrawerComponent implements OnInit {
   set startDate(value: any) {
     if (value !== this._startDate) {
       this._startDate = value;
-      console.log('startDate updated:', this._startDate);
       // Add logic to handle the updated value, e.g., update calculations or UI
     }
   }
@@ -69,7 +66,6 @@ export class SidebarDrawerComponent implements OnInit {
   set endDate(value: any) {
     if (value !== this._endDate) {
       this._endDate = value;
-      console.log('endDate updated:', this._endDate);
       // Add logic to handle the updated value, e.g., validate the date range
     }
   }
@@ -80,7 +76,6 @@ export class SidebarDrawerComponent implements OnInit {
   @Output() rowHoveredData: EventEmitter<any> = new EventEmitter();
   // @Input() zoomed_wkt:any ='';
   ngOnInit(): void {
-    console.log(this.type,'qqqqqqqqqqqqqqqqqqqqqqqqqqqq');
     
     // console.log(this.zoomed_wkt,'polygon_wktpolygon_wkt');
     
@@ -92,10 +87,8 @@ export class SidebarDrawerComponent implements OnInit {
 set zoomed_wkt(value: string) {
   if (value !== this._zoomed_wkt) {
     this._zoomed_wkt = value;
-    console.log('zoomed_wkt updated:', this._zoomed_wkt);
     // Add logic to handle the updated value, e.g., redraw shapes
   }
-  console.log('valuevaluevaluevaluevalue', value);
 }
 
 get zoomed_wkt(): string {

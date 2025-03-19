@@ -11,6 +11,7 @@ import {
   Renderer2,
   ChangeDetectorRef,
   HostListener,
+  effect,
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -188,19 +189,44 @@ hybridLayer:L.TileLayer = L.tileLayer(
   )
   {
     this.data = null;
+    effect(() => {
+      const refreshInfo =  this.sharedService.refreshList()
+   console.log(refreshInfo,'refreshInforefreshInforefreshInforefreshInfo');
+   
+   if(refreshInfo){
+       let queryParams ={
+        ...this.filterParams,
+        page_number: '1',
+        page_size: '50',
+        start_date:this.startDate,
+        end_date: this.endDate
+      }
+       this.shapeLoader = true;
+       this.ngxLoader.startLoader('shapesLoader');
+      const payload = {
+       wkt_polygon:this.polygon_wkt,
+       original_polygon:this.originalPolygon
+      }
+       this.getDataUsingPolygon(payload,queryParams);
+   }
+    });
+   
   }
 
 
   ngOnInit(): void {
     this.setDynamicHeight();
     window.addEventListener('resize', this.setDynamicHeight.bind(this))
+    this.sharedService.vendorData$.subscribe((data) => {
+      this.vendorData = data;
+    });
   }
 
   ngAfterViewInit(): void {
-    if (isPlatformBrowser(this.platformId)) {
+    // if (isPlatformBrowser(this.platformId)) {
         this.initMap();
         
-    }
+    // }
     
     
     this.sharedService.isOpenedEventCalendar$.subscribe((state) => {
@@ -284,9 +310,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
             })
             
             // this.leftMargin2
-            // console.log( `${event.rect.width}px`,' `${event.rect.width}px`');
             
-            // console.log(this.leftMargin2,'this.leftMargin2');
             // this.updateMapMargin();
             // target.style.height = `${event.rect.height}px`;
             target.style.height = `682.575px`;
@@ -557,7 +581,6 @@ hybridLayer:L.TileLayer = L.tileLayer(
   
     // Add zoom change listener
     // this.map.on('zoomend', () => {
-    //   console.log('Zoom changed:', this.map.getZoom());
     //   this.zoomLevel = this.map.getZoom();
     //   if (this.map.getZoom() < 4) {
     //     this.map.setZoom(4); // Prevent zooming out below the minimum level
@@ -571,7 +594,6 @@ hybridLayer:L.TileLayer = L.tileLayer(
     //      const wkt = this.boundsToWKT(bounds);
  
     //      // Log the WKT string of the zoomed polygon
-    //      console.log('WKT of the zoomed polygon:', wkt);
     // }
     // });
 
@@ -937,7 +959,6 @@ private fallbackCopyToClipboard(text: string): void {
         this.isProgrammaticMove = true;  // Set the flag before programmatic move
         drawHandler.enable();
         this.drawHandler = drawHandler; // Store the handler for later use
-
         // Add an event listener for when the shape is created
         this.map.on(L.Draw.Event.CREATED, (event: any) => {
             const layer = event.layer; // The drawn layer
@@ -950,6 +971,7 @@ private fallbackCopyToClipboard(text: string): void {
               //  this.zoomed_wkt_polygon = ''
               //  this.closeDrawer()
               this.sharedService.setDrawShape(true);
+              this.sharedService.shapeDrawStatus.set(true)
                this.removeAllImageOverlays();
                const orginalCords = this.latLngBoundsToPolygon(bounds)
               this.getPolygonFromCoordinates({ geometry: geoJSON?.geometry }, orginalCords);
@@ -976,9 +998,11 @@ private fallbackCopyToClipboard(text: string): void {
               this.handleDropdownToggle(this.isDrawerOpen)
               this.drawer._animationState = 'open';
                this.removeAllImageOverlays()
-               const orginalCords = this.latLngBoundsToPolygon(bounds)
+               const orginalCords = this.latLngBoundsToPolygon(bounds);
+               
               this.getPolygonFromCoordinates({ geometry: geoJSON?.geometry }, orginalCords);
               setTimeout(() => {
+                this.sharedService.shapeDrawStatus.set(true)
                 this.sharedService.setDrawShape(false)
                 this.map.fitBounds(bounds, {
                     padding: [10, 10], // Adds padding around the bounds
@@ -996,13 +1020,14 @@ private fallbackCopyToClipboard(text: string): void {
               this.handleDropdownToggle(this.isDrawerOpen)
               this.drawer._animationState = 'open';
                this.removeAllImageOverlays();
+               this.sharedService.shapeDrawStatus.set(true)
                const orginalCords = this.latLngBoundsToPolygon(bounds)
-               console.log(geoJSON.geometry,'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',orginalCords);
                
               this.getPolygonFromCoordinates({ geometry: geoJSON?.geometry }, orginalCords);
              
               setTimeout(() => {
                 this.sharedService.setDrawShape(false)
+                
                 this.map.fitBounds(bounds, {
                     padding: [50, 50], // Adds padding around the bounds
                     maxZoom: 16        // Caps the zoom level
@@ -1055,6 +1080,9 @@ private fallbackCopyToClipboard(text: string): void {
 
   //Getting the polygon from cordinates functionality
   getPolygonFromCoordinates(payload:{geometry:{type:string,coordinates:any[]}},bound:any,  isLoadFirstTime = false) {
+    if(this.map) {
+      this.map.setZoom(4)
+    }
     const  updatedPayload = this.normalizePayloadCoordinates(payload);
     const customPayload = {
       geometry:bound,
@@ -1071,6 +1099,8 @@ private fallbackCopyToClipboard(text: string): void {
       next: (resp) => {
         this.polygon_wkt = resp?.data?.wkt_polygon;
         if (isLoadFirstTime) {
+          console.log('wwwwwwwwwwwwwww');
+          
           this.zoomed_wkt_polygon = this.polygon_wkt;
         }
         // if(resp?.data?.area>=100000000){
@@ -1081,9 +1111,9 @@ private fallbackCopyToClipboard(text: string): void {
           if (this.startDate === '' && this.endDate === '') {
             // Start of the previous day
             this.startDate = dayjs().utc().subtract(1, 'day').startOf('day').format('YYYY-MM-DDTHH:mm:ss.SSSSSSZ');
-            
+                        
             // End of the previous day
-            this.endDate = dayjs().utc().subtract(1, 'day').endOf('day').format('YYYY-MM-DDTHH:mm:ss.SSSSSSZ');
+            this.endDate = dayjs().utc().endOf('day').format('YYYY-MM-DDTHH:mm:ss.SSSSSSZ');
             
           }
           let queryParams ={
@@ -1209,8 +1239,6 @@ getMapNumber(lon) {
           this.bbox = this.getBoundingBox(this.map);
           this.minMap = this.getMapNumber(this.bbox.minLon);
           this.maxMap = this.getMapNumber(this.bbox.maxLon);
-
-          console.log("minMap maxMap",this.minMap,  this.maxMap  );
           
           
           resp.data.forEach((item: any) => {
@@ -1265,7 +1293,6 @@ getMapNumber(lon) {
   }
   // Function to add the polygon and its metadata
   private addPolygonWithMetadata(data: any): void {
-    console.log("this.mapFormulathis.mapFormulathis.mapFormula", this.mapFormula);
     
   
     // For each coordinate in the polygon, adjust the longitude based on viewport
@@ -1389,7 +1416,8 @@ polygon.on('click', (event: L.LeafletMouseEvent) => {
             this.sharedService.setVendorData(this.vendorData)
             this.onPolygonOut(null)
             // this.openDialogAtPosition(polygon, vendorData);
-            this.popUpData = vendorData
+            //Library table checbox check data
+            // this.popUpData = vendorData
 
         },
         error: (err) => {
@@ -1507,6 +1535,11 @@ renderFootprints(footprints) {
 }
 
 onFilterset(data) {
+  this.removeAllImageOverlays()
+  this.sharedService.setOverlayShapeData(null)
+  if(this.map){
+    this.map.setZoom(4)
+  }
   this.filterParams = data.params;
   data.params = {...data.params, source: 'home',  page_number: '1', page_size: '50'}
   this.getDataUsingPolygon(data.payload,  data.params);
@@ -1740,9 +1773,7 @@ handleAction(action: string): void {
 
   private getlatlngNormalized(lat: number, lng: number) {
     // Normalize longitude to [-180, 180]
-    console.log("Original lng:", lng);
     const normalizedLongitude = ((lng + 180) % 360 + 360) % 360 - 180;
-    console.log("Normalized lng:", normalizedLongitude);
   
     // Clamp latitude to [-90, 90]
     const normalizedLatitude = Math.max(-90, Math.min(90, lat));
@@ -2495,7 +2526,6 @@ layercalculateVisibleWKT(): void {
   let drawLayerBounds: L.LatLngBounds | null = this.drawLayer.getBounds();
 
   if (!drawLayerBounds || !drawLayerBounds.isValid()) {
-    console.warn('Draw layer bounds are invalid. Falling back to polygon bounds.');
     drawLayerBounds = this.polygon.getBounds();
   }
 
@@ -2714,6 +2744,23 @@ wktToBounds(wkt: string): L.LatLngBounds {
         } else {
           this.extraShapesLayer?.clearLayers()
         }
+  }
+
+  calendarData(payload,queryParams,state){
+    this.satelliteService.getPolygonCalenderDays(payload,queryParams).subscribe({
+      next: (resp) => {
+        this.ngxLoader.stop()
+        this.calendarApiData = resp.data;
+        this.OpenEventCalendar = state
+      },
+      error: (err) => {
+        this.ngxLoader.stop()
+        console.error('Error fetching calendar data', err);
+        // Hide loader on error
+         
+      },
+      
+    });
   }
 
 }

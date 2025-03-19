@@ -2,6 +2,7 @@ import {
   AfterViewInit,
   ChangeDetectorRef,
   Component,
+  effect,
   ElementRef,
   EventEmitter,
   Input,
@@ -32,8 +33,6 @@ import { MatMenuModule, MatMenuTrigger } from "@angular/material/menu";
 import { DaterangepickerDirective, NgxDaterangepickerMd } from "ngx-daterangepicker-material";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import { startWith } from "rxjs";
-import { error } from "console";
 import { animate, state, style, transition, trigger } from "@angular/animations";
 import {MatIconModule} from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
@@ -140,6 +139,24 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
     private cd: ChangeDetectorRef
    
   ) {
+    effect(() => {
+      const imageryData = this.sharedService.imageryData();
+      const imagertFilter = this.sharedService.imageryFilter();
+      if (imageryData.length !== null) {
+        this.dataSource.data = imageryData;
+        this.originalData = [...this.dataSource.data];
+        console.log(imageryData, 'Shared Service Data Updated');
+        console.log(this.sharedService.imageryFilter(),'imageryFilterimageryFilterimageryFilterimageryFilter');
+        
+      }
+      if(imagertFilter!==null&& imagertFilter.filterParams!== null){
+        this.filterParams = imagertFilter.filterParams;
+        this.filterCount  = imagertFilter.filterCount;
+        this.start_date = imagertFilter.filterParams.start_date;
+        this.end_date = imagertFilter.filterParams.end_date;
+        this.vendor.patchValue(imagertFilter.filterParams.vendor_name.split(',')) 
+      }
+    });
   }
 
   initializeDates() {
@@ -154,23 +171,34 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
 
 
   toggleRow(element: any) {
-    console.log("elementelement", element);
     
     element.records && element.records?.length ? (this.expandedElement = this.expandedElement === element ? null : element) : null;
     // this.cd.detectChanges();
   }
 
   ngOnInit(): void {
-    console.log(this.maxDate, "sssssssssssssssss");
     this.maxDate = this.maxDate.format("YYYY-MM-DD HH:mm [UTC]");
     this.minDate = this.minDate.format("YYYY-MM-DD HH:mm [UTC]");
     this.filterParams = { ...this.defaultFilter() };
-    let queryParams = {
-      ...this.filterParams,
-      page_number: 1,
-      page_size: this.page_size,
-    };
-    this.getImageryCollection(queryParams);
+    if(this.sharedService.imageryData() == null) {
+    //   this.dataSource.data = this.sharedService.imageryData();
+    //   this.originalData = [...this.dataSource.data]
+    // console.log(this.sharedService.imageryData(),'sharedServicesharedServicesharedService');
+
+    
+      let queryParams = {
+        ...this.filterParams,
+        page_number: 1,
+        page_size: this.page_size,
+      };
+      this.getImageryCollection(queryParams);
+    }
+    console.log(this.maxDate, "sssssssssssssssss");
+    this.maxDate = this.maxDate.format("YYYY-MM-DD HH:mm [UTC]");
+    this.minDate = this.minDate.format("YYYY-MM-DD HH:mm [UTC]");
+    
+    
+    
   }
 
   ngAfterViewInit(): void {
@@ -190,17 +218,16 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
 
   //Get Imagery Collection histroy data
   getImageryCollection(queryParams: any) {
-    console.log(queryParams, "queryParamsqueryParamsqueryParamsqueryParams");
 
     this.satelliteService.getCollectionHistory(queryParams).subscribe({
       next: (resp) => {
-        console.log(resp, "resprespresprespresprespresprespresprespresp");
         this.dataSource.data = resp.data.records
         // .map((item, idx) => ({
         //   ...item,
         //   index: idx,
         // }));
         this.originalData = [...this.dataSource.data];
+        this.sharedService.imageryData.set(resp.data.records)
         this.total_count = resp.data.total_records;
       },
     });
@@ -216,7 +243,6 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
     // Detect if at the bottom
     const isAtBottom =
       div.scrollTop + div.clientHeight + 150 >= div.scrollHeight;
-    console.log(isAtBottom, "isAtBottomisAtBottomisAtBottom");
 
     // Only trigger if at the bottom and trying to scroll down
     if (isAtBottom && event.deltaY > 0 && this.canTriggerAction) {
@@ -224,7 +250,7 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
         this.isAtBottom = true; // Lock the event trigger
         let num = this.page_number;
         this.page_number = num + 1;
-        if (this.dataSource.data.length < this.total_count) {
+        
           let queryParams = {
             ...this.filterParams,
             page_number: this.page_number,
@@ -242,7 +268,7 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
           });
           this.loader = true;
           // this.ngxLoader.start(); // Start the loader
-        }
+        
         setTimeout(() => {
           this.setDynamicHeight();
           window.addEventListener("resize", this.setDynamicHeight.bind(this));
@@ -271,7 +297,6 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
 
     // Get the height of the viewport
     const viewportHeight = window.innerHeight;
-    console.log("viewportHeightviewportHeightviewportHeight", totalHeight);
 
     // Calculate the remaining height for the target div
     const remainingHeight = viewportHeight - totalHeight - 126;
@@ -310,11 +335,6 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    console.log(
-      activeColumn,
-      "activeColumnactiveColumnactiveColumn",
-      direction
-    );
 
     let queryParams: any = this.filterParams;
 
@@ -378,60 +398,59 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
 
     // const datetime = this.formGroup.value.end_date;
     // const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    console.log(
-      this.start_date,
-      "start_datestart_datestart_datestart_datestart_datestart_date",
-      this.end_date
-    );
      
-
-      
-      console.log(this.vendor.value,'vendorvendorvendorvendorvendorvendorvendor');
 
       // Check vendor filter
       const newVendorValue = this.vendor?.value?.length > 0 ? this.vendor.value.join(',') : null;
       if (newVendorValue !== this.filterParams.vendor_name) {
+        console.log(newVendorValue,'newVendorValuenewVendorValuenewVendorValuenewVendorValue');
+        
         this.filterParams = {
           ...this.filterParams,
-          vendor_name: newVendorValue,
+          vendor_name: newVendorValue == null? '' : newVendorValue,
         };
-        this.filterCount++;
+       newVendorValue !==null? this.filterCount++:this.filterCount--;
       }
       
       // Check start_date filter
       if (this.start_date.startDate !== null) {
-        console.log('Start Date Applied');
         
-        const formattedStartDate = dayjs(this.start_date.startDate).utc().format('YYYY-MM-DDTHH:mm:ss.SSSSSSZ');
+        const formattedStartDate = dayjs(this.start_date ?this.start_date:this.start_date.startDate)
+        .startOf('day') // Sets time to 00:00:00.000
+        .utc()
+        .format('YYYY-MM-DDTHH:mm:ss.SSSSSS');
       
         if (this.filterParams.start_date !== formattedStartDate) {
+          !this.filterParams.start_date ? this.filterCount++: '';
           this.filterParams = {
             ...this.filterParams,
             start_date: formattedStartDate,
           };
-          this.filterCount++;
+          
         }
       }
       
       // Check end_date filter
       if (this.end_date.endDate !== null) {
-        console.log('End Date Applied');
         
-        const formattedEndDate = dayjs(this.end_date.endDate).utc().format('YYYY-MM-DDTHH:mm:ss.SSSSSSZ');
+        const formattedEndDate = dayjs(this.end_date?this.end_date:this.end_date.endDate)
+        .endOf('day') // Sets time to 23:59:59.999
+        .utc()
+        .format('YYYY-MM-DDTHH:mm:ss.SSSSSS');
       
         if (this.filterParams.end_date !== formattedEndDate) {
+          !this.filterParams.end_date ? this.filterCount++: '';
           this.filterParams = {
             ...this.filterParams,
             end_date: formattedEndDate,
           };
-          this.filterCount++;
+         
         }
       }
       
       // Add pagination params
       
       // Log the number of applied filters
-      console.log('Total Applied Filters:', this.filterCount);
       
 
     const params = {
@@ -441,7 +460,8 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
     };
 
     this.filterParams = { ...params };
-    if(this.filterParams.start_date || this.filterParams.end_date || this.filterParams.vendor_name){
+    this.sharedService.imageryFilter.set({filterParams:this.filterParams,filterCount:this.filterCount}, )
+    if(this.filterParams.start_date || this.filterParams.end_date || this.filterParams.vendor_name || newVendorValue==null) {
     setTimeout(() => {
       this.loader = true;
       // this.ngxLoader.start(); // Start the loader
@@ -453,7 +473,6 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
 
   //Filter menu close button
   closeFilterMenu() {
-    console.log("closseeeee", this.menuFilterTrigger);
 
     if (this.menuFilterTrigger) {
       this.menuFilterTrigger.closeMenu();
@@ -461,13 +480,11 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
   }
 
   onStartDateChange(event) {
-    console.log('Start Date Changed:', event);
     
     if (event.startDate) {
      let date = dayjs(event.startDate).utc().startOf('day'); // Force start of day
       
       let today = dayjs().utc().startOf('day');
-      console.log(date,'datedatedatedatedatedatedate');
       
       // If start date is today, end date = current time, else set to 23:59
     this.start_date=date.isSame(today, 'day') ? dayjs().utc(): date.startOf('day')
@@ -477,7 +494,6 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
 
   //On End Date Change function
   onEndDateChange(event) {
-    console.log('End Date Changed:', event);
     
     if (event.endDate) {
       let selectedEndDate = dayjs(event.endDate).utc();
@@ -486,14 +502,12 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
         this.end_date = null
         return console.error('End Date must be after Start date')
       } else if (selectedEndDate.isSame(dayjs().utc(), 'day')) {
-        console.log('End Date is today, setting current time');
         this.end_date = dayjs().utc()
       //  return this.formGroup.get('end_date').setValue(dayjs().utc())
       } else {
         
         this.end_date = dayjs(selectedEndDate).utc().endOf('day')
         // this.formGroup.get('end_date').setValue(dayjs(selectedEndDate).utc().endOf('day'));
-        console.log('eeeeeeeeee',this.end_date);
       }
     }
   }
@@ -509,6 +523,7 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
       page_size : 50
     }
     this.filterParams = queryParams
+    this.sharedService.imageryFilter.set({filterParams:this.filterParams,filterCount:this.filterCount}, )
     this.getImageryCollection(queryParams)
   }
 

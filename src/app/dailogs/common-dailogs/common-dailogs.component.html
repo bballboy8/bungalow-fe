@@ -101,7 +101,7 @@
             <div class="flex-col gap-2 custom-slider col-span-1"
                 (click)="$event.stopPropagation()">
                 
-                <mat-label class="!text-secondaryText text-xs">Holdback (h)</mat-label>
+                <mat-label class="!text-secondaryText text-xs">Holdback (d)</mat-label>
                 <ngx-slider *ngIf="sliderShow" #sliderElement
                     [(value)]="min_holdback_seconds" [(highValue)]="max_holdback_seconds"
                     [options]="holdbackOptions"
@@ -135,6 +135,14 @@
                     (click)="$event.stopPropagation()" #sliderElement
                     [(value)]="min_gsd" [(highValue)]="max_gsd"
                     [options]="gsd_options"></ngx-slider>
+            </div>
+            <div class="flex gap-3 justify-start col-span-2">
+                <mat-checkbox
+                    class="text-secondaryText text-base font-Barlow font-medium"
+                    [checked]="isPurchased" (change)="isPurchased = $event.checked"
+                    >
+                    Is purchased
+                </mat-checkbox>
             </div>
            
             <div class="flex gap-3 justify-center col-span-2">

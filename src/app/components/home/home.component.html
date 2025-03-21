@@ -66,7 +66,7 @@
         class="map h-full !w-fill-available"
         [ngClass]="{
           'z-0': isGoogleLayerActive !== 'OpenStreetMapDark' && isGoogleLayerActive !== 'GoogleStreetMapDark',
-          'opacity-50': isGoogleLayerActive === 'OpenStreetMapDark' || isGoogleLayerActive === 'GoogleStreetMapDark',
+          '': isGoogleLayerActive === 'OpenStreetMapDark' || isGoogleLayerActive === 'GoogleStreetMapDark',
         }" 
          [ngStyle]="{ 'margin-left.px': sidebarWidth -marginleft}"             
       ></div>
